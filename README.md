@@ -1,3 +1,5 @@
+Copyright Webdoc Inc. 2012, all rights reserved
+
 urturn-expression-api
 =====================
 
