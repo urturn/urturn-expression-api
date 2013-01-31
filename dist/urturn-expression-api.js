@@ -107,7 +107,7 @@ UT.Expression = (function(){
       }
       catch (exception) {
           if (console && console.error) {
-              console.error("receive invalid message", msg, exception.message) ;
+              console.error("receive invalid message", e.data, exception.message) ;
           }
           msgObj = {};
       }
