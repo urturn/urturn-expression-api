@@ -11,6 +11,12 @@ Javascript Urturn Expression API.
 
 
 
+## The expression object
+
+### Methods
+
+#### .dialog(_type_, _options_)
+
 ```js
 exp.dialog('image', options)
 .done(function(imageObj) {
@@ -20,3 +26,5 @@ exp.dialog('image', options)
   // Log error
 })
 ```
+
+#### .height(_n_)
