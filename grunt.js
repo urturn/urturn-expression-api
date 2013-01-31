@@ -1,15 +1,15 @@
 module.exports = function(grunt) {
 
-  var fs = require('fs')
-    , path = require('path')
-    ;
+  var fs = require('fs'),
+      path = require('path');
 
   var s3PrivatePath = path.join(__dirname, '.s3private.json');
   var s3Config = {};
+  var info = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json')));
   if(fs.existsSync(s3PrivatePath)){
     s3Config = JSON.parse(fs.readFileSync(s3PrivatePath));
   } else {
-    console.log("You need to create a " + s3PrivatePath + " file to run `grunt s3deploy`")
+    console.log("You need to create a " + s3PrivatePath + " file to run `grunt s3deploy`");
   }
 
 
@@ -75,11 +75,11 @@ module.exports = function(grunt) {
       dev: {
         apiKey: s3Config.dev.apiKey,
         secretKey: s3Config.dev.secretKey,
-        bucket: 'expressions.dev.urturn.com',
+        bucket: s3Config.dev.bucket,
         files: {
-          'dist/urturn-expression-api.js': '/urturn-expression-api/urturn-expression-api.js',
-          'dist/iframe.js': '/urturn-expression-api/iframe.js',
-          'dist/uuid.js': '/urturn-expression-api/uuid.js'
+          'dist/urturn-expression-api.js': '/lib/urturn-expression-api/' + info.version + '/urturn-expression-api.js',
+          'dist/iframe.js': '/lib/urturn-expression-api/' + info.version + '/iframe.js',
+          'dist/uuid.js': '/lib/urturn-expression-api/' + info.version + '/uuid.js'
         }
       }
     }
@@ -90,7 +90,6 @@ module.exports = function(grunt) {
   grunt.registerMultiTask('s3deploy', 'Deploying built file on AWS s3', function() {
     var done = this.async();
     var knox = require('knox');
-    console.log(this)
     var client = knox.createClient({
       key: this.data.apiKey,
       secret: this.data.secretKey,
@@ -104,25 +103,37 @@ module.exports = function(grunt) {
       'jpg': 'image/jpg',
       'png': 'image/png',
       'gif': 'image/gif'
+    };
+    var counter = 0;
+    var bucket = this.data.bucket;
+    var syncPoint = function(src, dest, bucket){
+      return function(err){
+        counter --;
+        if(err){
+          console.log("Error", err);
+        } else {
+          console.log("Uploaded " + src + " to " + bucket + dest);
+        }
+        if(counter === 0){
+          done();
+        }
+      };
+    };
+
+    var headers = {'x-amz-acl': 'public-read'};
+    if(info.version.match(/^[0-9]+\.[0-9]+\.[0-9]+$/)){
+      headers['Cache-Control'] = "public, max-age=" + 60*60*24*365;
     }
-    var counter = this.data.files.length
-    function syncPoint(err, data){
-      counter --;
-      if(counter == 0){
-        done();
-      }
-      if(err){
-        throw err;
-      } else {
-        console.log(data);
-      }
-    }
-    for(var src in this.data.files){
+
+    for(var key in this.data.files){
+      var src = key;
       var dest = this.data.files[src];
-      client.putFile(src, dest, {'x-amz-acl': 'public-read'}, syncPoint);
+      counter ++;
+      client.putFile(src, dest, headers, syncPoint(src, dest, bucket));
     }
   });
 
   // Default task.
   grunt.registerTask('default', 'lint concat min buster');
+  grunt.registerTask('all', 'default s3deploy');
 };
