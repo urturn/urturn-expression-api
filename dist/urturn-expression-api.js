@@ -103,7 +103,7 @@ UT.Expression = (function(){
       var msg;
       // webdoc will always set json data so we parse it
       try {
-          msgObj = JSON.parse(msg);
+          msgObj = JSON.parse(e.data);
       }
       catch (exception) {
           if (console && console.error) {
