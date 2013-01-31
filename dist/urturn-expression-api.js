@@ -4,7 +4,6 @@
 var UT = {}
   , WD = UT
   ;
-
 /**
  * Expression authors should use UT.Expression.ready(callback) to run
  * their expression initialization code.

@@ -11,14 +11,19 @@ module.exports = function(grunt) {
       }
     },
     min: {
-      minimifiedDist: {
+      minimifiedApi: {
         src: 'dist/urturn-expression-api.js',
         dest: 'dist/urturn-expression-api.min.js'
+      },
+      minimifiedUuid: {
+        src: 'dist/uuid.js',
+        dest: 'dist/uuid.min.js'
       }
     },
     concat: {
-      dist: {
+      api: {
         src: [
+          'lib/expression-api/init.js',
           'lib/expression-api/core.js',
           'lib/expression-api/uuid.js',
           'lib/expression-api/item-collection.js',
@@ -29,6 +34,13 @@ module.exports = function(grunt) {
           'lib/expression-api/url.js'
         ],
         dest: 'dist/urturn-expression-api.js'
+      },
+      uuid: {
+        src: [
+          'lib/expression-api/init.js',
+          'lib/expression-api/uuid.js'
+        ],
+        dest: 'dist/uuid.js'
       }
     },
     buster: {
