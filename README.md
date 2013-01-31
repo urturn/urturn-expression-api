@@ -31,8 +31,8 @@ exp.dialog('image', options)
 #### .height( _value_ ) 
 
 > The name of this method is undecided.
-> .height()
-> .size()
+.height()
+.size()
 
 
 #### .proxify( _URL_ )
@@ -40,9 +40,9 @@ exp.dialog('image', options)
 #### .publishable( _boolean_ )
 
 > The name of this method is undecided.
-> .publishable()
-> .readyToPost()
-> .postable()
+.publishable()
+.readyToPost()
+.postable()
 
 
 #### .save()
