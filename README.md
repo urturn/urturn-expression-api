@@ -26,15 +26,6 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 
 #### .dialog( _type_, _options_ )
 
-```js
-exp.dialog('image', options)
-.done(function(imageObj) {
-  // Do something
-})
-.fail(function(message) {
-  // Log error
-})
-```
 
 #### .height( _value_ )
 
@@ -61,6 +52,13 @@ exp.dialog('image', options)
 ## Properties
 
 #### .environment
+
+```js
+{
+  player: _boolean_,
+  editor: _boolean_
+}
+```
 
 
 #### .node
