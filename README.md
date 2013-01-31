@@ -15,7 +15,7 @@ Javascript Urturn Expression API.
 
 ### Methods
 
-#### .dialog( _type_ , _options_ )
+#### .dialog( _type_, _options_ )
 
 ```js
 exp.dialog('image', options)
