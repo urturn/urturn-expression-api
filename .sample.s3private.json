@@ -1,0 +1,7 @@
+{
+  "dev":{
+    "apiKey":"xxxxxxxxxxxxxxxx",
+    "secretKey":"xxxxxxxxxxxxxxxx",
+    "bucket":"expressions.dev.urturn.com"
+  }
+}

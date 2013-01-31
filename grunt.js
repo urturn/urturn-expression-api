@@ -1,5 +1,18 @@
 module.exports = function(grunt) {
 
+  var fs = require('fs')
+    , path = require('path')
+    ;
+
+  var s3PrivatePath = path.join(__dirname, '.s3private.json');
+  var s3Config = {};
+  if(fs.existsSync(s3PrivatePath)){
+    s3Config = JSON.parse(fs.readFileSync(s3PrivatePath));
+  } else {
+    console.log("You need to create a " + s3PrivatePath + " file to run `grunt s3deploy`")
+  }
+
+
   // Project configuration.
   grunt.initConfig({
     lint: {
@@ -57,10 +70,58 @@ module.exports = function(grunt) {
       server: {
         port: 1111
       }
+    },
+    s3deploy: {
+      dev: {
+        apiKey: s3Config.dev.apiKey,
+        secretKey: s3Config.dev.secretKey,
+        bucket: 'expressions.dev.urturn.com',
+        files: {
+          'dist/urturn-expression-api.js': '/urturn-expression-api/urturn-expression-api.js',
+          'dist/iframe.js': '/urturn-expression-api/iframe.js',
+          'dist/uuid.js': '/urturn-expression-api/uuid.js'
+        }
+      }
     }
   });
 
   grunt.loadNpmTasks('grunt-buster');
+
+  grunt.registerMultiTask('s3deploy', 'Deploying built file on AWS s3', function() {
+    var done = this.async();
+    var knox = require('knox');
+    console.log(this)
+    var client = knox.createClient({
+      key: this.data.apiKey,
+      secret: this.data.secretKey,
+      bucket: this.data.bucket
+    });
+
+    var extensions = {
+      'json': 'application/json',
+      'js': 'application/javascript',
+      'css': 'text/stylesheet',
+      'jpg': 'image/jpg',
+      'png': 'image/png',
+      'gif': 'image/gif'
+    }
+    var counter = this.data.files.length
+    function syncPoint(err, data){
+      counter --;
+      if(counter == 0){
+        done();
+      }
+      if(err){
+        throw err;
+      } else {
+        console.log(data);
+      }
+    }
+    for(var src in this.data.files){
+      var dest = this.data.files[src];
+      client.putFile(src, dest, {'x-amz-acl': 'public-read'}, syncPoint);
+    }
+  });
 
   // Default task.
   grunt.registerTask('default', 'lint concat min buster');
