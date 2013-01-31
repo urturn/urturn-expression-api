@@ -11,7 +11,7 @@ Javascript Urturn Expression API.
 
 
 
-```javascript
+```js
 exp.dialog('image', options)
 .done(function(imageObj) {
   // Do something
