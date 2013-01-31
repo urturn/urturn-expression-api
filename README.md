@@ -128,11 +128,11 @@ Inherits from the media object.
 
 ### Methods
 
-#### .toMIDI( _options_) ![][agreed] 
+#### .toMIDI( _options_ ) ![][agreed] 
 
 > Yes, of course I'm joking.
 
-#### .filter( _type_, _options_)
+#### .filter( _type_, _options_ )
 
 
 
