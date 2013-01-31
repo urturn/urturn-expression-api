@@ -23,7 +23,7 @@ UT.Expression.ready(function(post) {
 
 ## The post object
 
-> ![][warning] Formerly the expression object. We're trying this name on for size.
+> ![][warning] Formerly the expression object. We're trying this name on for size. There is something nicer about saying post.publishable(true) than expression.publishable(true).
 
 ### Methods
 
