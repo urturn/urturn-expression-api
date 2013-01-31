@@ -84,9 +84,9 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 #### .url ![][agreed]
 
 
-## The media object ![][warning]
+## The media object
 
-> There is some concern about having a media object that is dependent upon a specific expression object for post messaging.
+> ![][warning] There is some concern about having a media object that is dependent upon a specific expression object for post messaging.
 
 ### Methods
 
@@ -127,9 +127,9 @@ Inherits from the media object.
 
 ### Methods
 
-#### .toMIDI( _options_)
+#### .toMIDI( _options_) ![][agreed] 
 
-> ![][warning] Yes, of course I'm joking.
+> Yes, of course I'm joking.
 
 #### .filter( _type_, _options_)
 
