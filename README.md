@@ -14,6 +14,8 @@ Javascript Urturn Expression API.
 
 ## The expression object
 
+> ![][warning] We may call this the *post* object
+
 ### Methods
 
 Methods of the expression object are asynchronous, becuase ultimately they must communicate with Urturn via the postMessage API. 
