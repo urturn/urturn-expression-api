@@ -1,4 +1,4 @@
-[warning]: http://gambasdoc.org/img/warning.png  "Warning"
+[warning]: https://access.redhat.com/knowledge/docs/resources/docs/en-US/JBoss_Operations_Network/3.1/html-single/Admin_Setting_up_Monitoring_Alerts_and_Operations/images/warning-icon.png  "Warning"
 
 Copyright Webdoc Inc. 2012, all rights reserved
 
@@ -21,7 +21,7 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 
 #### .create( _url_, _options_ )
 
-> It is undecided whether we are able to determine the type of media object to generate from the url alone.
+> ![][warning] It is undecided whether we are able to determine the type of media object to generate from the url alone.
 
 
 #### .dialog( _type_, _options_ )
@@ -36,18 +36,18 @@ exp.dialog('image', options)
 })
 ```
 
-#### .height( _value_ ) ![][warning]
+#### .height( _value_ )
 
-> The name of this method is undecided.
+> ![][warning] The name of this method is undecided.
 * .height()
 * .size()
 
 
 #### .proxify( _url_ )
 
-#### .publishable( _boolean_ ) ![][warning]
+#### .publishable( _boolean_ )
 
-> The name of this method is undecided.
+> ![][warning] The name of this method is undecided.
 * .publishable()
 * .readyToPost()
 * .postable()
