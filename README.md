@@ -1,3 +1,5 @@
+[warning]: http://gambasdoc.org/img/warning.png  "Warning"
+
 Copyright Webdoc Inc. 2012, all rights reserved
 
 urturn-expression-api
@@ -13,6 +15,9 @@ Javascript Urturn Expression API.
 # The expression object
 
 ## Methods
+
+Methods of the expression object are asynchronous, becuase ultimately they must communicate with Urturn via the postMessage API. 
+
 
 #### .create( _url_, _options_ )
 
@@ -31,7 +36,7 @@ exp.dialog('image', options)
 })
 ```
 
-#### .height( _value_ ) 
+#### .height( _value_ ) ![][warning]
 
 > The name of this method is undecided.
 * .height()
@@ -40,7 +45,7 @@ exp.dialog('image', options)
 
 #### .proxify( _url_ )
 
-#### .publishable( _boolean_ )
+#### .publishable( _boolean_ ) ![][warning]
 
 > The name of this method is undecided.
 * .publishable()
