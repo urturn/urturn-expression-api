@@ -1,6 +1,5 @@
 [warning]: https://access.redhat.com/knowledge/docs/resources/docs/en-US/JBoss_Operations_Network/3.1/html-single/Admin_Setting_up_Monitoring_Alerts_and_Operations/images/warning-icon.png  "Warning"
 
-Copyright Webdoc Inc. 2012, all rights reserved
 
 urturn-expression-api
 =====================
@@ -88,3 +87,6 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 Some recommendedations from @dymonaz:
 
 https://twitter.com/stephband/status/296959513662214144
+
+
+Copyright Webdoc Inc. 2012, all rights reserved
