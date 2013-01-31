@@ -21,9 +21,9 @@ UT.Expression.ready(function(post) {
 ```
 
 
-## The expression object
+## The post object
 
-> ![][warning] We may call this the *post* object
+> ![][warning] Formerly the expression object. We're trying this name on for size.
 
 ### Methods
 
