@@ -45,6 +45,7 @@ exp.dialog('image', options)
 
 #### .proxify( _url_ )
 
+
 #### .publishable( _boolean_ )
 
 > ![][warning] The name of this method is undecided.
@@ -59,12 +60,25 @@ exp.dialog('image', options)
 
 ## Properties
 
+#### .environment
+
+
 #### .node
+
+
+#### .note
+
+> ![][warning] This may be better as a method. Is setting the note async?
+
 
 #### .storage
 
+
+#### .title
+
+> ![][warning] This may be better as a method. Is setting the title async?
+
+
 #### .url
 
-#### .environment
 
-####
