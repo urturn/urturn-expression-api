@@ -14,7 +14,10 @@ Javascript Urturn Expression API.
 
 ## Methods
 
-#### .create( _URL_, _options_ )
+#### .create( _url_, _options_ )
+
+> It is undecided whether we are able to determine the type of media object to generate from the url alone.
+
 
 #### .dialog( _type_, _options_ )
 
@@ -35,7 +38,7 @@ exp.dialog('image', options)
 * .size()
 
 
-#### .proxify( _URL_ )
+#### .proxify( _url_ )
 
 #### .publishable( _boolean_ )
 
