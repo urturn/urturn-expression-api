@@ -25,6 +25,8 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 
 #### .dialog( _type_, _options_ )
 
+> ![][warning] it is undecided whether .dialog() should be responsible for requesting a user to crop media.
+
 
 #### .height( _value_ )
 
