@@ -55,10 +55,13 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 
 ```js
 {
-  player: _boolean_,
-  editor: _boolean_
+  player: boolean,
+  editor: boolean
 }
 ```
+
+> ![][warning] Another way of doing this would be:
+* .mode // 'edit' or 'view'
 
 
 #### .node
