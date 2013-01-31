@@ -1,4 +1,4 @@
-[warning]: http://www.railsimroutes.net/interface/themes/clarity/icons/exclamation.png "Warning"
+[warning]: http://demo.rockettheme.com/oct09/templates/rt_infuse_j15/images/menus/icon-warning.png "Warning"
 [agreed]: http://f.generallinguistics.com/color-coding-genius/icon-tick.original.png "Agreed"
 
 urturn-expression-api
@@ -18,19 +18,19 @@ Javascript Urturn Expression API.
 Methods of the expression object are asynchronous, becuase ultimately they must communicate with Urturn via the postMessage API. 
 
 
-#### .create( _url_, _options_ )
+#### .create( _url_, _options_ ) ![][warning]
 
-> ![][warning] It is undecided whether we are able to determine the type of media object to generate from the url alone.
-
-
-#### .dialog( _type_, _options_ )
-
-> ![][warning] it is undecided whether .dialog() should be responsible for requesting a user to crop media.
+> It is undecided whether we are able to determine the type of media object to generate from the url alone.
 
 
-#### .height( _value_ )
+#### .dialog( _type_, _options_ ) ![][warning]
 
-> ![][warning] The name of this method is undecided.
+> It is undecided whether .dialog() should be responsible for requesting a user to crop media.
+
+
+#### .height( _value_ ) ![][warning]
+
+> The name of this method is undecided.
 * .height()
 * .size()
 
@@ -38,9 +38,9 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 #### .proxify( _url_ ) ![][agreed]
 
 
-#### .publishable( _boolean_ )
+#### .publishable( _boolean_ ) ![][warning]
 
-> ![][warning] The name of this method is undecided.
+> The name of this method is undecided.
 * .publishable()
 * .readyToPost()
 * .postable()
@@ -52,7 +52,7 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 
 ### Properties
 
-#### .environment
+#### .environment ![][warning]
 
 ```js
 {
@@ -61,32 +61,32 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 }
 ```
 
-> ![][warning] Another way of doing this would be:
+> Another way of doing this would be:
 * .mode // 'edit' or 'view'
 
 
 #### .node ![][agreed]
 
 
-#### .note
+#### .note ![][warning]
 
-> ![][warning] This may be better as a method. Is setting the note async?
+> This may be better as a method. Is setting the note async?
 
 
 #### .storage ![][agreed]
 
 
-#### .title
+#### .title ![][warning]
 
-> ![][warning] This may be better as a method. Is setting the title async?
+> This may be better as a method. Is setting the title async?
 
 
 #### .url ![][agreed]
 
 
-## The media object
+## The media object ![][warning]
 
-> ![][warning] There is some concern about having a media object that is dependent upon a specific expression object for post messaging.
+> There is some concern about having a media object that is dependent upon a specific expression object for post messaging.
 
 ### Methods
 
