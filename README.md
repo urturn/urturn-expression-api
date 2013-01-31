@@ -28,11 +28,22 @@ exp.dialog('image', options)
 })
 ```
 
-#### .height( _value_ )
+#### .height( _value_ ) 
 
-#### .proxify( _url_ )
+> The name of this method is undecided.
+> .height()
+> .size()
+
+
+#### .proxify( _URL_ )
 
 #### .publishable( _boolean_ )
+
+> The name of this method is undecided.
+> .publishable()
+> .readyToPost()
+> .postable()
+
 
 #### .save()
 
