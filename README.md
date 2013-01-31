@@ -69,7 +69,7 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 #### .node ![][agreed]
 
 
-#### .note ![][risk]
+#### .note ![][warning]
 
 > This may be better as a method. Is setting the note async?
 
@@ -77,7 +77,7 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 #### .storage ![][agreed]
 
 
-#### .title ![][risk]
+#### .title ![][warning]
 
 > This may be better as a method. Is setting the title async?
 
