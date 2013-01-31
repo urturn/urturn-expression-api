@@ -11,9 +11,9 @@ module.exports = function(grunt) {
       }
     },
     min: {
-      minimifiedApi: {
-        src: 'dist/urturn-expression-api.js',
-        dest: 'dist/urturn-expression-api.min.js'
+      minimifiedIframe: {
+        src: 'dist/iframe.js',
+        dest: 'dist/iframe.min.js'
       },
       minimifiedUuid: {
         src: 'dist/uuid.js',
@@ -41,6 +41,13 @@ module.exports = function(grunt) {
           'lib/expression-api/uuid.js'
         ],
         dest: 'dist/uuid.js'
+      },
+      iframe: {
+        src: [
+          'dist/urturn-expression-api.js',
+          'lib/iframe.js'
+        ],
+        dest: 'dist/iframe.js'
       }
     },
     buster: {
