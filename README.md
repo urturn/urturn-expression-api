@@ -1,3 +1,4 @@
+[risk]: https://access.redhat.com/knowledge/docs/resources/docs/en-US/JBoss_Developer_Studio/3.0/html-single/Seam_Developer_Tools_Reference_Guide/images/seam_editors/icon_exception.png "At risk"
 [warning]: http://demo.rockettheme.com/oct09/templates/rt_infuse_j15/images/menus/icon-warning.png "Warning"
 [agreed]: http://f.generallinguistics.com/color-coding-genius/icon-tick.original.png "Agreed"
 
@@ -68,7 +69,7 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 #### .node ![][agreed]
 
 
-#### .note ![][warning]
+#### .note ![][risk]
 
 > This may be better as a method. Is setting the note async?
 
@@ -76,7 +77,7 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 #### .storage ![][agreed]
 
 
-#### .title ![][warning]
+#### .title ![][risk]
 
 > This may be better as a method. Is setting the title async?
 
