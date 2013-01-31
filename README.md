@@ -11,9 +11,9 @@ Javascript Urturn Expression API.
 * Follow this project if you are interested in developping expression for urturn.com
 
 
-# The expression object
+## The expression object
 
-## Methods
+### Methods
 
 Methods of the expression object are asynchronous, becuase ultimately they must communicate with Urturn via the postMessage API. 
 
@@ -48,7 +48,7 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 
 
 
-## Properties
+### Properties
 
 #### .environment
 
@@ -82,26 +82,26 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 #### .url
 
 
-# The media object
+## The media object
 
 > ![][warning] There is some concern about having a media object that is dependent upon a specific expression object for post messaging.
 
-## Methods
+### Methods
 
 #### .toJSON()
 
-## Properties
+### Properties
 
 #### .type
 
 #### .url
 
 
-#The imageMedia object
+## The imageMedia object
 
 Inherits from the media object.
 
-## Methods
+### Methods
 
 #### .crop( _options_)
 
@@ -112,7 +112,7 @@ Inherits from the media object.
 
 Inherits from the media object.
 
-## Methods
+### Methods
 
 #### .crop( _options_)
 
@@ -123,7 +123,7 @@ Inherits from the media object.
 
 Inherits from the media object.
 
-## Methods
+### Methods
 
 #### .toMIDI( _options_)
 
