@@ -108,7 +108,7 @@ Inherits from the media object.
 #### .filter( _type_, _options_)
 
 
-#The videoMedia object
+## The videoMedia object
 
 Inherits from the media object.
 
@@ -119,7 +119,7 @@ Inherits from the media object.
 #### .filter( _type_, _options_)
 
 
-#The soundMedia object
+## The soundMedia object
 
 Inherits from the media object.
 
