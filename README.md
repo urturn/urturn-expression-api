@@ -15,6 +15,8 @@ Javascript Urturn Expression API.
 
 ### Methods
 
+#### .create( _URL_, _options_ )
+
 #### .dialog( _type_, _options_ )
 
 ```js
@@ -27,4 +29,24 @@ exp.dialog('image', options)
 })
 ```
 
-#### .height(_n_)
+#### .height( _value_ )
+
+#### .proxify( _url_ )
+
+#### .publishable( _boolean_ )
+
+#### .save()
+
+
+
+### Properties
+
+#### .node
+
+#### .storage
+
+#### .url
+
+#### .environment
+
+####
