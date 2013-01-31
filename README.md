@@ -1,5 +1,5 @@
 [warning]: https://access.redhat.com/knowledge/docs/resources/docs/en-US/JBoss_Operations_Network/3.1/html-single/Admin_Setting_up_Monitoring_Alerts_and_Operations/images/warning-icon.png  "Warning"
-
+[agreed]: http://f.generallinguistics.com/color-coding-genius/icon-tick.original.png "Agreed"
 
 urturn-expression-api
 =====================
@@ -35,7 +35,7 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 * .size()
 
 
-#### .proxify( _url_ )
+#### .proxify( _url_ ) ![][agreed]
 
 
 #### .publishable( _boolean_ )
@@ -46,7 +46,7 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 * .postable()
 
 
-#### .save()
+#### .save() ![][agreed]
 
 
 
@@ -65,7 +65,7 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 * .mode // 'edit' or 'view'
 
 
-#### .node
+#### .node ![][agreed]
 
 
 #### .note
@@ -73,7 +73,7 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 > ![][warning] This may be better as a method. Is setting the note async?
 
 
-#### .storage
+#### .storage ![][agreed]
 
 
 #### .title
@@ -81,7 +81,7 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 > ![][warning] This may be better as a method. Is setting the title async?
 
 
-#### .url
+#### .url ![][agreed]
 
 
 ## The media object
