@@ -10,10 +10,9 @@ Javascript Urturn Expression API.
 * Follow this project if you are interested in developping expression for urturn.com
 
 
+# The expression object
 
-## The expression object
-
-### Methods
+## Methods
 
 #### .create( _URL_, _options_ )
 
@@ -39,7 +38,7 @@ exp.dialog('image', options)
 
 
 
-### Properties
+## Properties
 
 #### .node
 
