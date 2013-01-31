@@ -82,3 +82,8 @@ exp.dialog('image', options)
 #### .url
 
 
+## Comments
+
+Some recommendedations from @dymonaz:
+
+https://twitter.com/stephband/status/296959513662214144
