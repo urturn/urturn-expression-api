@@ -1,4 +1,4 @@
-[warning]: https://access.redhat.com/knowledge/docs/resources/docs/en-US/JBoss_Operations_Network/3.1/html-single/Admin_Setting_up_Monitoring_Alerts_and_Operations/images/warning-icon.png  "Warning"
+[warning]: http://www.railsimroutes.net/interface/themes/clarity/icons/exclamation.png "Warning"
 [agreed]: http://f.generallinguistics.com/color-coding-genius/icon-tick.original.png "Agreed"
 
 urturn-expression-api
