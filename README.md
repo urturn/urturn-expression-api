@@ -12,6 +12,15 @@ Javascript Urturn Expression API.
 * Follow this project if you are interested in developping expression for urturn.com
 
 
+## Getting started
+
+```js
+UT.Expression.ready(function(post) {
+  // Create your post using the post API
+})
+```
+
+
 ## The expression object
 
 > ![][warning] We may call this the *post* object
