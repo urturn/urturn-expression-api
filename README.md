@@ -82,6 +82,57 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 #### .url
 
 
+# The media object
+
+> ![][warning] There is some concern about having a media object that is dependent upon a specific expression object for post messaging.
+
+## Methods
+
+#### .toJSON()
+
+## Properties
+
+#### .type
+
+#### .url
+
+
+#The imageMedia object
+
+Inherits from the media object.
+
+## Methods
+
+#### .crop( _options_)
+
+#### .filter( _type_, _options_)
+
+
+#The videoMedia object
+
+Inherits from the media object.
+
+## Methods
+
+#### .crop( _options_)
+
+#### .filter( _type_, _options_)
+
+
+#The soundMedia object
+
+Inherits from the media object.
+
+## Methods
+
+#### .toMIDI( _options_)
+
+> ![][warning] Yes, of course I'm joking.
+
+#### .filter( _type_, _options_)
+
+
+
 ## Comments
 
 Some recommendedations from @dymonaz:
