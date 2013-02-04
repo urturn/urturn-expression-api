@@ -1,0 +1,13 @@
+/**
+ * Reset the wrapper to take all available place.
+ */
+html,
+body,
+div.webdoc_expression_wrapper {
+  display: block;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
