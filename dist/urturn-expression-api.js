@@ -397,6 +397,7 @@ UT.Expression = (function(){
     }
 
     function _ready(states) {
+      console.log('READY', states);
       expression.isReady = true;
       _states = states;
 

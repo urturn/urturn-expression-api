@@ -9,7 +9,8 @@
   "devDependencies": {
     "grunt": "~0.3.17",
     "grunt-buster": "~0.1.2",
-    "buster": "~0.6.12"
+    "buster": "~0.6.12",
+    "grunt-css":"0.4.1"
   },
   "scripts": {
     "test": "grunt"

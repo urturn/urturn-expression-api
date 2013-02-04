@@ -61,6 +61,10 @@ module.exports = function(grunt) {
           'lib/iframe.js'
         ],
         dest: 'dist/iframe.js'
+      },
+      iframecss: {
+        src: ['lib/iframe.css'],
+        dest: 'dist/iframe.css'
       }
     },
     buster: {
@@ -82,10 +86,17 @@ module.exports = function(grunt) {
           'dist/uuid.js': '/lib/urturn-expression-api/' + info.version + '/uuid.js'
         }
       }
+    },
+    cssmin: {
+      csscompress: {
+        src: 'dist/iframe.css',
+        dest: 'dist/iframe.min.css'
+      }
     }
   });
 
   grunt.loadNpmTasks('grunt-buster');
+  grunt.loadNpmTasks('grunt-css');
 
   grunt.registerMultiTask('s3deploy', 'Deploying built file on AWS s3', function() {
     var done = this.async();
@@ -134,6 +145,6 @@ module.exports = function(grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', 'lint concat min buster');
+  grunt.registerTask('default', 'lint concat min buster cssmin');
   grunt.registerTask('all', 'default s3deploy');
 };
