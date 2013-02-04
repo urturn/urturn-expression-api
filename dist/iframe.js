@@ -5,6 +5,12 @@ var UT = {}
   , WD = UT
   ;
 /**
+ * Namespace of the Webdoc public API.
+ */
+var UT = {};
+var WD = UT;
+
+/**
  * Expression authors should use UT.Expression.ready(callback) to run
  * their expression initialization code.
  */
@@ -100,7 +106,6 @@ UT.Expression = (function(){
      * post message handler
      */
     window.addEventListener("message", function (e) {
-      var msg;
       // webdoc will always set json data so we parse it
       try {
           msgObj = JSON.parse(e.data);
@@ -112,7 +117,6 @@ UT.Expression = (function(){
           msgObj = {};
       }
       _dispatch(msgObj);
-
     }, false);
 
     /**
@@ -446,7 +450,7 @@ UT.Expression = (function(){
 // Generate Random UUID compliant with rfc4122 v4
 // Fantastic piece of code from @broofa on:
 // http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
-UT.uuid = function(){
+UT.UUID = function(){
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
     return v.toString(16);
@@ -880,6 +884,7 @@ var supportGetSet = function() {
   }
 };
 supportGetSet();
+
 // Create a store for containing collections defined in data
 // mandatory options keys: data, currentUserId, delegate
 UT.CollectionStore = function(options) {
@@ -932,6 +937,7 @@ UT.CollectionStore = function(options) {
     delegate.refreshCollections(names, callback);
   };
 }
+
 UT.Expression.extendExpression('container', function(expression){
 
   var module = {};
@@ -1020,24 +1026,34 @@ UT.Expression.extendExpression('medias', function(expression){
     },
 
     crop : function(imageOrURLOrBase64, options , callback){
+
       var pictureID = 0;
+      var center = null;
       if (imageOrURLOrBase64.pictureID) {
         pictureID = imageOrURLOrBase64.pictureID;
+      }
+     if (imageOrURLOrBase64._center) {
+        center = imageOrURLOrBase64._center;
       }
       if (imageOrURLOrBase64._original) {
         imageOrURLOrBase64 = imageOrURLOrBase64._original;
       }
       else if (imageOrURLOrBase64.url) {
-        imageOrURLOrBase64 = imageOrURLOrBase64.url;
+        if (imageOrURLOrBase64.url.indexOf('http://proxy') !== 0) {
+          imageOrURLOrBase64 = expression.url.proxify(imageOrURLOrBase64.url);
+        }
+        else {
+          imageOrURLOrBase64 = imageOrURLOrBase64.url;
+        }
       }
-      UT.Expression._callAPI('medias.crop', [{pictureID : pictureID ,url : imageOrURLOrBase64, size : options}], function(imageDescriptor){
+   
+      UT.Expression._callAPI('medias.crop', [{pictureID : pictureID ,url : imageOrURLOrBase64, size : options, center : center}], function(imageDescriptor){
         callback.call(this, imageDescriptor);
       });
     },
 
     applyFilterToImage : function(urlOrBase64, options, callback) {
-      var crop = null;
-  
+      var crop =  null;
       if (urlOrBase64._center) {
         crop = urlOrBase64._center;
       }
@@ -1150,35 +1166,30 @@ UT.Expression.extendExpression('url', function(expression){
   }
 
   url.proxify = function(urlOrBase64){
-    var host = 'http://' + expression.getState('host') + '/image_proxy/';
+  //  console.log('Proxify : ', urlOrBase64);
+    var host = window.location.protocol + '//' + expression.getState('host') + '/image_proxy/';
     if (typeof(urlOrBase64) == 'string' 
       && urlOrBase64.indexOf('data:image') != 0 
       && urlOrBase64.indexOf('image_proxy') == -1)
     {
       var newUrl = urlOrBase64;
-      if (urlOrBase64.indexOf('http://') == 0)
+      if (urlOrBase64.indexOf('http://') === 0)
         newUrl = host + urlOrBase64.substring(7);
-      else if(urlOrBase64.indexOf('https://') == 0)
+      else if(urlOrBase64.indexOf('https://') === 0)
         newUrl = host + urlOrBase64.substring(8);
+      else if(urlOrBase64.indexOf('./') === 0 || urlOrBase64.indexOf('/') === 0)
+        return urlOrBase64;
+      else if(urlOrBase64.indexOf('//') === 0)
+        newUrl = host + urlOrBase64.substring(2);
       else
         newUrl = host + urlOrBase64;
       return newUrl;
     }
-    else
-      return urlOrBase64;
+    return urlOrBase64;
   };
   return url;
 });
 
-
-//= require ../core
-//= require ../item-collection
-//= require ../item-collection-store
-//= require ../container
-//= require ../medias
-//= require ../document
-//= require ../url
-//= require webdoc/common/uuid
 
 // Define collections
 UT.Expression.extendExpression('collections', function(expression) {
@@ -1202,3 +1213,5 @@ UT.Expression.extendExpression('collections', function(expression) {
     return collectionStore;
   }
 });
+
+UT.Expression._getInstance();
