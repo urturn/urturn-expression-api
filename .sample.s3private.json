@@ -2,6 +2,6 @@
   "dev":{
     "apiKey":"xxxxxxxxxxxxxxxx",
     "secretKey":"xxxxxxxxxxxxxxxx",
-    "bucket":"expressions.dev.urturn.com"
+    "bucket":"expressions.dev-ut.urturn.com"
   }
 }
