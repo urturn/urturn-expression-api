@@ -1,9 +1,8 @@
 /**
  * Namespace of the Webdoc public API.
  */
-var UT = {}
-  , WD = UT
-  ;
+var UT = {},
+    WD = UT;
 /**
  * Namespace of the Webdoc public API.
  */
@@ -87,7 +86,7 @@ UT.Expression = (function(){
 
   function _getInstance(){
     expression = expression || _buildExpression({});
-    return expression
+    return expression;
   }
 
   classModule._callAPI = _callAPI;
@@ -300,7 +299,7 @@ UT.Expression = (function(){
       for(var i in extensions) {
         var ext = extensions[i];
         if(expression[ext.name]){
-          throw "Extension " + ext.name + " is already defined."
+          throw "Extension " + ext.name + " is already defined.";
         }
         if(typeof ext.module === 'function'){
           expression[ext.name] = ext.module.call(UT, expression);
@@ -451,12 +450,14 @@ UT.Expression = (function(){
 // Generate Random UUID compliant with rfc4122 v4
 // Fantastic piece of code from @broofa on:
 // http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
-UT.UUID = function(){
+UT.uuid = function(){
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
     return v.toString(16);
   });
-}
+};
+
+UT.UUID = UT.uuid;
 /**
  * valid options keys: data, delegate, currentUserId
  */
@@ -779,10 +780,10 @@ UT.Collection = function(options) {
     if(!options.data) {
       throw "ArgumentError: missing data";
     }
-    if(!options.data['name']) {
+    if(!options.data.name) {
       throw "ArgumentError: no name in data";
     }
-    if(options.data['count'] === undefined) {
+    if(options.data.count === undefined) {
       throw "ArgumentError: no count in data";
     }
     operations = {}; // map of operations results
@@ -893,19 +894,19 @@ UT.CollectionStore = function(options) {
   var delegate = options.delegate;
   delegate.store = this;
   var collections = {};
+
   for(var i = 0; i < this.data.length; i++) {
-    var name = this.data[i].name;
+    var data = this.data[i];
+    var name = data.name;
     if(!name) {
       throw "ArgumentError: data contains unamed collections.";
     }
-    (function(data){
-      collections[name] = new UT.Collection({
-        data: data,
-        postMessageApi: options.postMessageApi,
-        currentUserId: options.currentUserId,
-        delegate: delegate
-      });
-    })(this.data[i]);
+    collections[name] = new UT.Collection({
+      data: data,
+      postMessageApi: options.postMessageApi,
+      currentUserId: options.currentUserId,
+      delegate: delegate
+    });
   }
 
   // Retrieve a collection given its name.
@@ -921,7 +922,7 @@ UT.CollectionStore = function(options) {
   // ServerRequest.
   this.flush = function(collection) {
     delegate.flush();
-  }
+  };
 
   /**
    * Retrieve all data for the current collections.
@@ -937,7 +938,7 @@ UT.CollectionStore = function(options) {
   this.refresh = function(names, callback) {
     delegate.refreshCollections(names, callback);
   };
-}
+};
 
 UT.Expression.extendExpression('container', function(expression){
 
@@ -980,7 +981,7 @@ UT.Expression.extendExpression('container', function(expression){
 UT.Expression.extendExpression('medias', function(expression){
   return {
     // open a dialog box that let the user pick an image from various sources.
-    // 
+    //
     // The last parameter is a callback function that will receive the image.
     imageDialog: function(options, callback) {
       if (console && console.warn) {
@@ -1071,7 +1072,7 @@ UT.Expression.extendExpression('medias', function(expression){
       }
     },
 
-    // XXX: USE EXPRESSION.ITEMS.SAVE 
+    // XXX: USE EXPRESSION.ITEMS.SAVE
     /**
     * saveImage
     * WIP an helper function that combine medias.createImage() and items.save();
@@ -1082,7 +1083,7 @@ UT.Expression.extendExpression('medias', function(expression){
     saveImage: function(key, urlOrBase64, callback) {
        UT.Expression._callAPI(
           'medias.createImage',
-           [urlOrBase64], 
+           [urlOrBase64],
            function (obj, error) {
             postMessageAPI.apply('items.save', [key, obj], function(data, error){
               if(error){
@@ -1125,7 +1126,7 @@ UT.Expression.extendExpression('medias', function(expression){
     findImage: function(mediaId, callback) {
       UT.Expression._callAPI('medias.findImage', [mediaId], callback);
     }
-  }
+  };
 });
 UT.Expression.extendExpression('document', function(expression){
   return {
@@ -1145,18 +1146,17 @@ UT.Expression.extendExpression('document', function(expression){
 UT.Expression.extendExpression('url', function(expression){
   var url = {};
 
-  // :D This is evil in action
-  url.for = function(asset) {
+  url['for'] = function(asset) {
     return url.getAssetPath(asset);
-  }
+  };
 
   url.getAssetThroughProxy = function(asset)
   {
     return this.proxify(this.getAssetPath(asset));
-  }
+  };
 
   url.getAssetPath = function(asset) {
-    // var host = 'http://' + expression.getState('host'); 
+    // var host = 'http://' + expression.getState('host');
     if (asset.indexOf('./') === 0) {
       asset = asset.substring(1);
     }
@@ -1164,15 +1164,14 @@ UT.Expression.extendExpression('url', function(expression){
       return  'http://' + expression.getState('host') + '/' + expression.getState('assetPath') + asset;
     }
     return expression.getState('assetPath') + asset;
-  }
+  };
 
   url.proxify = function(urlOrBase64){
   //  console.log('Proxify : ', urlOrBase64);
     var host = window.location.protocol + '//' + expression.getState('host') + '/image_proxy/';
-    if (typeof(urlOrBase64) == 'string' 
-      && urlOrBase64.indexOf('data:image') != 0 
-      && urlOrBase64.indexOf('image_proxy') == -1)
-    {
+    if (typeof(urlOrBase64) == 'string' &&
+        urlOrBase64.indexOf('data:image') !== 0 &&
+        urlOrBase64.indexOf('image_proxy') == -1){
       var newUrl = urlOrBase64;
       if (urlOrBase64.indexOf('http://') === 0)
         newUrl = host + urlOrBase64.substring(7);
