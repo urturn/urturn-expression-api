@@ -29,9 +29,9 @@ module.exports = function(grunt) {
       src: 'dist/iframe.js',
       dest: 'dist/iframe.min.js'
     },
-    minimifiedUuid: {
-      src: 'dist/uuid.js',
-      dest: 'dist/uuid.min.js'
+    minimifiedSandbox: {
+      src: 'dist/sandbox.js',
+      dest: 'dist/sandbox.min.js'
     }
   };
 
@@ -45,30 +45,26 @@ module.exports = function(grunt) {
 
   // Concatenation
   config.concat = {
-    api: {
+    sandbox: {
       src: [
         'lib/expression-api/init.js',
-        'lib/expression-api/core.js',
         'lib/expression-api/uuid.js',
         'lib/expression-api/item-collection.js',
-        'lib/expression-api/item-collection-store.js',
-        'lib/expression-api/container.js',
-        'lib/expression-api/medias.js',
-        'lib/expression-api/document.js',
-        'lib/expression-api/url.js'
+        'lib/expression-api/item-collection-store.js'
       ],
-      dest: 'dist/urturn-expression-api.js'
-    },
-    uuid: {
-      src: [
-        'lib/expression-api/init.js',
-        'lib/expression-api/uuid.js'
-      ],
-      dest: 'dist/uuid.js'
+      dest: 'dist/sandbox.js'
     },
     iframe: {
       src: [
-        'dist/urturn-expression-api.js',
+        'lib/expression-api/init.js',
+        'lib/expression-api/uuid.js',
+        'lib/expression-api/item-collection.js',
+        'lib/expression-api/item-collection-store.js',
+        'lib/expression-api/core.js',
+        'lib/expression-api/container.js',
+        'lib/expression-api/medias.js',
+        'lib/expression-api/document.js',
+        'lib/expression-api/url.js',
         'lib/iframe.js'
       ],
       dest: 'dist/iframe.js'
@@ -96,9 +92,8 @@ module.exports = function(grunt) {
         secretKey: s3Config.dev.secretKey,
         bucket: s3Config.dev.bucket,
         files: {
-          'dist/urturn-expression-api.js': '/lib/urturn-expression-api/' + info.version + '/urturn-expression-api.js',
-          'dist/iframe.js': '/lib/urturn-expression-api/' + info.version + '/iframe.js',
-          'dist/uuid.js': '/lib/urturn-expression-api/' + info.version + '/uuid.js'
+          'dist/urturn-expression-api.js': '/lib/urturn-expression-api/' + info.version + '/sandbox.js',
+          'dist/iframe.js': '/lib/urturn-expression-api/' + info.version + '/iframe.js'
         }
       }
     };
