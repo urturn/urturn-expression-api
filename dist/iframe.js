@@ -1010,10 +1010,10 @@ UT.Expression.extendExpression('medias', function(expression){
     reCrop : function(imageOrURLOrBase64, options, callback) {
       if (imageOrURLOrBase64._type && imageOrURLOrBase64._type === 'image') {
         if (imageOrURLOrBase64._original) {
-          UT.Expression._callAPI('medias.reCrop', [{url : imageOrURLOrBase64._original, crop : options}], callback);
+          UT.Expression._callAPI('medias.reCrop', [{url : imageOrURLOrBase64._original, crop : options, info : imageOrURLOrBase64.info}], callback);
         }
         else {
-          UT.Expression._callAPI('medias.reCrop', [{url : imageOrURLOrBase64.url, crop : options}], callback);
+          UT.Expression._callAPI('medias.reCrop', [{url : imageOrURLOrBase64.url, crop : options, info : imageOrURLOrBase64.info}], callback);
         }
       }
       else {
@@ -1025,11 +1025,15 @@ UT.Expression.extendExpression('medias', function(expression){
 
       var pictureID = 0;
       var center = null;
+      var info = null;
       if (imageOrURLOrBase64.pictureID) {
         pictureID = imageOrURLOrBase64.pictureID;
       }
-     if (imageOrURLOrBase64._center) {
+      if (imageOrURLOrBase64._center) {
         center = imageOrURLOrBase64._center;
+      }
+      if (imageOrURLOrBase64.info) {
+        info = imageOrURLOrBase64.info;
       }
       if (imageOrURLOrBase64._original) {
         imageOrURLOrBase64 = imageOrURLOrBase64._original;
@@ -1043,26 +1047,39 @@ UT.Expression.extendExpression('medias', function(expression){
         }
       }
    
-      UT.Expression._callAPI('medias.crop', [{pictureID : pictureID ,url : imageOrURLOrBase64, size : options, center : center}], function(imageDescriptor){
-        callback.call(this, imageDescriptor);
-      });
+      UT.Expression._callAPI('medias.crop', [{
+          pictureID : pictureID,
+          url : imageOrURLOrBase64,
+          size : options,
+          center : center,
+          info : info
+        }], function(imageDescriptor){
+            callback.call(this, imageDescriptor);
+        });
     },
 
     applyFilterToImage : function(urlOrBase64, options, callback) {
       var crop =  null;
+      var info = null;
       if (urlOrBase64._center) {
         crop = urlOrBase64._center;
+        // a bug prevent x and y properties to be send by postmessage ???
+        crop.xb = crop.x;
+        crop.yb = crop.y;
+      }
+      if (urlOrBase64.info) {
+        info = urlOrBase64.info;
       }
       if (urlOrBase64._type && urlOrBase64._type === 'image') {
         if (urlOrBase64._original) {
-          UT.Expression._callAPI('medias.applyFilter', [{url : urlOrBase64._original, filter :  options, crop : crop}], callback);
+          UT.Expression._callAPI('medias.applyFilter', [{url : urlOrBase64._original, filter :  options, crop : crop, info : info}], callback);
         }
         else {
-          UT.Expression._callAPI('medias.applyFilter', [{url : urlOrBase64.url, filter :  options, crop : crop}], callback);
+          UT.Expression._callAPI('medias.applyFilter', [{url : urlOrBase64.url, filter :  options, crop : crop, info : info}], callback);
         }
       }
       else {
-        UT.Expression._callAPI('medias.applyFilter', [{url : urlOrBase64, filter :  options}], callback);
+        UT.Expression._callAPI('medias.applyFilter', [{url : urlOrBase64, filter :  options, info : info}], callback);
       }
     },
 
