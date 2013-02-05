@@ -92,8 +92,12 @@ module.exports = function(grunt) {
         secretKey: s3Config.dev.secretKey,
         bucket: s3Config.dev.bucket,
         files: {
-          'dist/urturn-expression-api.js': '/lib/urturn-expression-api/' + info.version + '/sandbox.js',
-          'dist/iframe.js': '/lib/urturn-expression-api/' + info.version + '/iframe.js'
+          'dist/sandbox.js': '/lib/urturn-expression-api/' + info.version + '/sandbox.js',
+          'dist/iframe.js': '/lib/urturn-expression-api/' + info.version + '/iframe.js',
+          'dist/sandbox.min.js': '/lib/urturn-expression-api/' + info.version + '/sandbox.min.js',
+          'dist/iframe.min.js': '/lib/urturn-expression-api/' + info.version + '/iframe.min.js',
+          'dist/iframe.css': '/lib/urturn-expression-api/' + info.version + '/iframe.css',
+          'dist/iframe.min.css': '/lib/urturn-expression-api/' + info.version + '/iframe.min.css'
         }
       }
     };
@@ -151,6 +155,6 @@ module.exports = function(grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', 'lint concat min buster cssmin');
+  grunt.registerTask('default', 'lint concat min cssmin buster');
   grunt.registerTask('all', 'default s3deploy');
 };
