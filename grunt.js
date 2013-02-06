@@ -142,22 +142,13 @@ module.exports = function(grunt) {
       secret: this.data.secretKey,
       bucket: this.data.bucket
     });
-
-    var extensions = {
-      'json': 'application/json',
-      'js': 'application/javascript',
-      'css': 'text/stylesheet',
-      'jpg': 'image/jpg',
-      'png': 'image/png',
-      'gif': 'image/gif'
-    };
     var counter = 0;
     var bucket = this.data.bucket;
     var syncPoint = function(src, dest, bucket){
       return function(err){
         counter --;
         if(err){
-          console.log("Error", err);
+          console.log("Error " + err);
         } else {
           console.log("Uploaded " + src + " to " + bucket + dest);
         }
@@ -172,11 +163,26 @@ module.exports = function(grunt) {
       headers['Cache-Control'] = "public, max-age=" + 60*60*24*365;
     }
 
+    function doUpload(src, dest, headers, retry, callback){
+      client.putFile(src, dest, headers, function(err){
+        if(err){
+          if(retry > 2){
+            callback(err);
+          } else {
+            console.log(err, "Retrying...");
+            doUpload(src, dest, headers, retry + 1, callback);
+          }
+        } else {
+          callback();
+        }
+      });
+    }
+
     for(var key in this.data.files){
       var src = key;
       var dest = this.data.files[src];
       counter ++;
-      client.putFile(src, dest, headers, syncPoint(src, dest, bucket));
+      doUpload(src, dest, headers, 0, syncPoint(src, dest, bucket));
     }
   });
 
