@@ -96,8 +96,6 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 
 ## The media object
 
-> ![][warning] There is some concern about having a media object that is dependent upon a specific expression object for post messaging.
-
 ### Methods
 
 #### .toJSON()
