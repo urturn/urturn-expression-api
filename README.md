@@ -70,13 +70,9 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 > Are we going to trigger 'resize' events on node?
 
 
-#### .note ![][warning]
-
-> This may be better as a method. Is setting the note async?
-
+#### .note ![][agreed]
 
 #### .storage ![][agreed]
-
 
 #### .title ![][risk]
 
