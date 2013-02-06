@@ -99,6 +99,32 @@ module.exports = function(grunt) {
           'dist/iframe.css': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.css',
           'dist/iframe.min.css': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.min.css'
         }
+      },
+      staging: {
+        apiKey: s3Config.staging.apiKey,
+        secretKey: s3Config.staging.secretKey,
+        bucket: s3Config.staging.bucket,
+        files: {
+          'dist/sandbox.js': '/expression/lib/urturn-expression-api/' + info.version + '/sandbox.js',
+          'dist/iframe.js': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.js',
+          'dist/sandbox.min.js': '/expression/lib/urturn-expression-api/' + info.version + '/sandbox.min.js',
+          'dist/iframe.min.js': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.min.js',
+          'dist/iframe.css': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.css',
+          'dist/iframe.min.css': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.min.css'
+        }
+      },
+      production: {
+        apiKey: s3Config.production.apiKey,
+        secretKey: s3Config.production.secretKey,
+        bucket: s3Config.production.bucket,
+        files: {
+          'dist/sandbox.js': '/expression/lib/urturn-expression-api/' + info.version + '/sandbox.js',
+          'dist/iframe.js': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.js',
+          'dist/sandbox.min.js': '/expression/lib/urturn-expression-api/' + info.version + '/sandbox.min.js',
+          'dist/iframe.min.js': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.min.js',
+          'dist/iframe.css': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.css',
+          'dist/iframe.min.css': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.min.css'
+        }
       }
     };
   }
