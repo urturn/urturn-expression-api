@@ -86,6 +86,10 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 
 #### .url ![][agreed]
 
+#### .user ![][agreed]
+
+> Information about the user
+
 
 ## Events
 
