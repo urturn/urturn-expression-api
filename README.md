@@ -78,9 +78,9 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 #### .storage ![][agreed]
 
 
-#### .title ![][warning]
+#### .title ![][risk]
 
-> This may be better as a method. Is setting the title async?
+> This is propably deprecated 
 
 
 #### .url ![][agreed]
