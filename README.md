@@ -32,7 +32,9 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 
 #### .dialog( _type_, _options_ ) ![][warning]
 
-> It is undecided whether .dialog() should be responsible for requesting a user to crop media.
+> Mostly agreed, but looking for use cases that will break it
+
+* type - 'image', 'sound', 'video', 'crop'
 
 
 #### .height( _value_ ) ![][warning]
@@ -70,7 +72,10 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 > Are we going to trigger 'resize' events on node?
 
 
-#### .note ![][agreed]
+#### .note ![][warning]
+
+> This may be better as a property of storage.
+
 
 #### .storage ![][agreed]
 
@@ -84,7 +89,7 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 
 ## Events
 
-#### .on('resize')
+#### .on('resize') ![][warning]
 
 > See also post.node. We are undecided whether 'resize' should be triggered on post or on the DOM node.
 
@@ -110,9 +115,11 @@ Inherits from the media object.
 
 ### Methods
 
-#### .crop( _options_)
+#### .crop( _options_ ) ![][agreed] 
 
-#### .filter( _type_, _options_)
+#### .filter( _options_ ) ![][agreed] 
+
+> Filter takes a massive hash of filters and options. Dmitri likes it like this.
 
 
 ## The videoMedia object
@@ -121,9 +128,9 @@ Inherits from the media object.
 
 ### Methods
 
-#### .crop( _options_)
+#### .crop( _options_ )
 
-#### .filter( _type_, _options_)
+#### .filter( _type_, _options_ )
 
 
 ## The soundMedia object
@@ -132,9 +139,7 @@ Inherits from the media object.
 
 ### Methods
 
-#### .toMIDI( _options_ ) ![][agreed] 
-
-> Yes, of course I'm joking.
+#### .toMIDI( _options_ ) ![][agreed]
 
 #### .filter( _type_, _options_ )
 
