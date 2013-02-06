@@ -45,12 +45,7 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 #### .proxify( _url_ ) ![][agreed]
 
 
-#### .publishable( _boolean_ ) ![][warning]
-
-> The name of this method is undecided.
-* .publishable()
-* .readyToPost()
-* .postable()
+#### .valid( _boolean_ ) ![][agreed]
 
 
 #### .save() ![][agreed]
