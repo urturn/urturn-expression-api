@@ -28,7 +28,7 @@ UT.Expression.ready(function(post) {
 Methods of the expression object are asynchronous, becuase ultimately they must communicate with Urturn via the postMessage API. 
 
 
-#### .create( _type_, _options_ )
+#### .create( _type_, _options_ ) ![][agreed]
 
 #### .dialog( _type_, _options_ ) ![][warning]
 
@@ -74,6 +74,8 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 
 #### .node ![][agreed]
 
+> Are we going to trigger 'resize' events on node?
+
 
 #### .note ![][warning]
 
@@ -89,6 +91,13 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 
 
 #### .url ![][agreed]
+
+
+## Events
+
+#### .on('resize')
+
+> See also post.node. We are undecided whether 'resize' should be triggered on post or on the DOM node.
 
 
 ## The media object
