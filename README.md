@@ -39,7 +39,7 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 
 #### .height( _value_ ) ![][warning]
 
-> The name of this method is undecided.
+> The name of this method is causing a holy war.
 * .height()
 * .size()
 
