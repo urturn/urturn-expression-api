@@ -111,7 +111,7 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 #### .url
 
 
-## The imageMedia object
+## The image object
 
 Inherits from the media object.
 
@@ -124,7 +124,7 @@ Inherits from the media object.
 > Filter takes a massive hash of filters and options. Dmitri likes it like this.
 
 
-## The videoMedia object
+## The video object
 
 Inherits from the media object.
 
@@ -135,7 +135,7 @@ Inherits from the media object.
 #### .filter( _type_, _options_ )
 
 
-## The soundMedia object
+## The sound object
 
 Inherits from the media object.
 
