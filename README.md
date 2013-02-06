@@ -54,17 +54,15 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 
 ### Properties
 
-#### .environment ![][warning]
+#### .context ![][agreed]
 
 ```js
 {
   player: boolean,
-  editor: boolean
+  editor: boolean,
+  thumbnail: boolean
 }
 ```
-
-> Another way of doing this would be:
-* .mode // 'edit' or 'view'
 
 
 #### .node ![][agreed]
