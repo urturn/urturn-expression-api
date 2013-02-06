@@ -23,17 +23,12 @@ UT.Expression.ready(function(post) {
 
 ## The post object
 
-> ![][warning] Formerly the expression object. We're trying this name on for size. There is something nicer about saying post.publishable(true) than expression.publishable(true).
-
 ### Methods
 
 Methods of the expression object are asynchronous, becuase ultimately they must communicate with Urturn via the postMessage API. 
 
 
-#### .create( _url_, _options_ ) ![][warning]
-
-> It is undecided whether we are able to determine the type of media object to generate from the url alone.
-
+#### .create( _type_, _options_ )
 
 #### .dialog( _type_, _options_ ) ![][warning]
 
