@@ -975,7 +975,7 @@ UT.Expression.extendExpression('container', function(expression){
 UT.Expression.extendExpression('medias', function(expression){
   return {
     // open a dialog box that let the user pick an image from various sources.
-    //
+    // 
     // The last parameter is a callback function that will receive the image.
     imageDialog: function(options, callback) {
       if (console && console.warn) {
@@ -1025,7 +1025,8 @@ UT.Expression.extendExpression('medias', function(expression){
 
       var pictureID = 0;
       var center = null;
-      var info = null;
+    var info = null;
+      var original = null;
       if (imageOrURLOrBase64.pictureID) {
         pictureID = imageOrURLOrBase64.pictureID;
       }
@@ -1037,6 +1038,7 @@ UT.Expression.extendExpression('medias', function(expression){
       }
       if (imageOrURLOrBase64._original) {
         imageOrURLOrBase64 = imageOrURLOrBase64._original;
+        original = imageOrURLOrBase64._original;
       }
       else if (imageOrURLOrBase64.url) {
         if (imageOrURLOrBase64.url.indexOf('http://proxy') !== 0) {
@@ -1046,16 +1048,20 @@ UT.Expression.extendExpression('medias', function(expression){
           imageOrURLOrBase64 = imageOrURLOrBase64.url;
         }
       }
-   
+      if (imageOrURLOrBase64.indexOf('http://proxy') !== 0) {
+        imageOrURLOrBase64 = expression.url.proxify(imageOrURLOrBase64);
+      }
       UT.Expression._callAPI('medias.crop', [{
           pictureID : pictureID,
           url : imageOrURLOrBase64,
           size : options,
           center : center,
-          info : info
-        }], function(imageDescriptor){
+          info : info,
+      original : original
+        }],
+        function(imageDescriptor) {
             callback.call(this, imageDescriptor);
-        });
+      });
     },
 
     applyFilterToImage : function(urlOrBase64, options, callback) {
@@ -1072,7 +1078,7 @@ UT.Expression.extendExpression('medias', function(expression){
       }
       if (urlOrBase64._type && urlOrBase64._type === 'image') {
         if (urlOrBase64._original) {
-          UT.Expression._callAPI('medias.applyFilter', [{url : urlOrBase64._original, filter :  options, crop : crop, info : info}], callback);
+          UT.Expression._callAPI('medias.applyFilter', [{original : urlOrBase64._original, url : urlOrBase64._original, filter :  options, crop : crop, info : info}], callback);
         }
         else {
           UT.Expression._callAPI('medias.applyFilter', [{url : urlOrBase64.url, filter :  options, crop : crop, info : info}], callback);
@@ -1083,7 +1089,7 @@ UT.Expression.extendExpression('medias', function(expression){
       }
     },
 
-    // XXX: USE EXPRESSION.ITEMS.SAVE
+    // XXX: USE EXPRESSION.ITEMS.SAVE 
     /**
     * saveImage
     * WIP an helper function that combine medias.createImage() and items.save();
@@ -1094,7 +1100,7 @@ UT.Expression.extendExpression('medias', function(expression){
     saveImage: function(key, urlOrBase64, callback) {
        UT.Expression._callAPI(
           'medias.createImage',
-           [urlOrBase64],
+           [urlOrBase64], 
            function (obj, error) {
             postMessageAPI.apply('items.save', [key, obj], function(data, error){
               if(error){
