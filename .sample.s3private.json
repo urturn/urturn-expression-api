@@ -1,7 +1,17 @@
 {
   "dev":{
-    "apiKey":"xxxxxxxxxxxxxxxx",
-    "secretKey":"xxxxxxxxxxxxxxxx",
+    "apiKey":"xxxxxxxx",
+    "secretKey":"xxxxxxxx",
     "bucket":"expressions.dev-ut.urturn.com"
+  },
+  "staging":{
+    "apiKey":"xxxxxxxx",
+    "secretKey":"xxxxxxxx",
+    "bucket":"expressions.staging.webdoc.com"
+  },
+  "production":{
+    "apiKey":"xxxxxxxx",
+    "secretKey":"xxxxxxxx",
+    "bucket":"expressions.webdoc.com"
   }
 }
