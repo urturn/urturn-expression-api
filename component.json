@@ -1,0 +1,7 @@
+{
+  "name": "urturn-expression-api",
+  "version": "0.0.0",
+  "dependencies": {
+    "fastclick": "~0.5.6"
+  }
+}
