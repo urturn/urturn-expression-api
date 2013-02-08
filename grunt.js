@@ -65,7 +65,8 @@ module.exports = function(grunt) {
         'lib/expression-api/medias.js',
         'lib/expression-api/document.js',
         'lib/expression-api/url.js',
-        'lib/iframe.js'
+        'lib/iframe.js',
+        'components/fastclick/lib/fastclick.js'
       ],
       dest: 'dist/iframe.js'
     },
