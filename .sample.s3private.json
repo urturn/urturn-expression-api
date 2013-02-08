@@ -2,16 +2,19 @@
   "dev":{
     "apiKey":"xxxxxxxx",
     "secretKey":"xxxxxxxx",
-    "bucket":"expressions.dev-ut.urturn.com"
+    "bucket":"expressions.dev-ut.urturn.com",
+    "distribution": "xxxxxxxx"
   },
   "staging":{
     "apiKey":"xxxxxxxx",
     "secretKey":"xxxxxxxx",
-    "bucket":"expressions.staging.webdoc.com"
+    "bucket":"expressions.staging.webdoc.com",
+    "distribution": "xxxxxxxx"
   },
   "production":{
     "apiKey":"xxxxxxxx",
     "secretKey":"xxxxxxxx",
-    "bucket":"expressions.webdoc.com"
+    "bucket":"expressions.webdoc.com",
+    "distribution": "xxxxxxxx"
   }
 }
