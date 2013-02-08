@@ -561,14 +561,14 @@ UT.Expression = (function(){
       args:args,
       expToken: _states ? _states.expToken : null
     };
-
-    if (callback) {
+    if(callback){
       // assign an id to the callback function
-      var callbackId = new UT.UUID().toString();
+      var callbackId = UT.uuid().toString();
       _callBacks[callbackId] = callback;
       jsonMessage.callbackId = callbackId;
     }
-    window.parent.postMessage(JSON.stringify(jsonMessage), "*");
+    var json = JSON.stringify(jsonMessage);
+    window.parent.postMessage(json, "*");
   }
 
   function _getInstance(){
