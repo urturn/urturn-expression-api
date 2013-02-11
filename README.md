@@ -47,11 +47,13 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 #### .proxify( _url_ ) ![][agreed]
 
 
+#### .publish( _fn_ )
+
+
 #### .valid( _boolean_ ) ![][agreed]
 
 
 #### .save() ![][agreed]
-
 
 
 ### Properties
