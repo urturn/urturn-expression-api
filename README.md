@@ -103,8 +103,8 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 #### .on('addmedia') ![][warning]
 
 > We need a way to tell the expression that a bookmarklet has added some media. Was this:
-exp.imageAdded(fn)
-...but that's a bit pants.
+> exp.imageAdded(fn)
+> ...but that's a bit pants.
 
 
 
