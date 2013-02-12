@@ -207,7 +207,6 @@ describe('collections', function(){
           expect(collection.getItem('dotSyntax')).toBeDefined() ;
           expect(collection.getItem('dotSyntax').comment).toBe('My Object') ;
           collection.save();
-          console.log(collection.getItem('dotSyntax'));
           expect(collection.getItem('dotSyntax').comment).toBe('My Object') ;
           expect(collection.getItem('dotSyntax').dotSyntax).not.toBeDefined();
         }) ;

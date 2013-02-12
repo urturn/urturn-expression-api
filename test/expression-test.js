@@ -8,11 +8,13 @@ describe('UT.Expression', function(){
   
   describe('.ready callback', function(){
     it('has a ready event that is called with an instance of expression.', function(done){
-      UT.Expression.ready(function(expression_instance){
+      var readyFunc = function(expression_instance){
         expect(expression_instance).toBeDefined("Expression should be defined.");
         expect(expression_instance.trigger).toBeDefined("expression instance should have a trigger function.");
+        expression_instance.unbind('ready', readyFunc);
         done();
-      });
+      };
+      UT.Expression.ready(readyFunc);
       var expression = UT.Expression._getInstance();
       expression.trigger('ready', expression);
     });
@@ -40,5 +42,4 @@ describe('UT.Expression', function(){
       expect(expression.testdynamic.test3).toEqual('test3');
     });
   });
-
 });

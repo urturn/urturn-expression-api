@@ -532,9 +532,15 @@ UT.Expression = (function(){
       fn.apply(this, [expression]);
     }
 
-    // quick hack to add touch class on touch device
+    // handle touchs
     if ('ontouchstart' in window || 'onmsgesturechange' in window) {
-      document.querySelector('body').className = document.querySelector('body').className + ' touch';
+      document.querySelector('html').className = document.querySelector('html').className + ' touch';
+
+      if (typeof FastClick != 'undefined') {
+        window.addEventListener('load', function() {
+          new FastClick(document.body);
+        }, false);
+      }
     }
 
     return expression;
@@ -576,8 +582,13 @@ UT.Expression = (function(){
     return expression;
   }
 
+  function _reset(){
+    expression = null;
+  }
+
   classModule._callAPI = _callAPI;
   classModule._getInstance = _getInstance;
+  classModule._reset = _reset;
 
   // == Private Functions.
 
@@ -720,7 +731,11 @@ UT.Expression = (function(){
      *  @param ready [boolean] : true : activate, false : deactivate
      */
     function readyToPost(ready) {
-       UT.Expression._callAPI('document.readyToPost', [ready], function(){});
+      if(ready !== undefined && ready != _states.readyToPost ){
+        _states.readyToPost = !!ready;
+        UT.Expression._callAPI('document.readyToPost', [_states.readyToPost], function(){});
+      }
+      return _states.readyToPost;
     }
 
     function getNote(){
@@ -883,10 +898,11 @@ UT.Expression = (function(){
     }
 
     function _ready(states) {
-      console.log('READY', states);
       expression.isReady = true;
       _states = states;
 
+      // default ready to post state is false
+      _states.readyToPost = false;
       bind('modeChanged', function(newMode) {
         _states.mode = newMode;
       });
@@ -899,6 +915,7 @@ UT.Expression = (function(){
       initializeExtension();
       trigger('ready', expression);
     }
+    expression._ready = _ready;
 
     function _post() {
       if (postFunction) {

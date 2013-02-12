@@ -4,7 +4,7 @@ config["API tests"] = {
   rootPath: "../",
   environment: "browser",
   sources: [
-    'dist/urturn-expression-api.min.js'
+    'dist/iframe.min.js'
   ],
   tests: [
     "test/*-test.js"
