@@ -100,6 +100,15 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 > See also post.node. We are undecided whether 'resize' should be triggered on post or on the DOM node.
 
 
+#### .on('addmedia') ![][warning]
+
+> We need a way to tell the expression that a bookmarklet has added some media. Was this:
+exp.imageAdded(fn)
+...but that's a bit pants.
+
+
+
+
 ## The media object
 
 ### Methods
