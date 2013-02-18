@@ -870,6 +870,11 @@ UT.Expression = (function(){
         break;
       }
     }
+
+    function getParentData()
+    {
+      return this.getState('parentData') || {};
+    }
     
     expression.dialog = dialog;
     expression.textInput = textInput;
@@ -904,6 +909,8 @@ UT.Expression = (function(){
     expression.setNote = setNote;
 
     expression.readyToPost = readyToPost;
+
+    expression.getParentData = getParentData;
 
     // == Private Methods
 
