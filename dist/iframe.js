@@ -811,11 +811,35 @@ UT.Expression = (function(){
       }
     }
 
-     /**
-     * Native text input for mobile
+    /**
+     * Native text input for mobile.
+     *
+     * if options is passed, it might contains:
+     * - value, the default value,
+     * - max, the number of chars allowed,
+     * - multiline, if true, allow for a multiline text input
+     *
+     * The callback will be passed the resulting string or null
+     * if no value have been selected.
+     *
+     * DEPRECATED signature: (defaultValue, max, callback)
      */
-    function textInput(defaultValue, max, callback) {
-      UT.Expression._callAPI('document.textInput', [defaultValue, max], callback);
+    function textInput(options, callback) {
+      if(typeof arguments[0] == 'string'){
+        options = {
+          value: arguments[0],
+          max: arguments[1]
+        };
+        callback = arguments[2];
+      } else if(typeof options == 'function'){
+        callback = options;
+        options = {};
+      }
+      UT.Expression._callAPI(
+        'document.textInput',
+        [options.value || null, options.max || null, options.multiline || false],
+        callback
+      );
     }
 
 
@@ -830,7 +854,9 @@ UT.Expression = (function(){
         break;
         case 'image':
           if (options && options.size && options.size.auto) {
-            console.warn('Use of size.auto is deprecated, use size.autoCrop instead');
+            if(window.console && console.warn){
+              console.warn('Use of size.auto is deprecated, use size.autoCrop instead');
+            }
           }
           UT.Expression._callAPI(
             'medias.openImageChooser',
