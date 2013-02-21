@@ -11,6 +11,12 @@
     "bucket":"expressions.staging.webdoc.com",
     "distribution": "xxxxxxxx"
   },
+  "dev2":{
+    "apiKey":"xxxxxxxx",
+    "secretKey":"xxxxxxxx",
+    "bucket":"expressions.webdoc.com",
+    "distribution": "xxxxxxxx"
+  },
   "production":{
     "apiKey":"xxxxxxxx",
     "secretKey":"xxxxxxxx",
