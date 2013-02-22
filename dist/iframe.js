@@ -733,7 +733,7 @@ UT.Expression = (function(){
     function readyToPost(ready) {
       if(ready !== undefined && ready != _states.readyToPost ){
         _states.readyToPost = !!ready;
-        UT.Expression._callAPI('document.readyToPost', [_states.readyToPost], function(){});
+        UT.Expression._callAPI('document.readyToPost', [_states.readyToPost]);
       }
       return _states.readyToPost;
     }
@@ -871,11 +871,25 @@ UT.Expression = (function(){
       }
     }
 
-    function getParentData()
-    {
+
+    /** 
+     * Get Parent Post Datas
+     */
+    function getParentData() {
       return this.getState('parentData') || {};
     }
     
+    function pushNavigation(state, callback) {
+      UT.Expression._callAPI('pushNavigation', [state], callback);
+    }
+
+    function popNavigation() {
+      UT.Expression._callAPI('popNavigation');
+    }
+
+    expression.pushNavigation = pushNavigation;
+    expression.popNavigation = popNavigation;
+
     expression.dialog = dialog;
     expression.textInput = textInput;
 
@@ -1025,7 +1039,7 @@ UT.Expression.extendExpression('container', function(expression){
 UT.Expression.extendExpression('medias', function(expression){
   return {
     // open a dialog box that let the user pick an image from various sources.
-    // 
+    //
     // The last parameter is a callback function that will receive the image.
     imageDialog: function(options, callback) {
       if (console && console.warn) {
@@ -1046,7 +1060,7 @@ UT.Expression.extendExpression('medias', function(expression){
 
     createImage: function(urlOrBase64, callback) {
       var readyState = expression.readyToPost();
-      expression.readyToPost();
+      expression.readyToPost(false);
       UT.Expression._callAPI('medias.createImage', [urlOrBase64], function(){
         expression.readyToPost(readyState);
         callback.apply(expression, arguments);
