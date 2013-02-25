@@ -43,10 +43,6 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 * .height()
 * .size()
 
-
-#### .proxify( _url_ ) ![][agreed]
-
-
 #### .publish( _fn_ )
 
 
@@ -130,6 +126,10 @@ Inherits from the media object.
 
 > Filter takes a massive hash of filters and options. Dmitri likes it like this.
 
+#### .editable(callback)
+
+Ensure the image will be editable in a HTML canvas by proxifying or transforming URL to base64.
+The callback will be passed (image) argument once it is safe to be edited.
 
 ## The video object
 
