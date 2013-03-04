@@ -706,10 +706,7 @@ UT.Expression = (function(){
     /**
      * register a post callback.
      */
-    //REVIEW: this method has a bad name: post should be use to trigger the post action from within the expression.
-    //        the async parameter looks weird to my eyes as well.
-    // TODO : use BIND
-    function post(fn) {
+    function publish(fn) {
       postFunction = fn;
     }
 
@@ -733,7 +730,7 @@ UT.Expression = (function(){
     function readyToPost(ready) {
       if(ready !== undefined && ready != _states.readyToPost ){
         _states.readyToPost = !!ready;
-        UT.Expression._callAPI('document.readyToPost', [_states.readyToPost]);
+        UT.Expression._callAPI('document.readyToPost', [_states.readyToPost], function(){});
       }
       return _states.readyToPost;
     }
@@ -843,7 +840,7 @@ UT.Expression = (function(){
     }
 
 
-    function dialog(type, options, callback) {
+    function create(type, options, callback) {
       if (callback === undefined && typeof(options) === 'function') {
         callback = options;
         options = {};
@@ -862,7 +859,8 @@ UT.Expression = (function(){
             'medias.openImageChooser',
             [options],
             function(imageDescriptor) {
-             callback.call(this, imageDescriptor);
+              var image = new UT.Image(imageDescriptor);
+             callback.call(this, image);
           });
         break;
         case 'video':
@@ -880,17 +878,35 @@ UT.Expression = (function(){
     }
     
     function pushNavigation(state, callback) {
-      UT.Expression._callAPI('pushNavigation', [state], callback);
+      UT.Expression._callAPI('container.pushNavigation', [state], callback);
     }
 
     function popNavigation() {
-      UT.Expression._callAPI('popNavigation');
+      UT.Expression._callAPI('container.popNavigation');
     }
+
+    function navigate(app) {
+      var options = {};
+      if (arguments.length >= 2) {
+        options = arguments[1];
+      }
+      else if (arguments.length === 1) {
+        options = app;
+        app = 'browse';
+      }
+      var opt = {
+        app : app,
+        parameters : options
+      };
+      UT.Expression._callAPI('container.navigate', [opt]);
+    }
+
+    expression.navigate = navigate;
 
     expression.pushNavigation = pushNavigation;
     expression.popNavigation = popNavigation;
 
-    expression.dialog = dialog;
+    expression.create = create;
     expression.textInput = textInput;
 
     // Events bindings
@@ -899,7 +915,7 @@ UT.Expression = (function(){
     expression.unbind = unbind;
 
     // Post event
-    expression.post = post;
+    expression.publish = publish;
     // ?? executePost ? TODO ?
 
     expression.modeChanged = modeChanged;
@@ -1234,6 +1250,64 @@ UT.Expression.extendExpression('url', function(expression){
   return url;
 });
 
+
+/**
+ * Urturn Image Object
+ * - image.crop();
+ * - image.filter();
+ * ...
+ */
+UT.Image = function(imageDescriptor) {
+	// Public methods
+	/**
+	 * Crop an image
+ * @param  {Object}   options  a hash of options :
+	 * Supported options : 
+	 * {Int} 	width 		: the width of the crop
+	 * {Int} 	height 		: the height of the crop
+	 * {Bool} flexRatio : if set to true, user will be able to modify crop ratio 
+	 * {Bool} auto 			: if set to true, the crop interface will not be displayed
+	 * @param  {Function} callback 	The function called once image has been croped
+	 * @return {void}            		Return nothing
+	 */
+	this.crop = function(options , callback) {
+		UT.Expression._callAPI('medias.crop', [{
+	      size : options,
+	      image : this.imageDescriptor
+	    }],
+	    function(imageDescriptor) {
+	    	this._buildImage(imageDescriptor);
+	      callback.call(this, this);
+	  }.bind(this));
+	};
+
+	/**
+	 * Apply Filters to an Image
+	 * @param  {Array} 		filters  	An array of filter to apply to image
+	 * @param  {Function} callback	The function called once image has been filterd
+	 * @return {void}            		Return nothing
+	 */
+	this.filter = function(filters, callback) {
+    UT.Expression._callAPI('medias.applyFilter', [{
+        filter : filters,
+        image : this.imageDescriptor
+      }],
+      function(imageDescriptor) {
+      	this._buildImage(imageDescriptor);
+       	callback.call(this, this);
+    }.bind(this));
+	};
+
+	// Private methods
+	// Use to bind this interface with Urturn API
+	this._buildImage = function(imageDescriptor) {
+		this.url = imageDescriptor.url;
+		this.imageDescriptor = imageDescriptor;
+	}
+
+	// init !
+	this._buildImage(imageDescriptor);
+}
 
 /**
  * @preserve FastClick: polyfill to remove click delays on browsers with touch UIs.
