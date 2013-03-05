@@ -25,6 +25,8 @@ module.exports = function(grunt) {
     'lib/expression-api/document.js',
     'lib/expression-api/url.js',
     'lib/expression-api/Image.js',
+    'lib/expression-api/Video.js',
+    'lib/expression-api/Sound.js',
     'components/fastclick/lib/fastclick.js',
     'lib/iframe.js'
   ];
