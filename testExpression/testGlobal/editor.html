@@ -1,0 +1,53 @@
+<h1>TEST ALL Functions</h1>
+
+<script type="text/javascript">
+  // A GLOBAL
+  expression = null;
+  // Bootstrap you expression editor
+  UT.Expression.ready(function(exp){
+    // Read more in test.js
+   expression = exp;
+  });
+</script>
+
+<input type='button' value='setPublishFunction' onclick='expression.publish(function(){alert("User Will Publish")})'/> <br/>
+
+<input type='button' value='create Image' onclick='createImage()'/>
+<input type='button' value='crop Image' onclick='cropImage()'/>
+<input type='button' value='Filter Image' onclick='filterImage()'/>
+<input type='button' value='toJSON' onclick='jsonImage()'/>
+ <br/>
+<img id='testImage1' />
+
+<script>
+	var image = null;
+
+	function newImage(data){
+		image = data;
+		document.getElementById("testImage1").src = data.url;
+	}
+
+	function createImage() {
+		expression.dialog("image", newImage);
+	}
+
+	function cropImage() {
+		expression.dialog(
+			'crop', 
+			{
+				image : image, 
+				size : {width : 100, height : 100, felxRatio : true}
+			}, 
+			newImage);
+	}
+
+	function jsonImage() {
+			console.log(image.toJSON());
+	}
+
+
+	function filterImage() {
+		image.filter([{"filter":"threshold","parameters":{"strength":"0.41","alpha":"0.9","primaryColor":[0,0,0],"secondaryColor":[255,255,255]}}], newImage);
+	}
+
+</script>

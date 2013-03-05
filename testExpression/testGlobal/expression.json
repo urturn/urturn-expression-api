@@ -1,0 +1,15 @@
+{
+  "title":"Test",
+  "system_name":"test",
+  "version":"1.0.12",
+  "api_version" : "0.6.0-alpha",
+  "dependencies": [{
+    "type":"stylesheet",
+    "path":"test.css"
+  },{
+    "type":"stylesheet",
+    "path":"test_editor.css",
+    "context":"editor"
+  }]
+  
+}
