@@ -51,6 +51,24 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 
 #### .save() ![][agreed]
 
+#### .bind() ![][warning]
+
+
+#### .trigger() ![][warning]
+
+
+#### .unbind() ![][warning]
+
+#### ._dispatch() ![][warning]
+
+#### .getParentData
+
+#### .pushNavigation
+
+#### .popNavigation
+
+#### .navigate
+
 
 ### Properties
 

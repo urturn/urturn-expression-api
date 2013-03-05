@@ -46,7 +46,7 @@
 
     UT.Expression.ready(readyFunc);
     
-    context.post = UT.Expression._getInstance();
+    context.post = UT.Expression._postInstance();
     context.post._ready({
       expToken: 'aaaa-aaaa-aaaaaa-aaaaaaaaa',
       mode: 'editor',
