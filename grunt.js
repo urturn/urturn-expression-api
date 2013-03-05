@@ -215,4 +215,5 @@ module.exports = function(grunt) {
   grunt.registerTask('default', 'lint filecheck concat min cssmin buster');
   grunt.registerTask('all', 'default s3deploy');
   grunt.registerTask('local', 'concat min cssmin');
+  grunt.registerTask('l', 'lint');
 };
