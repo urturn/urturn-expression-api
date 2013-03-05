@@ -28,7 +28,7 @@ UT.Expression.ready(function(post) {
 Methods of the expression object are asynchronous, becuase ultimately they must communicate with Urturn via the postMessage API. 
 
 
-#### .create( _type_, _options_ ) ![][agreed]
+#### .create( _type_, _options_ ) ![][agreed] [WIP]
 
 #### .dialog( _type_, _options_ ) ![][warning]
 
