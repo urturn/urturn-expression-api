@@ -666,7 +666,6 @@ UT.CollectionStore = function(options) {
      * - editor: true if in editor mode
      * - thumbnail: true if in thumbnail mode
      * - privacy: one of 'private', 'unlisted' or 'public' the current state of the document publication.
-     * - url: the public url of the document.
      *
      * Those attributes should not be modified as the context is read-only.
      * read-only
@@ -703,9 +702,7 @@ UT.CollectionStore = function(options) {
      * This is available only during the first edition of a post
      * if the expression is created from another one.
      */
-    var parentData = this.getParentData = function() {
-      return this.getState('parentData') || {};
-    };
+    var parentData = this.parentData = states.parentData || {};
 
     // Public Functions
 
