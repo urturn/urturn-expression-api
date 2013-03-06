@@ -578,7 +578,7 @@ UT.CollectionStore = function(options) {
     // create scoped post instance
     postInstance = new UT.Post(states);
 
-    postInstance.bind('scrollChanged', function(newScrollValues) {
+    postInstance.on('scrollChanged', function(newScrollValues) {
       states.scrollValues = newScrollValues;
     });
     for(var i = 0; i < readyListeners.length; i++){
@@ -587,7 +587,7 @@ UT.CollectionStore = function(options) {
   };
 
   var _post = function() {
-    postInstance.trigger('publish');
+    postInstance.fire('publish');
     _callAPI("posted");
   };
 
@@ -597,7 +597,7 @@ UT.CollectionStore = function(options) {
         _ready(msg.options);
         break;
       case 'triggerEvent' :
-        postInstance.trigger.apply(postInstance, [msg.eventName].concat(msg.eventArgs));
+        postInstance.fire.apply(postInstance, [msg.eventName].concat(msg.eventArgs));
         break;
       case 'callback' :
         _receiveCallback(msg.callbackId, msg.result);
@@ -632,6 +632,9 @@ UT.CollectionStore = function(options) {
     if(!states || !states.collections){
       throw new Error("ArgumentError", "Missing collections in state arguments");
     }
+    // quicker than bind
+    var self = this;
+
     // scoped properties
     var eventTypesBindings = {}; // handle event bindings for each event type
     var collectionStore = new UT.CollectionStore({
@@ -654,6 +657,57 @@ UT.CollectionStore = function(options) {
         UT.Expression._callAPI('document.setNote', [states.note]);
       }
     };
+
+    // Public Properties
+
+    /**
+     * context of the current editor
+     * - player: true if in player mode
+     * - editor: true if in editor mode
+     * - thumbnail: true if in thumbnail mode
+     * - privacy: one of 'private', 'unlisted' or 'public' the current state of the document publication.
+     * - url: the public url of the document.
+     *
+     * Those attributes should not be modified as the context is read-only.
+     * read-only
+     */
+    var context = this.context = {
+      player: false,
+      editor: false,
+      thumbnail: false,
+      privacy: null
+    };
+    // set the proper context values
+    if(states.mode == 'edit'){
+      context.editor = true;
+    } else if(states.mode == 'player'){
+      context.player = true;
+    }
+    context.privacy = states.documentPrivacy;
+
+    /**
+     * Retrieve the public url of the document.
+     *
+     * read-only
+     */
+    var url = this.url = states.documentURL;
+
+    /**
+     * the expression outter dom node
+     */
+    var node = this.node = document.querySelector('.webdoc_expression_wrapper');
+
+    /** 
+     * Retrieve Parent Post Datas.
+     *
+     * This is available only during the first edition of a post
+     * if the expression is created from another one.
+     */
+    var parentData = this.getParentData = function() {
+      return this.getState('parentData') || {};
+    };
+
+    // Public Functions
 
     /**
      * Native text input for mobile.
@@ -692,7 +746,7 @@ UT.CollectionStore = function(options) {
         function(imageDescriptor) {
           var image = new UT.Image();
           image.init(imageDescriptor);
-          callback.call(this, image);
+          callback.call(self, image);
       });
     };
 
@@ -702,7 +756,7 @@ UT.CollectionStore = function(options) {
         [options],
         function(soundDecriptor) {
           var sound = new UT.Sound(soundDecriptor);
-          callback.call(this, sound);
+          callback.call(self, sound);
       });
       UT.Expression._callAPI('medias.openSoundChooser', [options], callback);
     };
@@ -713,7 +767,7 @@ UT.CollectionStore = function(options) {
         [options],
         function(videoDescriptor) {
           var video = new UT.Video(videoDescriptor);
-          callback.call(this, video);
+          callback.call(self, video);
       });
     };
 
@@ -732,7 +786,7 @@ UT.CollectionStore = function(options) {
             image = new UT.Image();
             image.init(imageDescriptor);
           }
-          callback.call(this, image);
+          callback.call(self, image);
       });
     };
 
@@ -747,21 +801,21 @@ UT.CollectionStore = function(options) {
 
 
     /**
-     * Calls all fns in the list for a given type. Passes arguments
+     * Calls all fns in the list for a given eventName. Passes arguments
      * through to the caller.
-     * @params {String} type The type to trigger
+     * @params {String} eventName The eventName to fire
      */
-    var trigger = this.trigger = function(type) {
-      var list = eventTypesBindings[type],
+    var fire = this.fire = function(eventName) {
+      var list = eventTypesBindings[eventName],
           promises = [],
-          nextTrigger = 'after' + type.charAt(0).toUpperCase() + type.slice(1),
+          nextTrigger = 'after' + eventName.charAt(0).toUpperCase() + eventName.slice(1),
           listLength,
           listIndex,
           callbackFunction,
           callbackArgs,
           promise;
 
-      // Nothing to trigger
+      // Nothing to fire
       if (!list) {
         return;
       }
@@ -773,10 +827,11 @@ UT.CollectionStore = function(options) {
       listLength = list.length;
       listIndex = -1;
       callbackArgs = Array.prototype.slice.call(arguments, 1);
+      callbackTarget = (callbackArgs.length !== 0 ? callbackArgs[0] : self);
 
       while (++listIndex < listLength) {
         callbackFunction = list[listIndex];
-        promise = callbackFunction.apply(classModule, callbackArgs);
+        promise = callbackFunction.apply(callbackTarget, callbackArgs);
         if(promise && typeof promise.then === 'function') {
           promises.push(promise);
         }
@@ -784,33 +839,64 @@ UT.CollectionStore = function(options) {
 
       if(promises.length > 0) {
         when.all(promises).then(function() {
-          trigger(nextTrigger);
+          fire(nextTrigger);
         });
       }
       else {
-        trigger(nextTrigger);
+        fire(nextTrigger);
       }
     };
 
     /**
-     * Adds a listener fn to the list for a given event type.
+     * Register a listener for the given eventName.
+     *
+     * Available events:
+     *
+     * publish callback()
+     * ------------------
+     * Fired when the user wants to post his content. The callback 
+     * will be called on the Post instance and receive no argument.
+     * It must be runnable synchronously as the current context 
+     * will be destroyed after all callbacks as been processed.
+     *
+     * scroll callback(ScrollDataEvent)
+     * --------------------------------
+     * Fired every time the visible part of the iframe
+     * on the page change. 
+     * the callback is passed the scrolling data.
+     * XXX what are the scrolling data?
+     *
+     * resize callback(ResizeEvent)
+     * ----------------------------
+     * Fired when the content box size changed. The callback is
+     * called on the event and will be passed the ResizeEvent instance.
+     *
+     * media callback(MediaEvent)
+     * --------------------------
+     * Fired when a media is incoming from an external action
+     * like a bookmarklet adding a resource or a drag and drop.
+     * The callback is called on the event and will be passed a
+     * the MediaEvent instance.
      */
-    var bind = this.bind = function(type, fn) {
-      var list = eventTypesBindings[type] || (eventTypesBindings[type] = []);
+    var on = this.on = function(eventName, callback) {
+      var list = eventTypesBindings[eventName] || (eventTypesBindings[eventName] = []);
 
-      // This fn is not a function
-      if (typeof fn !== 'function') {
+      // This callback is not a function
+      if (typeof callback !== 'function') {
         return;
       }
 
-      list.push(fn);
+      list.push(callback);
     };
 
     /**
-     * Removes a listener fn from its list.
+     * Removes the given callback for the given eventName.
+     *
+     * @param {String} eventName
+     * @param {Function} callback to remove
      */
-    var unbind = this.unbind = function(type, fn) {
-      var list = eventTypesBindings[type],
+    var off = this.off = function(eventName, callback) {
+      var list = eventTypesBindings[eventName],
       l;
 
       // Nothing to unbind
@@ -819,35 +905,18 @@ UT.CollectionStore = function(options) {
       }
 
       // No function specified, so unbind all by removing the list
-      if (!fn) {
-        delete eventTypesBindings[type];
+      if (!callback) {
+        delete eventTypesBindings[eventName];
         return;
       }
 
       // Remove all occurences of this function from the list
-      l = list ? list.indexOf(fn) : -1;
+      l = list ? list.indexOf(callback) : -1;
 
       while (l !== -1) {
         list.splice(l, 1);
-        l = list.indexOf(fn);
+        l = list.indexOf(callback);
       }
-    };
-
-    /**
-     * Register a synchronous callback that will be called
-     * when the user finish the editing of its expression.
-     *
-     * The callback and all its action must be runnable synchronously
-     * as the current context will be destroyed after all callbacks
-     * as been processed.
-     *
-     * Each time there is the need for an asynchronous call, the
-     * valid(false) function must be called to prevent those callback
-     * to be triggered until the asynchrouns action finish.
-     * Then .valid(true) must be called again.
-     */
-    var publish = this.publish = function(callback) {
-      bind('publish', callback);
     };
 
     /**
@@ -855,7 +924,7 @@ UT.CollectionStore = function(options) {
      * A valid document can be posted synchronously at any time.
      * 
      * @param flag {boolean} if provided, set the current validity state.
-     * @return validity flag
+     * @return {boolean} the current validity flag
      */
     var valid = this.valid = function(flag){
       if(flag !== undefined && flag != states.readyToPost ){
@@ -866,21 +935,21 @@ UT.CollectionStore = function(options) {
     };
 
     /**
-     * Bind the callback function to the scrollChanged event.
+     * on the callback function to the scrollChanged event.
      * The function will receive the new scroll values.
      * @param {function} callback will be passed the new scrollvalues
      */
     var scrollChanged = this.scollChanged = function(callback) {
-      bind('scrollChanged', callback);
+      on('scrollChanged', callback);
     };
 
     /**
-     * Bind the callback function to the imageAdded event.
+     * on the callback function to the imageAdded event.
      * The function will receive the image and optional extraData param.
      * @param {Function} callback
      */
     var imageAdded = this.imageAdded = function(callback) {
-      bind('imageAdded', callback);
+      on('imageAdded', callback);
     };
 
     /**
@@ -904,36 +973,22 @@ UT.CollectionStore = function(options) {
      *
      * The asynchronous result of this function can be listened on
      * the DOM node event.
+     * size can be one of:
+     * - {height: Number} an object containing the height in pixels
+     * - 'auto' automatically resize to the actual content size
      */
-    var resize = this.resize = function(options){
-      // XXX TODO
-      /*module.autoResize = function() {
-        var height = expression.getElement().scrollHeight;
-        UT.Expression._callAPI('container.resizeHeight', [height]);
-      };*/
-      /*
-      module.resizeHeight = function(height, callback) {
-        UT.Expression._callAPI('container.resizeHeight', [height], callback);
-      };
-      */
+    var resize = this.resize = function(sizeInfo){
+      if(size && size == 'auto'){
+        UT.Expression._callAPI('container.resizeHeight', [node.scrollHeight]);
+      } else if (size && size.height){
+        UT.Expression._callAPI('container.resizeHeight', [size.height]);
+      }
     };
-
-
 
     /**
      * The default, private collection
      */
     this.storage = collectionStore.get('default');
-
-    /** 
-     * Retrieve Parent Post Datas.
-     *
-     * This is available only during the first edition of a post
-     * if the expression is created from another one.
-     */
-    var getParentData = this.getParentData = function() {
-      return this.getState('parentData') || {};
-    };
 
     var pushNavigation = this.pushNavigation = function(state, callback) {
       UT.Expression._callAPI('container.pushNavigation', [state], callback);
@@ -958,45 +1013,6 @@ UT.CollectionStore = function(options) {
       };
       UT.Expression._callAPI('container.navigate', [opt]);
     };
-
-    // Properties
-
-    /**
-     * context of the current editor
-     * - player: true if in player mode
-     * - editor: true if in editor mode
-     * - thumbnail: true if in thumbnail mode
-     * - privacy: one of 'private', 'unlisted' or 'public' the current state of the document publication.
-     * - url: the public url of the document.
-     *
-     * Those attributes should not be modified as the context is read-only.
-     * read-only
-     */
-    var context = this.context = {
-      player: false,
-      editor: false,
-      thumbnail: false,
-      privacy: null
-    };
-    // set the proper context values
-    if(states.mode == 'edit'){
-      context.editor = true;
-    } else if(states.mode == 'player'){
-      context.player = true;
-    }
-    context.privacy = states.documentPrivacy;
-
-    /**
-     * Retrieve the public url of the document.
-     *
-     * read-only
-     */
-    var url = this.url = states.documentURL;
-
-    /**
-     * the expression outter dom node
-     */
-    var node = this.node = document.querySelector('.webdoc_expression_wrapper');
   };
 })();
 /**
@@ -1049,7 +1065,7 @@ UT.Image = function() {
    function(imageDescriptor) {
      this.init(imageDescriptor);
      callback.call(this, this);
-   }.bind(this));
+   }.on(this));
   };
 
   /**
@@ -1071,7 +1087,7 @@ UT.Image = function() {
    function(imageDescriptor) {
      this.init(imageDescriptor);
      callback.call(this, this);
-   }.bind(this));
+   }.on(this));
   };
 
   /**
@@ -1088,7 +1104,7 @@ UT.Image = function() {
    function(imageDescriptor) {
      this.init(imageDescriptor);
      callback.call(this, this);
-   }.bind(this));
+   }.on(this));
   };
 
   /**
@@ -1105,7 +1121,7 @@ UT.Image = function() {
      function(editableImageUrl) {
        this.url = editableImageUrl;
        callback.call(this, this);
-     }.bind(this)
+     }.on(this)
    );
   };
 
@@ -1119,7 +1135,7 @@ UT.Image = function() {
 
   // Private methods
   // LOOK AWAY!
-  // Use to bind this interface with Urturn API
+  // Use to on this interface with Urturn API
   this.init = function(imageDescriptor) {
    this.url = imageDescriptor.url;
    this.descriptor = imageDescriptor;
@@ -1155,14 +1171,14 @@ UT.Video = function(videoDescriptor) {
 
 	// Private methods
 	// LOOK AWAY!
-	// Use to bind this interface with Urturn API
+	// Use to on this interface with Urturn API
 	function _buildVideo(videoDescriptor) {
 		this.url = videoDescriptor.url;
 		descriptor = videoDescriptor;
 	}
 	var descriptor = {};
 	// init !
-	_buildVideo.bind(this)(videoDescriptor);
+	_buildVideo.on(this)(videoDescriptor);
 };
 /**
  * A sound object return by create('sound');
@@ -1235,7 +1251,7 @@ UT.Sound = function(soundDescriptor) {
 
 	// Private methods
 	// LOOK AWAY!
-	// Use to bind this interface with Urturn API
+	// Use to on this interface with Urturn API
 	function _buildSound(soundDescriptor) {
 		descriptor = soundDescriptor;
 		this.service = soundDescriptor.service;
@@ -1251,7 +1267,7 @@ UT.Sound = function(soundDescriptor) {
 	}
 
 	var descriptor = {};
-	_buildSound.bind(this)(soundDescriptor);
+	_buildSound.on(this)(soundDescriptor);
 };
 /**
  * @preserve FastClick: polyfill to remove click delays on browsers with touch UIs.

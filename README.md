@@ -43,21 +43,15 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 * .height()
 * .size()
 
-#### .publish( _fn_ )
-
-
 #### .valid( _boolean_ ) ![][agreed]
-
 
 #### .save() ![][agreed]
 
-#### .bind() ![][warning]
+#### .on() ![][warning]
 
+#### .fire() ![][warning]
 
-#### .trigger() ![][warning]
-
-
-#### .unbind() ![][warning]
+#### .off() ![][warning]
 
 #### ._dispatch() ![][warning]
 
@@ -111,8 +105,7 @@ Methods of the expression object are asynchronous, becuase ultimately they must 
 
 #### .on('resize') ![][warning]
 
-> See also post.node. We are undecided whether 'resize' should be triggered on post or on the DOM node.
-
+#### .on('publish') ![][warning]
 
 #### .on('addmedia') ![][warning]
 

@@ -13,15 +13,15 @@ describe('UT.Expression', function(){
     it('has a ready event that is called with an instance of expression.', function(done){
       var readyFunc = function(expression_instance){
         expect(expression_instance).toBeDefined("Expression should be defined.");
-        expect(expression_instance.trigger).toBeDefined("expression instance should have a trigger function.");
-        expression_instance.unbind('ready', readyFunc);
+        expect(expression_instance.fire).toBeDefined("expression instance should have a trigger function.");
+        expression_instance.off('ready', readyFunc);
         done();
       };
       UT.Expression.ready(readyFunc);
       UT.Expression._dispatch({type: 'ready', options: {collections:[]}});
       var expression = UT.Expression._postInstance();
       expect(expression).toBeDefined();
-      expression.trigger('ready', expression);
+      expression.fire('ready', expression);
     });
   });
 });
