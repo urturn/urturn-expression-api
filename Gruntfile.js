@@ -73,7 +73,7 @@ module.exports = function(grunt) {
   config.concat = {
     sandbox: {
       src: [
-        'lib/expression-api/init.js',
+        'lib/expression-api/core.js',
         'lib/expression-api/uuid.js',
         'lib/expression-api/item-collection.js',
         'lib/expression-api/item-collection-store.js'

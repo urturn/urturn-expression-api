@@ -28,7 +28,7 @@ UT.Collection = function(options) {
   this.setUserItem = function(item) {
     if(!currentUserId) {
       delegate.authenticate();
-      throw "ArgumentError: no currentUserId defined";
+      throw new Error("ArgumentError", "No currentUserId defined");
     }
     return this.setItem(currentUserId, item);
   };
@@ -43,10 +43,10 @@ UT.Collection = function(options) {
   // Add or updated an item binded to a specific key
   var setItem = function(key, item) {
     if(!key) {
-      throw "invalid key: " + key;
+      throw new Error("InvalidKey", key);
     }
     if(privateKeys.indexOf(key) != -1) {
-      throw "reserved key: " + key;
+      throw new Error("ReservedKey", key);
     }
     var sanItem = sanitizeItem(key, item);
     var oldItem = null;
@@ -316,12 +316,12 @@ UT.Collection = function(options) {
             if(!isNaN(n) && isFinite(item[fd.name])) {
               sanitizedItem[fd.name] = n;
             } else {
-              throw 'TypeError: wrong value for field note';
+              throw new Error('TypeError', 'Wrong value for field note');
             }
           } else if(fd.type == 'boolean'){
             sanitizedItem[fd.name] = !!item[fd.name];
           } else {
-            throw 'TypeError: Unkown type ' + fd.type;
+            throw new Error('TypeError', 'Unkown type ' + fd.type);
           }
         }
       }
@@ -335,13 +335,13 @@ UT.Collection = function(options) {
   // constructor
   var initialize = function(options) {
     if(!options.data) {
-      throw "ArgumentError: missing data";
+      throw new Error("ArgumentError", "missing data");
     }
     if(!options.data.name) {
-      throw "ArgumentError: no name in data";
+      throw new Error("ArgumentError", "no name in data");
     }
     if(options.data.count === undefined) {
-      throw "ArgumentError: no count in data";
+      throw new Error("ArgumentError", "no count in data");
     }
     operations = {}; // map of operations results
     keys = []; // all used keys
@@ -439,7 +439,7 @@ var supportGetSet = function() {
       });
     }
   } catch(defPropException) { /* can't define __defineGetter__ and __defineSetter__. Certainly ie < 8*/
-    throw('Simple Storage API not Supported');
+    throw new Error('Simple Storage API not Supported');
   }
 };
 supportGetSet();
@@ -456,7 +456,7 @@ UT.CollectionStore = function(options) {
     var data = this.data[i];
     var name = data.name;
     if(!name) {
-      throw "ArgumentError: data contains unamed collections.";
+      throw new Error("ArgumentError", "data contains unamed collections.");
     }
     collections[name] = new UT.Collection({
       data: data,
@@ -740,6 +740,7 @@ UT.Expression.extendExpression('url', function(expression){
   var apiListeners = {}; // contains the various api callbacks keyed by uuid
   var isReady = false; // become true once the environment is ready
   var postInstance; // will contains the current post instance
+  var states; // contains the expression state data
 
   /**
    * Expression static class is the wrapper between the client code, server code. It is responsible
@@ -775,7 +776,7 @@ UT.Expression.extendExpression('url', function(expression){
       type:"ExpAPICall",
       methodName:methodName,
       args:args,
-      expToken: _states ? _states.expToken : null
+      expToken: states ? states.expToken : null
     };
     if(callback){
       // assign an id to the callback function
@@ -806,7 +807,8 @@ UT.Expression.extendExpression('url', function(expression){
     }
   };
 
-  var _ready = function(states) {
+  var _ready = function(newStates) {
+    states = newStates;
     isReady = true;
     // default ready to post state is false
     states.readyToPost = false;
@@ -814,7 +816,7 @@ UT.Expression.extendExpression('url', function(expression){
     postInstance = new UT.Post(states);
 
     postInstance.bind('scrollChanged', function(newScrollValues) {
-      _states.scrollValues = newScrollValues;
+      states.scrollValues = newScrollValues;
     });
     for(var i = 0; i < readyListeners.length; i++){
       readyListeners[i].apply(postInstance, [postInstance]);
@@ -847,6 +849,8 @@ UT.Expression.extendExpression('url', function(expression){
    * Reset the current environment.
    */
   UT.Expression._reset = function(){
+    readyListeners = [];
+    apiListeners = [];
     postInstance = null;
     isReady = false;
   };
@@ -862,8 +866,23 @@ UT.Expression.extendExpression('url', function(expression){
 })();
 ; (function(){
   UT.Post = function(states){
+    if(!states || !states.collections){
+      throw new Error("ArgumentError", "Missing collections in state arguments");
+    }
     // scoped properties
     var eventTypesBindings = {}; // handle event bindings for each event type
+    var collectionStore = new UT.CollectionStore({
+      data: states.collections,
+      currentUserId: states.currentUserId,
+      delegate: {
+        save: function(name, items, callback) {
+          UT.Expression._callAPI('collections.save', [name, items], callback);
+        },
+        authenticate: function(callback) {
+          UT.Expression._callAPI('authenticate');
+        }
+      }
+    });
 
     // scoped functions
     var setNote = function(){
@@ -1052,7 +1071,17 @@ UT.Expression.extendExpression('url', function(expression){
     };
 
     /**
-     * Register a post callback.
+     * Register a synchronous callback that will be called
+     * when the user finish the editing of its expression.
+     *
+     * The callback and all its action must be runnable synchronously
+     * as the current context will be destroyed after all callbacks
+     * as been processed.
+     *
+     * Each time there is the need for an asynchronous call, the
+     * valid(false) function must be called to prevent those callback
+     * to be triggered until the asynchrouns action finish.
+     * Then .valid(true) must be called again.
      */
     var publish = this.publish = function(callback) {
       bind('publish', callback);
@@ -1070,7 +1099,7 @@ UT.Expression.extendExpression('url', function(expression){
         states.readyToPost = !!flag;
         UT.Expression._callAPI('document.readyToPost', [states.readyToPost]);
       }
-      return _states.readyToPost;
+      return states.readyToPost;
     };
 
     /**
@@ -1107,13 +1136,21 @@ UT.Expression.extendExpression('url', function(expression){
       }
     };
 
+    /**
+     * The default, private collection
+     */
+    this.storage = collectionStore.get('default');
+
     /** 
-     * Get Parent Post Datas
+     * Retrieve Parent Post Datas.
+     *
+     * This is available only during the first edition of a post
+     * if the expression is created from another one.
      */
     var getParentData = this.getParentData = function() {
       return this.getState('parentData') || {};
     };
-    
+
     var pushNavigation = this.pushNavigation = function(state, callback) {
       UT.Expression._callAPI('container.pushNavigation', [state], callback);
     };
@@ -2124,5 +2161,3 @@ UT.Expression.extendExpression('collections', function(expression) {
     return collectionStore;
   }
 });
-
-UT.Expression._postInstance();
