@@ -3,47 +3,50 @@ module.exports = function(grunt) {
   var fs = require('fs'),
       path = require('path');
 
+  function loadS3Config(){
+    if(fs.existsSync(s3PrivatePath)){
+      return JSON.parse(fs.readFileSync(s3PrivatePath));
+    } else {
+      console.log("You need to create a " + s3PrivatePath + " file to run `grunt s3deploy`");
+      return null;
+    }
+  }
 
   var s3PrivatePath = path.join(__dirname, '.s3private.json');
-  var s3Config = null;
-  var info = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json')));
-  if(fs.existsSync(s3PrivatePath)){
-    s3Config = JSON.parse(fs.readFileSync(s3PrivatePath));
-  } else {
-    console.log("You need to create a " + s3PrivatePath + " file to run `grunt s3deploy`");
-  }
+  var s3Config = loadS3Config();
+  var info = JSON.parse(grunt.file.read('package.json'));
 
   // List all source files that might be include.
   var sources = [
-    'lib/expression-api/init.js',
+    'lib/expression-api/core.js',
     'lib/expression-api/uuid.js',
     'lib/expression-api/item-collection.js',
     'lib/expression-api/item-collection-store.js',
-    'lib/expression-api/core.js',
     'lib/expression-api/container.js',
     'lib/expression-api/medias.js',
     'lib/expression-api/document.js',
     'lib/expression-api/url.js',
+    'lib/expression-api/Expression.js',
+    'lib/expression-api/Post.js',
     'lib/expression-api/Image.js',
     'lib/expression-api/Video.js',
     'lib/expression-api/Sound.js',
     'components/fastclick/lib/fastclick.js',
+    'lib/expression-api/init.js',
     'lib/iframe.js'
   ];
 
   var config = {};
   // Lint
-  config.lint = {
-    all: ['grunt.js', 'lib/**/*.js', 'test/**/*.js']
-  };
   config.jshint = {
     options: {
       browser: true
-    }
+    },
+    all: ['grunt.js', 'lib/**/*.js', 'test/**/*.js']
   };
 
   // Minify JS
-  config.min = {
+  config.uglify = {
     minimifiedIframe: {
       src: 'dist/iframe.js',
       dest: 'dist/iframe.min.js'
@@ -124,7 +127,10 @@ module.exports = function(grunt) {
 
   // Load external grunt Task
   grunt.loadNpmTasks('grunt-buster');
-  grunt.loadNpmTasks('grunt-css');
+  grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
 
   grunt.registerMultiTask('filecheck', "Ensure sources file are here", function(){
     for(var i in this.data){
@@ -212,8 +218,8 @@ module.exports = function(grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', 'lint filecheck concat min cssmin buster');
-  grunt.registerTask('all', 'default s3deploy');
-  grunt.registerTask('local', 'concat min cssmin');
-  grunt.registerTask('l', 'lint');
+  grunt.registerTask('default', ['jshint', 'filecheck', 'concat', 'uglify', 'cssmin', 'buster']);
+  grunt.registerTask('all', ['default', 's3deploy']);
+  grunt.registerTask('local', ['concat', 'uglify', 'cssmin']);
+  grunt.registerTask('l', 'jshint');
 };
