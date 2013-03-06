@@ -10,7 +10,8 @@
   });
 </script>
 
-<input type='button' value='setPublishFunction' onclick='expression.publish(function(){alert("User Will Publish")})'/> <br/>
+<input type='button' value='setPublishFunction'
+    onclick='expression.on("publish", function(){alert("User Will Publish");})'/> <br/>
 
 <input type='button' value='valid' onclick='expression.valid(true)'/> 
 <input type='button' value='invalid' onclick='expression.valid(false)'/><br/>
