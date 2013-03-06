@@ -17,6 +17,7 @@ config["API tests"] = {
     'lib/expression-api/init.js'
   ],
   tests: [
-    "test/expression-test.js"
+    "test/expression-test.js",
+    "test/core-test.js"
   ]
 };

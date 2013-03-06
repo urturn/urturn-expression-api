@@ -5,6 +5,9 @@ describe('UT.Expression', function(){
     expect(WD).toBeDefined() ;
     expect(UT.Expression).toBeDefined() ;
   });
+  afterEach(function(){
+    UT.Expression._reset();
+  });
 
   describe('.ready callback', function(){
     it('has a ready event that is called with an instance of expression.', function(done){
