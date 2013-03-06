@@ -42,7 +42,8 @@
         documentPrivacy: 'public',
         collections: [{
           name: 'default',
-          items: []
+          items: [],
+          count: 0
         }],
         currentUserId: 'cccc-cccc-cccccc-cccccccc',
         host: 'http://uuuu.com',

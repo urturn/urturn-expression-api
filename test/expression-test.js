@@ -18,7 +18,7 @@ describe('UT.Expression', function(){
         done();
       };
       UT.Expression.ready(readyFunc);
-      UT.Expression._dispatch({type: 'ready', options: {}});
+      UT.Expression._dispatch({type: 'ready', options: {collections:[]}});
       var expression = UT.Expression._postInstance();
       expect(expression).toBeDefined();
       expression.trigger('ready', expression);
