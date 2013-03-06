@@ -18,7 +18,7 @@ module.exports = function(grunt) {
 
   // List all source files that might be include.
   var sources = [
-    'lib/expression-api/core.js',
+    'lib/expression-api/namespace.js',
     'lib/expression-api/uuid.js',
     'lib/expression-api/ItemCollection.js',
     'lib/expression-api/ItemCollectionStore.js',
@@ -68,7 +68,7 @@ module.exports = function(grunt) {
   config.concat = {
     sandbox: {
       src: [
-        'lib/expression-api/core.js',
+        'lib/expression-api/namespace.js',
         'lib/expression-api/uuid.js',
         'lib/expression-api/ItemCollection.js',
         'lib/expression-api/ItemCollectionStore.js'

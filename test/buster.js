@@ -4,7 +4,7 @@ config["API tests"] = {
   rootPath: "../",
   environment: "browser",
   sources: [
-    'lib/expression-api/core.js',
+    'lib/expression-api/namespace.js',
     'lib/expression-api/uuid.js',
     'lib/expression-api/Expression.js',
     'lib/expression-api/Post.js',
