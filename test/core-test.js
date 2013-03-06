@@ -91,10 +91,12 @@
     "dialog/test": {
       "using option hash": function(done){
         listenToMessage(function(message, callback){
-          buster.assert.equals(message.args[0], 'default');
-          buster.assert.equals(message.args[1], 15);
-          buster.assert.equals(message.args[2], true);
-          callback('hello');
+          if(message.methodName == 'document.textInput'){
+            buster.assert.equals(message.args[0], 'default');
+            buster.assert.equals(message.args[1], 15);
+            buster.assert.equals(message.args[2], true);
+            callback('hello');
+          }
         });
         this.post.dialog('text', {
           value: 'default',

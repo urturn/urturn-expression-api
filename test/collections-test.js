@@ -382,7 +382,7 @@ describe('collections', function(){
           collection.setUserItem({note: 'wrong'});
           fail('Should throw an exception');
         } catch (e){
-          expect(e).toBe('TypeError: wrong value for field note');
+          expect(e.message).toBe('TypeError');
         }
       });
 
