@@ -497,243 +497,6 @@ UT.CollectionStore = function(options) {
   };
 };
 
-UT.Expression.extendExpression('container', function(expression){
-
-  var module = {};
-
-  // Tell the iframe to resize to the whole content size.
-  module.autoResize = function() {
-    var height = expression.getElement().scrollHeight;
-    UT.Expression._callAPI('container.resizeHeight', [height]);
-  };
- // autoResize only work on certain condition. Often it is much more easier to set the height needed
- // callback is called when container has been resized
-  module.resizeHeight = function(height, callback) {
-    UT.Expression._callAPI('container.resizeHeight', [height], callback);
-  };
-
-  module.setTitle = function(title){
-    UT.Expression._callAPI('container.setTitle', [title]);
-  };
-
-  // XXX Unused
-  popupUsers = function(userIds) {
-    UT.Expression._callAPI('container.popupUsers', [uerIds]);
-  };
-
-  // XXX Unused
-  popup = function(data, ratio) {
-    UT.Expression._callAPI('container.popup', [data, ratio]);
-  };
-  // XXX Unused
-  closePopup = function() {
-    UT.Expression._callAPI('container.closePopup');
-  };
-
-
-
-  return module;
-});
-
-UT.Expression.extendExpression('medias', function(expression){
-  return {
-    // open a dialog box that let the user pick an image from various sources.
-    //
-    // The last parameter is a callback function that will receive the image.
-    imageDialog: function(options, callback) {
-      if (console && console.warn) {
-        console.warn('Usage of imageDialog Deprecated, use expression.dialog instead');
-      }
-      if (!callback){
-        callback = options;
-        options = {};
-      }
-
-      if (options && options.size && options.size.auto && window.console && console.warn) {
-        console.warn('Use of size.auto is deprecated, use size.autoCrop instead');
-      }
-      UT.Expression._callAPI('medias.openImageChooser', [options], function(imageDescriptor){
-        callback.call(this, imageDescriptor);
-      });
-    },
-
-    createImage: function(urlOrBase64, callback) {
-      var readyState = expression.readyToPost();
-      expression.readyToPost(false);
-      UT.Expression._callAPI('medias.createImage', [urlOrBase64], function(){
-        expression.readyToPost(readyState);
-        callback.apply(expression, arguments);
-      });
-    },
-
-
-    /*
-     * Options should be : {x : source X,y : source Y, w : source width, h  : source height, width : dest Width, height : dest Height}
-     */
-    reCrop : function(imageOrURLOrBase64, options, callback) {
-      if (!imageOrURLOrBase64._type || imageOrURLOrBase64._type !== 'image') {
-        imageOrURLOrBase64 = {
-          url : imageOrURLOrBase64
-        };
-      }
-      UT.Expression._callAPI('medias.reCrop', [{
-          size : options,
-          image : imageOrURLOrBase64
-        }],
-        function(imageDescriptor) {
-            callback.call(this, imageDescriptor);
-      });
-    },
-
-    crop : function(imageOrURLOrBase64, options , callback){
-      if (!imageOrURLOrBase64._type || imageOrURLOrBase64._type !== 'image') {
-        imageOrURLOrBase64 = {
-          url : imageOrURLOrBase64
-        };
-      }
-      UT.Expression._callAPI('medias.crop', [{
-            size : options,
-            image : imageOrURLOrBase64
-          }],
-          function(imageDescriptor) {
-              callback.call(this, imageDescriptor);
-        });
-    },
-
-    applyFilterToImage : function(imageOrURLOrBase64, options, callback) {
-      if (!imageOrURLOrBase64._type || imageOrURLOrBase64._type !== 'image') {
-        imageOrURLOrBase64 = {
-          url : imageOrURLOrBase64
-        };
-      }
-      UT.Expression._callAPI('medias.applyFilter', [{
-            filter : options,
-            image : imageOrURLOrBase64
-          }],
-          function(imageDescriptor) {
-              callback.call(this, imageDescriptor);
-        });
-    },
-
-    // XXX: USE EXPRESSION.ITEMS.SAVE 
-    /**
-    * saveImage
-    * WIP an helper function that combine medias.createImage() and items.save();
-    * @param key the key associate with the image (to retrieve it latter with save)
-    * @param urlOrBase64 URL or dataURL of the image to save
-    * @param callback Callback called when function execution is over (success or failed)
-    */
-    saveImage: function(key, urlOrBase64, callback) {
-       UT.Expression._callAPI(
-          'medias.createImage',
-           [urlOrBase64], 
-           function (obj, error) {
-            postMessageAPI.apply('items.save', [key, obj], function(data, error){
-              if(error){
-                // XXX have to define an error format.
-                if(!callback && window.console && console.error){
-                  console.error('Unable to save object with key: ' + key, error.message);
-                } else if(callback){
-                  callback.call(error, null, error);
-                }
-                return;
-              }
-              obj._id = data._id;
-             // TODO : cahcke the item when saved success
-             //  cacheItem(key, obj);
-              if(callback){
-                callback.call(obj, obj, null);
-              }
-            });
-        });
-    },
-
-    imageWithDataUrl: function(image, callback){
-      UT.Expression._callAPI('medias.imageWithDataUrl', [image], callback);
-    },
-
-    soundDialog: function(options, callback) {
-     if (console && console.warn) {
-        console.warn('Usage of soundDialog Deprecated, use expression.dialog instead');
-      }
-      UT.Expression._callAPI('medias.openSoundChooser', [options], callback);
-    },
-
-    videoDialog: function(options, callback) {
-      if (console && console.warn) {
-        console.warn('Usage of videoDialog Deprecated, use expression.dialog instead');
-      }
-      UT.Expression._callAPI('medias.openVideoChooser', [options], callback);
-    },
-
-    findImage: function(mediaId, callback) {
-      UT.Expression._callAPI('medias.findImage', [mediaId], callback);
-    }
-  };
-});
-UT.Expression.extendExpression('document', function(expression){
-  return {
-    getDocumentURL: function() {
-      return expression.getState('documentURL');
-    },
-
-    getDocumentPrivacy: function() {
-      return expression.getState('documentPrivacy');
-    }
-  };
-});
-/**
- * Webdoc Url API
- */
-
-UT.Expression.extendExpression('url', function(expression){
-  var url = {};
-
-  url['for'] = function(asset) {
-    return url.getAssetPath(asset);
-  };
-
-  url.getAssetThroughProxy = function(asset)
-  {
-    return this.proxify(this.getAssetPath(asset));
-  };
-
-  url.getAssetPath = function(asset) {
-    // var host = 'http://' + expression.getState('host');
-    if (asset.indexOf('./') === 0) {
-      asset = asset.substring(1);
-    }
-    if (expression.getState('assetPath').indexOf('http') === -1) {
-      return  'http://' + expression.getState('host') + '/' + expression.getState('assetPath') + asset;
-    }
-    return expression.getState('assetPath') + asset;
-  };
-
-  url.proxify = function(urlOrBase64){
-  //  console.log('Proxify : ', urlOrBase64);
-    var host = window.location.protocol + '//' + expression.getState('host') + '/image_proxy/';
-    if (typeof(urlOrBase64) == 'string' &&
-        urlOrBase64.indexOf('data:image') !== 0 &&
-        urlOrBase64.indexOf('image_proxy') == -1){
-      var newUrl = urlOrBase64;
-      if (urlOrBase64.indexOf('http://') === 0)
-        newUrl = host + urlOrBase64.substring(7);
-      else if(urlOrBase64.indexOf('https://') === 0)
-        newUrl = host + urlOrBase64.substring(8);
-      else if(urlOrBase64.indexOf('./') === 0 || urlOrBase64.indexOf('/') === 0)
-        return urlOrBase64;
-      else if(urlOrBase64.indexOf('//') === 0)
-        newUrl = host + urlOrBase64.substring(2);
-      else
-        newUrl = host + urlOrBase64;
-      return newUrl;
-    }
-    return urlOrBase64;
-  };
-  return url;
-});
-
-
 ; (function(){
   // Scoped variables
   var readyListeners = []; // contains the various ready event callbacks
@@ -1121,7 +884,7 @@ UT.Expression.extendExpression('url', function(expression){
     };
 
     /**
-     * create the dialog of the given type using an options object and
+     * Create the dialog of the given type using an options object and
      * retrieve the dialog output in the callback.
      */
     var dialog = this.dialog = function(type, options, callback) {
@@ -1135,6 +898,27 @@ UT.Expression.extendExpression('url', function(expression){
         throw new Error('InvalidArgument', 'unknown dialog type ' + type);
       }
     };
+
+    /**
+     * Ask the container to resize to the given parameters.
+     *
+     * The asynchronous result of this function can be listened on
+     * the DOM node event.
+     */
+    var resize = this.resize = function(options){
+      // XXX TODO
+      /*module.autoResize = function() {
+        var height = expression.getElement().scrollHeight;
+        UT.Expression._callAPI('container.resizeHeight', [height]);
+      };*/
+      /*
+      module.resizeHeight = function(height, callback) {
+        UT.Expression._callAPI('container.resizeHeight', [height], callback);
+      };
+      */
+    };
+
+
 
     /**
      * The default, private collection
@@ -1177,10 +961,22 @@ UT.Expression.extendExpression('url', function(expression){
 
     // Properties
 
+    /**
+     * context of the current editor
+     * - player: true if in player mode
+     * - editor: true if in editor mode
+     * - thumbnail: true if in thumbnail mode
+     * - privacy: one of 'private', 'unlisted' or 'public' the current state of the document publication.
+     * - url: the public url of the document.
+     *
+     * Those attributes should not be modified as the context is read-only.
+     * read-only
+     */
     var context = this.context = {
       player: false,
       editor: false,
-      thumbnail: false
+      thumbnail: false,
+      privacy: null
     };
     // set the proper context values
     if(states.mode == 'edit'){
@@ -1188,8 +984,18 @@ UT.Expression.extendExpression('url', function(expression){
     } else if(states.mode == 'player'){
       context.player = true;
     }
+    context.privacy = states.documentPrivacy;
 
-    // the expression outter dom node
+    /**
+     * Retrieve the public url of the document.
+     *
+     * read-only
+     */
+    var url = this.url = states.documentURL;
+
+    /**
+     * the expression outter dom node
+     */
     var node = this.node = document.querySelector('.webdoc_expression_wrapper');
   };
 })();
@@ -2139,25 +1945,3 @@ window.addEventListener("message", function (e) {
   }
   UT.Expression._dispatch(msgObj);
 }, false);
-// Define collections
-UT.Expression.extendExpression('collections', function(expression) {
-  var documentId = expression.getState('documentId');
-  var collections = expression.getState('collections');
-  var currentUserId = expression.getState('currentUserId');
-  if(documentId && collections) {
-    var collectionStore = new UT.CollectionStore({
-      data: collections,
-      currentUserId: currentUserId,
-      delegate: {
-        save: function(name, items, callback) {
-          UT.Expression._callAPI('collections.save', [name, items], callback);
-        },
-        authenticate: function(callback) {
-          UT.Expression._callAPI('authenticate');
-        }
-      }
-    });
-    expression.storage = collectionStore.get('default');
-    return collectionStore;
-  }
-});

@@ -28,8 +28,7 @@ module.exports = function(grunt) {
     'lib/expression-api/Video.js',
     'lib/expression-api/Sound.js',
     'components/fastclick/lib/fastclick.js',
-    'lib/expression-api/init.js',
-    'lib/iframe.js'
+    'lib/expression-api/init.js'
   ];
 
   var config = {};
