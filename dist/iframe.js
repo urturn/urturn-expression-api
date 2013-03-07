@@ -738,6 +738,9 @@ UT.CollectionStore = function(options) {
      * the expression outter dom node
      */
     var node = this.node = document.querySelector('.webdoc_expression_wrapper');
+    if(!node){
+      throw new Error('Missing wrapper node');
+    }
 
     // Public Functions
 
@@ -767,11 +770,6 @@ UT.CollectionStore = function(options) {
     };
 
     var imageDialog = function(options, callback) {
-      if (options && options.size && options.size.auto) {
-        if(window.console && console.warn){
-          console.warn('Use of size.auto is deprecated, use size.autoCrop instead');
-        }
-      }
       UT.Expression._callAPI(
         'medias.openImageChooser',
         [options],
@@ -1007,14 +1005,25 @@ UT.CollectionStore = function(options) {
      * the DOM node event.
      * size can be one of:
      * - {height: Number} an object containing the height in pixels
+     * - {height: '133px'} an object continaing the height in a css string
+     * - Number the height in pixel
      * - 'auto' automatically resize to the actual content size
      */
     var resize = this.resize = function(sizeInfo){
-      if(sizeInfo && sizeInfo == 'auto'){
-        UT.Expression._callAPI('container.resizeHeight', [node.scrollHeight]);
+      var height;
+      if(typeof sizeInfo === 'number'){ // 99
+        height = sizeInfo;
+      } else if(sizeInfo && sizeInfo == 'auto'){
+        height = node.offsetHeight;
       } else if (sizeInfo && sizeInfo.height){
-        UT.Expression._callAPI('container.resizeHeight', [sizeInfo.height]);
+        if(typeof sizeInfo.height === "string" && sizeInfo.height.match &&
+            sizeInfo.height.match(/^[0-9]+px$/)){ // {height: '99px'}
+          height = sizeInfo.height.substring(0, sizeInfo.height.length-2);
+        } else { // {height: 99}
+          height = sizeInfo.height;
+        }
       }
+      UT.Expression._callAPI('container.resizeHeight', [height]);
     };
 
     var pushNavigation = this.pushNavigation = function(state, callback) {
@@ -1073,6 +1082,10 @@ UT.CollectionStore = function(options) {
      * The default, private collection
      */
     this.storage = collection('default');
+
+    window.addEventListener('resize', function(){
+      self.fire('resize', new UT.ResizeEvent(window.offsetWidth, window.offsetHeight));
+    }, false);
   };
 })();
 /**
