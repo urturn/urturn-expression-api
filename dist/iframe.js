@@ -1010,10 +1010,10 @@ UT.CollectionStore = function(options) {
      * - 'auto' automatically resize to the actual content size
      */
     var resize = this.resize = function(sizeInfo){
-      if(size && size == 'auto'){
+      if(sizeInfo && sizeInfo == 'auto'){
         UT.Expression._callAPI('container.resizeHeight', [node.scrollHeight]);
-      } else if (size && size.height){
-        UT.Expression._callAPI('container.resizeHeight', [size.height]);
+      } else if (sizeInfo && sizeInfo.height){
+        UT.Expression._callAPI('container.resizeHeight', [sizeInfo.height]);
       }
     };
 
