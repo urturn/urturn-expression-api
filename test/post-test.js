@@ -14,10 +14,7 @@
     var func = function(event){
       if(callback){
         var data;
-        try {
-          data = JSON.parse(event.data);
-        } catch (ex){
-        }
+        data = JSON.parse(event.data);
         if(data){
           callback(data, function(result){
             window.postMessage(JSON.stringify({
@@ -27,6 +24,8 @@
             }), '*');
           });
         }
+      } else {
+        throw new Error('no callback specified');
       }
     };
     messageListeners.push(func);
@@ -36,7 +35,6 @@
   // options can contain states
   var setupExpression = function (context, options){
     options = options || {};
-    UT.Expression._reset();
     UT.Expression._dispatch({
       type: 'ready',
       options: {
@@ -63,21 +61,38 @@
   };
 
   buster.testCase("Post", {
-    setUp: function(){
-      setupExpression(this);
-    },
     tearDown: function(){
       dropListeners();
       UT.Expression._reset();
     },
 
+    "collection()": {
+      "retrieve a collection given its name": function(){
+        setupExpression(this, {
+          collections: [{
+            name: 'default',
+            items: [],
+            count: 0
+          },{
+            name: 'testAnotherOne',
+            items: [],
+            count: 0
+          }]
+        });
+        assert.equals(this.post.collection('default'), this.post.storage);
+        assert.equals(this.post.collection('testAnotherOne').name, 'testAnotherOne');
+      }
+    },
+
     "valid": {
       "default state is false": function(){
+        setupExpression(this);
         buster.assert.defined(this.post);
         buster.assert.equals(this.post.valid(), false);
       },
 
       "state can be set to true": function(){
+        setupExpression(this);
         buster.assert.defined(this.post);
         buster.assert.equals(this.post.valid(true), true);
         buster.assert.equals(this.post.valid(), true);
@@ -86,6 +101,7 @@
       },
 
       "state can be set back to false": function(){
+        setupExpression(this);
         buster.assert.defined(this.post);
         buster.assert.equals(this.post.valid(true), true);
         buster.assert.equals(this.post.valid(false), false);
@@ -93,7 +109,7 @@
       }
     },
 
-    "parentData": {
+    "parent collection": {
       "retrieve same data as storage": function(){
         setupExpression(this, {
           parentData: {
@@ -126,23 +142,25 @@
             }
           }
         });
-        assert(this.post.parentData.anObject);
-        assert.equals(this.post.parentData.anObject.plain, 'object');
-        assert.equals(this.post.parentData.aString, 'aString');
-        assert.isNull(this.post.parentData.aNullValue);
-        assert.equals(true, this.post.parentData.aBoolean);
-        assert.equals(2.4, this.post.parentData.aNumber);
-        assert.equals([1, 'test', {plain: 'object'}], this.post.parentData.anArray);
+        var col = this.post.collection('parent');
+        assert(col.anObject);
+        assert.equals(col.anObject.plain, 'object');
+        assert.equals(col.aString, 'aString');
+        assert.isNull(col.aNullValue);
+        assert.equals(true, col.aBoolean);
+        assert.equals(2.4, col.aNumber);
+        assert.equals([1, 'test', {plain: 'object'}], col.anArray);
         // XXX need to test the image
       },
       "isNull when no parent data": function(){
         setupExpression(this, {parentData: null});
-        assert.isNull(this.post.parentData);
+        assert.isNull(this.post.collection('parent'));
       }
     },
 
-    "dialog/test": {
+    "dialog/text": {
       "using option hash": function(done){
+        setupExpression(this);
         listenToMessage(function(message, callback){
           if(message.methodName == 'document.textInput'){
             buster.assert.equals(message.args[0], 'default');
@@ -161,6 +179,7 @@
         });
       },
       "using a single callback": function(done){
+        setupExpression(this);
         listenToMessage(function(message, callback){
           callback('hello');
         });
@@ -168,6 +187,46 @@
           buster.assert.equals(data, 'hello');
           done();
         });
+      }
+    },
+    "save()": {
+      "save all collections": function(done){
+        setupExpression(this, {
+          collections: [{
+            name: 'default',
+            items: [],
+            count: 0
+          },{
+            name: 'testAnotherOne',
+            items: [],
+            count: 0
+          }]
+        });
+        var defaultSaved, testAnotherOneSaved;
+        listenToMessage(function(message, callback){
+          try {
+            if(message.methodName == 'collections.save'){
+              if(message.args[0] == 'default'){
+                defaultSaved = true;
+                assert.equals(message.args[1].anObject.hello, 'world');
+              } else if (message.args[0] == 'testAnotherOne'){
+                testAnotherOneSaved = true;
+                assert.equals(message.args[1].aValue.value, 'Hello World');
+              } else {
+                buster.fail('cannot guess arguments', message);
+              }
+            }
+          } catch (e){
+            done(e);
+          }
+          if(defaultSaved && testAnotherOneSaved){
+            assert(true);
+            done();
+          }
+        });
+        this.post.collection('testAnotherOne').aValue = 'Hello World';
+        this.post.collection('default').anObject = {hello: 'world'};
+        this.post.save();
       }
     }
   });
