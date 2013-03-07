@@ -3,6 +3,7 @@
  */
 var UT = {},
     WD = UT;
+
 // Generate Random UUID compliant with rfc4122 v4
 // Fantastic piece of code from @broofa on:
 // http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
@@ -27,7 +28,7 @@ UT.Collection = function(options) {
   this.setUserItem = function(item) {
     if(!currentUserId) {
       delegate.authenticate();
-      throw "ArgumentError: no currentUserId defined";
+      throw new Error("ArgumentError", "No currentUserId defined");
     }
     return this.setItem(currentUserId, item);
   };
@@ -42,10 +43,10 @@ UT.Collection = function(options) {
   // Add or updated an item binded to a specific key
   var setItem = function(key, item) {
     if(!key) {
-      throw "invalid key: " + key;
+      throw new Error("InvalidKey", key);
     }
     if(privateKeys.indexOf(key) != -1) {
-      throw "reserved key: " + key;
+      throw new Error("ReservedKey", key);
     }
     var sanItem = sanitizeItem(key, item);
     var oldItem = null;
@@ -315,12 +316,12 @@ UT.Collection = function(options) {
             if(!isNaN(n) && isFinite(item[fd.name])) {
               sanitizedItem[fd.name] = n;
             } else {
-              throw 'TypeError: wrong value for field note';
+              throw new Error('TypeError', 'Wrong value for field note');
             }
           } else if(fd.type == 'boolean'){
             sanitizedItem[fd.name] = !!item[fd.name];
           } else {
-            throw 'TypeError: Unkown type ' + fd.type;
+            throw new Error('TypeError', 'Unkown type ' + fd.type);
           }
         }
       }
@@ -334,13 +335,13 @@ UT.Collection = function(options) {
   // constructor
   var initialize = function(options) {
     if(!options.data) {
-      throw "ArgumentError: missing data";
+      throw new Error("ArgumentError", "missing data");
     }
     if(!options.data.name) {
-      throw "ArgumentError: no name in data";
+      throw new Error("ArgumentError", "no name in data");
     }
     if(options.data.count === undefined) {
-      throw "ArgumentError: no count in data";
+      throw new Error("ArgumentError", "no count in data");
     }
     operations = {}; // map of operations results
     keys = []; // all used keys
@@ -438,7 +439,7 @@ var supportGetSet = function() {
       });
     }
   } catch(defPropException) { /* can't define __defineGetter__ and __defineSetter__. Certainly ie < 8*/
-    throw('Simple Storage API not Supported');
+    throw new Error('Simple Storage API not Supported');
   }
 };
 supportGetSet();
@@ -455,7 +456,7 @@ UT.CollectionStore = function(options) {
     var data = this.data[i];
     var name = data.name;
     if(!name) {
-      throw "ArgumentError: data contains unamed collections.";
+      throw new Error("ArgumentError", "data contains unamed collections.");
     }
     collections[name] = new UT.Collection({
       data: data,
@@ -496,320 +497,239 @@ UT.CollectionStore = function(options) {
   };
 };
 
-/**
- * Expression authors should use UT.Expression.ready(callback) to run
- * their expression initialization code.
- */
-UT.Expression = (function(){
-  var classModule, // returned module
-      isReady = false, // set to true once the document is ready.
-      postFunction = null,
-      types = {},
-      _states,
-      expression = null,
-      extensions = [],
-      _callBacks = {};
+; (function(){
+  // Scoped variables
+  var readyListeners = []; // contains the various ready event callbacks
+  var apiListeners = {}; // contains the various api callbacks keyed by uuid
+  var isReady = false; // become true once the environment is ready
+  var postInstance; // will contains the current post instance
+  var states; // contains the expression state data
 
   /**
-   * Extend the Expression.
-   *
-   * @namespace the name of the submodule
-   * @extension an object or a function that will match the namespace.
-   * @throw if the namespace is already defined
-   * @return nothing
+   * Expression static class is the wrapper between the client code, server code. It is responsible
+   * to setup a proper environment and notify actor of global state changes.
+   * 
+   * @throw StaticClass error if instantiated.
    */
-  function extendExpression(namespace, extension){
-    expression = null ; // reset expression singleton.
-    extensions.push({name: namespace, module: extension}) ;
-  }
+  UT.Expression = function(){ throw new Error('StaticClass'); };
 
   /**
-   * Register a function <tt>fn</tt> to be called once the expression is ready.
+   * Register a new callback function to be called once the environment is ready.
+   * @param callback {function} will be passed a Post instance
    */
-  function ready(fn) {
-    this._getInstance().bind('ready', fn);
-    if(expression.isReady){
-      fn.apply(this, [expression]);
+  UT.Expression.ready = function(callback){
+    if(readyListeners.indexOf(callback) == -1){
+      readyListeners.push(callback);
     }
-
-    // handle touchs
-    if ('ontouchstart' in window || 'onmsgesturechange' in window) {
-      document.querySelector('html').className = document.querySelector('html').className + ' touch';
-
-      if (typeof FastClick != 'undefined') {
-        window.addEventListener('load', function() {
-          new FastClick(document.body);
-        }, false);
-      }
+    if(isReady){
+      callback.call(this, postInstance);
     }
-
-    return expression;
-  }
-
-  classModule = {
-    ready: ready,
-    extendExpression: extendExpression,
-    _expression: expression
   };
 
-  // == Undocumented Functions.
-
   /**
+   * Call the server API using post message
+   *
    * @private
    * @param methodName {String} method of the APi to call
    * @param args {Array} arguments to the method
    * @param callBack {Function} the callback function that will contains the result of call
    */
-  function _callAPI(methodName, args, callback) {
+  var _callAPI = UT.Expression._callAPI = function(methodName, args, callback){
     var jsonMessage = {
       type:"ExpAPICall",
       methodName:methodName,
       args:args,
-      expToken: _states ? _states.expToken : null
+      expToken: states ? states.expToken : null
     };
     if(callback){
       // assign an id to the callback function
       var callbackId = UT.uuid().toString();
-      _callBacks[callbackId] = callback;
+      apiListeners[callbackId] = callback;
       jsonMessage.callbackId = callbackId;
     }
     var json = JSON.stringify(jsonMessage);
     window.parent.postMessage(json, "*");
-  }
-
-  function _getInstance(){
-    expression = expression || _buildExpression({});
-    return expression;
-  }
-
-  function _reset(){
-    expression = null;
-  }
-
-  classModule._callAPI = _callAPI;
-  classModule._getInstance = _getInstance;
-  classModule._reset = _reset;
-
-  // == Private Functions.
+  };
 
   /**
-   * build an instance of Expression
+   * Events called when callback are received from post message.
+   * @private
+   * @param callBackUUID the uuid of the callback to call
+   * @param result the result parameter to the caallback
    */
-  function _buildExpression(expression){
-    var debug = (window.console && console.log),
-        eventTypesBindings = {}; // handle event bindings for each event type
+  var _receiveCallback = function(callbackUUID, result) {
+    var callback = apiListeners[callbackUUID];
+    if (callback) {
+      if ( !(result && result instanceof Array )) {
+        if(window.console && console.error){
+          console.error('received result is not an array.', result);
+        }
+      }
+      callback.apply(this, result);
+      delete apiListeners[callbackUUID];
+    }
+  };
+
+  var _ready = function(newStates) {
+    states = newStates;
+    isReady = true;
+    // default ready to post state is false
+    states.readyToPost = false;
+    // create scoped post instance
+    postInstance = new UT.Post(states);
+
+    postInstance.on('scrollChanged', function(newScrollValues) {
+      states.scrollValues = newScrollValues;
+    });
+    for(var i = 0; i < readyListeners.length; i++){
+      readyListeners[i].apply(postInstance, [postInstance]);
+    }
+  };
+
+  var _post = function() {
+    postInstance.fire('publish');
+    _callAPI("posted");
+  };
+
+  UT.Expression._dispatch = function(msg) {
+    switch (msg.type) {
+      case 'ready' :
+        _ready(msg.options);
+        break;
+      case 'triggerEvent' :
+        postInstance.fire.apply(postInstance, [msg.eventName].concat(msg.eventArgs));
+        break;
+      case 'callback' :
+        _receiveCallback(msg.callbackId, msg.result);
+        break;
+      case 'post' :
+        _post();
+    }
+  };
+
+  /**
+   * @private
+   * Reset the current environment.
+   */
+  UT.Expression._reset = function(){
+    readyListeners = [];
+    apiListeners = [];
+    postInstance = null;
+    isReady = false;
+  };
+
+  /**
+   * @private
+   * Retrieve the post instance.
+   */
+  UT.Expression._postInstance = function(){
+    postInstance = postInstance;
+    return postInstance;
+  };
+})();
+; (function(){
+  UT.Post = function(states){
+    if(!states || !states.collections){
+      throw new Error("ArgumentError", "Missing collections in state arguments");
+    }
+    // quicker than bind
+    var self = this;
+
+    // scoped properties
+    var eventTypesBindings = {}; // handle event bindings for each event type
+    var collectionStore = new UT.CollectionStore({
+      data: states.collections,
+      currentUserId: states.currentUserId,
+      delegate: {
+        save: function(name, items, callback) {
+          UT.Expression._callAPI('collections.save', [name, items], callback);
+        },
+        authenticate: function(callback) {
+          UT.Expression._callAPI('authenticate');
+        }
+      }
+    });
+
+    // scoped functions
+    var setNote = function(){
+      if (typeof(self.note) == 'string') {
+        states.note = self.note;
+        UT.Expression._callAPI('document.setNote', [states.note]);
+      }
+    };
+
+    // Public Properties
 
     /**
-     * post message handler
+     * context of the current editor
+     * - player: true if in player mode
+     * - editor: true if in editor mode
+     * - thumbnail: true if in thumbnail mode
+     * - privacy: one of 'private', 'unlisted' or 'public' the current state of the document publication.
+     *
+     * Those attributes should not be modified as the context is read-only.
+     * read-only
      */
-    window.addEventListener("message", function (e) {
-      // webdoc will always set json data so we parse it
-      try {
-          msgObj = JSON.parse(e.data);
+    var context = this.context = {
+      player: false,
+      editor: false,
+      thumbnail: false,
+      privacy: null
+    };
+    // set the proper context values
+    if(states.mode == 'edit'){
+      context.editor = true;
+    } else if(states.mode == 'player'){
+      context.player = true;
+    }
+    context.privacy = states.documentPrivacy;
+
+    /**
+     * Retrieve the public url of the document.
+     *
+     * read-only
+     */
+    var url = this.url = states.documentURL;
+
+    /**
+     * the expression outter dom node
+     */
+    var node = this.node = document.querySelector('.webdoc_expression_wrapper');
+
+    /** 
+     * Retrieve Parent Post Datas.
+     *
+     * This is available only during the first edition of a post
+     * if the expression is created from another one.
+     */
+    var parentData;
+    if(states.parentData){
+      var items = [];
+      for(var k in states.parentData){
+        states.parentData[k]._key = k;
+        items.push(states.parentData[k]);
       }
-      catch (exception) {
-          if (console && console.error) {
-              console.error("receive invalid message", e.data, exception.message) ;
+      parentData = this.parentData = new UT.Collection({
+        data: {
+          name: 'parent',
+          items: items,
+          count: items.length
+        },
+        delegate: {
+          save: function(){
+            throw new Error('ReadOnly collection');
+          },
+          authenticate: function(){
+            throw new Error('ReadOnly collection');
           }
-          msgObj = {};
-      }
-      _dispatch(msgObj);
-    }, false);
-
-    /**
-     * Calls all fns in the list for a given type. Passes arguments
-     * through to the caller.
-     * @params {String} type The type to trigger
-     */
-    function trigger(type) {
-      var list = eventTypesBindings[type],
-          promises = [],
-          nextTrigger = 'after' + type.charAt(0).toUpperCase() + type.slice(1),
-          listLength,
-          listIndex,
-          callbackFunction,
-          callbackArgs,
-          promise;
-
-      // Nothing to trigger
-      if (!list) {
-        return;
-      }
-
-      // We copy the list in case the original mutates while we're
-      // looping over it. We take the arguments, lop of the first entry,
-      // and pass the rest to the listeners when we call them.
-      list = list.slice(0);
-      listLength = list.length;
-      listIndex = -1;
-      callbackArgs = Array.prototype.slice.call(arguments, 1);
-
-      while (++listIndex < listLength) {
-        callbackFunction = list[listIndex];
-        promise = callbackFunction.apply(classModule, callbackArgs);
-        if(promise && typeof promise.then === 'function') {
-          promises.push(promise);
-        }
-      }
-
-      if(promises.length > 0) {
-        when.all(promises).then(function() {
-          trigger(nextTrigger);
-        });
-      }
-      else {
-        trigger(nextTrigger);
-      }
+        },
+        currentUserId: states.currentUserId
+      });
+    } else {
+      parentData = this.parentData = null;
     }
 
-    /**
-     * Adds a listener fn to the list for a given event type.
-     */
-    function bind(type, fn) {
-      var list = eventTypesBindings[type] || (eventTypesBindings[type] = []);
-
-      // This fn is not a function
-      if (typeof fn !== 'function') {
-        return;
-      }
-
-      list.push(fn);
-    }
-
-    /**
-     * Removes a listener fn from its list.
-     */
-    function unbind(type, fn) {
-      var list = eventTypesBindings[type],
-      l;
-
-      // Nothing to unbind
-      if (!list) {
-        return;
-      }
-
-      // No function specified, so unbind all by removing the list
-      if (!fn) {
-        delete eventTypesBindings[type];
-        return;
-      }
-
-      // Remove all occurences of this function from the list
-      l = list ? list.indexOf(fn) : -1;
-
-      while (l !== -1) {
-        list.splice(l, 1);
-        l = list.indexOf(fn);
-      }
-    }
-
-    /**
-     * register a post callback.
-     */
-    //REVIEW: this method has a bad name: post should be use to trigger the post action from within the expression.
-    //        the async parameter looks weird to my eyes as well.
-    // TODO : use BIND
-    function post(fn) {
-      postFunction = fn;
-    }
-
-
-    function setNote(note){
-      if (typeof(note) == 'string') {
-        _states.note = note;
-        // TODO : think : do we need a callback or not here
-        UT.Expression._callAPI('document.setNote', [note], function(){});
-      }
-      else {
-        // Warning for Expression developers
-        console.error('note should be a string (expression.setNote)');
-      }
-    }
-
-    /*
-     *  Call to activate / de activate next button
-     *  @param ready [boolean] : true : activate, false : deactivate
-     */
-    function readyToPost(ready) {
-      if(ready !== undefined && ready != _states.readyToPost ){
-        _states.readyToPost = !!ready;
-        UT.Expression._callAPI('document.readyToPost', [_states.readyToPost]);
-      }
-      return _states.readyToPost;
-    }
-
-    function getNote(){
-      return _states.note;
-    }
-    /**
-     * Bind the callback function to the modeChanged event.
-     * The function will receive the new mode string (edit or view).
-     */
-    function modeChanged(fn) {
-      bind('modeChanged', fn);
-    }
-
-    /**
-     * Bind the callback function to the scrollChanged event.
-     * The function will receive the new scroll values.
-     */
-    function scrollChanged(fn) {
-      bind('scrollChanged', fn);
-    }
-
-    /**
-     * Bind the callback function to the imageAdded event.
-     * The function will receive the image and optional extraData param.
-     * @param {Function} fn
-     */
-    function imageAdded(fn) {
-      bind('imageAdded', fn);
-    }
-
-    /**
-     * Retrieve the current display mode of the expression ('either view or edit')
-     */
-    function getMode() {
-      return _states.mode;
-    }
-
-    /**
-     * Retrieve the current scroll values
-     */
-    function getScrollValues() {
-      return _states.scrollValues;
-    }
-
-    /**
-     * Retrieve an expression 'state' by its key.
-     */
-    // REVIEW: this is not self-explanatory and exposes the internal API. We should have a private method here instead.
-    function getState(key) {
-      if(!(_states && _states[key])){ return; }
-      return _states[key];
-    }
-
-    /**
-     * Retrieve the container DOM node.
-     */
-    function getElement(){
-      return document.querySelector('.webdoc_expression_wrapper');
-    }
-
-    function initializeExtension(){
-      // load expression extensions
-      for(var i in extensions) {
-        var ext = extensions[i];
-        if(expression[ext.name]){
-          throw "Extension " + ext.name + " is already defined.";
-        }
-        if(typeof ext.module === 'function'){
-          expression[ext.name] = ext.module.call(UT, expression);
-        } else {
-          expression[ext.name] = ext.module;
-        }
-      }
-    }
+    // Public Functions
 
     /**
      * Native text input for mobile.
@@ -822,16 +742,10 @@ UT.Expression = (function(){
      * The callback will be passed the resulting string or null
      * if no value have been selected.
      *
-     * DEPRECATED signature: (defaultValue, max, callback)
+     * XXX: Need to be supported on desktop as well
      */
-    function textInput(options, callback) {
-      if(typeof arguments[0] == 'string'){
-        options = {
-          value: arguments[0],
-          max: arguments[1]
-        };
-        callback = arguments[2];
-      } else if(typeof options == 'function'){
+    var textDialog = function(options, callback){
+      if(typeof options == 'function'){
         callback = options;
         options = {};
       }
@@ -840,401 +754,543 @@ UT.Expression = (function(){
         [options.value || null, options.max || null, options.multiline || false],
         callback
       );
-    }
+    };
+
+    var imageDialog = function(options, callback) {
+      if (options && options.size && options.size.auto) {
+        if(window.console && console.warn){
+          console.warn('Use of size.auto is deprecated, use size.autoCrop instead');
+        }
+      }
+      UT.Expression._callAPI(
+        'medias.openImageChooser',
+        [options],
+        function(imageDescriptor) {
+          var image = new UT.Image();
+          image.init(imageDescriptor);
+          callback.call(self, image);
+      });
+    };
+
+    var soundDialog = function(options, callback) {
+      UT.Expression._callAPI(
+        'medias.openSoundChooser',
+        [options],
+        function(soundDecriptor) {
+          var sound = new UT.Sound(soundDecriptor);
+          callback.call(self, sound);
+      });
+      UT.Expression._callAPI('medias.openSoundChooser', [options], callback);
+    };
+
+    var videoDialog = function(options, callback) {
+      UT.Expression._callAPI(
+        'medias.openVideoChooser',
+        [options],
+        function(videoDescriptor) {
+          var video = new UT.Video(videoDescriptor);
+          callback.call(self, video);
+      });
+    };
+
+    var cropDialog = function(options, callback) {
+      if (options.image.descriptor) {
+        options.image = options.image.descriptor;
+      }
+      UT.Expression._callAPI('medias.crop', [options],
+        function(imageDescriptor) {
+          var image = null;
+          if (options.image.init) {
+            options.image.init(imageDescriptor);
+            image = options.image;
+          }
+          else {
+            image = new UT.Image();
+            image.init(imageDescriptor);
+          }
+          callback.call(self, image);
+      });
+    };
+
+    // Handler for the various dialog type
+    var dialogHandler = {
+      text: textDialog,
+      image: imageDialog,
+      sound: soundDialog,
+      video: videoDialog,
+      crop: cropDialog
+    };
 
 
-    function dialog(type, options, callback) {
+    /**
+     * Calls all fns in the list for a given eventName. Passes arguments
+     * through to the caller.
+     * @params {String} eventName The eventName to fire
+     */
+    var fire = this.fire = function(eventName) {
+      var list = eventTypesBindings[eventName],
+          promises = [],
+          nextTrigger = 'after' + eventName.charAt(0).toUpperCase() + eventName.slice(1),
+          listLength,
+          listIndex,
+          callbackFunction,
+          callbackArgs,
+          promise;
+
+      // Nothing to fire
+      if (!list) {
+        return;
+      }
+
+      // We copy the list in case the original mutates while we're
+      // looping over it. We take the arguments, lop of the first entry,
+      // and pass the rest to the listeners when we call them.
+      list = list.slice(0);
+      listLength = list.length;
+      listIndex = -1;
+      callbackArgs = Array.prototype.slice.call(arguments, 1);
+      callbackTarget = (callbackArgs.length !== 0 ? callbackArgs[0] : self);
+
+      while (++listIndex < listLength) {
+        callbackFunction = list[listIndex];
+        promise = callbackFunction.apply(callbackTarget, callbackArgs);
+        if(promise && typeof promise.then === 'function') {
+          promises.push(promise);
+        }
+      }
+
+      if(promises.length > 0) {
+        when.all(promises).then(function() {
+          fire(nextTrigger);
+        });
+      }
+      else {
+        fire(nextTrigger);
+      }
+    };
+
+    /**
+     * Register a listener for the given eventName.
+     *
+     * Available events:
+     *
+     * publish callback()
+     * ------------------
+     * Fired when the user wants to post his content. The callback 
+     * will be called on the Post instance and receive no argument.
+     * It must be runnable synchronously as the current context 
+     * will be destroyed after all callbacks as been processed.
+     *
+     * scroll callback(ScrollDataEvent)
+     * --------------------------------
+     * Fired every time the visible part of the iframe
+     * on the page change. 
+     * the callback is passed the scrolling data.
+     * XXX what are the scrolling data?
+     *
+     * resize callback(ResizeEvent)
+     * ----------------------------
+     * Fired when the content box size changed. The callback is
+     * called on the event and will be passed the ResizeEvent instance.
+     *
+     * media callback(MediaEvent)
+     * --------------------------
+     * Fired when a media is incoming from an external action
+     * like a bookmarklet adding a resource or a drag and drop.
+     * The callback is called on the event and will be passed a
+     * the MediaEvent instance.
+     */
+    var on = this.on = function(eventName, callback) {
+      var list = eventTypesBindings[eventName] || (eventTypesBindings[eventName] = []);
+
+      // This callback is not a function
+      if (typeof callback !== 'function') {
+        return;
+      }
+
+      list.push(callback);
+    };
+
+    /**
+     * Removes the given callback for the given eventName.
+     *
+     * @param {String} eventName
+     * @param {Function} callback to remove
+     */
+    var off = this.off = function(eventName, callback) {
+      var list = eventTypesBindings[eventName],
+      l;
+
+      // Nothing to unbind
+      if (!list) {
+        return;
+      }
+
+      // No function specified, so unbind all by removing the list
+      if (!callback) {
+        delete eventTypesBindings[eventName];
+        return;
+      }
+
+      // Remove all occurences of this function from the list
+      l = list ? list.indexOf(callback) : -1;
+
+      while (l !== -1) {
+        list.splice(l, 1);
+        l = list.indexOf(callback);
+      }
+    };
+
+    /**
+     * Flag a post as being valid or not.
+     * A valid document can be posted synchronously at any time.
+     * 
+     * @param flag {boolean} if provided, set the current validity state.
+     * @return {boolean} the current validity flag
+     */
+    var valid = this.valid = function(flag){
+      if(flag !== undefined && flag != states.readyToPost ){
+        states.readyToPost = !!flag;
+        UT.Expression._callAPI('document.readyToPost', [states.readyToPost]);
+      }
+      return states.readyToPost;
+    };
+
+    /**
+     * on the callback function to the scrollChanged event.
+     * The function will receive the new scroll values.
+     * @param {function} callback will be passed the new scrollvalues
+     */
+    var scrollChanged = this.scollChanged = function(callback) {
+      on('scrollChanged', callback);
+    };
+
+    /**
+     * on the callback function to the imageAdded event.
+     * The function will receive the image and optional extraData param.
+     * @param {Function} callback
+     */
+    var imageAdded = this.imageAdded = function(callback) {
+      on('imageAdded', callback);
+    };
+
+    /**
+     * Create the dialog of the given type using an options object and
+     * retrieve the dialog output in the callback.
+     */
+    var dialog = this.dialog = function(type, options, callback) {
       if (callback === undefined && typeof(options) === 'function') {
         callback = options;
         options = {};
       }
-      switch (type) {
-        case 'sound':
-            UT.Expression._callAPI('medias.openSoundChooser', [options], callback);
-        break;
-        case 'image':
-          if (options && options.size && options.size.auto) {
-            if(window.console && console.warn){
-              console.warn('Use of size.auto is deprecated, use size.autoCrop instead');
-            }
-          }
-          UT.Expression._callAPI(
-            'medias.openImageChooser',
-            [options],
-            function(imageDescriptor) {
-             callback.call(this, imageDescriptor);
-          });
-        break;
-        case 'video':
-          UT.Expression._callAPI('medias.openVideoChooser', [options], callback);
-        break;
+      if(dialogHandler[type]){
+        dialogHandler[type](options, callback);
+      } else {
+        throw new Error('InvalidArgument', 'unknown dialog type ' + type);
       }
-    }
+    };
 
-
-    /** 
-     * Get Parent Post Datas
-     */
-    function getParentData() {
-      return this.getState('parentData') || {};
-    }
-    
-    function pushNavigation(state, callback) {
-      UT.Expression._callAPI('pushNavigation', [state], callback);
-    }
-
-    function popNavigation() {
-      UT.Expression._callAPI('popNavigation');
-    }
-
-    expression.pushNavigation = pushNavigation;
-    expression.popNavigation = popNavigation;
-
-    expression.dialog = dialog;
-    expression.textInput = textInput;
-
-    // Events bindings
-    expression.trigger = trigger;
-    expression.bind = bind;
-    expression.unbind = unbind;
-
-    // Post event
-    expression.post = post;
-    // ?? executePost ? TODO ?
-
-    expression.modeChanged = modeChanged;
-    expression.scrollChanged = scrollChanged;
-    expression.imageAdded = imageAdded;
-
-    // Retrieve expression mode ('edit' or 'view')
-    expression.getMode = getMode;
-
-    // Retrieve scroll values
-    expression.getScrollValues = getScrollValues;
-
-    // retrieve a specific state
-    expression.getState = getState;
-
-    expression.getElement = getElement;
-
-    expression.initializeExtension = initializeExtension;
-    
-    expression.getNote = getNote;
-    expression.setNote = setNote;
-
-    expression.readyToPost = readyToPost;
-
-    expression.getParentData = getParentData;
-
-    // == Private Methods
-
-    function _dispatch(msg) {
-      switch (msg.type) {
-        case 'ready' :
-          _ready(msg.options);
-          break;
-        case 'triggerEvent' :
-          trigger.apply(this, [msg.eventName].concat(msg.eventArgs));
-          break;
-        case 'callback' :
-          _receiveCallBack(msg.callbackId, msg.result);
-          break;
-        case 'post' :
-          _post();
-      }
-    }
-
-    function _ready(states) {
-      expression.isReady = true;
-      _states = states;
-
-      // default ready to post state is false
-      _states.readyToPost = false;
-      bind('modeChanged', function(newMode) {
-        _states.mode = newMode;
-      });
-      bind('scrollChanged', function(newScrollValues) {
-        _states.scrollValues = newScrollValues;
-      });
-      bind('afterReady', function() {
-        _changeCurrentState('initialized');
-      });
-      initializeExtension();
-      trigger('ready', expression);
-    }
-    expression._ready = _ready;
-
-    function _post() {
-      if (postFunction) {
-        postFunction.call(classModule, function() {});
-      }
-      UT.Expression._callAPI("posted");
-    }
-
-    function _changeCurrentState(newState) {
-      UT.Expression._callAPI("changeCurrentState", [newState]);
-    }
     /**
-     * Events called when callback are recieved from post message.
-     * @private
-     * @param callBackUUID the uuid of the callback to call
-     * @param result the result parameter to the caallback
+     * Ask the container to resize to the given parameters.
+     *
+     * The asynchronous result of this function can be listened on
+     * the DOM node event.
+     * size can be one of:
+     * - {height: Number} an object containing the height in pixels
+     * - 'auto' automatically resize to the actual content size
      */
-    function _receiveCallBack(callBackUUID, result) {
-      var callBack = _callBacks[callBackUUID];
-      if (callBack) {
-        if ( !(result && result instanceof Array )) {
-          if(window.console && console.error){
-            console.error('received result is not an array.', result);
-          }
-        }
-        callBack.apply(this, result);
-        delete _callBacks[callBackUUID];
+    var resize = this.resize = function(sizeInfo){
+      if(size && size == 'auto'){
+        UT.Expression._callAPI('container.resizeHeight', [node.scrollHeight]);
+      } else if (size && size.height){
+        UT.Expression._callAPI('container.resizeHeight', [size.height]);
       }
-    }
-    return expression;
-  }
+    };
 
-  return classModule;
+    /**
+     * The default, private collection
+     */
+    this.storage = collectionStore.get('default');
+
+    var pushNavigation = this.pushNavigation = function(state, callback) {
+      UT.Expression._callAPI('container.pushNavigation', [state], callback);
+    };
+
+    var popNavigation = this.popNavigation = function() {
+      UT.Expression._callAPI('container.popNavigation');
+    };
+
+    var navigate = this.navigate = function(app) {
+      var options = {};
+      if (arguments.length >= 2) {
+        options = arguments[1];
+      }
+      else if (arguments.length === 1) {
+        options = app;
+        app = 'browse';
+      }
+      var opt = {
+        app : app,
+        parameters : options
+      };
+      UT.Expression._callAPI('container.navigate', [opt]);
+    };
+  };
 })();
-
-UT.Expression.extendExpression('container', function(expression){
-
-  var module = {};
-
-  // Tell the iframe to resize to the whole content size.
-  module.autoResize = function() {
-    var height = expression.getElement().scrollHeight;
-    UT.Expression._callAPI('container.resizeHeight', [height]);
-  };
- // autoResize only work on certain condition. Often it is much more easier to set the height needed
- // callback is called when container has been resized
-  module.resizeHeight = function(height, callback) {
-    UT.Expression._callAPI('container.resizeHeight', [height], callback);
-  };
-
-  module.setTitle = function(title){
-    UT.Expression._callAPI('container.setTitle', [title]);
-  };
-
-  // XXX Unused
-  popupUsers = function(userIds) {
-    UT.Expression._callAPI('container.popupUsers', [uerIds]);
-  };
-
-  // XXX Unused
-  popup = function(data, ratio) {
-    UT.Expression._callAPI('container.popup', [data, ratio]);
-  };
-  // XXX Unused
-  closePopup = function() {
-    UT.Expression._callAPI('container.closePopup');
-  };
-
-
-
-  return module;
-});
-
-UT.Expression.extendExpression('medias', function(expression){
-  return {
-    // open a dialog box that let the user pick an image from various sources.
-    //
-    // The last parameter is a callback function that will receive the image.
-    imageDialog: function(options, callback) {
-      if (console && console.warn) {
-        console.warn('Usage of imageDialog Deprecated, use expression.dialog instead');
-      }
-      if (!callback){
-        callback = options;
-        options = {};
-      }
-
-      if (options && options.size && options.size.auto && window.console && console.warn) {
-        console.warn('Use of size.auto is deprecated, use size.autoCrop instead');
-      }
-      UT.Expression._callAPI('medias.openImageChooser', [options], function(imageDescriptor){
-        callback.call(this, imageDescriptor);
-      });
-    },
-
-    createImage: function(urlOrBase64, callback) {
-      var readyState = expression.readyToPost();
-      expression.readyToPost(false);
-      UT.Expression._callAPI('medias.createImage', [urlOrBase64], function(){
-        expression.readyToPost(readyState);
-        callback.apply(expression, arguments);
-      });
-    },
-
-
-    /*
-     * Options should be : {x : source X,y : source Y, w : source width, h  : source height, width : dest Width, height : dest Height}
-     */
-    reCrop : function(imageOrURLOrBase64, options, callback) {
-      if (!imageOrURLOrBase64._type || imageOrURLOrBase64._type !== 'image') {
-        imageOrURLOrBase64 = {
-          url : imageOrURLOrBase64
-        };
-      }
-      UT.Expression._callAPI('medias.reCrop', [{
-          size : options,
-          image : imageOrURLOrBase64
-        }],
-        function(imageDescriptor) {
-            callback.call(this, imageDescriptor);
-      });
-    },
-
-    crop : function(imageOrURLOrBase64, options , callback){
-      if (!imageOrURLOrBase64._type || imageOrURLOrBase64._type !== 'image') {
-        imageOrURLOrBase64 = {
-          url : imageOrURLOrBase64
-        };
-      }
-      UT.Expression._callAPI('medias.crop', [{
-            size : options,
-            image : imageOrURLOrBase64
-          }],
-          function(imageDescriptor) {
-              callback.call(this, imageDescriptor);
-        });
-    },
-
-    applyFilterToImage : function(imageOrURLOrBase64, options, callback) {
-      if (!imageOrURLOrBase64._type || imageOrURLOrBase64._type !== 'image') {
-        imageOrURLOrBase64 = {
-          url : imageOrURLOrBase64
-        };
-      }
-      UT.Expression._callAPI('medias.applyFilter', [{
-            filter : options,
-            image : imageOrURLOrBase64
-          }],
-          function(imageDescriptor) {
-              callback.call(this, imageDescriptor);
-        });
-    },
-
-    // XXX: USE EXPRESSION.ITEMS.SAVE 
-    /**
-    * saveImage
-    * WIP an helper function that combine medias.createImage() and items.save();
-    * @param key the key associate with the image (to retrieve it latter with save)
-    * @param urlOrBase64 URL or dataURL of the image to save
-    * @param callback Callback called when function execution is over (success or failed)
-    */
-    saveImage: function(key, urlOrBase64, callback) {
-       UT.Expression._callAPI(
-          'medias.createImage',
-           [urlOrBase64], 
-           function (obj, error) {
-            postMessageAPI.apply('items.save', [key, obj], function(data, error){
-              if(error){
-                // XXX have to define an error format.
-                if(!callback && window.console && console.error){
-                  console.error('Unable to save object with key: ' + key, error.message);
-                } else if(callback){
-                  callback.call(error, null, error);
-                }
-                return;
-              }
-              obj._id = data._id;
-             // TODO : cahcke the item when saved success
-             //  cacheItem(key, obj);
-              if(callback){
-                callback.call(obj, obj, null);
-              }
-            });
-        });
-    },
-
-    imageWithDataUrl: function(image, callback){
-      UT.Expression._callAPI('medias.imageWithDataUrl', [image], callback);
-    },
-
-    soundDialog: function(options, callback) {
-     if (console && console.warn) {
-        console.warn('Usage of soundDialog Deprecated, use expression.dialog instead');
-      }
-      UT.Expression._callAPI('medias.openSoundChooser', [options], callback);
-    },
-
-    videoDialog: function(options, callback) {
-      if (console && console.warn) {
-        console.warn('Usage of videoDialog Deprecated, use expression.dialog instead');
-      }
-      UT.Expression._callAPI('medias.openVideoChooser', [options], callback);
-    },
-
-    findImage: function(mediaId, callback) {
-      UT.Expression._callAPI('medias.findImage', [mediaId], callback);
-    }
-  };
-});
-UT.Expression.extendExpression('document', function(expression){
-  return {
-    getDocumentURL: function() {
-      return expression.getState('documentURL');
-    },
-
-    getDocumentPrivacy: function() {
-      return expression.getState('documentPrivacy');
-    }
-  };
-});
 /**
- * Webdoc Url API
+* An image object return by create('image');
+* Use it to manipulate an image (crop, filter, ...)
+* @param {object} imageDescriptor an object return by internal sdk
+*/
+UT.Image = function() {
+  /**
+  * The url of the media
+  * @type {String}
+  */
+  this.url = "";
+
+  /**
+  * A set of metadata about this item
+  * - source
+  * - crop
+  * @type {Object}
+  */
+  this.info = {};
+
+  /**
+  * A string containing the type of this media,
+  * Aka "image" here
+  * @type {String}
+  */
+  this.type = 'image';
+
+  /**
+  * Crop an image
+  * @param {Object}   options  a hash of options :
+  * {
+  *  x : source X,
+  *  y : source Y,
+  *  w : source width,
+  *  h : source height,
+  *  width : dest Width,
+  *  height : dest Height
+  * }
+  * 
+  * @param  {Function}   callback   The function called once image has been croped
+  * @return {void}                Return nothing
+  */
+  this.crop = function(options , callback) {
+   UT.Expression._callAPI('medias.recrop', [{
+     size : options,
+     image : this.descriptor
+   }],
+   function(imageDescriptor) {
+     this.init(imageDescriptor);
+     callback.call(this, this);
+   }.on(this));
+  };
+
+  /**
+  * Autocrop the image to specified ratio
+  * @param  {int}       width      desired width of image
+  * @param  {int}       height    desired height of image
+  * @param  {function}   callback   callback called when image has been croped
+  * @return {void}       
+  */
+  this.autocrop = function(width, height, callback) {
+   UT.Expression._callAPI('medias.crop', [{
+     size : {
+       width : width,
+       height : height,
+       auto : true
+     },
+     image : this.descriptor
+   }],
+   function(imageDescriptor) {
+     this.init(imageDescriptor);
+     callback.call(this, this);
+   }.on(this));
+  };
+
+  /**
+  * Apply Filters to an Image
+  * @param  {Array}     filters    An array of filter to apply to image
+  * @param  {Function} callback  The function called once image has been filterd
+  * @return {void}                Return nothing
+  */
+  this.filter = function(filters, callback) {
+   UT.Expression._callAPI('medias.applyFilter', [{
+     filter : filters,
+     image : this.descriptor
+   }],
+   function(imageDescriptor) {
+     this.init(imageDescriptor);
+     callback.call(this, this);
+   }.on(this));
+  };
+
+  /**
+  * Make this image editable.
+  * You can use it inside a CANVAS without tainted it!
+  * @return {String} A data:url of this image. Can be used inside a canvas;
+  * @param  {Function} callback [description]
+  * @return {[type]}            [description]
+  */
+  this.editable = function(callback) {
+   UT.Expression._callAPI(
+     'medias.getEditableImage',
+     [this.url],
+     function(editableImageUrl) {
+       this.url = editableImageUrl;
+       callback.call(this, this);
+     }.on(this)
+   );
+  };
+
+  /**
+   * Return a JSON vesion of this object
+   * @return {String} A json string containing document datas
+   */
+  this.toJSON = function() {
+    return JSON.stringify(this.descriptor);
+  };
+
+  // Private methods
+  // LOOK AWAY!
+  // Use to on this interface with Urturn API
+  this.init = function(imageDescriptor) {
+   this.url = imageDescriptor.url;
+   this.descriptor = imageDescriptor;
+   this.info = imageDescriptor.info;
+   if (imageDescriptor.center) {
+     this.info.crop = imageDescriptor.center;
+   }
+  };
+
+  this.descriptor = {};
+};
+
+/**
+ * An video object return by create('video');
+ * Use it to manipulate a video (crop and filters comming in futur)
+ * @param {object} videoDescriptor an object return by internal sdk
  */
+UT.Video = function(videoDescriptor) {
 
-UT.Expression.extendExpression('url', function(expression){
-  var url = {};
+	/**
+	 * The url of the video
+	 * @type {String}
+	 */
+	this.url = "";
 
-  url['for'] = function(asset) {
-    return url.getAssetPath(asset);
-  };
-
-  url.getAssetThroughProxy = function(asset)
-  {
-    return this.proxify(this.getAssetPath(asset));
-  };
-
-  url.getAssetPath = function(asset) {
-    // var host = 'http://' + expression.getState('host');
-    if (asset.indexOf('./') === 0) {
-      asset = asset.substring(1);
-    }
-    if (expression.getState('assetPath').indexOf('http') === -1) {
-      return  'http://' + expression.getState('host') + '/' + expression.getState('assetPath') + asset;
-    }
-    return expression.getState('assetPath') + asset;
-  };
-
-  url.proxify = function(urlOrBase64){
-  //  console.log('Proxify : ', urlOrBase64);
-    var host = window.location.protocol + '//' + expression.getState('host') + '/image_proxy/';
-    if (typeof(urlOrBase64) == 'string' &&
-        urlOrBase64.indexOf('data:image') !== 0 &&
-        urlOrBase64.indexOf('image_proxy') == -1){
-      var newUrl = urlOrBase64;
-      if (urlOrBase64.indexOf('http://') === 0)
-        newUrl = host + urlOrBase64.substring(7);
-      else if(urlOrBase64.indexOf('https://') === 0)
-        newUrl = host + urlOrBase64.substring(8);
-      else if(urlOrBase64.indexOf('./') === 0 || urlOrBase64.indexOf('/') === 0)
-        return urlOrBase64;
-      else if(urlOrBase64.indexOf('//') === 0)
-        newUrl = host + urlOrBase64.substring(2);
-      else
-        newUrl = host + urlOrBase64;
-      return newUrl;
-    }
-    return urlOrBase64;
-  };
-  return url;
-});
+	/**
+	 * A string containing the type of this media,
+	 * Aka "video" here
+	 * @type {String}
+	 */
+	this.type = 'video';
 
 
+	// Private methods
+	// LOOK AWAY!
+	// Use to on this interface with Urturn API
+	function _buildVideo(videoDescriptor) {
+		this.url = videoDescriptor.url;
+		descriptor = videoDescriptor;
+	}
+	var descriptor = {};
+	// init !
+	_buildVideo.on(this)(videoDescriptor);
+};
+/**
+ * A sound object return by create('sound');
+ * Use it to manipulate a sound (filter, ...)
+ * @param {object} soundDescriptor an object return by internal sdk
+ */
+UT.Sound = function(soundDescriptor) {
+	
+	/**
+	 * Name of the service in wich this sound is hosted
+	 * Currently soundcloud or itunes
+	 * @type {String}
+	 */
+	this.service = '';
+	
+	/**
+	 * url of the sound on the service
+	 * @type {URL}
+	 */
+	this.url = '';
+
+	/**
+	 * Title of the sound
+	 * @type {String}
+	 */
+	this.title = '';
+
+	/**
+	 * Name of artist / author
+	 * @type {String}
+	 */
+	this.artist = '';
+
+	/**
+	 * Link to an image representing the sound or the artist / author
+	 * @type {URL}
+	 */
+	this.cover = '';
+
+	/**
+	 * Link to an image representing the artist / author of this sound
+	 * @type {URL}
+	 */
+	this.artistCover = '';
+
+	/**
+	 * Link to an image representing this sound
+	 * @type {URL}
+	 */
+	this.soundCover = '';
+
+	/**
+	 * Link to an image representing the waveForm of this sound;
+	 * @type {URL}
+	 */
+	this.waveFormImage = '';
+
+	/**
+	 * Link to the sound page on the service
+	 * @type {URL}
+	 */
+	this.link = '';
+
+	/**
+	 * Original data as we retrive them from the service
+	 * @type {Object}
+	 */
+	this.appData = {};
+
+
+	// Private methods
+	// LOOK AWAY!
+	// Use to on this interface with Urturn API
+	function _buildSound(soundDescriptor) {
+		descriptor = soundDescriptor;
+		this.service = soundDescriptor.service;
+		this.url = soundDescriptor.url;
+		this.title = soundDescriptor.title;
+		this.artist = soundDescriptor.artist;
+		this.cover = soundDescriptor.cover;
+		this.artistCover = soundDescriptor.artistCover;
+		this.soundCover = soundDescriptor.soundCover;
+		this.waveFormImage = soundDescriptor.waveFormImage;
+		this.link = soundDescriptor.link;
+		this.appData = soundDescriptor.appData;
+	}
+
+	var descriptor = {};
+	_buildSound.on(this)(soundDescriptor);
+};
 /**
  * @preserve FastClick: polyfill to remove click delays on browsers with touch UIs.
  *
@@ -1896,27 +1952,34 @@ if (typeof module !== 'undefined' && module.exports) {
 	module.exports.FastClick = FastClick;
 }
 
-// Define collections
-UT.Expression.extendExpression('collections', function(expression) {
-  var documentId = expression.getState('documentId');
-  var collections = expression.getState('collections');
-  var currentUserId = expression.getState('currentUserId');
-  if(documentId && collections) {
-    var collectionStore = new UT.CollectionStore({
-      data: collections,
-      currentUserId: currentUserId,
-      delegate: {
-        save: function(name, items, callback) {
-          UT.Expression._callAPI('collections.save', [name, items], callback);
-        },
-        authenticate: function(callback) {
-          UT.Expression._callAPI('authenticate');
-        }
-      }
-    });
-    expression.storage = collectionStore.get('default');
-    return collectionStore;
-  }
-});
+/**
+ * Initialization code
+ */
 
-UT.Expression._getInstance();
+// handle touch events
+if ('ontouchstart' in window || 'onmsgesturechange' in window) {
+  document.querySelector('html').className = document.querySelector('html').className + ' touch';
+
+  if (typeof FastClick != 'undefined') {
+    window.addEventListener('load', function() {
+      new FastClick(document.body);
+    }, false);
+  }
+}
+
+/**
+ * post message handler
+ */
+window.addEventListener("message", function (e) {
+  // webdoc will always set json data so we parse it
+  try {
+      msgObj = JSON.parse(e.data);
+  }
+  catch (exception) {
+      if (console && console.error) {
+        console.error("receive invalid message", e.data, exception.message) ;
+      }
+      msgObj = {};
+  }
+  UT.Expression._dispatch(msgObj);
+}, false);

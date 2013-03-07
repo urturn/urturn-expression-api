@@ -1,0 +1,13 @@
+/**
+ * Describe your expression styles below.
+ *
+ * /!\ IMPORTANT NOTE
+ * Do not use #id selector as your expression markup can be displayed multiple time
+ * in the same HTML page. Use .class selectors instead.
+ */
+
+
+div.picture img {
+  width: 100%;
+  height: auto;
+}

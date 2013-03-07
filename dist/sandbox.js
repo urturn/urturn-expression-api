@@ -3,6 +3,7 @@
  */
 var UT = {},
     WD = UT;
+
 // Generate Random UUID compliant with rfc4122 v4
 // Fantastic piece of code from @broofa on:
 // http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
@@ -27,7 +28,7 @@ UT.Collection = function(options) {
   this.setUserItem = function(item) {
     if(!currentUserId) {
       delegate.authenticate();
-      throw "ArgumentError: no currentUserId defined";
+      throw new Error("ArgumentError", "No currentUserId defined");
     }
     return this.setItem(currentUserId, item);
   };
@@ -42,10 +43,10 @@ UT.Collection = function(options) {
   // Add or updated an item binded to a specific key
   var setItem = function(key, item) {
     if(!key) {
-      throw "invalid key: " + key;
+      throw new Error("InvalidKey", key);
     }
     if(privateKeys.indexOf(key) != -1) {
-      throw "reserved key: " + key;
+      throw new Error("ReservedKey", key);
     }
     var sanItem = sanitizeItem(key, item);
     var oldItem = null;
@@ -315,12 +316,12 @@ UT.Collection = function(options) {
             if(!isNaN(n) && isFinite(item[fd.name])) {
               sanitizedItem[fd.name] = n;
             } else {
-              throw 'TypeError: wrong value for field note';
+              throw new Error('TypeError', 'Wrong value for field note');
             }
           } else if(fd.type == 'boolean'){
             sanitizedItem[fd.name] = !!item[fd.name];
           } else {
-            throw 'TypeError: Unkown type ' + fd.type;
+            throw new Error('TypeError', 'Unkown type ' + fd.type);
           }
         }
       }
@@ -334,13 +335,13 @@ UT.Collection = function(options) {
   // constructor
   var initialize = function(options) {
     if(!options.data) {
-      throw "ArgumentError: missing data";
+      throw new Error("ArgumentError", "missing data");
     }
     if(!options.data.name) {
-      throw "ArgumentError: no name in data";
+      throw new Error("ArgumentError", "no name in data");
     }
     if(options.data.count === undefined) {
-      throw "ArgumentError: no count in data";
+      throw new Error("ArgumentError", "no count in data");
     }
     operations = {}; // map of operations results
     keys = []; // all used keys
@@ -438,7 +439,7 @@ var supportGetSet = function() {
       });
     }
   } catch(defPropException) { /* can't define __defineGetter__ and __defineSetter__. Certainly ie < 8*/
-    throw('Simple Storage API not Supported');
+    throw new Error('Simple Storage API not Supported');
   }
 };
 supportGetSet();
@@ -455,7 +456,7 @@ UT.CollectionStore = function(options) {
     var data = this.data[i];
     var name = data.name;
     if(!name) {
-      throw "ArgumentError: data contains unamed collections.";
+      throw new Error("ArgumentError", "data contains unamed collections.");
     }
     collections[name] = new UT.Collection({
       data: data,

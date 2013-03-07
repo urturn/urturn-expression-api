@@ -1,0 +1,4 @@
+/* style loaded only in editor. */
+button.hidden {
+  display: none;
+}
