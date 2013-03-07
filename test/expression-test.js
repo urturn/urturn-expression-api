@@ -1,27 +1,28 @@
-buster.spec.expose();
 
-describe('UT.Expression', function(){
-  beforeEach(function(){
-    expect(WD).toBeDefined() ;
-    expect(UT.Expression).toBeDefined() ;
-  });
-  afterEach(function(){
+buster.testCase('UT.Expression', {
+  setUp: function(){
+    this.node = createExpressionDOM();
+  },
+  tearDown: function(){
     UT.Expression._reset();
-  });
-
-  describe('.ready callback', function(){
-    it('has a ready event that is called with an instance of expression.', function(done){
+  },
+  'ready callback': {
+    'has a ready event that is called with an instance of expression': function(done){
       var readyFunc = function(expression_instance){
-        expect(expression_instance).toBeDefined("Expression should be defined.");
-        expect(expression_instance.fire).toBeDefined("expression instance should have a trigger function.");
-        expression_instance.off('ready', readyFunc);
-        done();
+        try {
+          buster.assert(expression_instance);
+          buster.assert(expression_instance.fire);
+          expression_instance.off('ready', readyFunc);
+          done();
+        } catch (e) {
+          done(e);
+        }
       };
       UT.Expression.ready(readyFunc);
       UT.Expression._dispatch({type: 'ready', options: {collections:[]}});
       var expression = UT.Expression._postInstance();
-      expect(expression).toBeDefined();
+      buster.assert(expression);
       expression.fire('ready', expression);
-    });
-  });
+    }
+  }
 });

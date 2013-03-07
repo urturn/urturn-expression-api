@@ -61,7 +61,13 @@
   };
 
   buster.testCase("Post", {
+    setUp: function(){
+      this.node = createExpressionDOM();
+    },
     tearDown: function(){
+      if(this.node){
+        document.body.removeChild(this.node);
+      }
       dropListeners();
       UT.Expression._reset();
     },
@@ -227,6 +233,29 @@
         this.post.collection('testAnotherOne').aValue = 'Hello World';
         this.post.collection('default').anObject = {hello: 'world'};
         this.post.save();
+      }
+    },
+    "resize()": {
+      setUp: function(){
+        setupExpression(this);
+      },
+      "with 'auto'": function(done){
+        var div = document.createElement('div');
+        div.style.height = "233px";
+        refute.isNull(this.post.node);
+        this.post.node.appendChild(div);
+        listenToMessage(function(message){
+          if(message.methodName == 'container.resizeHeight'){
+            try {
+              assert.equals(message.args[0], 233);
+              done();
+            } catch(e) {
+              done(e);
+            }
+          }
+          console.log(message.type, message.methodName);
+        });
+        this.post.resize('auto');
       }
     }
   });

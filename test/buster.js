@@ -14,5 +14,6 @@ config["API tests"] = {
   ],
   tests: [
     "test/*-test.js"
-  ]
+  ],
+  testHelpers: ["test/lib/dom.js"]
 };
