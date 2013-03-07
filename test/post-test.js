@@ -237,6 +237,18 @@
     },
     "resize()": {
       setUp: function(){
+        this.assertHeightMessage = function(expected, done){
+          listenToMessage(function(message){
+            if(message.methodName == 'container.resizeHeight'){
+              try {
+                assert.equals(message.args[0], expected);
+                done();
+              } catch(e) {
+                done(e);
+              }
+            }
+          });
+        };
         setupExpression(this);
       },
       "with 'auto'": function(done){
@@ -244,18 +256,20 @@
         div.style.height = "233px";
         refute.isNull(this.post.node);
         this.post.node.appendChild(div);
-        listenToMessage(function(message){
-          if(message.methodName == 'container.resizeHeight'){
-            try {
-              assert.equals(message.args[0], 233);
-              done();
-            } catch(e) {
-              done(e);
-            }
-          }
-          console.log(message.type, message.methodName);
-        });
+        this.assertHeightMessage(233, done);
         this.post.resize('auto');
+      },
+      "with height in pixel": function(done){
+        this.assertHeightMessage(532, done);
+        this.post.resize(532);
+      },
+      "with height in object": function(done){
+        this.assertHeightMessage(345, done);
+        this.post.resize({height: 345});
+      },
+      "with a string height in object": function(done){
+        this.assertHeightMessage(123, done);
+        this.post.resize({height: '123px'});
       }
     }
   });
