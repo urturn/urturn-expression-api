@@ -475,6 +475,12 @@ UT.CollectionStore = function(options) {
     collections[collection.name] = collection;
   };
 
+  this.each = function(fn) {
+    for(var k in collections){
+      fn(collections[k]);
+    }
+  };
+
   // Ensure all the write operations are made against
   // ServerRequest.
   this.flush = function(collection) {

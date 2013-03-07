@@ -475,6 +475,12 @@ UT.CollectionStore = function(options) {
     collections[collection.name] = collection;
   };
 
+  this.each = function(fn) {
+    for(var k in collections){
+      fn(collections[k]);
+    }
+  };
+
   // Ensure all the write operations are made against
   // ServerRequest.
   this.flush = function(collection) {
@@ -636,6 +642,9 @@ UT.CollectionStore = function(options) {
     var self = this;
 
     // scoped properties
+
+
+
     var eventTypesBindings = {}; // handle event bindings for each event type
     var collectionStore = new UT.CollectionStore({
       data: states.collections,
@@ -650,7 +659,41 @@ UT.CollectionStore = function(options) {
       }
     });
 
+    /** 
+     * Retrieve Parent Post Datas.
+     *
+     * This is available only during the first edition of a post
+     * if the expression is created from another one.
+     */
+    var parentCollection;
+    if(states.parentData){
+      var items = [];
+      for(var k in states.parentData){
+        states.parentData[k]._key = k;
+        items.push(states.parentData[k]);
+      }
+      parentCollection = new UT.Collection({
+        data: {
+          name: 'parent',
+          items: items,
+          count: items.length
+        },
+        delegate: {
+          save: function(){
+            throw new Error('ReadOnly collection');
+          },
+          authenticate: function(){
+            throw new Error('ReadOnly collection');
+          }
+        },
+        currentUserId: states.currentUserId
+      });
+    }
+
     // scoped functions
+
+
+
     var setNote = function(){
       if (typeof(self.note) == 'string') {
         states.note = self.note;
@@ -695,39 +738,6 @@ UT.CollectionStore = function(options) {
      * the expression outter dom node
      */
     var node = this.node = document.querySelector('.webdoc_expression_wrapper');
-
-    /** 
-     * Retrieve Parent Post Datas.
-     *
-     * This is available only during the first edition of a post
-     * if the expression is created from another one.
-     */
-    var parentData;
-    if(states.parentData){
-      var items = [];
-      for(var k in states.parentData){
-        states.parentData[k]._key = k;
-        items.push(states.parentData[k]);
-      }
-      parentData = this.parentData = new UT.Collection({
-        data: {
-          name: 'parent',
-          items: items,
-          count: items.length
-        },
-        delegate: {
-          save: function(){
-            throw new Error('ReadOnly collection');
-          },
-          authenticate: function(){
-            throw new Error('ReadOnly collection');
-          }
-        },
-        currentUserId: states.currentUserId
-      });
-    } else {
-      parentData = this.parentData = null;
-    }
 
     // Public Functions
 
@@ -1007,11 +1017,6 @@ UT.CollectionStore = function(options) {
       }
     };
 
-    /**
-     * The default, private collection
-     */
-    this.storage = collectionStore.get('default');
-
     var pushNavigation = this.pushNavigation = function(state, callback) {
       UT.Expression._callAPI('container.pushNavigation', [state], callback);
     };
@@ -1035,6 +1040,39 @@ UT.CollectionStore = function(options) {
       };
       UT.Expression._callAPI('container.navigate', [opt]);
     };
+
+    /**
+     * Retrieve a collection given its name.
+     *
+     * The name can be any public collection defined in expression.json,
+     * 'default' for the default collection (aka post.storage)
+     * or parent for this post parent default collection (this is available
+     * only during the first edition of a post if the expression is created 
+     * from another one.)
+     * 
+     * @param {String} name the collection name
+     */
+    var collection = this.collection = function(name){
+      if(name == 'parent'){
+        return parentCollection || null;
+      } else {
+        return collectionStore.get(name);
+      }
+    };
+
+    /**
+     * Save data in all collections.
+     */
+    var save = this.save = function(){
+      collectionStore.each(function(c){
+        c.save();
+      });
+    };
+
+    /**
+     * The default, private collection
+     */
+    this.storage = collection('default');
   };
 })();
 /**
