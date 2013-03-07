@@ -733,7 +733,7 @@ UT.Expression = (function(){
     function readyToPost(ready) {
       if(ready !== undefined && ready != _states.readyToPost ){
         _states.readyToPost = !!ready;
-        UT.Expression._callAPI('document.readyToPost', [_states.readyToPost]);
+        UT.Expression._callAPI('document.readyToPost', [_states.readyToPost], function(){});
       }
       return _states.readyToPost;
     }
@@ -880,12 +880,30 @@ UT.Expression = (function(){
     }
     
     function pushNavigation(state, callback) {
-      UT.Expression._callAPI('pushNavigation', [state], callback);
+      UT.Expression._callAPI('container.pushNavigation', [state], callback);
     }
 
     function popNavigation() {
-      UT.Expression._callAPI('popNavigation');
+      UT.Expression._callAPI('container.popNavigation');
     }
+
+    function navigate(app) {
+      var options = {};
+      if (arguments.length >= 2) {
+        options = arguments[1];
+      }
+      else if (arguments.length === 1) {
+        options = app;
+        app = 'browse';
+      }
+      var opt = {
+        app : app,
+        parameters : options
+      };
+      UT.Expression._callAPI('container.navigate', [opt]);
+    }
+
+    expression.navigate = navigate;
 
     expression.pushNavigation = pushNavigation;
     expression.popNavigation = popNavigation;
