@@ -213,7 +213,7 @@ module.exports = function(grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', ['jshint', 'buster', 'filecheck', 'concat', 'uglify', 'cssmin']);
+  grunt.registerTask('default', ['buster', 'jshint', 'filecheck', 'concat', 'uglify', 'cssmin']);
   grunt.registerTask('all', ['default', 's3deploy']);
   grunt.registerTask('local', ['concat', 'uglify', 'cssmin']);
   grunt.registerTask('l', 'jshint');

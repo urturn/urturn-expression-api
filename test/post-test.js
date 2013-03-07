@@ -7,6 +7,9 @@
     messageListeners = [];
   };
 
+  var assert = buster.assert;
+  var refute = buster.refute;
+
   var listenToMessage = function(callback){
     var func = function(event){
       if(callback){
@@ -30,31 +33,33 @@
     window.parent.addEventListener('message', func, false);
   };
 
-  var setupExpression = function (context){
+  // options can contain states
+  var setupExpression = function (context, options){
+    options = options || {};
     UT.Expression._reset();
     UT.Expression._dispatch({
       type: 'ready',
       options: {
-        expToken: 'aaaa-aaaa-aaaaaa-aaaaaaaaa',
-        mode: 'editor',
-        documentURL: '/posts/bbbb-bbbb-bbbbbbb-bbbbbbbb',
-        documentId: 'bbbb-bbbb-bbbbbbb-bbbbbbbb',
-        documentPrivacy: 'public',
-        collections: [{
+        expToken: options.expToken || 'aaaa-aaaa-aaaaaa-aaaaaaaaa',
+        mode: options.mode || 'editor',
+        documentURL: options.documentURL || '/posts/bbbb-bbbb-bbbbbbb-bbbbbbbb',
+        documentId: options.documentId || 'bbbb-bbbb-bbbbbbb-bbbbbbbb',
+        documentPrivacy: options.documentPrivacy || 'public',
+        collections: options.collections || [{
           name: 'default',
           items: [],
           count: 0
         }],
-        currentUserId: 'cccc-cccc-cccccc-cccccccc',
-        host: 'http://uuuu.com',
-        assetPath: 'http://assets.aaaaa.com',
-        note : 'some',
-        scrollValues: {}
+        currentUserId: options.currentUserId || 'cccc-cccc-cccccc-cccccccc',
+        host: options.host || 'http://uuuu.com',
+        assetPath: options.assetPath || 'http://assets.aaaaa.com',
+        note : options.note || 'some',
+        scrollValues: options.scrollValues || {},
+        parentData: options.parentData || null
       }
     });
 
     context.post = UT.Expression._postInstance();
-    buster.assert(context.post);
   };
 
   buster.testCase("Post", {
@@ -85,6 +90,54 @@
         buster.assert.equals(this.post.valid(true), true);
         buster.assert.equals(this.post.valid(false), false);
         buster.assert.equals(this.post.valid(), false);
+      }
+    },
+
+    "parentData": {
+      "retrieve same data as storage": function(){
+        setupExpression(this, {
+          parentData: {
+            aString: {
+              _type: 'literal',
+              value: 'aString'
+            },
+            aNullValue: {
+              _type: 'literal',
+              value: null
+            },
+            aNumber: {
+              _type: 'literal',
+              value: 2.4
+            },
+            aBoolean: {
+              _type: 'literal',
+              value: true
+            },
+            anArray: {
+              _type: 'literal',
+              value: [1, 'test', {plain: 'object'}]
+            },
+            anImage: {
+              _type: 'image',
+              url: 'http://www.image.tes/pix.jpg'
+            },
+            anObject: {
+              plain: 'object'
+            }
+          }
+        });
+        assert(this.post.parentData.anObject);
+        assert.equals(this.post.parentData.anObject.plain, 'object');
+        assert.equals(this.post.parentData.aString, 'aString');
+        assert.isNull(this.post.parentData.aNullValue);
+        assert.equals(true, this.post.parentData.aBoolean);
+        assert.equals(2.4, this.post.parentData.aNumber);
+        assert.equals([1, 'test', {plain: 'object'}], this.post.parentData.anArray);
+        // XXX need to test the image
+      },
+      "isNull when no parent data": function(){
+        setupExpression(this, {parentData: null});
+        assert.isNull(this.post.parentData);
       }
     },
 
