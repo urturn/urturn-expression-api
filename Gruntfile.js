@@ -72,6 +72,7 @@ module.exports = function(grunt) {
       src: [
         'lib/expression-api/namespace.js',
         'lib/expression-api/uuid.js',
+        'lib/expression-api/compat.js',
         'lib/expression-api/ItemCollection.js',
         'lib/expression-api/ItemCollectionStore.js'
       ],
