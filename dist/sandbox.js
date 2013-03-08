@@ -144,12 +144,21 @@ UT.Collection = function(options) {
     return '<Collection @name="' + this.name + '">';
   };
 
+
+  var marshall = function(item){
+    if(item && item.marshall){
+      return item.marshall();
+    } else {
+      return item;
+    }
+  };
+
   this.save = function() {
     bindNewKeys.apply(this);
     var itemsToSave = {};
     if(dirtyKeys.length > 0) {
       for(var i = 0; i < dirtyKeys.length; i++) {
-        itemsToSave[dirtyKeys[i]] = items[dirtyKeys[i]].marshall();
+        itemsToSave[dirtyKeys[i]] = marshall(items[dirtyKeys[i]]);
       }
       delegate.save(this.name, itemsToSave);
       dirtyKeys = [];

@@ -144,12 +144,21 @@ UT.Collection = function(options) {
     return '<Collection @name="' + this.name + '">';
   };
 
+
+  var marshall = function(item){
+    if(item && item.marshall){
+      return item.marshall();
+    } else {
+      return item;
+    }
+  };
+
   this.save = function() {
     bindNewKeys.apply(this);
     var itemsToSave = {};
     if(dirtyKeys.length > 0) {
       for(var i = 0; i < dirtyKeys.length; i++) {
-        itemsToSave[dirtyKeys[i]] = items[dirtyKeys[i]].marshall();
+        itemsToSave[dirtyKeys[i]] = marshall(items[dirtyKeys[i]]);
       }
       delegate.save(this.name, itemsToSave);
       dirtyKeys = [];
@@ -1205,6 +1214,7 @@ UT.Image = function(imageDescriptor) {
   };
 
   this.marshall = function() {
+    this.descriptor._type = 'image';
     return this.descriptor;
   };
 
@@ -1245,6 +1255,11 @@ UT.Video = function(videoDescriptor) {
 	 */
 	this.type = 'video';
 
+	this.marshall = function(){
+		descriptor.url = this.url;
+		descriptor._type = 'video';
+		return descriptor;
+	};
 
 	// Private methods
 	// LOOK AWAY!
@@ -1255,7 +1270,7 @@ UT.Video = function(videoDescriptor) {
 	}
 	var descriptor = {};
 	// init !
-	_buildVideo.on(this)(videoDescriptor);
+	_buildVideo.call(this, videoDescriptor);
 };
 /**
  * A sound object return by create('sound');
@@ -1343,8 +1358,24 @@ UT.Sound = function(soundDescriptor) {
 		this.appData = soundDescriptor.appData;
 	}
 
+	this.marshall = function(){
+		return {
+			_type: 'sound',
+			service: this.service,
+			url: this.url,
+			title: this.title,
+			artist: this.artist,
+			cover: this.cover,
+			artistCover: this.artistCover,
+			soundCover: this.soundCover,
+			waveFormImage: this.waveFormImage,
+			link: this.link,
+			appData: this.appData
+		};
+	};
+
 	var descriptor = {};
-	_buildSound.on(this)(soundDescriptor);
+	_buildSound.call(this, soundDescriptor);
 };
 ; (function(){
   /**
