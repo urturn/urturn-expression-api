@@ -1342,6 +1342,15 @@ UT.Sound = function(soundDescriptor) {
 	var descriptor = {};
 	_buildSound.on(this)(soundDescriptor);
 };
+; (function(){
+  /**
+   * This event is sent by the on('resize') producers.
+   */
+  UT.ResizeEvent = function(width, height){
+    this.height = height;
+    this.width = width;
+  };
+})();
 /**
  * @preserve FastClick: polyfill to remove click delays on browsers with touch UIs.
  *

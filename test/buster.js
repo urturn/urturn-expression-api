@@ -1,4 +1,4 @@
-var config = module.exports;
+var config = exports;
 
 config["API tests"] = {
   rootPath: "../",
@@ -10,7 +10,20 @@ config["API tests"] = {
     'lib/expression-api/Post.js',
     'lib/expression-api/ItemCollection.js',
     'lib/expression-api/ItemCollectionStore.js',
+    'lib/expression-api/events.js',
     'lib/expression-api/init.js'
+  ],
+  tests: [
+    "test/*-test.js"
+  ],
+  testHelpers: ["test/lib/dom.js"]
+};
+
+config.compiled = {
+  rootPath: "../",
+  environment: "browser",
+  sources: [
+    'dist/iframe.min.js'
   ],
   tests: [
     "test/*-test.js"

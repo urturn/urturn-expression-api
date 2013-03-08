@@ -27,6 +27,7 @@ module.exports = function(grunt) {
     'lib/expression-api/Image.js',
     'lib/expression-api/Video.js',
     'lib/expression-api/Sound.js',
+    'lib/expression-api/events.js',
     'components/fastclick/lib/fastclick.js',
     'lib/expression-api/init.js'
   ];
@@ -88,7 +89,8 @@ module.exports = function(grunt) {
   // Tests
   config.buster = {
     test: {
-      config: 'test/buster.js'
+      config: 'test/buster.js',
+      'config-group': 'compiled'
     },
     server: {
       port: 1111
@@ -213,7 +215,7 @@ module.exports = function(grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', ['buster', 'jshint', 'filecheck', 'concat', 'uglify', 'cssmin']);
+  grunt.registerTask('default', ['jshint', 'filecheck', 'concat', 'uglify', 'buster', 'cssmin']);
   grunt.registerTask('all', ['default', 's3deploy']);
   grunt.registerTask('local', ['concat', 'uglify', 'cssmin']);
   grunt.registerTask('l', 'jshint');
