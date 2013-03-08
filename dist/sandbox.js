@@ -149,7 +149,7 @@ UT.Collection = function(options) {
     var itemsToSave = {};
     if(dirtyKeys.length > 0) {
       for(var i = 0; i < dirtyKeys.length; i++) {
-        itemsToSave[dirtyKeys[i]] = items[dirtyKeys[i]];
+        itemsToSave[dirtyKeys[i]] = items[dirtyKeys[i]].marshall();
       }
       delegate.save(this.name, itemsToSave);
       dirtyKeys = [];
@@ -287,6 +287,12 @@ UT.Collection = function(options) {
   // Cleanup item to keep only authorized keys
 
   var sanitizeItem = function(key, item) {
+    if(item && item.marshall){
+      return item;
+    } else if (item && typeof item === 'object' && item.constructor !== {}.constructor) {
+      throw new Error("Unserialisable object");
+    }
+
     // Convert literal to object.
     if(typeof(item) !== 'object' || Array.isArray && Array.isArray(item)) {
       item = {

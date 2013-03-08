@@ -1,6 +1,6 @@
 var config = exports;
 
-config["API tests"] = {
+config["default"] = {
   rootPath: "../",
   environment: "browser",
   sources: [
@@ -10,6 +10,9 @@ config["API tests"] = {
     'lib/expression-api/Post.js',
     'lib/expression-api/ItemCollection.js',
     'lib/expression-api/ItemCollectionStore.js',
+    'lib/expression-api/Image.js',
+    'lib/expression-api/Sound.js',
+    'lib/expression-api/Video.js',
     'lib/expression-api/events.js',
     'lib/expression-api/init.js'
   ],
