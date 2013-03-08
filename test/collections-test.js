@@ -346,6 +346,81 @@ describe('collections', function(){
         expect(message.items.i2.note).toBe(anItem.note);
       });
 
+      it('let you save image', function(){
+        var url = 'http://www.xyz.cz';
+        var image = new UT.Image({url: url});
+        expect(image.url).toBe(url);
+
+        collection.setItem('img', image);
+        var act = collection.getItem('img');
+        expect(act.url).toBe(url);
+        expect(act.marshall).toBeDefined();
+
+        collection.save();
+        var message = dataDelegate.operations.pop();
+        expect(message).toBeDefined();
+        expect(message.name).toBe(collection.name);
+        var img = message.items.img;
+        expect(img).toBeDefined();
+        expect(typeof img).toBe('object');
+        expect(img._type).toBe('image');
+        for(var k in img){
+          if(typeof img[k] === 'function'){
+            throw new Error(k + " is a function and should not be there");
+          }
+        }
+      });
+
+      it('let you save sound', function(){
+        var url = 'http://www.xyz.cz';
+        var sound = new UT.Sound({url: url});
+        expect(sound.url).toBe(url);
+
+        collection.setItem('img', sound);
+        var act = collection.getItem('img');
+        expect(act.url).toBe(url);
+        expect(act.marshall).toBeDefined();
+
+        collection.save();
+        var message = dataDelegate.operations.pop();
+        expect(message).toBeDefined();
+        expect(message.name).toBe(collection.name);
+        var img = message.items.img;
+        expect(img).toBeDefined();
+        expect(img.url).toBe(url);
+        expect(img._type).toBe('sound');
+        for(var k in img){
+          if(typeof img[k] === 'function'){
+            throw new Error(k + " is a function and should not be there");
+          }
+        }
+      });
+
+      it('let you save video', function(){
+        var url = 'http://www.xyz.cz';
+        var video = new UT.Video({url: url});
+        expect(video.url).toBe(url);
+
+        collection.setItem('img', video);
+        var act = collection.getItem('img');
+        expect(act.url).toBe(url);
+        expect(act.marshall).toBeDefined();
+
+        collection.save();
+        var message = dataDelegate.operations.pop();
+        expect(message).toBeDefined();
+        expect(message.name).toBe(collection.name);
+        var img = message.items.img;
+        expect(img).toBeDefined();
+        expect(img.url).toBe(url);
+        expect(img._type).toBe('video');
+        for(var k in img){
+          if(typeof img[k] === 'function'){
+            throw new Error(k + " is a function and should not be there");
+          }
+        }
+      });
+
       it('let you save modified item after []=', function(){
         expect(dataDelegate.operations.length).toBe(0);
         collection.i2 = anItem;
