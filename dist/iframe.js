@@ -16,6 +16,44 @@ UT.uuid = function(){
 
 UT.UUID = UT.uuid;
 /**
+ * Add Support to IE GEt/Set
+ */
+var supportGetSet = function() {
+  try {
+    if(!Object.prototype.__defineGetter__ && Object.defineProperty({}, "x", {
+      get: function() {
+        return true;
+      }
+    }).x) {
+      Object.defineProperty(Object.prototype, "__defineGetter__", {
+        enumerable: false,
+        configurable: true,
+        value: function(name, func) {
+          Object.defineProperty(this, name, {
+            get: func,
+            enumerable: true,
+            configurable: true
+          });
+        }
+      });
+      Object.defineProperty(Object.prototype, "__defineSetter__", {
+        enumerable: false,
+        configurable: true,
+        value: function(name, func) {
+          Object.defineProperty(this, name, {
+            set: func,
+            enumerable: true,
+            configurable: true
+          });
+        }
+      });
+    }
+  } catch(defPropException) { /* can't define __defineGetter__ and __defineSetter__. Certainly ie < 8*/
+    throw new Error('Simple Storage API not Supported');
+  }
+};
+supportGetSet();
+/**
  * valid options keys: data, delegate, currentUserId
  */
 UT.Collection = function(options) {
@@ -420,45 +458,6 @@ UT.Collection = function(options) {
   initialize.call(this, options);
 };
 
-/**
- * Add Support to IE GEt/Set
- */
-var supportGetSet = function() {
-  try {
-    if(!Object.prototype.__defineGetter__ && Object.defineProperty({}, "x", {
-      get: function() {
-        return true;
-      }
-    }).x) {
-      Object.defineProperty(Object.prototype, "__defineGetter__", {
-        enumerable: false,
-        configurable: true,
-        value: function(name, func) {
-          Object.defineProperty(this, name, {
-            get: func,
-            enumerable: true,
-            configurable: true
-          });
-        }
-      });
-      Object.defineProperty(Object.prototype, "__defineSetter__", {
-        enumerable: false,
-        configurable: true,
-        value: function(name, func) {
-          Object.defineProperty(this, name, {
-            set: func,
-            enumerable: true,
-            configurable: true
-          });
-        }
-      });
-    }
-  } catch(defPropException) { /* can't define __defineGetter__ and __defineSetter__. Certainly ie < 8*/
-    throw new Error('Simple Storage API not Supported');
-  }
-};
-supportGetSet();
-
 // Create a store for containing collections defined in data
 // mandatory options keys: data, currentUserId, delegate
 UT.CollectionStore = function(options) {
@@ -709,12 +708,18 @@ UT.CollectionStore = function(options) {
 
 
 
-    var setNote = function(){
-      if (typeof(self.note) == 'string') {
-        states.note = self.note;
-        UT.Expression._callAPI('document.setNote', [states.note]);
-      }
+    var setNote = function(value){
+      states.note = value;
+      UT.Expression._callAPI('document.setNote', [states.note]);
+      return value;
     };
+
+    this.__defineGetter__('note', function() {
+      return states.note;
+    });
+    this.__defineSetter__('note', function(value) {
+      return setNote(value);
+    });
 
     // Public Properties
 

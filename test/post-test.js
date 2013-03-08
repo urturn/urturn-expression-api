@@ -271,6 +271,36 @@
         this.assertHeightMessage(123, done);
         this.post.resize({height: '123px'});
       }
+    },
+    "note property": {
+      "set to a new string": function(done){
+        setupExpression(this);
+        listenToMessage(function(message){
+          if(message.methodName == 'document.setNote'){
+            try {
+              assert.equals(message.args[0], 'Hello World');
+              done();
+            } catch(e) {
+              done(e);
+            }
+          }
+        });
+        this.post.note = "Hello World";
+      },
+      "set to null": function(done){
+        setupExpression(this);
+        listenToMessage(function(message){
+          if(message.methodName == 'document.setNote'){
+            try {
+              assert.equals(message.args[0], null);
+              done();
+            } catch(e) {
+              done(e);
+            }
+          }
+        });
+        this.post.note = null;
+      }
     }
   });
 })();
