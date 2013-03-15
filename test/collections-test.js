@@ -2,7 +2,7 @@ buster.spec.expose();
 
 describe('collections', function(){
   var dataDelegate;
-  var data, emptyCollectionData, storageCollectionData;
+  var data, emptyCollectionData, storageCollectionData, privateCollectionData;
   var currentUserId;
 
   beforeEach(function(){
@@ -102,6 +102,12 @@ describe('collections', function(){
       }
     };
 
+    privateCollectionData = {
+      name: 'private-collection',
+      count: 0,
+      definition: {}
+    };
+
     dataDelegate = {
       operations: [],
       save: function(collectionName, items) {
@@ -197,7 +203,7 @@ describe('collections', function(){
 
         it('removes an item', function() {
           expect(collection.getItem('my-item')).toBeDefined() ;
-          collection.setItem('my-item', null) ;
+          collection.setItem('my-item', undefined) ;
           expect(collection.length).toBe(data.items.length - 1) ;
           expect(collection.getItem('my-item')).not.toBeDefined() ;
         }) ;
@@ -331,6 +337,68 @@ describe('collections', function(){
         var item = collection.getItem('my-sum');
         collection.setItem('my-sum', null);
         expect(collection.sum('spentMoney')).toBe(sum - item.spentMoney);
+      });
+    });
+
+    describe('sanitization', function(){
+      beforeEach(function(){
+        collection = new UT.Collection({document_id: document_id, data: privateCollectionData, delegate: dataDelegate, currentUserId: 'abc'});
+        this.doTestWithValue = function(value){
+          collection.val = value;
+          collection.save();
+          var message = dataDelegate.operations.pop();
+          expect(message).toBeDefined();
+          var val = message.items.val;
+          expect(val).not.toBeNull();
+          return val;
+        };
+        this.testLiteralValue = function(value){
+          var val = this.doTestWithValue(value);
+          expect(val._key).toBe('val');
+          expect(val._type).toBe('literal');
+          expect(val.value).toBe(value);
+          return val;
+        };
+      });
+      describe('literal values', function(){
+        it('keep null value', function(){
+          this.testLiteralValue(null);
+        });
+        it('keep empty arrays', function(){
+          this.testLiteralValue([]);
+        });
+        it('keep numbers', function(){
+          this.testLiteralValue(2);
+          this.testLiteralValue(4.232321312312);
+          this.testLiteralValue(-1432.12);
+        });
+        it('keep string', function(){
+          this.testLiteralValue('éàdfQR""*ç∞”⁄‹”⁄');
+        });
+        it('keep falsy value', function(){
+          this.testLiteralValue(false);
+          this.testLiteralValue(0);
+        });
+        it('let marshallable objects as it', function(){
+          var k = function(){
+            this.marshall = function(){
+              return {m:true};
+            };
+          };
+          var expected = new k();
+          var val = this.doTestWithValue(expected);
+          expect(val).toMatch({m:true});
+        });
+        it('throw away function', function(){
+          var val = function(){};
+          try{
+            var result = this.testLiteralValue(val);
+            expect(false).toBe(true);
+          } catch(ex){
+            expect(ex.message).toEqual('ArgumentError cannot serialize function');
+            // ok
+          }
+        });
       });
     });
 
