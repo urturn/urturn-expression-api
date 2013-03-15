@@ -87,9 +87,12 @@ UT.Collection = function(options) {
       throw new Error("ReservedKey", key);
     }
     var sanItem = sanitizeItem(key, item);
-    var oldItem = null;
-    if(key) {
-      oldItem = this.getItem(key);
+    var oldItem = this.getItem(key);
+
+    if(!sanItem && !items[key]){
+      // set null or undefined on an inexistant item
+      // do not delete in this case.
+      return sanItem;
     }
     recomputeOperations(oldItem, sanItem);
     if(oldItem && (sanItem === null || sanItem === undefined)) {
@@ -106,14 +109,10 @@ UT.Collection = function(options) {
       // update
       items[key] = sanItem;
     }
-    if(item) {
-      item._key = key;
-    }
     // Add key to dirtyKeys
     if(dirtyKeys.indexOf(key) == -1) {
       dirtyKeys.push(key);
     }
-
     this.length = keys.length;
     return item;
   };
@@ -186,8 +185,10 @@ UT.Collection = function(options) {
   var marshall = function(item){
     if(item && item.marshall){
       return item.marshall();
-    } else {
+    } else if(item) {
       return item;
+    } else {
+      return null; // item to delete
     }
   };
 
@@ -334,7 +335,7 @@ UT.Collection = function(options) {
   // Cleanup item to keep only authorized keys
 
   var sanitizeItem = function(key, item) {
-    if(item === undefined) { // Will delete the item
+    if(item === undefined || item === null) { // Will delete the item
       return;
     }
     if(item && item.marshall){
@@ -347,7 +348,7 @@ UT.Collection = function(options) {
     }
 
     // Convert built-in type to literal object.
-    if(item === null || typeof(item) !== 'object' || [].constructor === item.constructor) {
+    if(typeof(item) !== 'object' || [].constructor === item.constructor) {
       item = {
         _type: 'literal',
         value: item
@@ -360,9 +361,11 @@ UT.Collection = function(options) {
     if( data.definition &&
         (fieldDefs = data.definition.fields) &&
         fieldDefs.length > 0) {
+      var valid = false;
       for(var i = 0; i < fieldDefs.length; i++) {
         var fd = fieldDefs[i];
         if(item[fd.name] !== undefined) {
+          valid = true;
           if(fd.type == 'string') {
             sanitizedItem[fd.name] = item[fd.name];
           } else if(fd.type == 'number') {
@@ -378,6 +381,9 @@ UT.Collection = function(options) {
             throw new Error('TypeError', 'Unkown type ' + fd.type);
           }
         }
+      }
+      if(!valid){
+        throw new Error('InvalidItemError no valid field specified');
       }
     } else {
       sanitizedItem = item;

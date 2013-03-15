@@ -1,11 +1,12 @@
 0.6.1
 =====
 - Fix a bug where array cannot be serialized
-- Fix a bug where items with null value was removed (now they are literal item)
-- Make items with undefined value to be removed
-- Fix a bug where storage was accepting functions
+- Fix a bug where items with null value was not fully removed
+- Fix a bug where undefined items was not removed
+- Fix a bug where setting an item to null was throwing an exception on save (issue #8381)
+- Fix a bug where storage was accepting functions, now throw an Error
 - Better tests of collections sanitization method
-- Refactor the tests to avoid using public array for everything
+- Refactor the tests to avoid using public collections for everything
 
 0.6.0
 =====
