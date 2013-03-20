@@ -4,13 +4,29 @@
     "title":"UT.Expression",
     "bookmark":"api/expression"
   }, {
-    "title":"expression object",
-    "bookmark":"api/expression_api"
-  }, {
-    "title":"media object",
-    "bookmark":"api/media_obj"
-  }, {
-    "title":"Format of expression.json",
-    "bookmark":"api/expression_json"
+    "title":"UT.Post",
+    "bookmark":"api/post",
+    "children":[{
+      "title":"Storage",
+      "bookmark":"api/post_storage"
+    },{
+      "title":"Events",
+      "bookmark":"api/post_events"
+    },{
+      "title":"Dialogs",
+      "bookmark":"api/post_dialogs"
+    }]
+  },{
+    "title":"UT.Media",
+    "bookmark":"api/media"
+  },{
+    "title":"UT.Image",
+    "bookmark":"api/image"
+  },{
+    "title":"UT.Sound",
+    "bookmark":"api/sound"
+  },{
+    "title":"UT.Video",
+    "bookmark":"api/video"
   }]
 }]

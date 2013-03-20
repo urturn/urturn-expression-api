@@ -1,0 +1,50 @@
+<p>This page describe the various dialog that can be called from a Post#dialog(type, options, callback)</p>
+
+<h2 id="span-idwiki-image-image"><span id="wiki-image" />image</h2>
+
+<p>.dialog('image', options, callback);</p>
+
+<ul>
+<li>options:
+<pre class="prettyprint"><code class="lang-javascript"
+  >{
+  size : // crop options
+  { 
+    width : 23px, // asked width
+    height : 23px, // asked height
+    adaptUI : true, // true mean we should adapt camera screen UI to this size
+    auto : true, // Mean it will autoCrop to this size
+    flexRatio : flase // true : when crop panel is display, user can change ratio of crop zone
+  },
+  applyShaders : 
+  [
+    ..., // a json array discribing filters. See [Filter documentation]()
+  ],
+  inputType : [  // if specified only first types list here will be available
+    'camera', // the camera
+    'search', // the search
+    'social', // the link input
+    'myUpload' // user uploads
+  ]
+}
+</code></pre></li>
+<li><p>callback(String) - will be passed the resulting string or null if no value have been selected.</p></li>
+</ul>
+
+<h2 id="span-idwiki-text-text"><span id="wiki-text" />text</h2>
+
+<p>.dialog('text', options, callback)</p>
+
+<p></p>
+
+<ul>
+<li>options:
+<pre class="prettyprint"><code class="lang-javascript"
+  >{
+  value: String      // the default value
+  max: Integer       // the maximum number of chars that might be entered
+  multiline: boolean // if true, the text input will be multiline
+}
+</code></pre></li>
+<li>callback(String) - will be passed the resulting string or null if no value have been selected.</li>
+</ul>

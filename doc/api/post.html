@@ -1,0 +1,150 @@
+<h1>UT.Post Class</h1>
+<p>Post instance are retrieved by the callback registered on Expression.ready(callback). They are the entry point of all the functionalities to create a new post on urturn.com</p>
+
+<p>methods: <a href="#wiki-resize">resize</a>, <a href="#wiki-dialog">create</a>, <a href="#wiki-valid">valid</a>, <a href="#wiki-save">save</a>, <a href="#wiki-on">on</a>, <a href="#wiki-off">off</a>, <a href="#wiki-fire">fire</a>, <a href="#wiki-pushNavigation">pushNavigation</a>, <a href="#wiki-popNavigation">popNavigation</a>, <a href="#wiki-navigate">navigate</a>, <a href="#wiki-collection">collection</a></p>
+
+<p>properties: <a href="#wiki-context">context</a>, <a href="#wiki-url">url</a>, <a href="#wiki-storage">storage</a>, <a href="#wiki-node">node</a></p>
+
+<h2 id="methods">Methods</h2>
+
+<p>Methods of the expression object are asynchronous, because ultimately they must communicate with Urturn via the postMessage API.</p>
+
+<h3 id="a-idwiki-createcreate-_type_-_options_-callback"><a id="wiki-create"/>.create( <em>type</em>, <em>options</em>, callback )</h3>
+
+<h3 id="a-idwiki-dialogdialog-_type_-_options_-callback"><a id="wiki-dialog"/>.dialog( <em>type</em>, <em>options</em>, callback )</h3>
+
+<ul>
+<li>type - '<a href="Post-Dialogs#wiki-image">image</a>', 'sound', 'video', 'crop', '<a href="Post-Dialogs#wiki-text">text</a>'</li>
+</ul>
+
+<p>Create the dialog of the given type using an options object and
+retrieve the dialog output in the callback.</p>
+
+<h3 id="a-idwiki-resizeresize-_sizeinfo_"><a id="wiki-resize"/>.resize( <em>sizeInfo</em> )</h3>
+
+<ul>
+<li>sizeInfo - 'auto', {height: 99}, {height: '99px'}, 99</li>
+</ul>
+
+<p>Ask the container to resize to the given parameters.
+The asynchronous result of this function can be listened on
+the DOM node event.</p>
+
+<h3 id="a-idwiki-getuserdatagetuserdata-_callback_"><a id="wiki-getUserData"/>.getUserData( <em>callback</em> )</h3>
+
+<p>Call the callback with object containing datas regarding current user or null if no users are connected :</p>
+
+<pre><code>{
+  username : 'John',
+  avatar   : 'http://linktourturnavatar.com',
+  numberOfPost : 116, // [Edit mode only] the number of post made by user
+  uuid : 'uuid:of:current:user', // [Edit mode only] 
+  numberOfUse : 12 // [Edit mode only] number of time this user use this expression
+}
+
+</code></pre>
+
+<h3 id="a-idwiki-validvalid-_flag_"><a id="wiki-valid"/>.valid( <em>flag</em> )</h3>
+
+<ul>
+<li>flag - boolean</li>
+<li>return the current flag values</li>
+</ul>
+
+<p>Flag a post as being valid or not. A valid post can be published synchronously at any time.</p>
+
+<h3 id="a-idwiki-savesave"><a id="wiki-save"/>.save()</h3>
+
+<p>Save all expressions that have modified data.</p>
+
+<p>### <a id="wiki-on"/>.on(eventName, callback)
+Register a listener for the given eventName. The callback will be passed arguments <a href="#" data-bookmark="api/post_events">related to the event</a>.</p>
+
+<ul>
+<li>eventName - '<a href="#" data-bookmark="api/post_events">publish</a>', '<a href="#" data-bookmark="api/post_events">scroll</a>', '<a href="#" data-bookmark="api/post_events">resize</a>', '<a href="#" data-bookmark="api/post_events">media</a>'</li>
+<li>callback a listener function</li>
+</ul>
+
+<h3 id="a-idwiki-firefireeventname-arg0-arg1-argn"><a id="wiki-fire"/>.fire(eventName, arg0, arg1, ..., argn)</h3>
+
+<p>Calls all fns in the list for a given eventName. Passes arguments to each listeners.</p>
+
+<h3 id="a-idwiki-offoffeventname-callback"><a id="wiki-off"/>.off(eventName, callback)</h3>
+
+<p>Remove the callback func from the list of registered listener for the given eventName.</p>
+
+<ul>
+<li>eventName - name of the event</li>
+<li>callback - a function to remove from the list of listeners</li>
+</ul>
+
+<h3 id="a-idwiki-pushnavigationpushnavigationstate-callback"><a id="wiki-pushNavigation"/>.pushNavigation(state, callback)</h3>
+
+<p>Allow to push a navigation state :</p>
+
+<ul>
+<li>state : 'default' || 'cancel' || 'back'</li>
+<li>callback : function to call if this state is clicked</li>
+</ul>
+
+<h3 id="a-idwiki-popnavigationpopnavigation"><a id="wiki-popNavigation"/>.popNavigation()</h3>
+
+<p>Pop the current state.</p>
+
+<h3 id="a-idwiki-navigatenavigateapp-target-or-navigatetarget"><a id="wiki-navigate"/>.navigate(app, target) or .navigate(target)</h3>
+
+<p>Allow expression to navigate :</p>
+
+<ul>
+<li>app : name of an app use to navigate : 'browse', 'search', 'user'</li>
+<li>target : where to navigate, ex : 'http://example.org'</li>
+</ul>
+
+<h3 id="a-idwiki-collectioncollectionname"><a id="wiki-collection"/>.collection(name)</h3>
+
+<p>Retrieve a storage collection given its name.</p>
+
+<ul>
+<li>name - the name of the collection</li>
+</ul>
+
+<p>The name can be:</p>
+
+<ul>
+<li>any collection defined in expression.json,</li>
+<li>'parent' to retrieve the storage item from the parent document.</li>
+<li>'default' to retrieve the default collection (aka <a href="#wiki-storage">Post#storage</a>)</li>
+</ul>
+
+<h2 id="properties">Properties</h2>
+
+<h3 id="a-idwiki-contextcontext-read-only"><a id="wiki-context"/>.context [Read ONLY]</h3>
+
+<pre><code>{
+  player: boolean, // true if in player mode
+  editor: boolean, // true if in editor mode
+  privacy: String, // one of 'private', 'unlisted' or 'public' the current state of the document publication
+}
+</code></pre>
+
+<p>This property should not be modified as the context is read-only.</p>
+
+<h3 id="a-idwiki-nodenode"><a id="wiki-node"/>.node</h3>
+
+<p>the expression outter DOM node</p>
+
+<h3 id="a-idwiki-storagestorage"><a id="wiki-storage"/>.storage</a></h3>
+<p>Storage is the place where to store your data in an expression. <a href="#" data-bookmark="api/storage">Learn more</a></p>
+
+<h3 id="a-idwiki-urlurl"><a id="wiki-url"/>.url</h3>
+
+<p>Retrieve the public url of the document.</p>
+
+<h3 id="a-idwiki-notenote"><a id="wiki-note"/>.note</h3>
+
+<p>The 'note' of the document.</p>
+<p>The note is the text display under the post and use when a post is shared on social networks. By default the note is empty. When an user do a post, he will have the opportunity to change the note. The note is accessible inside expression using the post.note property. In edit mode you have the possibility to modify it :</p>
+<pre class="prettify"><code class="lang-javascript">UT.Expression.ready(function(post) {
+  post.note = 'This is a new note!';
+})
+</code></pre>

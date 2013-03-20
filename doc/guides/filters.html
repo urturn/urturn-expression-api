@@ -1,77 +1,314 @@
-<h1>Filters, or the magic of UrTurn</h1>
-<p>This guide describe how to use wonderfull filters to enrich your Expression</p>
+<h1>Urturn API support the following filters :</h1>
 
-<h2>What's a Filter ?</h2>
+<ul>
+<li>Brightness</li>
+<li>Contrast</li>
+<li>Hue</li>
+<li>Saturation</li>
+<li>Sepia</li>
+<li>Threshold</li>
+<li>Color Invert</li>
+<li>Vignette</li>
+<li>Gamma</li>
+<li>Exposure</li>
+<li>Color</li>
+<li>Noise</li>
+</ul>
 
-<p>
-  A filter is a piece of technology that will let you change the apparence of an image.
-</p>
+<h2 id="brightness-filter">Brightness Filter</h2>
 
+<p>The Brightness filter let you change image Brightness.</p>
 
-<h2> How to use filter</h2>
+<p><strong>Parameters :</strong></p>
 
-<p>All the function related to storage are in your <tt>UT.Expression</tt> instance <tt>#storage</tt> and <tt>#items</tt> namespace.</p>
+<ul>
+<li>strenght : from -1.0 to 1.0, default 0.0
+Let you control brightness strenght. -1.0 is for a black image, 1.0 is for a white image, 0.0 leave image as it is. </li>
+</ul>
 
-<h2>The Simple storage API</h2>
+<p><strong>example:</strong>
+<code>json
+{
+   "filter" : "brightness",
+   "parameters" : {
+     "strength" : 0.2
+   }
+}
+</code></p>
 
-<p>
-  <b>UrTurn</b> provide 2 way to store datas. The simpe API wich is synchronous for the expression developper and the item API wich is asynchronous.
-</p>
+<h2 id="contrast">Contrast</h2>
 
-<h3>How to use the simple storage API?</h3>
+<p>The Contrast filter let you change image Contrast.</p>
 
-<p>
+<p><strong>Parameters :</strong></p>
 
-  To use the simple storage API, you need to use the expression.storage object. Every properties of this object will be saved and can be retrieve in other instance of the current posts.<br/>
-  This API try to be similar to W#C localStorage API. You can consider the expression.storage object as persistant accros all instances of a POST in view and edit mode.
-<pre class="prettyprint"><code class="lang-javascript">
-  UT.Expression.ready( function( expression ) 
-  {
-    if(expression.storage.hello){
-      console.log(expression.storage.hello);
-    }
-    expression.storage.hello = 'hello WoRLD';
-    // TMP : To be sure datas are saved
-    expression.storage.commit();
-  });
-</code></pre>
-  <br/>
-  <br/>
-  You can also use the storage object as an Array :
-  <pre class="prettyprint"><code class="lang-javascript">
-  UT.Expression.ready( function( expression ) 
-  {
-    if(expression.storage['hello']){
-      console.log(expression.storage['hello']);
-    }
-    expression.storage['hello'] = 'hello WoRLD';
-    // TMP : To be sure datas are saved
-    expression.storage.commit();
-  });
-</code></pre>
+<ul>
+<li>strenght : from -1.0 to 1.0, default 0.0
+Let you control contrast strenght. -1.0 is for a grey image, 1.0 is for a high contrast, 0.0 leave image as it is. </li>
+</ul>
 
-  <br/>
-  <br/>
-  You can also use the storage object using getItem and setItem methods :
-  <pre class="prettyprint"><code class="lang-javascript">
-  UT.Expression.ready( function( expression ) 
-  {
-    if(expression.storage.getItem('hello')){
-      console.log(expression.storage.getItem('hello');
-    }
-    expression.storage.setItem('hello', 'hello WoRLD');
-    // TMP : To be sure datas are saved
-    expression.storage.commit();
-  });
-</code></pre>
-<h4>storage.getItem(key, [value]) </h4>
-<p>
-  Allow you to retrieve a stored information in key key.<br/>
-  Support an optional value parameter. If no item with is found with key : key, value is returned;
-</p>
-<h4>storage.setItem(key, value) </h4>
-<p>
-    Allow you save an information of value : value, under the key : key
-</p>
-</p>
+<p><strong>example:</strong>
+<code>json
+{
+   "filter" : "contrast",
+   "parameters" : {
+     "strength" : 0.2
+   }
+}
+</code></p>
 
+<h2 id="hue">HUE</h2>
+
+<p>The HUE filter let you change image HUE.</p>
+
+<p><strong>Parameters :</strong></p>
+
+<ul>
+<li>strenght : from -1.0 to 1.0, default 0.0
+Let you control hue strenght. 0.0 leave image as it is. </li>
+</ul>
+
+<p><strong>example:</strong>
+<code>json
+{
+   "filter" : "hue",
+   "parameters" : {
+     "strength" : 0.2
+   }
+}
+</code></p>
+
+<h2 id="saturation">Saturation</h2>
+
+<p>The Saturation filter let you change image saturation.</p>
+
+<p><strong>Parameters :</strong></p>
+
+<ul>
+<li>strenght : from -1.0 to 1.0, default 0.0
+Let you control saturation strenght. 0.0 leave image as it is. -1.0 give you a desaturated (black and white) image, 1.0 an over saturated one.</li>
+</ul>
+
+<p><strong>example:</strong>
+<code>json
+{
+   "filter" : "saturation",
+   "parameters" : {
+     "strength" : 0.2
+   }
+}
+</code></p>
+
+<h2 id="sepia">Sepia</h2>
+
+<p>The Sepia filter let you apply a yellow-black filter on your image.</p>
+
+<p><strong>Parameters :</strong></p>
+
+<ul>
+<li><p>strenght : from 0.0 to 1.0, default 0.0</p>
+
+<p>Let you control sepia strenght. 0.0 leave image as it is. 1.0 apply a full sepia filter</p></li>
+</ul>
+
+<p><strong>example:</strong>
+<code>json
+{
+   "filter" : "sepia",
+   "parameters" : {
+     "strength" : 0.2
+   }
+}
+</code></p>
+
+<h2 id="threshold">Threshold</h2>
+
+<p>The Threshold filter transform your image to a 2 different color image. </p>
+
+<p><strong>Parameters :</strong></p>
+
+<ul>
+<li><p>strenght : from 0.0 to 1.0, default 0.5</p>
+
+<p>Let you control the threshold limit. 0.5 mean all color under 128 will be of primary, all color up of secondary.</p></li>
+<li><p>alpha : from 0.0 to 1.0, default 1.0</p>
+
+<p>Let you control the alpha of this filter.</p></li>
+<li><p>primaryColor : Array of 3 number defining RGB chanels [r (0-255),g (0-255),b (0-255)], default [0,0,0];</p>
+
+<p>Let you define the primary color.</p></li>
+<li><p>secondaryColor : Array of  number defining RGB chanels[r (0-255),g (0-255),b (0-255)], default [255,255,255];</p>
+
+<p>Let you define the secondary color.</p></li>
+</ul>
+
+<p><strong>example:</strong>
+<code>json
+{
+   "filter" : "threshold",
+   "parameters" : {
+     "strength" : 0.2,
+     "alpha" : 0.5,
+     "primaryColor" : [24,44,33],
+     "secondaryColor" : [223,222,123]
+   }
+}
+</code></p>
+
+<h2 id="color-invert">Color invert</h2>
+
+<p>Invert color on your image.</p>
+
+<p><strong>Parameters :</strong></p>
+
+<ul>
+<li>No Parameters !</li>
+</ul>
+
+<p><strong>example:</strong>
+<code>json
+{
+   "filter" : "invertColor"
+}
+</code></p>
+
+<h2 id="vignette">Vignette</h2>
+
+<p>Add a Vignette in top of your image</p>
+
+<p><strong>Parameters :</strong></p>
+
+<ul>
+<li><p>amount : from 0.0 to 1.0, default 0.0
+The amount of vignette added to your image, 0.0 no vignette, 1.0 max amount</p></li>
+<li><p>size : from : 0.0 to 1.0
+The size of the vignette border : 0.0 no vignette, 1.0 max size</p></li>
+<li><p>centerX : from 0.0 to 1.0, default 0.5
+The X coordinate of center of your vignette. 0.0 mean totaly left, 1.0 totaly right of your image. 0.5 mean exact middle of your image.</p></li>
+<li><p>centerY : from 0.0 to 1.0, default 0.5
+The Y coordinate of center of your vignette. 0.0 mean totaly top, 1.0 totaly bottom of your image. 0.5 mean exact middle of your image.</p></li>
+<li><p>r : from 0 to 255, default 0
+The red chanel of vignette color</p></li>
+</ul>
+
+<p>*g : from 0 to 255, default 0
+The green chanel of vignette color</p>
+
+<p>*b : from 0 to 255, default 0
+The blue chanel of vignette color</p>
+
+<p><strong>example:</strong>
+<code>json
+{
+   "filter" : "vignette",
+   "parameters" : [
+    "size" : 0.2,
+    "amount" : 0.3,
+    "centerX" : 0.5,
+    "centerY" : 0.5,
+    "r" : 12,
+    "g" : 234,
+    "b" : 123
+   ] 
+}
+</code></p>
+
+<h2 id="gamma">Gamma</h2>
+
+<p>The Gamma filter let you change gamma of your image.</p>
+
+<p><strong>Parameters :</strong></p>
+
+<ul>
+<li><p>strenght : from 0.0 to 3.0, default 1.0</p>
+
+<p>Let you control gamma strenght. 0.0 image is white. 1.0 image intact. 3.0 Strong Gamma</p></li>
+</ul>
+
+<p><strong>example:</strong>
+<code>json
+{
+   "filter" : "gamma",
+   "parameters" : {
+     "strength" : 0.2
+   }
+}
+</code></p>
+
+<h2 id="exposure">Exposure</h2>
+
+<p>The Exposure filter let you change exposure of your image.</p>
+
+<p><strong>Parameters :</strong></p>
+
+<ul>
+<li><p>strenght : from 0.0 to 1.0, default 0.0</p>
+
+<p>Let you control exposure strenght. 0.0 image is untouched. 1.0 image over-exposed. </p></li>
+</ul>
+
+<p><strong>example:</strong>
+<code>json
+{
+   "filter" : "exposure",
+   "parameters" : {
+     "strength" : 0.2
+   }
+}
+</code></p>
+
+<h2 id="color">Color</h2>
+
+<p>The color filter let you change colo balance of your image.</p>
+
+<p><strong>Parameters :</strong></p>
+
+<ul>
+<li><p>a : from 0.0 to 1.0, default 0.0</p>
+
+<p>Let you control alpha of this filter</p></li>
+<li><p>r : from 0.0 to 1.0, default : 0.0</p>
+
+<p>Let you control influence of this filter to red chanel.</p></li>
+<li><p>g : from 0.0 to 1.0, default : 0.0</p>
+
+<p>Let you control influence of this filter to green chanel.</p></li>
+<li><p>g : from 0.0 to 1.0, default : 0.0</p>
+
+<p>Let you control influence of this filter to blue chanel.</p></li>
+</ul>
+
+<p><strong>example:</strong>
+<code>json
+{
+   "filter" : "color",
+   "parameters" : {
+     "a" : 0.2,
+     "r" : 0.3,
+     "g" : 0.7,
+     "b" : 0.4
+   }
+}
+</code></p>
+
+<h2 id="noise">Noise</h2>
+
+<p>Add noise to your image.</p>
+
+<p><strong>Parameters :</strong></p>
+
+<ul>
+<li><p>Amount : from 0.0 to 1.0, default 0.0</p>
+
+<p>Let you control amount of noise on your image. 0.0 image is untouched. 1.0 lot of noise.</p></li>
+</ul>
+
+<p><strong>example:</strong>
+<code>json
+{
+   "filter" : "noise",
+   "parameters" : {
+     "amount" : 0.2
+   }
+}
+</code></p>

@@ -1,0 +1,32 @@
+<h1>Create links (no kidding)</h1>
+
+<p>To redirect user to an other webpage it's common to use window.location in Javascript.
+Unfortunately if you do so this will not work well inside our mobile app. It will also  require you to guess urturn.com urls if you want to link to a page inside urturn.com.</p>
+
+<p>The API provide an easy way to do so without having to implement 'hacks' via the .navigate method.</p>
+
+<p><strong>Example 1</strong> : redirect user to an external website</p>
+<pre class="prettyprint"><code class="lang-html"
+  >UT.Expression.ready(function(post) {
+  // Create your post using the post API
+  post.navigate('http://example.org');
+})
+</code></pre>
+
+<p>You can also redirect user to search and profil page without having to guess the correct url. This way you will not have to update your expression the day we change our url scheme. It will also work nicely inside our mobile app.</p>
+
+<p><strong>Example 2</strong> : redirect user to a urturn.com search page (when he click an hash tag for example)</p>
+<pre class="prettyprint"><code class="lang-html"
+  >UT.Expression.ready(function(post) {
+  // Create your post using the post API
+  post.navigate('search', 'this is a search query');
+})
+</code></pre>
+
+<p><strong>Example 3</strong> : redirect user to a urturn.com profile Page</p>
+<pre class="prettyprint"><code class="lang-html"
+  >UT.Expression.ready(function(post) {
+  // Create your post using the post API
+  post.navigate('user', 'anUserName');
+})
+</code></pre>

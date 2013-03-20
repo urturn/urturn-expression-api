@@ -1,0 +1,25 @@
+<h2 id="a-idwiki-publish-publish-callback"><a id="wiki-publish" />publish callback()</h2>
+
+<p>Fired when the user wants to post his content. The callback 
+will be called on the Post instance and receive no argument.
+It must be runnable synchronously as the current context 
+will be destroyed after all callbacks as been processed.</p>
+
+<h2 id="a-idwiki-scroll-scroll-callbackscrolldataevent"><a id="wiki-scroll" />scroll callback(ScrollDataEvent)</h2>
+
+<p>Fired every time the visible part of the iframe
+on the page change. 
+the callback is passed the scrolling data.
+XXX what are the scrolling data?</p>
+
+<h2 id="a-idwiki-resize-resize-callbackresizeevent"><a id="wiki-resize" />resize callback(ResizeEvent)</h2>
+
+<p>Fired when the content box size changed. The callback is
+called on the event and will be passed the ResizeEvent instance.</p>
+
+<h2 id="a-idwiki-media-media-callbackmediaevent"><a id="wiki-media" />media callback(MediaEvent)</h2>
+
+<p>Fired when a media is incoming from an external action
+like a bookmarklet adding a resource or a drag and drop.
+The callback is called on the event and will be passed a
+the MediaEvent instance.</p>

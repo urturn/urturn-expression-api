@@ -6,19 +6,24 @@
   },{
     "title":"Image Basics",
     "bookmark":"guides/image"
-  },
-  {
-    "title" : "Use Filters, Let the magic happen!",
-    "bookmark" : "expression/guides/filters"
   },{
-    "title":"Work with Sound",
-    "bookmark":"expression/guides/sound"
+    "title" : "Use Filters, Let the magic happen!",
+    "bookmark" : "guides/filters"
+  },{
+    "title" : "Create links (no kidding)",
+    "bookmark" : "guides/link"
   },
   {
+    "title":"Work with Sound",
+    "bookmark":"guides/sound"
+  },{
     "title" : "Store and retrieve data",
-    "bookmark" : "expression/guides/storage"
+    "bookmark" : "guides/storage"
+  },{
+    "title" : "Override the quit action",
+    "bookmark" : "guides/navigation"
   },{
     "title" : "Market your expression",
-    "bookmark" : "expression/guides/expression_page"
+    "bookmark" : "guides/expression_page"
   }]
 }]

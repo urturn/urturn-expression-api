@@ -1,0 +1,28 @@
+<h1>Push and Pop navigation state</h1>
+
+<p>When user is editing his expression you sometime need to handle the way he navigate the editor. For example you may open some panel and want to use the urturn UI to let user navigate them.</p>
+
+<p>The navigation API let you push navigation state that will let a navigation button appear on desktop or use the existing navigation button on mobile.</p>
+
+<p>The navigation states are pushed inside a LIFO (Last in, First out) stack. User will just see the button in top of the stack.</p>
+
+<p>You can push the following states :</p>
+
+<ul>
+<li>cancel : make a cancel button appear</li>
+<li>back : make a back button appear</li>
+<li>default : the default state</li>
+</ul>
+
+<p>When you close a panel inside your expression or user navigate your expression you can pop the current state.</p>
+
+<p>When the user click a state button you have set, the corresponding callback is called.</p>
+
+<pre class="prettyprint"><code class="lang-html"
+  >UT.Expression.ready(function(post) {
+  post.pushNavigation('back', function() {alert('user click back')};
+  post.pushNavigation('cancel', function() {alert('user click cancel')};
+  // Or later
+  post.popNavigation(); // The latest state is always poped.
+})
+</code></pre>

@@ -1,0 +1,40 @@
+<h1 id="the-image-object">UT.Image</h1>
+
+<p>Inherits from the media UT.Media.</p>
+
+<h2 id="methods-2">Methods</h2>
+
+<h3 id="imagecropoptions-callback">image.crop(options, callback);</h3>
+
+<p>Automatically crop an image to specified size. </p>
+
+<p>Take 2 parameters : an hash of options and a callback method called when image is cropped;</p>
+
+<p><strong>Options</strong></p>
+<pre class="prettyprint"><code class="lang-html"
+  >{
+    x : {int}, // The x position of crop zone on source image
+    y : {int}, // The y position of crop zone on source image
+    w : {int}, // The width of crop zone on source image
+    h : {int}, // The heigh of crop zone on source image
+    width : {int}, // The width of final image
+    height : {int} // The height of final image
+ }
+</code></pre>
+
+<h3 id="imageautocropwidth-height-callback">image.autocrop(width, height, callback)</h3>
+
+<p>Will crop the image automaticly to the width and height asked.
+Will try to do the best crop possible given image size and crop size demanded.</p>
+
+<h3 id="imagefilterfilters-callback">image.filter(filters, callback)</h3>
+
+<p>Filter the current image.</p>
+
+<p>Take as parameters an array of filters and a callback call when image is filtered.  You can use the filter sandbox (inside expression sandbox) to generate this filter array. See <a href="Image Filters">Image filters</a></p>
+
+<p>/!\ Will always filter the original image, if you apply a filter 2 time the result will be the same and not a filtered version of the filtered image.</p>
+
+<h3 id="imageeditablecallback">image.editable(callback)</h3>
+
+<p>Will call the callback with a base64 version of image you can use inside a canvas without tainted it.</p>

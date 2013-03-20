@@ -12,15 +12,12 @@
   "static_view": true,
   "dependencies":[
     // js
-    {"context":"editor", "type":"javascript", "path":"js/beautiful_editor.js"},
-    {"context":"player", "type":"javascript", "path":"js/beautiful_player.js"},
+    {"context":"editor", "path":"js/beautiful_editor.js"},
+    {"context":"player", "path":"js/beautiful_player.js"},
     // css
-    {                    "type":"stylesheet", "path":"css/beautiful_common.css"},
-    {"context":"editor", "type":"stylesheet", "path":"css/beautiful_editor.css"},
-    {"context":"player", "type":"stylesheet", "path":"css/beautiful_player.css"},
-
-    // icons
-    {"context":"editor", "type":"stylesheet", "path":"icons/style.css"}
+    {                    "path":"css/beautiful_common.css"},
+    {"context":"editor", "path":"css/beautiful_editor.css"},
+    {"context":"player", "path":"css/beautiful_player.css"},
   ],
   "indexed_keys": ["title", "content", "postTitle"]
 }</code></pre>
@@ -32,7 +29,8 @@
 <p>Minimal example:</p>
 <pre class="prettyprint"><code class="lang-json">{
   "system_name":"beautiful",
-  "version":"1.2.8"
+  "version":"1.2.8",
+  "api_version":"0.6.1-rc2"
 }</code></pre>
 
 <h3><tt>system_name</tt></h3>
@@ -40,6 +38,9 @@
 
 <h3><tt>version</tt></h3>
 <p>The version of the expression following (major.minor.subminor) pattern. Every time you deploy an updated version of your code on Urturn, this version number must increase.</p>
+
+<h3><tt>api_version</tt></h3>
+<p>The version of the expression API to use.</p>
 
 <h2>Optional Attributes</h2>
 
