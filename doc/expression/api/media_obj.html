@@ -1,0 +1,114 @@
+<h1>media object</h1>
+
+<h3>Introduction</h3>
+
+<p>
+	The media object is a representation of an image, video, sound etc.
+	It exposes a number of asynchronous methods that themselves pass new media objects to their callbacks.
+	Media objects are created by <code>expression.create()</code> and <code>expression.dialog()</code>:
+</p>
+
+<pre class="prettyprint"><code class="lang-javascript">
+	expression.create('image', {url: 'http://xyz.com/pict.jpg'}, function(err, mediaObj, expression) {
+		if(err){
+			console.log('Oops. There was an error:', err);
+		}
+	  expression.storage['image'] = mediaObj;
+	});
+</code></pre>
+
+<h3>The Media constructor</h3>
+
+<pre class="prettyprint"><code class="lang-javascript">
+	var media = UT.Expression.Media(data);
+</code></pre>
+
+
+<h3>The media object</h3>
+
+<p>The following code examples demonstrate the methods and properties of the <code>media</code> object.</p>
+
+<h4>Methods</h4>
+
+<dl>
+	<dt>.crop(options, callback, error)</dt>
+	<dd>returns <code>media</code></dd>
+	<dd>
+		Opens a dialog to allow the user to select images, sounds, videos and so on.
+		The callback is called with the arguments <code>expression, media</code>, where <code>media</code>
+		is the image, sound or video data. The callback's context is also the expression object.
+		
+		<pre class="prettyprint"><code class="lang-javascript">
+			media.crop('saturate', 0, function(media) {
+			&nbsp;&nbsp;&nbsp;&nbsp;expression.storage['bwimage'] = media;
+			});
+		</code></pre>
+		Error handlers have been left out for clarity.
+	</dd>
+	
+	<dt>
+		.filter(type, options, callback, error)
+	</dt>
+	<dd>returns <code>media</code></dd>
+	<dd>
+		Creates a new <code>media</code> object and passes it to the callback.
+		This method is asynchronous.
+		The callback is called with the argument <code>media</code>, where <code>media</code>
+		is the new media object:
+		<pre class="prettyprint"><code class="lang-javascript">
+			media.filter('saturate', 0, function(media) {
+			&nbsp;&nbsp;&nbsp;&nbsp;expression.storage['bwimage'] = media;
+			});
+		</code></pre>
+		Error handlers have been left out for clarity.
+	</dd>
+
+	<!--dt>.toString()</dt>
+	<dd>returns <code>string</code></dd>
+	<dd>
+		Creates a JSON string from the media object by invoking <code>JSON.stringify(mediaObj)</code>.
+		<code>.toString()</code> is called automatically by <code>expression.storage</code>, making it easy to store media objects:
+		
+		<pre class="prettyprint"><code class="lang-javascript">
+			expression.storage['image'] = mediaObj;
+		</code></pre>
+		
+		Because these objects are stored as strings, to get the media object back you need to construct it from the data in the store using the <code>Media</code> constructor:
+		
+		<pre class="prettyprint"><code class="lang-javascript">
+			var image = Media(expression.storage['image']);
+		</code></pre>
+	</dd-->
+
+	<dt>.toJSON()</dt>
+	<dd>returns <code>object</code></dd>
+	<dd>
+		Creates a data object suitable for storing as JSON.
+		As with other implementations of toJSON, it belies it's name, as it does not return an actual JSON string, but a clean object that can be turned into a JSON string with JSON.stringify(obj).
+	</dd>
+	
+	<dt>.url()</dt>
+	<dd>returns <code>URL</code></dd>
+	<dd>
+		URL of the resource.
+		Before a media object is stored, this is most likely a dataURI.
+		After the media object is stored, the URL points to a resource on <b>urturn</b>'s server.
+	</dd>
+</dl>
+
+<div class="comment">
+	<span class="author">Olivier</span>:
+	<ul>
+		<li>The idea of having javascript Hash for object was to make the developper life easier.</li>
+		<li>That was indeed a strong idea to not put any methods to those stuff. It just says, pass
+			whatever object to storage and it will save it and give it to you back.
+		</li>
+		<li>Now we can also have a TypedObject interface if you prefer to work with instances. This interface will
+			describe at least on class method .fromJSON(json) and an instance method #toJSON(). The storage
+			will kindly call the toJSON method if it exists and store the result. The other way arround, the store
+			will accept to bind json _type properties to class. And will offer a method to register bind types.</li>
+		<li>The interface will be only that probably, because all others are specifics to a media, so there
+		  will be Image and Sound, and Video classes that implements the TypedObject interface.</li>
+		<li>Storage store objects not string, so JSON.stringify is not what we want here.</li>
+	</ul>
+</div>

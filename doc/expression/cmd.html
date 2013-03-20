@@ -1,0 +1,29 @@
+<h1>Urturn Command Line Tools</h1>
+<p>The command line let you manage an expression and its related documents.</p>
+<h4>Create an expression</h4>
+<pre class="prettyprint"><code class="lang-sh"
+>urturn expression:new NAME
+$ urturn expression:new hello_world</code></pre>
+
+<h4>Deploy an expression</h4>
+<pre class="prettyprint"><code class="lang-sh"
+>urturn expression:deploy [PATH]
+$ urturn expression:deploy
+$ urturn expression:deploy /Users/john/Code/hello_world</code></pre>
+
+<h4>Retrieve a list of all my expressions</h4>
+<pre class="prettyprint"><code class="lang-sh"
+> $ urturn expression:list</code></pre>
+
+<h4>Retrieve a list of all version of an expression</h4>
+<pre class="prettyprint"><code class="lang-sh"
+>urturn expression:show NAME
+$ urturn expression:show hello_world
+</code></pre>
+
+<h4>Migrate all document using an expression from old version to new version</h4>
+<pre class="prettyprint"><code class="lang-sh"
+>urturn expression:migrate NAME 'OLD_VERSION' 'NEW_VERSION'
+$ urturn expression:migrate hello_world '1.0.0' '1.0.1'
+$ urturn expression:migrate hello_world '~1' '1.3.8'
+</code></pre>

@@ -1,0 +1,143 @@
+<h1>Store and Retrieve Data</h1>
+<p>This guide describe how to save and retrieve data in an expression.</p>
+
+<p>Stored data are either in <tt>#storage</tt> or in <tt>#collections</tt>.</p>
+<p>The <strong>storage</strong> is made to store the post content and is loaded in editor and player. The storage can be written only during edition and, of course, only by the creator of the post. You can store any data of a reasonable size in this place.</p>
+<p>The <strong>collections</strong> are public spaces where post viewer can store data. As of today, only the current user data are retrieved. the goal of those collections are rather to make operations on public data (like votes).</p>
+
+
+<h2>The Storage API</h2>
+
+<p>
+  To use the simple storage API, you need to use the expression.storage object. Every properties of this object will be saved and can be retrieve in other instance of the current posts.<br/>
+  This API try to be similar to W3C localStorage API with the adition of a save method. You can consider the expression.storage object as persistant accros all instances of a POST in view and edit mode.</p>
+<pre class="prettyprint"><code class="lang-javascript">
+  UT.Expression.ready( function( expression ) 
+  {
+    if(expression.storage.hello){
+      console.log(expression.storage.hello);
+    }
+    expression.storage.hello = 'hello WoRLD';
+    expression.storage.save();
+  });
+</code></pre>
+<p>You can also use the storage object as an Array :</p>
+  <pre class="prettyprint"><code class="lang-javascript">
+  UT.Expression.ready( function( expression ) 
+  {
+    if(expression.storage['hello']){
+      console.log(expression.storage['hello']);
+    }
+    expression.storage['hello'] = 'hello WoRLD';
+    // TMP : To be sure datas are saved
+    expression.storage.commit();
+  });
+</code></pre>
+
+<p>You can also use the storage to store objects :</p>
+  <pre class="prettyprint"><code class="lang-javascript">
+  UT.Expression.ready( function( expression ) 
+  {
+    if(expression.storage.getItem('hello')){
+      console.log(expression.storage.getItem('hello');
+    }
+    expression.storage.setItem('hello', 'hello WoRLD');
+    // TMP : To be sure datas are saved
+    expression.storage.commit();
+  });
+</code></pre>
+
+<h2>The Collections API</h2>
+<p>The collections API let you store post viewers items in order to compute <tt>average</tt>, <tt>count</tt> or <tt>sum</tt> on specific fields.</p>
+<p>Public collections are writable by any Urturn users, you just have to give them some specifics. Those collections are limited by two important factors:</p>
+<ul>
+  <li>zero or one item per user per collection: no more</li>
+  <li>only the item of the current user can be retrieve and modified</li>
+</ul>
+<p>First, you need to define a collections in expression.json. All authorized fields
+must be declared here. All other fields will be silently stripped out on save of the items to those collections.</p>
+<pre class="prettyprint"><code class="lang-javascript">
+{
+  "title":"This or That",
+  "system_name":"this_or_that",
+  "version":"1.1.0",
+  "collections": [
+  {
+    "name":"votes", 
+    "fields":[
+      {
+        "name":"thisOne",
+        "type":"boolean",
+        "operations":["count"]
+      },
+      {
+        "name":"thatOne",
+        "type":"boolean",
+        "operations":["count"]
+      }
+    ]
+  }
+  ]
+}
+</code></pre>
+<pre class="prettyprint"><code class="lang-javascript">
+{
+  "title":"Trendy",
+  "system_name":"trendy",
+  "version":"1.1.0",
+  "collections": [
+  {
+    "name":"scores", 
+    "fields":[
+      {
+        "name":"note",
+        "type":"number",
+        "operations":["average"]
+      }
+    ]
+  }
+  ]
+}
+</code></pre>
+<p>Once declared in expression.json, you can retrieve a collection, get and set items and display the result of the announced operation.</p>
+<pre class="prettyprint"><code class="lang-javascript"
+>UT.Expression.ready( function( expression ) {
+  var votes = expression.collections.get('votes');
+  if(votes.getUserItem()){
+    // directly display the results.
+  } else {
+    // display the voting interface
+  }
+
+  function onVote(thisOrThat){
+    var item = {};
+    if(thisOrThat == 'this'){
+      item.thisOne = true;
+    } else {
+      item.thatOne = true;
+    }
+    votes.setUserItem(item);
+    // Now save the data
+    votes.save();
+  }
+
+  function results() {
+    var total = votes.count();
+    var thisOne = votes.count('thisOne');
+    var thatOne = votes.count('thatOne');
+    return {
+      thisScore: thisOne/total * 100,
+      thatScore: thatOne/total * 100
+    };
+  }
+});
+</code></pre>
+
+<pre class="prettyprint"><code class="lang-javascript"
+>UT.Expression.ready( function( expression ) {
+  var scores = expression.collections.get('scores');
+  function results() {
+    return scores.average('notes');
+  }
+});
+</code></pre>

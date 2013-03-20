@@ -1,0 +1,110 @@
+<h1>Expression Descriptor File</h1>
+<h2>expression.json</h2>
+
+<p>expression.json lay in the root of your expression project. It is a mandatory that describe what the expression is and how it should behave by default. Most of the parameters defined here might be overriden during expression run.</p>
+
+<p>Example</p>
+<pre class="prettyprint"><code class="lang-json">{
+  "title":"My beautiful expression",
+  "system_name":"beautiful",
+  "version":"1.2.8",
+  "accepted_media_types": {"image":true},
+  "static_view": true,
+  "dependencies":[
+    // js
+    {"context":"editor", "type":"javascript", "path":"js/beautiful_editor.js"},
+    {"context":"player", "type":"javascript", "path":"js/beautiful_player.js"},
+    // css
+    {                    "type":"stylesheet", "path":"css/beautiful_common.css"},
+    {"context":"editor", "type":"stylesheet", "path":"css/beautiful_editor.css"},
+    {"context":"player", "type":"stylesheet", "path":"css/beautiful_player.css"},
+
+    // icons
+    {"context":"editor", "type":"stylesheet", "path":"icons/style.css"}
+  ],
+  "indexed_keys": ["title", "content", "postTitle"]
+}</code></pre>
+
+
+<p>This file must follow the strict syntax of JSON, which means that keys must be string value and that only double quotes are accepted.</p>
+
+<h2>Mandatory Attributes</h2>
+<p>Minimal example:</p>
+<pre class="prettyprint"><code class="lang-json">{
+  "system_name":"beautiful",
+  "version":"1.2.8"
+}</code></pre>
+
+<h3><tt>system_name</tt></h3>
+<p>The expression <tt>system_name</tt> must be unique on Urturn. It is the prefered way to navigate to your expressions. The system_name will be used in Urturn Urls and must follow those naming conventions: <strong>alphanumeric characters without space or any accent, might contains minus(-) and underscore(_) sign as well</strong>.</p>
+
+<h3><tt>version</tt></h3>
+<p>The version of the expression following (major.minor.subminor) pattern. Every time you deploy an updated version of your code on Urturn, this version number must increase.</p>
+
+<h2>Optional Attributes</h2>
+
+<h3><tt>title</tt></h3>
+<p>The expression title. Might be overidded by the graphical interface</p>
+
+<h3><tt>accepted_media_types</tt></h3>
+<p>A hash describing what are the accepted media types associated to their default configurations. Every value declared here engage the expression owner to code the associated callback.</p>
+<p>Accepting an image as input:</p>
+<pre class="prettyprint"><code class="lang-json">{
+  "system_name": "example",
+  "version": "1.0.0",
+  "accepted_media_types": {
+    "image": true
+  }
+}</code></pre>
+<p>Specifying the default crop size for it:</p>
+<pre class="prettyprint"><code class="lang-json">{
+  "system_name": "example",
+  "version": "1.0.0",
+  "accepted_media_types": {
+    "image": {
+      "crop": { "width": 500, "height": 300 }
+    }
+  }
+}</code></pre>
+<p>Supported keys are:</p>
+<ul>
+  <li><tt>image</tt>: the expression knows in any case what to do of an incoming image. <strong>It engages to implement <tt>UT.Expression#imageAdded</tt> callback</strong>. The associated Hash of configuration is the same that might be passed to <tt>UT.Expression#medias.imageDialog()</tt>. If no options are specified, the value <tt>true</tt> is accepted.</li>
+</ul>
+
+<h3><tt>dependencies</tt></h3>
+<p>An array that list the scripts and stylesheets that need to be added to the expression templates</p>
+<pre class="prettyprint"><code class="lang-json">{
+  "system_name": "example",
+  "version": "1.0.0",
+  "dependencies":[
+    // js
+    {"context":"editor", "type":"javascript", "path":"js/beautiful_editor.js"},
+    {"context":"player", "type":"javascript", "path":"js/beautiful_player.js"},
+    // css
+    {                    "type":"stylesheet", "path":"css/beautiful_common.css"},
+    {"context":"editor", "type":"stylesheet", "path":"css/beautiful_editor.css"},
+    {"context":"player", "type":"stylesheet", "path":"css/beautiful_player.css"},
+
+    // icons
+    {"context":"editor", "type":"stylesheet", "path":"icons/style.css"}
+  ]
+}</code></pre>
+
+<h3><tt>static_view</tt></h3>
+<p>If set to <tt>true</tt>, means that the view is static and don't offer any interaction. This will let Urturn make some optimization to render document based on this expression.</p>
+
+<h3><tt>offline_support</tt></h3>
+<p>If set to <tt>true</tt>, means that the expression might be use to create document while offline. This means that no connection are required to create the document or that special care has been prodided to handle disconnection. <strong>At least one way to create the post offline must exists.</strong></p>
+<pre class="prettyprint"><code class="lang-json">{
+  "system_name": "example",
+  "version": "1.0.0",
+  "offline_support": true
+}</code></pre>
+
+<h3><tt>indexed_keys</tt></h3>
+<p>Define an array of key names in UT.Expression#storage that might be indexed by Urturn. Built-in types will be indexed using their string value, special types are indexed using special rules and anonymous object are indexed using their accessible property if it exists.</p>
+<pre class="prettyprint"><code class="lang-json">{
+  "system_name": "example",
+  "version": "1.0.0",
+  "indexed_keys": ['title', 'theHashTag', 'thePicture']
+}</code></pre>

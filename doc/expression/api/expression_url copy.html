@@ -1,0 +1,105 @@
+<h1>expression.url</h1>
+<h3>
+	Introduction
+</h3>
+<p>
+	The URL api is a set of helper to help you work with ressources URLs inside an expression.<br/>
+	The points it try to solve are :
+	<ul>
+		<li>Allow you to use ressources from other domains inside an expression (<a href='#proxify'>proxify</a>, <a href='#getAssetThroughProxy'>getAssetThroughProxy</a>)</li>
+		<li>Allow you to easily access the ressources you bundle with your expression (<a href='#getAssetPath'>getAssetPath</a>,<a href='#for'>for</a>, <a href='#getAssetThroughProxy'>getAssetThroughProxy</a>)</li>
+	</ul>
+</p>
+<br/>
+<h3><a name='proxify'>expression.url.proxify(url)</a></h3>
+<h4>Parameters</h4>
+<p>
+	<b>url</b> : The url of the ressource you want to proxify
+</p>
+<h4>Return value</h4>
+<p>
+	<b>String</b> : The url that will let you access the wanted ressource through a proxy.
+</p>
+<h4>Usage</h4>
+<p>
+	The <b>proxify</b> method will let you retrieve an ressource throught a proxy so you can use it without fear of <a href='http://en.wikipedia.org/wiki/Same_origin_policy'>cross domain issues</a> in you expression.
+</br/>
+<pre class="prettyprint"><code class="lang-javascript">
+  UT.Expression.ready( function( expression ) 
+  {
+    var ressourceURL = 'http://exemple.org/test.png';
+    var proxifyURL = expression.url.proxify(ressourceURL);
+
+    console.log(proxifyURL);
+    // Should show something like : urturn.com/proxy/exemple.org/test.png
+  });
+
+</code></pre>
+</p>
+<br/>
+<h3><a name='getAssetPath'>expression.url.getAssetPath(relativeAssetPath)</a></h3>
+<h4>Parameters</h4>
+<p>
+	<b>relativeAssetPath</b> : The relative url of the ressource you want to access. (should be in your expression bundle)
+</p>
+<h4>Return value</h4>
+<p>
+	<b>String</b> : The url that will let you access the wanted ressource.
+</p>
+<h4>Usage</h4>
+<p>
+	The <b>getAssetPath</b> method will let you retrieve an ressource inside your expression bundle using it's relative path.
+</br/>
+<pre class="prettyprint"><code class="lang-javascript">
+  UT.Expression.ready( function( expression ) 
+  {
+    var assetURL = './img/superMan.gif';
+    var ressourceURL = expression.url.proxify(assetURL);
+
+    console.log(ressourceURL);
+    // Should show something like : apps.urturn.com/expression/test/1.2.3/img/superMan.gif
+  });
+
+</code></pre>
+</p>
+<br/>
+<h3><a name='for'>expression.url.for(relativeAssetPath)</a></h3>
+<h4>Parameters</h4>
+<p>
+	<b>relativeAssetPath</b> : The relative url of the ressource you want to access. (should be in your expression bundle)
+</p>
+<h4>Return value</h4>
+<p>
+	<b>String</b> : The url that will let you access the wanted ressource.
+</p>
+<h4>Usage</h4>
+<p>
+	<b>for</b> is an alias of <a href='#getAssetPath'>getAssetPath</a>
+</p>
+<br/>
+<h3><a name='getAssetThroughProxy'>expression.url.getAssetThroughProxy(relativeAssetPath)</a></h3>
+<h4>Parameters</h4>
+<p>
+	<b>relativeAssetPath</b> : The relative url of the ressource you want to access. (should be in your expression bundle)
+</p>
+<h4>Return value</h4>
+<p>
+	<b>String</b> : The url that will let you access the wanted ressource through a proxy.
+</p>
+<h4>Usage</h4>
+<p>
+	The <b>getAssetThroughProxy</b> method will let you retrieve an ressource from your expression bundle through a proxy using it's relative path.<br/>
+	This is usefull to prevent <a href='http://en.wikipedia.org/wiki/Same_origin_policy'>cross domain security error</a> when you work with your ressources.
+</br/>
+<pre class="prettyprint"><code class="lang-javascript">
+  UT.Expression.ready( function( expression ) 
+  {
+    var assetURL = './img/superMan.gif';
+    var ressourceURL = expression.url.getAssetThroughProxy(assetURL);
+
+    console.log(ressourceURL);
+    // Should show something like : urturn.com/proxy/apps.urturn.com/expression/test/1.2.3/img/superMan.gif
+  });
+  
+</code></pre>
+</p>

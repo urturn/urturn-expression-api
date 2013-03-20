@@ -1,0 +1,15 @@
+<h1>Work with Sound</h1>
+<p>This guide describe how to insert, create or save sound in your expression.</p>
+<p>All the function related to sound insertion are in <tt>UT.Expression</tt> instance <tt>#medias</tt> namespace.</p>
+
+<h2>Insert a sound into your expression</h2>
+<p>The easiest way to insert an image in your expression is by asking one to
+  Urturn. Use the <tt>UT.Expression#medias.dialog</tt> method for this.</p>
+<pre class="prettyprint"><code class="lang-javascript"
+>UT.Expression.ready( function( expression ) {
+  <strong>expression.medias.dialog</strong>('sound', {inputTypes : ['take_media']}, function( soundResource ) {
+    expression.storage.myVoice = soundResource;
+    expression.storage.save();
+  } ) ;
+} ) ;
+</code></pre>

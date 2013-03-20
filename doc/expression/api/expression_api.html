@@ -1,0 +1,224 @@
+<h1>Expression API</h1>
+
+<h3>Introduction</h3>
+<p>
+	The expression API is accessed when your expression is loaded and ready.
+	Use the <code>.ready()</code> method of the <code>Expression</code> object to wrap the code that controls your expression, like this:
+</p>
+
+<pre class="prettyprint"><code class="lang-javascript">
+	UT.Expression.ready(function(expression) {
+	&nbsp;&nbsp;&nbsp;&nbsp;// The expression API is accessed on the expression object...
+	&nbsp;&nbsp;&nbsp;&nbsp;expression.dialog('sound', fn);
+	});
+</code></pre>
+
+<p>The following code examples assume that you are accessing the <code>expression</code> object inside a ready callback.</p>
+
+<h3>The expression object</h3>
+
+<h4>Methods</h4>
+
+<dl>
+	<dt>
+		.create(type, options, callback, error)<br/>
+		.create(dataURI, options, callback, error)
+	</dt>
+	<dd>returns <code>expression</code></dd>
+	<dd>
+		Creates a urturn media object.
+		The callback is called with one argument, a newly constructed <a href="#!expression/api/media_obj">media object</a>.
+		The context of the callback is the <code>expression</code>:
+		<pre class="prettyprint"><code class="lang-javascript">
+			expression.create(dataURI, function(image) {
+			&nbsp;&nbsp;&nbsp;&nbsp;this.storage['image'] = image;
+			});
+		</code></pre>
+		The error callback has been omitted for clarity.
+	</dd>
+	<div class="comment">
+		<span class="author">Olivier</span>:
+		<ul>
+			<li>We need to find a way to consistently manage callbacks.
+			I am for on or both of these solutions:
+				<ol>
+					<li>Every asynchronous method takes one (and only one) callback as last argument</li>
+					<li>Every asynchronous method retrieve a defered object, conforming to Promise/A pattern</li>
+				</ol>
+				I'm against the error as a second callback because nobody will never implement this. Actually I love the node way where the first argument is always the error (or null), but I'will be flexible on this.
+				Note that #2 will discard the ability to chain methods.</li>
+			<li>Skipping error handling: dodging the real question. How do we ask expression maker to handle errors? What kind of errors, and so on.</li>
+			<li>See general comment at the bottom about callback, error</li>
+			<li>One function to create all: ok to avoid number of methods explosion but: how do you document that? every type of object will have its own parameters and so on.</li>
+			<li>create(<b>URL</b>,...): Not sure it is resilient to future and that we can guess the type of any url. We might use various protocol and link them to factory but... well.</li>
+		</ul>
+	</div>
+
+	<dt>.dialog(type, options, callback, error)</dt>
+	<dd>returns <code>expression</code></dd>
+	<dd>
+		Opens a dialog to allow the user to select images, sounds, videos and so on.
+		The callback is called with one argument, a newly constructed <a href="#!expression/api/media_obj">media object</a>.
+		The context of the callback is the <code>expression</code>:
+		<pre class="prettyprint"><code class="lang-javascript">
+			expression.dialog('image', function(image) {
+			&nbsp;&nbsp;&nbsp;&nbsp;this.storage['image'] = image;
+			});
+		</code></pre>
+		The error callback has been omitted for clarity.
+	</dd>
+	<dd>
+		<h5>type</h5>
+		A string representing the type of media to ask the user for. One of <code>'image'</code>, <code>'video'</code> or <code>'sound'</code>.
+		<h5>options</h5>
+		Depending on the type of media requested, the options object can have the following properties:
+		<pre class="prettyprint"><code class="lang-javascript">
+			{
+			&nbsp;&nbsp;&nbsp;&nbsp;types: 'camera file search', // Types of input to ask the user for.
+			&nbsp;&nbsp;&nbsp;&nbsp;defaultType: 'camera'        // The type to highlight on opening the dialog.
+			}
+		</code></pre>
+	</dd>
+	<div class="comment">
+		<span class="author">Olivier</span>:
+		<ul>
+			<li>{type: 'camera file search'} VS {type: ['camera', 'file', 'search']}: Yeah that sexy jQuery event binding but I prefer having arrays to represent arrays. If that is really important for you, we can support both syntax.</li>
+		</ul>
+	</div>
+
+
+	<dt>.proxify(url)</dt>
+	<dd>returns <code>url</code></dd>
+	<dd>Returns a URL for a resource that you need to access through the <b>urturn</b> proxy server.</dd>
+	
+
+	<dt>.height()</dt>
+	<dd>returns <code>expression</code></dd>
+	<dd>Automatically resize the height of the expression such that the aspect ratio of it's container matches the current device.</dd>
+	<div class="comment">
+		<span class="author">Olivier</span>:
+		<ul>
+				<li>Either a bad name or a bad description. What I'm missing today is a method that give the right size to my iframe. container.autoResize() is not working anymore.</li>
+				<li>Resizing as original size need to be discussed. I'm against the fact the default size is not identic
+				 in editor and client. It means that the same page run in different context won't render with the same height. Interesting values to consider are:
+				<ol>
+				 	<li>content height</li>
+				 	<li>device height (max height without scrolling)</li>
+				 	<li>specified height</li>
+				 	<li>height given a ratio (see the point now for adaptive post)</li>
+				</ol>
+				Maybe something like 
+				<dl>
+					<dt>.resize(value)</dt>
+					<dd> returns <code>expression</code></dd>
+					<dd>Resize the expression given the value:
+						<ul>
+							<li>a Numeric value >= 2 that represents the height in pixels</li>
+							<li>a Numeric value &lt; 2 that represents the ratio width/height. Will compute the height given the current width of the post.</li>
+							<li>the string 'maximize' will expand the frame as much as possible</li>
+							<li>undefined: will automatically set the size to match the outter post element wrapper</li>
+						</ul>
+					</dd>
+				</dl>
+			</li>
+		</ul>
+	</div>
+	
+	<dt>.postable()</dt>
+	<dt>.readyToPost()</dt>
+	<dd>returns <code>expression</code></dd>
+	<dd>
+		Force the storage object to sync with the <b>urturn</b> server.
+		Normally saving the store is automatic, and you should not need to worry about it, but if you need to make sure your data is stored, use <code>.save()</code>.
+	</dd>
+	<div class="comment">
+		<span class="author">Olivier</span>:
+		<ul>
+			<li>save is indeed very important to be able to restore draft and quicken the user experience. I would write:
+				<blockquote>Save will save the data from the post. You should call save every time you hit a stable point from where the editor should be resumed in case of interuption.</blockquote>
+			</li>
+		</ul>
+	</div>
+	
+	<dt>.save()</dt>
+	<dd>returns <code>expression</code></dd>
+	<dd>
+		Force the storage object to sync with the <b>urturn</b> server.
+		Normally saving the store is automatic, and you should not need to worry about it, but if you need to make sure your data is stored, use <code>.save()</code>.
+	</dd>
+	<div class="comment">
+		<span class="author">Olivier</span>:
+		<ul>
+			<li>save is indeed very important to be able to restore draft and quicken the user experience. I would write:
+				<blockquote>Save will save the data from the post. You should call save every time you hit a stable point from where the editor should be resumed in case of interuption.</blockquote>
+			</li>
+		</ul>
+	</div>
+
+	<dt>.url_for(relPath)</dt>
+	<dd>returns an absolute URL given the relative path.</dd>
+
+	<dt>.setUserItem(collName, item)</dt>
+	<dd>Define the user item for a public collection.</dd>
+
+	<dt>.getUserItem(collName, defaultValue)</dt>
+	<dd>Retrieve the user item it existing.</dd>
+
+	<dt>.getComputedValues(operation, collName, fieldName)
+	<dd>return result of the operation</dd>
+	<dd>operation: Name of the operation declared in expression.json to retrieve. one of ('average', 'sum', 'count')</dd>
+	<dd>collName: Name of the collection declared in expression.json</dd>
+	<dd>fieldName: Name of the field declared in expression.json, optional for the count operation</dd>
+	<div class="comment">
+		<span class="author">Olivier</span>:
+		<ul>
+			<li>Welcome in the 'Flat' API world...</li>
+		</ul>
+	</div>
+</dl>
+
+<h4>Properties</h4>
+
+<dl>
+	<dt>.storage</dt>
+	<dd>
+		A data store. Accepts key/value assignments in the same way that the browser's localStorage API does:
+		
+		<pre class="prettyprint"><code class="lang-javascript">
+			// Set a value
+			expression.storage.anotherKey = 42;
+			
+			// Set an object
+			expression.storage['key'] = { hello : 'world' };
+			
+			// Get values
+			var hello = expression.storage.key.hello;
+		</code></pre>
+	</dd>
+	
+	<dt>.node</dt>
+	<dd>The parent node that wraps the expression.</dd>
+	
+	<dt>.title</dt>
+	<dd><code>string</code></dd>
+	<dd>Title of the expression.</dd>
+	
+	<dt>.note</dt>
+	<dd><code>string</code></dd>
+	<dd>Note of the expression.</dd>
+	
+	<dt>.url</dt>
+	<dd>URL of the expression.</dd>
+
+	<dt>.environment</dt>
+	<dd>
+		<pre class="prettyprint"><code class="lang-javascript">
+			{
+			&nbsp;&nbsp;&nbsp;&nbsp;player:  // true if in player mode.
+			&nbsp;&nbsp;&nbsp;&nbsp;editor:  // true if in editor mode.
+			<!--&nbsp;&nbsp;&nbsp;&nbsp;iOSApp:  // true if running in the iOS app WebView.
+			&nbsp;&nbsp;&nbsp;&nbsp;android: // true if running in the Android app.-->
+			}
+		</code></pre>
+	</dd>
+</dl>

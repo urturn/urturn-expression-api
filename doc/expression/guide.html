@@ -1,0 +1,45 @@
+<h1>Create and Deploy Your First Expression </h1>
+<p>From <tt>undefined</tt> to "Hello World" in 5 minutes</p>
+
+<h2>Prerequisites</h2>
+<ul>
+  <li>>= Ruby 1.8.7</li>
+  <li>An Urturn Account</li>
+</ul>
+
+<h2>Compile and Install the Urturn Command Line Tool</h2>
+<p>The command line tool will let you:</p>
+<ul>
+  <li>generate an expression typical file structure</li>
+  <li>publish it</li>
+  <li>manage it</li>
+</ul>
+
+<pre class="prettyprint"><code class="lang-sh"
+  >gem install urturn-cli</code></pre>
+
+<h2>Create a new expression</h2>
+
+<p>Go into a folder which will be the parent folder of your expression project and create the expression:</p>
+<pre class="prettyprint"><code class="lang-sh"
+>cd ~/Code
+urturn expression:new hello_world
+cd hello_world
+ls</code></pre>
+
+<p>This will generate the following tree structure</p>
+<pre class="prettyprint"><code class="lang-sh"
+>hello_world/                      # expression home
+hello_world/editor.html            # editor template file
+hello_world/player.html            # player template file
+hello_world/expression.json        # expression descriptor file
+hello_world/hello_world.css        # expression styles
+hello_world/hello_world.js         # expression javascript file
+hello_world/hello_world_editor.css # expression styles for editor
+hello_world/hello_world_editor.js  # expression javascript for editor</code></pre>
+
+<p>editor.html and player.html will be combined with your script and stylesheet to become your expression template.</p>
+<h2>Deploy the expression</h2>
+<p>You can deploy your newly created expression:</p>
+<pre class="prettyprint"><code class="lang-sh">urturn expression:deploy</code></pre>
+<p>Once logged in with your email and password and the expression uploaded, point your browser to the outputted URL (http://urturn.com/your_username/hello_world)</p>

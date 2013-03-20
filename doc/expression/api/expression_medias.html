@@ -1,0 +1,58 @@
+<h1>UT.Expression#medias instance</h1>
+
+  <h4>expression.medias.imageDialog</h4>
+  <p>
+    
+  </p>
+  
+
+  <h3>expression.medias.crop(image, options, callback)</h3>
+  <h4>Parameters</h4>
+  <p>
+     <b>image</b> : An image object return by imageDialog or an url to an image.<br/>
+     <b>options</b> : A hash of options :
+     <ul>
+      <li>
+        <b>width</b> : width of croped image
+        <b>height</b> : height of croped image
+        <b>auto</b> : [true | false], define if image need to be croped automaticly or if a cropDialog need to be showed to user
+      </li>
+     </ul><br/>
+     <b>callback</b> : A callback called when image has been croped (with new image in parameters)
+  </p>
+  <h4>expression.medias.createImage</h4>
+  <p>
+    Parameters : <br/>
+    - urlOrBase64 : url of an image of dataUrl of an image<br/>
+    - callback : callback called when image is created.<br/>
+    Usage : <br/>
+   <pre class="prettyprint"><code class="lang-js">var url = document.getElementById('canvas').toDataURL();
+
+  expression.medias.createImage(
+    url,
+    function (data, error) {
+      if (error) {
+        console.error('Image Creation failer : ' + error);
+      }
+      else{
+        console .log('Image creation succed : ' + data);
+      }
+    });
+})</code></pre>
+     Usage with items.save : <br/>
+ <pre class="prettyprint"><code class="lang-js">var url = document.getElementById('drawZone').toDataURL();
+
+  expression.medias.createImage(
+    url,
+    function (data, error) {
+      expression.items.save('image', data, function () {
+        console.log('Image Created and saved');
+      }); 
+    });
+})</code></pre>
+  </p>
+  <h4>expression.medias.applyFilterToImage</h4>
+  <h4>expression.medias.imageWithDataUrl</h4>
+  <h4>expression.medias.soundDialog</h4>
+  <h4>expression.medias.videoDialog</h4>
+  <h4>expression.medias.findImage</h4>

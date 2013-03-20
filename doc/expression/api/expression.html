@@ -1,0 +1,73 @@
+<h1>UT.Expression</h1>
+<p class="lead">UT.Expression instances contains all the methods and informations needed to create, view and publish Urturn posts.</p>
+
+<h2>Public Class Methods</h2>
+<h3>UT.Expression.ready( callback )</h3>
+<p>Register a <tt>callback</tt> to be called once the expression is ready to be initialized. An instance of <tt>UT.Expression</tt> is passed
+  to the callback.</p>
+<h4>Callback Arguments</h4>
+<dl>
+  <dt><tt>expression</tt></dt>
+  <dd><tt>UT.Expression</tt> instance to use in this expression.</dd>
+</dl>
+
+<h4>Example</h4>
+<pre class="prettyprint"><code class="lang-html">&lt;script type="text/javascript">
+UT.Expression.ready(function(expression){
+  new MyClass(expression);
+});
+&lt;/script></code></pre>
+
+<h2>Public Instance Methods</h2>
+<h3>UT.Expression#post( callback )</h3>
+<p>Register a <tt>callback</tt> to be called when the user asked for the expression to be posted. The callback must call the given <tt>doPostCallback</tt> in return.</p>
+<p>Note that you don't need to wait on UT.Expression#items.save() callback as we do that for you during the post publication operation.</p>
+
+<h4>Callback Arguments</h4>
+<dl>
+  <dt><tt>doPostCallback</tt></dt>
+  <dd><tt>function</tt> that <strong>must</strong> be called in any case once all post operations are done.</dd>
+</dl>
+
+<h3>UT.Expression#scrollChanged( callback )</h3>
+<h3>UT.Expression#getScrollValues()</h3>
+
+<h3>UT.Expression#modeChanged( callback )</h3>
+<h3>UT.Expression#getMode()</h3>
+
+<h3>UT.Expression#imageAdded( callback )</h3>
+
+<h3>UT.Expression#getElement()</h3>
+
+<h3>UT.Expression#getNote()</h3>
+<p>Retrieve the value of the post note.</p>
+<h4>Return value</h4>
+<p>String: the value of the post note.</p>
+<h4>Usage</h4>
+<pre class="prettyprint"><code class="lang-javascript">
+  UT.Expression.ready( function( expression ){
+    var note = expression.getNote();
+  });
+</code></pre>
+
+<h3>UT.Expression#setNote(Value)</h3>
+<p>Set the value of the post note.</p>
+<h4>Parameters</h4>
+<ul>
+  <li>note[String]: url of an image or dataUrl of an image</li>
+</ul>
+<h4>Returned value</h4>
+<p>undefined</p>
+<h4>Usage</h4>
+<pre class="prettyprint"><code class="lang-javascript">
+  UT.Expression.ready( function( expression ){
+    var note = expression.setNote("Guess what I'm cool #guesscool");
+  });
+</code></pre>
+
+<h2>Protected Instance Methods</h2>
+<p>Please do not call those methods directly as they are not part of the public API.</p>
+<h3>UT.Expression#trigger</h3>
+<h3>UT.Expression#bind</h3>
+<h3>UT.Expression#unbind</h3>
+<h3>UT.Expression#getState</h3>
