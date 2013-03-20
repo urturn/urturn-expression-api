@@ -14,8 +14,7 @@ div.comment {
   font-weight: bold;
 }
 
-pre.prettyprint {
-  white-space: pre-line;
+/*pre.prettyprint {
   padding-top: 0.5em;
   padding-bottom: 0.5em;
   padding-left: 1em;
@@ -23,7 +22,7 @@ pre.prettyprint {
   margin-top: 1em;
   margin-bottom: 0.5em;
 }
-
+*/
 pre.prettyprint:first-line {
   line-height: 0;
 }
