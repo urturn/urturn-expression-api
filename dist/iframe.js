@@ -87,12 +87,15 @@ UT.Collection = function(options) {
       throw new Error("ReservedKey", key);
     }
     var sanItem = sanitizeItem(key, item);
-    var oldItem = null;
-    if(key) {
-      oldItem = this.getItem(key);
+    var oldItem = this.getItem(key);
+
+    if(!sanItem && !items[key]){
+      // set null or undefined on an inexistant item
+      // do not delete in this case.
+      return sanItem;
     }
     recomputeOperations(oldItem, sanItem);
-    if(oldItem && (sanItem === null || typeof sanItem == 'undefined')) {
+    if(oldItem && (sanItem === null || sanItem === undefined)) {
       // delete
       keys.splice(keys.indexOf(key), 1);
       count--;
@@ -106,14 +109,10 @@ UT.Collection = function(options) {
       // update
       items[key] = sanItem;
     }
-    if(item) {
-      item._key = key;
-    }
     // Add key to dirtyKeys
     if(dirtyKeys.indexOf(key) == -1) {
       dirtyKeys.push(key);
     }
-
     this.length = keys.length;
     return item;
   };
@@ -186,8 +185,10 @@ UT.Collection = function(options) {
   var marshall = function(item){
     if(item && item.marshall){
       return item.marshall();
-    } else {
+    } else if(item) {
       return item;
+    } else {
+      return null; // item to delete
     }
   };
 
@@ -334,34 +335,37 @@ UT.Collection = function(options) {
   // Cleanup item to keep only authorized keys
 
   var sanitizeItem = function(key, item) {
+    if(item === undefined || item === null) { // Will delete the item
+      return;
+    }
     if(item && item.marshall){
-      return item;
-    } else if (item && typeof item === 'object' && item.constructor !== {}.constructor) {
-      throw new Error("Unserialisable object");
+      item._key = key;
+      return item; // This item know how to marshall properly
     }
 
-    // Convert literal to object.
-    if(typeof(item) !== 'object' || Array.isArray && Array.isArray(item)) {
+    if(typeof item === 'function'){
+      throw new Error("ArgumentError cannot serialize function");
+    }
+
+    // Convert built-in type to literal object.
+    if(typeof(item) !== 'object' || [].constructor === item.constructor) {
       item = {
         _type: 'literal',
         value: item
       };
     }
 
-    if(!item) {
-      return null;
-    }
-    sanitizedItem = {
-      _key: key
-    };
+    var sanitizedItem = {};
 
     var fieldDefs;
     if( data.definition &&
         (fieldDefs = data.definition.fields) &&
         fieldDefs.length > 0) {
+      var valid = false;
       for(var i = 0; i < fieldDefs.length; i++) {
         var fd = fieldDefs[i];
-        if(typeof item[fd.name] != 'undefined') {
+        if(item[fd.name] !== undefined) {
+          valid = true;
           if(fd.type == 'string') {
             sanitizedItem[fd.name] = item[fd.name];
           } else if(fd.type == 'number') {
@@ -378,9 +382,15 @@ UT.Collection = function(options) {
           }
         }
       }
+      if(!valid){
+        throw new Error('InvalidItemError no valid field specified');
+      }
     } else {
       sanitizedItem = item;
-      sanitizedItem._key = key;
+    }
+    sanitizedItem._key = key;
+    if(item.constructor !== {}.constructor){
+      throw new Error("Unserialisable object");
     }
     return sanitizedItem;
   };
@@ -1097,6 +1107,16 @@ UT.CollectionStore = function(options) {
         c.save();
       });
     };
+
+    /**
+     * Request an user data object containing informations on
+     * current user
+     * @param  {Function} callback a callback called with the user datas
+     */
+    var getUserData = this.getUserData = function(callback) {
+      UT.Expression._callAPI('document.getUserData', [], callback);
+    };
+
 
     /**
      * The default, private collection

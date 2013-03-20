@@ -2,7 +2,7 @@ buster.spec.expose();
 
 describe('collections', function(){
   var dataDelegate;
-  var data, emptyCollectionData, storageCollectionData;
+  var data, emptyCollectionData, storageCollectionData, privateCollectionData;
   var currentUserId;
 
   beforeEach(function(){
@@ -102,6 +102,12 @@ describe('collections', function(){
       }
     };
 
+    privateCollectionData = {
+      name: 'private-collection',
+      count: 0,
+      definition: {}
+    };
+
     dataDelegate = {
       operations: [],
       save: function(collectionName, items) {
@@ -133,7 +139,7 @@ describe('collections', function(){
       postedMessages = [];
       document_id = '123456-1234-1234-12345678';
 
-      collection = new UT.Collection({document_id: document_id, data: data, delegate: dataDelegate, currentUserId: 'abc'});
+      collection = new UT.Collection({document_id: document_id, data: data, delegate: dataDelegate, currentUserId: currentUserId});
       anItem = {comment: 'hello world', note: 3};
     });
 
@@ -148,9 +154,9 @@ describe('collections', function(){
         }) ;
 
         it('can have a length', function(){
-          collection.setItem('a', {toto: 12}) ;
+          collection.setItem('a', {comment: '12'}) ;
           expect(collection.length).toBe(1) ;
-          collection.setItem('b', {toto: 14}) ;
+          collection.setItem('b', {comment: '14'}) ;
           expect(collection.length).toBe(2) ;
         });
       });
@@ -195,12 +201,52 @@ describe('collections', function(){
           expect(collection.getItem('my-item').comment).toBe('rulez') ;
         }) ;
 
-        it('removes an item', function() {
+        it('removes an undefined item', function() {
+          expect(collection.getItem('my-item')).toBeDefined() ;
+          collection.setItem('my-item', undefined) ;
+          expect(collection.length).toBe(data.items.length - 1) ;
+          expect(collection.getItem('my-item')).not.toBeDefined() ;
+          collection.save();
+          var message = dataDelegate.operations.pop();
+          expect(message.items['my-item']).toBeDefined();
+          expect(message.items['my-item']).toBeNull();
+        });
+
+        it('removes a null item', function() {
           expect(collection.getItem('my-item')).toBeDefined() ;
           collection.setItem('my-item', null) ;
           expect(collection.length).toBe(data.items.length - 1) ;
           expect(collection.getItem('my-item')).not.toBeDefined() ;
-        }) ;
+          collection.save();
+          var message = dataDelegate.operations.pop();
+          expect(message.items['my-item']).toBeDefined();
+          expect(message.items['my-item']).toBeNull();
+        });
+
+        it('do nothing if item is undefined and did not exists', function(){
+          collection = new UT.Collection({document_id: document_id, data: privateCollectionData, delegate: dataDelegate, currentUserId: 'abc'});
+          collection.setItem('a', 2);
+          collection.setItem('val', undefined);
+          expect(collection.length).toBe(1);
+
+          collection.save();
+          var message = dataDelegate.operations.pop();
+          expect(message).toBeDefined();
+          expect(message.items.val).not.toBeDefined();
+        });
+
+        it('do nothing if item is null', function(){
+          collection = new UT.Collection({document_id: document_id, data: privateCollectionData, delegate: dataDelegate, currentUserId: 'abc'});
+          collection.setItem('a', 2);
+          expect(collection.length).toBe(1);
+          collection.setItem('val', null);
+          expect(collection.length).toBe(1);
+
+          collection.save();
+          var message = dataDelegate.operations.pop();
+          expect(message).toBeDefined();
+          expect(message.items.val).not.toBeDefined();
+        });
 
         it('accept dotted syntax', function() {
           collection.dotSyntax = {comment:'My Object'};
@@ -307,7 +353,7 @@ describe('collections', function(){
         love_it = collection.count('love_it');
         leave_it = collection.count('leave_it');
 
-        collection.setItem('my-appreciation', null);
+        collection.setItem('my-appreciation', undefined);
         expect(collection.count('love_it')).toBe(love_it - 1);
       });
     });
@@ -329,8 +375,67 @@ describe('collections', function(){
       it('updates on delete', function(){
         var sum = collection.sum('spentMoney');
         var item = collection.getItem('my-sum');
-        collection.setItem('my-sum', null);
+        collection.setItem('my-sum', undefined);
         expect(collection.sum('spentMoney')).toBe(sum - item.spentMoney);
+      });
+    });
+
+    describe('sanitization', function(){
+      beforeEach(function(){
+        collection = new UT.Collection({document_id: document_id, data: privateCollectionData, delegate: dataDelegate, currentUserId: 'abc'});
+        this.doTestWithValue = function(value){
+          collection.val = value;
+          collection.save();
+          var message = dataDelegate.operations.pop();
+          expect(message).toBeDefined();
+          var val = message.items.val;
+          expect(val).not.toBeNull();
+          return val;
+        };
+        this.testLiteralValue = function(value){
+          var val = this.doTestWithValue(value);
+          expect(val._key).toBe('val');
+          expect(val._type).toBe('literal');
+          expect(val.value).toBe(value);
+          return val;
+        };
+      });
+      describe('literal values', function(){
+        it('keep empty arrays', function(){
+          this.testLiteralValue([]);
+        });
+        it('keep numbers', function(){
+          this.testLiteralValue(2);
+          this.testLiteralValue(4.232321312312);
+          this.testLiteralValue(-1432.12);
+        });
+        it('keep string', function(){
+          this.testLiteralValue('éàdfQR""*ç∞”⁄‹”⁄');
+        });
+        it('keep falsy value', function(){
+          this.testLiteralValue(false);
+          this.testLiteralValue(0);
+        });
+        it('let marshallable objects as it', function(){
+          var k = function(){
+            this.marshall = function(){
+              return {m:true};
+            };
+          };
+          var expected = new k();
+          var val = this.doTestWithValue(expected);
+          expect(val).toMatch({m:true});
+        });
+        it('throw away function', function(){
+          var val = function(){};
+          try{
+            var result = this.testLiteralValue(val);
+            expect(false).toBe(true);
+          } catch(ex){
+            expect(ex.message).toEqual('ArgumentError cannot serialize function');
+            // ok
+          }
+        });
       });
     });
 
@@ -466,14 +571,14 @@ describe('collections', function(){
         result = collection.setUserItem(item);
         expect(result).toBeDefined();
         expect(result.note).toBe(4);
-        expect(result._key).toBeDefined();
-
         result2 = collection.setUserItem({note: 5});
-        expect(result2._key).toBe(result._key);
-
         result3 = collection.getUserItem();
         expect(result3.note).toBe(result2.note);
-        expect(result3._key).toBe(result2._key);
+
+        collection.save();
+        var message = dataDelegate.operations.pop();
+        expect(message.items[currentUserId]).toBeDefined();
+        expect(message.items[currentUserId].note).toBe(5);
       });
 
       describe('effects on average', function(){
