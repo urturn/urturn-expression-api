@@ -6,7 +6,7 @@
     content: '#content',
     toc: '#mainmenu',
     sidebar: '#sidebar'
-  } ;
+  };
 
   // New Cache Manifest
   if( window.applicationCache ) {
@@ -24,7 +24,6 @@
       $(selectors.content).html('<div class="alert alert-error"><strong>Ouch!</strong> You must serve those files through a http server.<br/>The simpliest way is to run <code>./serve</code> from this project root dir,</br>then visits <a href="http://localhost:3003">http://localhost:3003</a></div>') ;
       return ;
     }
-
     bindEvents();
     openToInitialBookmark();
   }
@@ -33,7 +32,7 @@
     $('a[data-bookmark]').live('click', function(e) {
       openBookmark( $(e.target).data('bookmark') ) ;
       e.preventDefault() ;
-    } ) ;
+    });
 
     if( window.history ) {
       window.addEventListener('popstate', function( event ) {
@@ -86,9 +85,9 @@
   }
 
   function openToc( toc, callback ){
-    if(currentToc == toc) { 
+    if(currentToc == toc) {
       if(callback) { callback() ; }
-      return ; 
+      return ;
     }
 
     $(selectors.toc).html('') ;

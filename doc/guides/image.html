@@ -1,50 +1,47 @@
-<h1>Work with Image</h1>
-<p>This guide describe how to insert, create or save image in your expression.</p>
+To insert an image into an expression you can use the <tt>post.dialog</tt> method :
 
-<p>All the function related to image insertion are in your <tt>UT.Expression</tt> instance <tt>#medias</tt> namespace.</p>
+Example :
 
-
-<h2>Insert an image into your expression</h2>
-<p>The easiest way to insert an image in your expression is by asking one to
-  Urturn. Use the <tt>UT.Expression#medias.dialog</tt> method for this.</p>
-<pre class="prettyprint"><code class="lang-javascript"
->UT.Expression.ready( function( expression ) {
-  <strong>expression.medias.dialog</strong>('image', function( imageResource ) {
-    var img = document.createElement( 'img' ) ;
-    img.onload = function(e) {
-      alert( 'image loaded' ) ;
-    } ;
-    img.src = <strong>imageResource.url</strong> ;
-    expression.getElement().appendChild( img ) ;
-  } ) ;
-} ) ;
-</code></pre>
-<h2>Save an image</h2>
-<p>Even if you go through <tt>UT.Expression#medias.dialog</tt>, the returned media won't be saved as a part of your expression. This is a second step that you must go for once you know your image might be displayed by the final expression. an image resource is just another expression item, so you can save an image resource like any other item.</p>
+<h3>editor.html</h3>
 
 <pre class="prettyprint"><code class="lang-javascript"
->UT.Expression.ready( function( expression ) {
-  
-  expression.medias.dialog('image', function( imageResource ) {
-    expression.storage.setItem('myPicture', imageResource);
-    expression.storage.save();
-  }) ;
-} ) ;
+  >// First handle the ready event on the expression
+UT.Expression.ready(function(post) {
+  // When expression is ready, let try to ask an image :
+  post.dialog(
+    'image',  // the time of medias we want : here image
+    { // some parameters (see dialog doc)
+      size : {  // We will get an image of 500 / 500 pixels!
+        width : 500,
+        height : 500
+      }
+    }, 
+    function (data) { // a callback function
+      if (!data) { // if user doesn't select any media and close library, data is null
+         alert('Bouh');
+         return;
+      }
+      // We now have an image let insert it into our expression :
+      var img = document.createElement('img'); // we create an image object
+      img.src = data.url;  // data is a UT.Image object
+      post.node.appendChild(img); // Let add this image into our post
+      post.resize('auto');  // Resize our post container
+      post.storage.image = data; // We add image to storage.
+      post.save(); // we save the post
+      post.valid(true); // We can now Post our post.
+    }
+  );
+});
 </code></pre>
 
-<h2>Create an image from scratch</h2>
-<p>A common use case that you might want to implement is the ability to save the results of a <tt>canvas</tt> element. The following code snippet will let you export a canvas on post.</p>
+<h3>player.html</h3>
 
 <pre class="prettyprint"><code class="lang-javascript"
->UT.Expression.ready( function( expression ) {
-  var canvas = expression.getElement().querySelector('.drawingCanvas');
-  
-  expression.post( function( doPostCallback ) {
-    <strong>expression.medias.createImage</strong>( canvas.toDataURL(), function( imageResource ) {
-      expression.storage.setItem( 'theCanvas', imageResource );
-      expression.storage.save();
-    });
-  });
-  
-} );
-</code></pre>
+  >// First handle the ready event on the expression
+UT.Expression.ready(function(post) {
+  var img = document.createElement('img'); // we create an image object
+  img.src = post.storage.image.url;  // we find image url into storage
+  post.node.appendChild(img); // Let add this image into our post
+  post.resize('auto');  // Resize our post container
+});
+```

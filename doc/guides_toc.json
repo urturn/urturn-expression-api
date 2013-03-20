@@ -1,24 +1,24 @@
 [{
   "title":"Using Expression API",
   "children":[{
-    "title":"Create and Deploy",
-    "bookmark":"guide"
+    "title":"Getting Started",
+    "bookmark":"guides/start"
   },{
-    "title":"Work with Image",
-    "bookmark":"guide/image"
-  },{
-    "title":"Work with Sound",
-    "bookmark":"expression/guide/sound"
-  },
-  {
-    "title" : "Store and retrieve data",
-    "bookmark" : "expression/guide/storage"
+    "title":"Image Basics",
+    "bookmark":"guides/image"
   },
   {
     "title" : "Use Filters, Let the magic happen!",
-    "bookmark" : "expression/guide/filters"
+    "bookmark" : "expression/guides/filters"
+  },{
+    "title":"Work with Sound",
+    "bookmark":"expression/guides/sound"
+  },
+  {
+    "title" : "Store and retrieve data",
+    "bookmark" : "expression/guides/storage"
   },{
     "title" : "Market your expression",
-    "bookmark" : "expression/guide/expression_page"
+    "bookmark" : "expression/guides/expression_page"
   }]
 }]
