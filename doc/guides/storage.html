@@ -12,38 +12,38 @@
   To use the simple storage API, you need to use the expression.storage object. Every properties of this object will be saved and can be retrieve in other instance of the current posts.<br/>
   This API try to be similar to W3C localStorage API with the adition of a save method. You can consider the expression.storage object as persistant accros all instances of a POST in view and edit mode.</p>
 <pre class="prettyprint"><code class="lang-javascript">
-  UT.Expression.ready( function( expression ) 
+  UT.Expression.ready( function( post ) 
   {
-    if(expression.storage.hello){
-      console.log(expression.storage.hello);
+    if(post.storage.hello){
+      console.log(post.storage.hello);
     }
-    expression.storage.hello = 'hello WoRLD';
-    expression.storage.save();
+    post.storage.hello = 'hello WoRLD';
+    post.storage.save();
   });
 </code></pre>
 <p>You can also use the storage object as an Array :</p>
   <pre class="prettyprint"><code class="lang-javascript">
-  UT.Expression.ready( function( expression ) 
+  UT.Expression.ready( function( post ) 
   {
-    if(expression.storage['hello']){
-      console.log(expression.storage['hello']);
+    if(post.storage['hello']){
+      console.log(post.storage['hello']);
     }
-    expression.storage['hello'] = 'hello WoRLD';
+    post.storage['hello'] = 'hello WoRLD';
     // TMP : To be sure datas are saved
-    expression.storage.commit();
+    post.storage.save();
   });
 </code></pre>
 
 <p>You can also use the storage to store objects :</p>
   <pre class="prettyprint"><code class="lang-javascript">
-  UT.Expression.ready( function( expression ) 
+  UT.Expression.ready( function( post ) 
   {
-    if(expression.storage.getItem('hello')){
-      console.log(expression.storage.getItem('hello');
+    if(post.storage.getItem('hello')){
+      console.log(post.storage.getItem('hello');
     }
-    expression.storage.setItem('hello', 'hello WoRLD');
+    post.storage.setItem('hello', 'hello WoRLD');
     // TMP : To be sure datas are saved
-    expression.storage.commit();
+    post.storage.commit();
   });
 </code></pre>
 
@@ -101,8 +101,8 @@ must be declared here. All other fields will be silently stripped out on save of
 </code></pre>
 <p>Once declared in expression.json, you can retrieve a collection, get and set items and display the result of the announced operation.</p>
 <pre class="prettyprint"><code class="lang-javascript"
->UT.Expression.ready( function( expression ) {
-  var votes = expression.collections.get('votes');
+>UT.Expression.ready( function( post ) {
+  var votes = post.collection('votes');
   if(votes.getUserItem()){
     // directly display the results.
   } else {
@@ -134,8 +134,8 @@ must be declared here. All other fields will be silently stripped out on save of
 </code></pre>
 
 <pre class="prettyprint"><code class="lang-javascript"
->UT.Expression.ready( function( expression ) {
-  var scores = expression.collections.get('scores');
+>UT.Expression.ready( function( post ) {
+  var scores = post.collection('scores');
   function results() {
     return scores.average('notes');
   }

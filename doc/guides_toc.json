@@ -12,10 +12,6 @@
   },{
     "title" : "Create links (no kidding)",
     "bookmark" : "guides/link"
-  },
-  {
-    "title":"Work with Sound",
-    "bookmark":"guides/sound"
   },{
     "title" : "Store and retrieve data",
     "bookmark" : "guides/storage"
