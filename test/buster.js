@@ -20,7 +20,7 @@ config["default"] = {
   tests: [
     "test/*-test.js"
   ],
-  testHelpers: ["test/lib/dom.js"]
+  testHelpers: ["test/lib/dom.js","test/lib/collection-fixtures.js"]
 };
 
 config.compiled = {
@@ -32,5 +32,5 @@ config.compiled = {
   tests: [
     "test/*-test.js"
   ],
-  testHelpers: ["test/lib/dom.js"]
+  testHelpers: ["test/lib/dom.js","test/lib/collection-fixtures.js"]
 };
