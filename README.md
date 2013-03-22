@@ -1,6 +1,9 @@
 ### Current Version : 0.6.1 
 
-[Read the doc](http://webdoc.github.com/urturn-expression-api)
+
+Please, [Read the doc](http://webdoc.github.com/urturn-expression-api)
+
+Or join us on IRC (#urturn on freenode)
 
 ### Changelogs
 
