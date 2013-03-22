@@ -45,6 +45,7 @@
   </ul>
 </p>
 
+<h4>Code example</h4>
 <pre class="prettyprint">
   <code class="lang-javascript">UT.Expression.ready(function(post) {
     post.dialog('image', {
@@ -59,6 +60,11 @@
     })
   });</code>
 </pre>
+
+
+
+
+
 
 
 <hr/>
@@ -82,7 +88,7 @@
 Currently just support resize of post height.
 </p>
 
-
+<h4>Code example</h4>
 <pre class="prettyprint">
   <code class="lang-javascript">UT.Expression.ready(function(post) {
     // Listen to the resize event
@@ -97,29 +103,88 @@ Currently just support resize of post height.
 
 
 
+
+
+
 <hr/>
-<h3 id="a-idwiki-getuserdatagetuserdata-_callback_"><a id="wiki-getUserData"/>.getUserData( <em>callback</em> )</h3>
+<h3 id="a-idwiki-getuserdatagetuserdata-_callback_"><a id="wiki-getUserData"/>.getUserData(callback)</h3>
 
-<p>Call the callback with object containing datas regarding current user or null if no users are connected :</p>
+<h4>Parameters</h4>
+<ul>
+<li><b>callback</b> : The function called with userdatas a parameters once they are retrieves</li>
+</ul>
 
-<pre><code>{
+<h4>
+  Return value
+</h4>
+
+<ul>
+  <li>This method has no return value</li>
+</ul>
+
+<h4> Usage </h4>
+<p> 
+  Return current user Metadata in callback. 
+  <br/> Value passed as parameter of callback :
+</p>
+<pre>
+{
   username : 'John',
   avatar   : 'http://linktourturnavatar.com',
   numberOfPost : 116, // [Edit mode only] the number of post made by user
   uuid : 'uuid:of:current:user', // [Edit mode only] 
   numberOfUse : 12 // [Edit mode only] number of time this user use this expression
-}
+}</pre>
 
-</code></pre>
+<h4>Code example</h4>
+ <pre>
+<code class="lang-javascript">UT.Expression.ready(function(post) {
+  post.getUserData(function (data) {
+    alert('hello ' + data.username + '!');
+  });
+});</code>
+</pre>
+
+
+
+
+
 <hr/>
-<h3 id="a-idwiki-validvalid-_flag_"><a id="wiki-valid"/>.valid( <em>flag</em> )</h3>
+<h3 id="a-idwiki-validvalid-_flag_"><a id="wiki-valid"/>.valid(flag)</h3>
 
+
+<h4>Parameters</h4>
 <ul>
-<li>flag - boolean</li>
-<li>return the current flag values</li>
+<li><b>flag</b> (boolean) : True if the post is valid and can be posted, false if not.</li>
 </ul>
 
-<p>Flag a post as being valid or not. A valid post can be published synchronously at any time.</p>
+<h4>
+  Return value
+</h4>
+
+<ul>
+  <li>This method has no return value</li>
+</ul>
+
+<h4> Usage </h4>
+<p> 
+  By default an user can't post a post on urturn until you set it to valid. Once you have set a post as valid it can be saved synchronously at any time.<br/>
+
+  You can set back a post to invalid to post using false as parameter.<br/>
+
+  When the post is vaild the user see the post button, when it's not post button is hided or unclicable (mobile).
+  
+
+<h4>Code example</h4>
+ <pre>
+<code class="lang-javascript">UT.Expression.ready(function(post) {
+  // User can post
+  post.valid(true);
+  // User can't post
+  post.valid(false);
+});</code></pre>
+
+
 <hr/>
 <h3 id="a-idwiki-savesave"><a id="wiki-save"/>.save()</h3>
 
