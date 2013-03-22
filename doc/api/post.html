@@ -10,7 +10,7 @@
 <p>Methods of the expression object are asynchronous, because ultimately they must communicate with Urturn via the postMessage API.</p>
 
 <hr/>
-<h3><a id="wiki-dialog"/>.dialog( type, options, callback )</h3>
+<h3><a id="wiki-dialog"/>.dialog( type, [options], [callback] )</h3>
 
 <h4>Parameters </h4>
 <ul>
@@ -18,10 +18,10 @@
     <b>type</b> : A string containing the type of dialog you wish to open. Possible dialogs are  '<a href="Post-Dialogs#wiki-image">image</a>', 'sound', 'video', 'crop', and '<a href="Post-Dialogs#wiki-text">text</a>'
   </li>
   <li>
-    <b>options</b> : An hash of options to pass to the dialog. Every type of dialog support specific options.
+    <b>options</b> [optional] : An hash of options to pass to the dialog. Every type of dialog support specific options.
   </li>
   <li>
-    <b>callback </b> : A callback function that will be called with results of dialog. <br/>
+    <b>callback </b> [optional] : A callback function that will be called with results of dialog. <br/>
     <b>(Warning ! Some dialog return null when user quit them without performing actions)</b> 
   </li>
 </ul>
@@ -47,8 +47,8 @@
 
 <pre class="prettyprint">
   <code class="lang-javascript">UT.Expression.ready(function(post) {
-    post.dialog('image', 
-      {size : {width : 200, height : 200}},
+    post.dialog('image', {
+      size : {width : 200, height : 200}},
       function(image) {
         if (!image) {
           alert ('You select no images');
@@ -62,15 +62,41 @@
 
 
 <hr/>
-<h3><a id="wiki-resize"/>.resize( <em>sizeInfo</em> )</h3>
-
+<h3><a id="wiki-resize"/>.resize( sizeInfo )</h3>
+<h4>Parameters</h4>
 <ul>
-<li>sizeInfo - 'auto', {height: 99}, {height: '99px'}, 99</li>
+<li><b>sizeInfo</b> : The size at wich you want to resize the post. Possible values are 'auto', {height: 99}, {height: '99px'}, 99</li>
 </ul>
 
-<p>Ask the container to resize to the given parameters.
-The asynchronous result of this function can be listened on
-the DOM node event.</p>
+<h4>
+  Return value
+</h4>
+
+<ul>
+  <li>This method has no return value</li>
+</ul>
+
+<h4> Usage </h4>
+<p>Ask the container to resize to the given parameters. The asynchronous result of this function can be listened on the post resize event. 
+<br/>
+Currently just support resize of post height.
+</p>
+
+
+<pre class="prettyprint">
+  <code class="lang-javascript">UT.Expression.ready(function(post) {
+    // Listen to the resize event
+    post.on('resize', function() {
+      alert('This post height has been changed');
+    });
+    // set post height to 500px
+    post.resize({height : '500px'});
+  });</code>
+</pre>
+
+
+
+
 <hr/>
 <h3 id="a-idwiki-getuserdatagetuserdata-_callback_"><a id="wiki-getUserData"/>.getUserData( <em>callback</em> )</h3>
 
