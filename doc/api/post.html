@@ -26,10 +26,6 @@
   </li>
 </ul>
 
-<h4>Return Value </h4>
-<ul>
-  <li>This method has no return value</li>
-</ul>
 
 <h4> Usage </h4>
 <p> 
@@ -78,13 +74,6 @@
 <li><b>sizeInfo</b> : The size at wich you want to resize the post. Possible values are 'auto', {height: 99}, {height: '99px'}, 99</li>
 </ul>
 
-<h4>
-  Return value
-</h4>
-
-<ul>
-  <li>This method has no return value</li>
-</ul>
 
 <h4> Usage </h4>
 <p>Ask the container to resize to the given parameters. The asynchronous result of this function can be listened on the post resize event. 
@@ -116,13 +105,6 @@ Currently just support resize of post height.
 <li><b>callback</b> : The function called with userdatas a parameters once they are retrieves</li>
 </ul>
 
-<h4>
-  Return value
-</h4>
-
-<ul>
-  <li>This method has no return value</li>
-</ul>
 
 <h4> Usage </h4>
 <p> 
@@ -162,13 +144,6 @@ Currently just support resize of post height.
 <li><b>flag</b> (boolean) : True if the post is valid and can be posted, false if not.</li>
 </ul>
 
-<h4>
-  Return value
-</h4>
-
-<ul>
-  <li>This method has no return value</li>
-</ul>
 
 <h4> Usage </h4>
 <p> 
@@ -196,13 +171,6 @@ Currently just support resize of post height.
 
 <h3><a id="wiki-save"/>.save()</h3>
 <div class='well'>
-<h4>
-  Return value
-</h4>
-
-<ul>
-  <li>This method has no return value</li>
-</ul>
 
 <h4> Usage </h4>
 <p> 
@@ -237,12 +205,6 @@ Currently just support resize of post height.
   <li><b>eventName</b> (string) : The name of the event to listen ('<a href="#" data-bookmark="api/post_events">publish</a>', '<a href="#" data-bookmark="api/post_events">scroll</a>', '<a href="#" data-bookmark="api/post_events">resize</a>', '<a href="#" data-bookmark="api/post_events">media</a>').</li>
   <li><b>callback</b> : A callback function called when event is fire.</li>
 </ul>
-<h4>
-  Return value
-</h4>
-<ul>
-  <li>This method has no return value</li>
-</ul>
 
 <h4> Usage </h4>
 <p> 
@@ -264,41 +226,132 @@ Currently just support resize of post height.
 
 
 
-<h3 id="a-idwiki-firefireeventname-arg0-arg1-argn"><a id="wiki-fire"/>.fire(eventName, arg0, arg1, ..., argn)</h3>
 
-<p>Calls all fns in the list for a given eventName. Passes arguments to each listeners.</p>
-<hr/>
-<h3 id="a-idwiki-offoffeventname-callback"><a id="wiki-off"/>.off(eventName, callback)</h3>
 
-<p>Remove the callback func from the list of registered listener for the given eventName.</p>
 
+
+
+
+<h3><a id="wiki-off"/>.off(eventName, callback)</h3>
+
+<div class='well'>
+<h4>
+  Parameters
+</h4>
 <ul>
-<li>eventName - name of the event</li>
-<li>callback - a function to remove from the list of listeners</li>
+  <li><b>eventName</b> (string) : The name of the event to stop listen ('<a href="#" data-bookmark="api/post_events">publish</a>', '<a href="#" data-bookmark="api/post_events">scroll</a>', '<a href="#" data-bookmark="api/post_events">resize</a>', '<a href="#" data-bookmark="api/post_events">media</a>').</li>
+  <li><b>callback</b> : A callback function to remove form list of listener.</li>
 </ul>
-<hr/>
-<h3 id="a-idwiki-pushnavigationpushnavigationstate-callback"><a id="wiki-pushNavigation"/>.pushNavigation(state, callback)</h3>
 
-<p>Allow to push a navigation state :</p>
+<h4> Usage </h4>
+<p>Remove the callback function from the list of registered listener for the given eventName.</p>
 
+<h4>Code example</h4>
+<pre class="prettyprint">
+<code class="lang-javascript">UT.Expression.ready(function(post) {
+  function  scrolled() {
+    alert('Post was scrolled');
+  }
+  // add an event
+  post.on('scroll', scrolled);
+  
+  // remove an event
+  post.off('scroll', scrolled);
+});</code>
+</pre>
+
+</div>
+
+
+
+
+
+
+
+
+<h3 ><a id="wiki-pushNavigation"/>.pushNavigation(state, callback)</h3>
+
+<div class='well'>
+<h4>
+  Parameters
+</h4>
 <ul>
-<li>state : 'default' || 'cancel' || 'back'</li>
-<li>callback : function to call if this state is clicked</li>
+  <li><b>state</b> (string) : A navigation state ('default', 'cancel' or 'back') </li>
+  <li><b>callback</b> : A callback function called when the state is pop by user navigation.</li>
 </ul>
-<hr/>
-<h3 id="a-idwiki-popnavigationpopnavigation"><a id="wiki-popNavigation"/>.popNavigation()</h3>
 
-<p>Pop the current state.</p>
-<hr/>
-<h3 id="a-idwiki-navigatenavigateapp-target-or-navigatetarget"><a id="wiki-navigate"/>.navigate(app, target) or .navigate(target)</h3>
-
-<p>Allow expression to navigate :</p>
-
+<h4> Usage </h4>
+<p>Pushnavigation allow you to push a navigation state to override urturn UI. This will change navigation button. The different possible states are :
 <ul>
-<li>app : name of an app use to navigate : 'browse', 'search', 'user'</li>
-<li>target : where to navigate, ex : 'http://example.org'</li>
+  <li><b>default</b> : the default state. When user click on navigation button he leave the editor</li>
+  <li><b>cancel</b> : display a cancel button in place of the standart button. When user click on it the callback is called and this state is pop (this mean the button go back to previous state).</li>
+   <li><b>back</b> : display a back button in place of the standart button. When user click on it the callback is called and this state is pop (this mean the button go back to previous state).</li>
 </ul>
-<hr/>
+</p>
+
+<h4>Code example</h4>
+<pre class="prettyprint">
+<code class="lang-javascript">UT.Expression.ready(function(post) {
+  post.pushNavigation('cancel', function() {
+    alert('User push cancel button');
+  })
+});</code>
+</pre>
+</div>
+
+
+
+<h3><a id="wiki-popNavigation"/>.popNavigation()</h3>
+<div class='well'>
+
+<h4> Usage </h4>
+<p> popNavigation pop the active pop without calling the attached callback.
+</p>
+
+<h4>Code example</h4>
+<pre class="prettyprint">
+<code class="lang-javascript">UT.Expression.ready(function(post) {
+  post.pushNavigation('cancel', function() {
+    alert('User push cancel button');
+  });
+  // pop the cancel button and display the default one.
+  // does not call attached callback
+  post.popNavigation();
+});</code>
+</pre>
+</div>
+
+
+
+<h3><a id="wiki-navigate"/>.navigate([app], target)</h3>
+<div class='well'>
+<h4>
+  Parameters
+</h4>
+<ul>
+  <li><b>app</b> (optional, default=browse) : The 'app' to use to navigate ('browse', 'search', 'user') </li>
+  <li><b>target</b> (string): The navigation target</li>
+</ul>
+
+<h4> Usage </h4>
+<p>navigate let you navigate in and outside urturn. There is 3 different navigation 'app'
+<ul>
+  <li><b>browse</b> : browse a website (ex : example.org)</li>
+  <li><b>search</b> : do a search and urturn and display result page.</li>
+  <li><b>user</b> : display an user profil on urturn.</li>
+</ul>
+</p>
+
+<h4>Code example</h4>
+<pre class="prettyprint">
+<code class="lang-javascript">UT.Expression.ready(function(post) {
+  // take user to #rocks search result page
+  post.navigate('search', '#rocks');
+});</code>
+</pre>
+</div>
+
+
 <h3 id="a-idwiki-collectioncollectionname"><a id="wiki-collection"/>.collection(name)</h3>
 
 <p>Retrieve a storage collection given its name.</p>
