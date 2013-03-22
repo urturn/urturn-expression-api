@@ -1,7 +1,7 @@
 <h1>UT.Post Class</h1>
 <p>Post instance are retrieved by the callback registered on Expression.ready(callback). They are the entry point of all the functionalities to create a new post on urturn.com</p>
 
-<p>methods: <a href="#wiki-resize">resize</a>, <a href="#wiki-dialog">create</a>, <a href="#wiki-valid">valid</a>, <a href="#wiki-save">save</a>, <a href="#wiki-on">on</a>, <a href="#wiki-off">off</a>, <a href="#wiki-fire">fire</a>, <a href="#wiki-pushNavigation">pushNavigation</a>, <a href="#wiki-popNavigation">popNavigation</a>, <a href="#wiki-navigate">navigate</a>, <a href="#wiki-collection">collection</a></p>
+<p>methods: <a href="#wiki-resize">resize</a>, <a href="#wiki-valid">valid</a>, <a href="#wiki-save">save</a>, <a href="#wiki-on">on</a>, <a href="#wiki-off">off</a>, <a href="#wiki-fire">fire</a>, <a href="#wiki-pushNavigation">pushNavigation</a>, <a href="#wiki-popNavigation">popNavigation</a>, <a href="#wiki-navigate">navigate</a>, <a href="#wiki-collection">collection</a></p>
 
 <p>properties: <a href="#wiki-context">context</a>, <a href="#wiki-url">url</a>, <a href="#wiki-storage">storage</a>, <a href="#wiki-node">node</a></p>
 
@@ -9,18 +9,60 @@
 
 <p>Methods of the expression object are asynchronous, because ultimately they must communicate with Urturn via the postMessage API.</p>
 
-<h3 id="a-idwiki-createcreate-_type_-_options_-callback"><a id="wiki-create"/>.create( <em>type</em>, <em>options</em>, callback )</h3>
+<hr/>
+<h3><a id="wiki-dialog"/>.dialog( type, options, callback )</h3>
 
-<h3 id="a-idwiki-dialogdialog-_type_-_options_-callback"><a id="wiki-dialog"/>.dialog( <em>type</em>, <em>options</em>, callback )</h3>
-
+<h4>Parameters </h4>
 <ul>
-<li>type - '<a href="Post-Dialogs#wiki-image">image</a>', 'sound', 'video', 'crop', '<a href="Post-Dialogs#wiki-text">text</a>'</li>
+  <li>
+    <b>type</b> : A string containing the type of dialog you wish to open. Possible dialogs are  '<a href="Post-Dialogs#wiki-image">image</a>', 'sound', 'video', 'crop', and '<a href="Post-Dialogs#wiki-text">text</a>'
+  </li>
+  <li>
+    <b>options</b> : An hash of options to pass to the dialog. Every type of dialog support specific options.
+  </li>
+  <li>
+    <b>callback </b> : A callback function that will be called with results of dialog. <br/>
+    <b>(Warning ! Some dialog return null when user quit them without performing actions)</b> 
+  </li>
 </ul>
 
-<p>Create the dialog of the given type using an options object and
-retrieve the dialog output in the callback.</p>
+<h4>Return Value </h4>
+<ul>
+  <li>This method has no return value</li>
+</ul>
 
-<h3 id="a-idwiki-resizeresize-_sizeinfo_"><a id="wiki-resize"/>.resize( <em>sizeInfo</em> )</h3>
+<h4> Usage </h4>
+<p> 
+  The <b>dialog</b> method let you display a dialog to the user. Different types of dialogs are supproted and each of them support a different set of options. The result of the dialog opperations will be passed through the callback.
+
+  <b>list of supported dialogs :</b>
+  <ul>
+    <li><b>'image'</b> : Ask the user to select an image (<a href="Post-Dialogs#wiki-image">more details)</a></li>
+    <li><b>'sound'</b> : Ask the user to select a sound </li>
+    <li><b>'video'</b> : Ask the user to select a video </li>
+    <li><b>'crop'</b> : Diplay a panel that let user crop an image </li>
+    <li><b>'text'</b> : Diplay a panel that let user enter a text (<a href="Post-Dialogs#wiki-text">more details)</a></li>
+  </ul>
+</p>
+
+<pre class="prettyprint">
+  <code class="lang-javascript">UT.Expression.ready(function(post) {
+    post.dialog('image', 
+      {size : {width : 200, height : 200}},
+      function(image) {
+        if (!image) {
+          alert ('You select no images');
+        }
+        else {
+          alert ('You select : ' , img.url);
+        }
+    })
+  });</code>
+</pre>
+
+
+<hr/>
+<h3><a id="wiki-resize"/>.resize( <em>sizeInfo</em> )</h3>
 
 <ul>
 <li>sizeInfo - 'auto', {height: 99}, {height: '99px'}, 99</li>
@@ -29,7 +71,7 @@ retrieve the dialog output in the callback.</p>
 <p>Ask the container to resize to the given parameters.
 The asynchronous result of this function can be listened on
 the DOM node event.</p>
-
+<hr/>
 <h3 id="a-idwiki-getuserdatagetuserdata-_callback_"><a id="wiki-getUserData"/>.getUserData( <em>callback</em> )</h3>
 
 <p>Call the callback with object containing datas regarding current user or null if no users are connected :</p>
@@ -43,7 +85,7 @@ the DOM node event.</p>
 }
 
 </code></pre>
-
+<hr/>
 <h3 id="a-idwiki-validvalid-_flag_"><a id="wiki-valid"/>.valid( <em>flag</em> )</h3>
 
 <ul>
@@ -52,23 +94,25 @@ the DOM node event.</p>
 </ul>
 
 <p>Flag a post as being valid or not. A valid post can be published synchronously at any time.</p>
-
+<hr/>
 <h3 id="a-idwiki-savesave"><a id="wiki-save"/>.save()</h3>
 
 <p>Save all expressions that have modified data.</p>
 
-<p>### <a id="wiki-on"/>.on(eventName, callback)
+<hr/>
+<h3 id="a-idwiki-on"><a id="wiki-on"/>.on(eventName, callback)</h3>
+<p>
 Register a listener for the given eventName. The callback will be passed arguments <a href="#" data-bookmark="api/post_events">related to the event</a>.</p>
 
 <ul>
 <li>eventName - '<a href="#" data-bookmark="api/post_events">publish</a>', '<a href="#" data-bookmark="api/post_events">scroll</a>', '<a href="#" data-bookmark="api/post_events">resize</a>', '<a href="#" data-bookmark="api/post_events">media</a>'</li>
 <li>callback a listener function</li>
 </ul>
-
+<hr/>
 <h3 id="a-idwiki-firefireeventname-arg0-arg1-argn"><a id="wiki-fire"/>.fire(eventName, arg0, arg1, ..., argn)</h3>
 
 <p>Calls all fns in the list for a given eventName. Passes arguments to each listeners.</p>
-
+<hr/>
 <h3 id="a-idwiki-offoffeventname-callback"><a id="wiki-off"/>.off(eventName, callback)</h3>
 
 <p>Remove the callback func from the list of registered listener for the given eventName.</p>
@@ -77,7 +121,7 @@ Register a listener for the given eventName. The callback will be passed argumen
 <li>eventName - name of the event</li>
 <li>callback - a function to remove from the list of listeners</li>
 </ul>
-
+<hr/>
 <h3 id="a-idwiki-pushnavigationpushnavigationstate-callback"><a id="wiki-pushNavigation"/>.pushNavigation(state, callback)</h3>
 
 <p>Allow to push a navigation state :</p>
@@ -86,11 +130,11 @@ Register a listener for the given eventName. The callback will be passed argumen
 <li>state : 'default' || 'cancel' || 'back'</li>
 <li>callback : function to call if this state is clicked</li>
 </ul>
-
+<hr/>
 <h3 id="a-idwiki-popnavigationpopnavigation"><a id="wiki-popNavigation"/>.popNavigation()</h3>
 
 <p>Pop the current state.</p>
-
+<hr/>
 <h3 id="a-idwiki-navigatenavigateapp-target-or-navigatetarget"><a id="wiki-navigate"/>.navigate(app, target) or .navigate(target)</h3>
 
 <p>Allow expression to navigate :</p>
@@ -99,7 +143,7 @@ Register a listener for the given eventName. The callback will be passed argumen
 <li>app : name of an app use to navigate : 'browse', 'search', 'user'</li>
 <li>target : where to navigate, ex : 'http://example.org'</li>
 </ul>
-
+<hr/>
 <h3 id="a-idwiki-collectioncollectionname"><a id="wiki-collection"/>.collection(name)</h3>
 
 <p>Retrieve a storage collection given its name.</p>
@@ -115,9 +159,9 @@ Register a listener for the given eventName. The callback will be passed argumen
 <li>'parent' to retrieve the storage item from the parent document.</li>
 <li>'default' to retrieve the default collection (aka <a href="#wiki-storage">Post#storage</a>)</li>
 </ul>
-
+<hr/>
 <h2 id="properties">Properties</h2>
-
+<hr/>
 <h3 id="a-idwiki-contextcontext-read-only"><a id="wiki-context"/>.context [Read ONLY]</h3>
 
 <pre><code>{
@@ -128,18 +172,18 @@ Register a listener for the given eventName. The callback will be passed argumen
 </code></pre>
 
 <p>This property should not be modified as the context is read-only.</p>
-
+<hr/>
 <h3 id="a-idwiki-nodenode"><a id="wiki-node"/>.node</h3>
 
 <p>the expression outter DOM node</p>
 
 <h3 id="a-idwiki-storagestorage"><a id="wiki-storage"/>.storage</a></h3>
 <p>Storage is the place where to store your data in an expression. <a href="#" data-bookmark="api/storage">Learn more</a></p>
-
+<hr/>
 <h3 id="a-idwiki-urlurl"><a id="wiki-url"/>.url</h3>
 
 <p>Retrieve the public url of the document.</p>
-
+<hr/>
 <h3 id="a-idwiki-notenote"><a id="wiki-note"/>.note</h3>
 
 <p>The 'note' of the document.</p>
