@@ -9,9 +9,9 @@
 
 <p>Methods of the expression object are asynchronous, because ultimately they must communicate with Urturn via the postMessage API.</p>
 
-<hr/>
 <h3><a id="wiki-dialog"/>.dialog( type, [options], [callback] )</h3>
 
+<div class='well'>
 <h4>Parameters </h4>
 <ul>
   <li>
@@ -61,14 +61,18 @@
   });</code>
 </pre>
 
+</div>
 
 
 
 
 
 
-<hr/>
+
+
 <h3><a id="wiki-resize"/>.resize( sizeInfo )</h3>
+
+<div class='well'>
 <h4>Parameters</h4>
 <ul>
 <li><b>sizeInfo</b> : The size at wich you want to resize the post. Possible values are 'auto', {height: 99}, {height: '99px'}, 99</li>
@@ -99,16 +103,14 @@ Currently just support resize of post height.
     post.resize({height : '500px'});
   });</code>
 </pre>
+</div>
 
 
 
 
 
-
-
-<hr/>
-<h3 id="a-idwiki-getuserdatagetuserdata-_callback_"><a id="wiki-getUserData"/>.getUserData(callback)</h3>
-
+<h3><a id="wiki-getUserData"/>.getUserData(callback)</h3>
+<div class='well'>
 <h4>Parameters</h4>
 <ul>
 <li><b>callback</b> : The function called with userdatas a parameters once they are retrieves</li>
@@ -137,21 +139,23 @@ Currently just support resize of post height.
 }</pre>
 
 <h4>Code example</h4>
- <pre>
+ <pre class="prettyprint">
 <code class="lang-javascript">UT.Expression.ready(function(post) {
   post.getUserData(function (data) {
     alert('hello ' + data.username + '!');
   });
 });</code>
 </pre>
+</div>
 
 
 
 
 
-<hr/>
-<h3 id="a-idwiki-validvalid-_flag_"><a id="wiki-valid"/>.valid(flag)</h3>
 
+
+<h3><a id="wiki-valid"/>.valid(flag)</h3>
+<div class='well'>
 
 <h4>Parameters</h4>
 <ul>
@@ -176,7 +180,7 @@ Currently just support resize of post height.
   
 
 <h4>Code example</h4>
- <pre>
+ <pre class="prettyprint">
 <code class="lang-javascript">UT.Expression.ready(function(post) {
   // User can post
   post.valid(true);
@@ -184,22 +188,82 @@ Currently just support resize of post height.
   post.valid(false);
 });</code></pre>
 
+</div>
 
-<hr/>
-<h3 id="a-idwiki-savesave"><a id="wiki-save"/>.save()</h3>
 
-<p>Save all expressions that have modified data.</p>
 
-<hr/>
-<h3 id="a-idwiki-on"><a id="wiki-on"/>.on(eventName, callback)</h3>
-<p>
-Register a listener for the given eventName. The callback will be passed arguments <a href="#" data-bookmark="api/post_events">related to the event</a>.</p>
+
+
+<h3><a id="wiki-save"/>.save()</h3>
+<div class='well'>
+<h4>
+  Return value
+</h4>
 
 <ul>
-<li>eventName - '<a href="#" data-bookmark="api/post_events">publish</a>', '<a href="#" data-bookmark="api/post_events">scroll</a>', '<a href="#" data-bookmark="api/post_events">resize</a>', '<a href="#" data-bookmark="api/post_events">media</a>'</li>
-<li>callback a listener function</li>
+  <li>This method has no return value</li>
 </ul>
-<hr/>
+
+<h4> Usage </h4>
+<p> 
+  Allow you to save content of post.storage to the server.
+</p>
+
+<h4>Code example</h4>
+<pre class="prettyprint">
+<code class="lang-javascript">UT.Expression.ready(function(post) {
+  // set some value inside storage
+  post.storage.day = 'sunday';
+  post.storage.rainny = true;
+  // save storage on serveur
+  post.storage.save();
+});</code>
+</pre>
+
+</div>
+
+
+
+
+
+
+<h3><a id="wiki-on"/>.on(eventName, callback)</h3>
+<div class='well'>
+<h4>
+  Parameters
+</h4>
+
+<ul>
+  <li><b>eventName</b> (string) : The name of the event to listen ('<a href="#" data-bookmark="api/post_events">publish</a>', '<a href="#" data-bookmark="api/post_events">scroll</a>', '<a href="#" data-bookmark="api/post_events">resize</a>', '<a href="#" data-bookmark="api/post_events">media</a>').</li>
+  <li><b>callback</b> : A callback function called when event is fire.</li>
+</ul>
+<h4>
+  Return value
+</h4>
+<ul>
+  <li>This method has no return value</li>
+</ul>
+
+<h4> Usage </h4>
+<p> 
+  Allow you to listen diverse events inside your expression ('<a href="#" data-bookmark="api/post_events">publish</a>', '<a href="#" data-bookmark="api/post_events">scroll</a>', '<a href="#" data-bookmark="api/post_events">resize</a>', '<a href="#" data-bookmark="api/post_events">media</a>'). The callback will be passed arguments <a href="#" data-bookmark="api/post_events">related to the event</a>.
+</p>
+
+
+<h4>Code example</h4>
+<pre class="prettyprint">
+<code class="lang-javascript">UT.Expression.ready(function(post) {
+  post.on('scroll', function () {
+    alert('Post was scrolled');
+  })
+});</code>
+</pre>
+
+</div>
+
+
+
+
 <h3 id="a-idwiki-firefireeventname-arg0-arg1-argn"><a id="wiki-fire"/>.fire(eventName, arg0, arg1, ..., argn)</h3>
 
 <p>Calls all fns in the list for a given eventName. Passes arguments to each listeners.</p>
