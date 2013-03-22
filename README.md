@@ -2,12 +2,12 @@
 
 [Read the doc](http://webdoc.github.com/urturn-expression-api)
 
-### Changelog 
+### Changelogs
 
-## 0.6.1
+#### 0.6.1
 
 
-## 0.6.0
+#### 0.6.0
 Initial version
 
 
