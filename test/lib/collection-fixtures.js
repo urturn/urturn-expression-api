@@ -101,4 +101,4 @@ window.fixtures.collectionData = {
       }
     };
   }
-}
+};
