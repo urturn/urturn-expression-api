@@ -352,26 +352,46 @@ Currently just support resize of post height.
 </div>
 
 
-<h3 id="a-idwiki-collectioncollectionname"><a id="wiki-collection"/>.collection(name)</h3>
+<h3><a id="wiki-collection"/>.collection(name)</h3>
+<div class='well'>
+
+<h4>Arguments</h4>
+<li>
+  <ul><b>name</b> (string) : Name of the collection to retrieve.</ul>
+</li>
+
+<h4>Usage</h4>
 
 <p>Retrieve a storage collection given its name.</p>
-
-<ul>
-<li>name - the name of the collection</li>
-</ul>
 
 <p>The name can be:</p>
 
 <ul>
 <li>any collection defined in expression.json,</li>
 <li>'parent' to retrieve the storage item from the parent document.</li>
-<li>'default' to retrieve the default collection (aka <a href="#wiki-storage">Post#storage</a>)</li>
+<li>'default' to retrieve the default collection (aka Post.storage)</li>
 </ul>
-<hr/>
-<h2 id="properties">Properties</h2>
-<hr/>
-<h3 id="a-idwiki-contextcontext-read-only"><a id="wiki-context"/>.context [Read ONLY]</h3>
 
+<h4>Code example</h4>
+<pre class="prettyprint">
+<code class="lang-javascript">UT.Expression.ready(function(post) {
+  // Get the parent collection
+  post.collection('parent');
+});</code>
+</pre>
+
+</div>
+
+
+
+
+<h2 id="properties">Properties</h2>
+
+
+
+<h3 id="a-idwiki-contextcontext-read-only"><a id="wiki-context"/>.context [Read ONLY]</h3>
+<div class='well'>
+<h4>Usage</h4>
 <pre><code>{
   player: boolean, // true if in player mode
   editor: boolean, // true if in editor mode
@@ -379,7 +399,10 @@ Currently just support resize of post height.
 }
 </code></pre>
 
+
 <p>This property should not be modified as the context is read-only.</p>
+
+</div>
 <hr/>
 <h3 id="a-idwiki-nodenode"><a id="wiki-node"/>.node</h3>
 
