@@ -37,4 +37,25 @@ Will try to do the best crop possible given image size and crop size demanded.</
 
 <h3 id="imageeditablecallback">image.editable(callback)</h3>
 
+<h4>Parameters</h4>
+<li>
+  <ul><b>callback</b> : a callback function that will be called with the editable image in parameter.</ul>
+</li>
+
+<h4>Usage</h4>
 <p>Will call the callback with a base64 version of image you can use inside a canvas without tainted it.</p>
+
+<pre class="prettyprint"><code class="lang-javascript"
+  >UT.Expression.ready(function(post) {
+   var image = new UT.Image('http://example.org/image.png');
+   image.editable(function(image) {
+    var canvas = docuemnt.getElementById('canvas');
+    var ctx = canvas.getContext('2d');
+    var img = new Image();
+    img.src = image;
+    ctx.drawImage(img, 0,0);
+    // Will not raise DOM security errors
+    canvas.toDataURL();
+   });
+  });
+</code></pre>
