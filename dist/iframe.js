@@ -62,21 +62,6 @@ UT.Collection = function(options) {
   this.name = null;
 
   // PUBLIC Methods
-  // Add an anonymous item (without a key).
-  this.setUserItem = function(item) {
-    if(!currentUserId) {
-      delegate.authenticate();
-      throw new Error("ArgumentError", "No currentUserId defined");
-    }
-    return this.setItem(currentUserId, item);
-  };
-
-  this.getUserItem = function(item) {
-    if(!currentUserId) {
-      return;
-    }
-    return this.getItem(currentUserId);
-  };
 
   // Add or updated an item binded to a specific key
   var setItem = function(key, item) {
@@ -94,7 +79,6 @@ UT.Collection = function(options) {
       // do not delete in this case.
       return sanItem;
     }
-    recomputeOperations(oldItem, sanItem);
     if(oldItem && (sanItem === null || sanItem === undefined)) {
       // delete
       keys.splice(keys.indexOf(key), 1);
@@ -181,23 +165,12 @@ UT.Collection = function(options) {
     return '<Collection @name="' + this.name + '">';
   };
 
-
-  var marshall = function(item){
-    if(item && item.marshall){
-      return item.marshall();
-    } else if(item) {
-      return item;
-    } else {
-      return null; // item to delete
-    }
-  };
-
   this.save = function() {
     bindNewKeys.apply(this);
     var itemsToSave = {};
     if(dirtyKeys.length > 0) {
       for(var i = 0; i < dirtyKeys.length; i++) {
-        itemsToSave[dirtyKeys[i]] = marshall(items[dirtyKeys[i]]);
+        itemsToSave[dirtyKeys[i]] = UT.Collection.marshallItem(items[dirtyKeys[i]]);
       }
       delegate.save(this.name, itemsToSave);
       dirtyKeys = [];
@@ -241,171 +214,16 @@ UT.Collection = function(options) {
 
   // PRIVATE Properties
   var currentUserId, delegate, data, items,
-      operations, keys, dirtyKeys, boundKeys, count,
+      keys, dirtyKeys, boundKeys, count,
       privateKeys = ['refresh', 'setItem', 'getItem', 'count', 'sum', 'key', 'getUserItem', 'setUserItem', 'average', 'toString', 'size', 'length', 'length', 'name', 'save', 'fieldDefs', 'sanitizedItem', 'getCurrentData'];
-
-  var opsToolbox = {
-    _transfer: function(source, dest /*, k1, k2, ..., kn*/){
-      var keys = Array.prototype.slice.call(arguments, 2);
-      for (var i = keys.length - 1; i >= 0; i--) {
-        dest[keys[i]] = source[keys[i]];
-      }
-    },
-    average: {
-      fromJsonData: function(field, operation){
-        if(operation.average === undefined || operation.average_count === undefined){
-          field.average = -1;
-          field.average_count = 0;
-        } else {
-          opsToolbox._transfer(operation, field, 'average', 'average_count');
-        }
-      },
-      toJsonData: function(field, operation){
-        opsToolbox._transfer(field, operation, 'average', 'average_count');
-      },
-      recompute: function(field, operation, oldItem, newItem){
-        var count = field.average_count;
-        if(oldItem && oldItem[operation.field] !== undefined) {
-          field.average = (field.average * (count) - oldItem[operation.field]) / parseFloat(count - 1);
-          count--;
-        }
-        if(newItem && newItem[operation.field] !== undefined) {
-          field.average = (field.average * (count) + newItem[operation.field]) / parseFloat(count + 1);
-          count++;
-        }
-        field.average_count = count;
-      }
-    },
-    count: {
-      fromJsonData: function(field, operation) {
-        if(operation.count === undefined){
-          field.count = 0;
-        } else {
-          opsToolbox._transfer(operation, field, 'count');
-        }
-      },
-      toJsonData: function(field, operation) {
-        opsToolbox._transfer(field, operation, 'count');
-      },
-      recompute: function(field, operation, oldItem, newItem) {
-        if(oldItem && oldItem[operation.field] && oldItem[operation.field] !== undefined) {
-          field.count = field.count -1;
-        }
-        if(newItem && newItem[operation.field] && newItem[operation.field] !== undefined) {
-          field.count ++;
-        }
-      }
-    },
-    sum: {
-      fromJsonData: function(field, operation) {
-        if(operation.sum === undefined){
-          field.sum = 0;
-        } else {
-          opsToolbox._transfer(operation, field, 'sum');
-        }
-      },
-      toJsonData: function(field, operation) {
-        opsToolbox._transfer(field, operation, 'sum');
-      },
-      recompute: function(field, operation, oldItem, newItem) {
-        if(oldItem && oldItem[operation.field] && oldItem[operation.field] !== undefined) {
-          field.sum = field.sum - oldItem[operation.field];
-        }
-        if(newItem && newItem[operation.field] && newItem[operation.field] !== undefined) {
-          field.sum = field.sum + newItem[operation.field];
-        }
-      }
-    }
-  };
-
-
-  // PRIVATE Methods
-  // Recompute the operations results
-  var recomputeOperations = function(oldItem, newItem) {
-    if(data.operations) {
-      for(var i = 0; i < data.operations.length; i++) {
-        var operation = data.operations[i];
-        if(newItem && newItem[operation.field] !== undefined || oldItem && oldItem[operation.field] !== undefined) {
-          opsToolbox[operation.operation].recompute(operations[operation.field], operation, oldItem, newItem);
-        }
-      }
-    }
-  };
 
   // Cleanup item to keep only authorized keys
 
-  var sanitizeItem = function(key, item) {
-    if(item === undefined || item === null) { // Will delete the item
-      return;
-    }
-    if(item && item.marshall){
-      item._key = key;
-      return item; // This item know how to marshall properly
-    }
-
-    if(typeof item === 'function'){
-      throw new Error("ArgumentError cannot serialize function");
-    }
-
-    // Convert built-in type to literal object.
-    if(typeof(item) !== 'object' || [].constructor === item.constructor) {
-      item = {
-        _type: 'literal',
-        value: item
-      };
-    }
-
-    var sanitizedItem = {};
-
-    var fieldDefs;
-    if( data.definition &&
-        (fieldDefs = data.definition.fields) &&
-        fieldDefs.length > 0) {
-      var valid = false;
-      for(var i = 0; i < fieldDefs.length; i++) {
-        var fd = fieldDefs[i];
-        if(item[fd.name] !== undefined) {
-          valid = true;
-          if(fd.type == 'string') {
-            sanitizedItem[fd.name] = item[fd.name];
-          } else if(fd.type == 'number') {
-            var n = parseFloat(item[fd.name]);
-            if(!isNaN(n) && isFinite(item[fd.name])) {
-              sanitizedItem[fd.name] = n;
-            } else {
-              throw new Error('TypeError', 'Wrong value for field note');
-            }
-          } else if(fd.type == 'boolean'){
-            sanitizedItem[fd.name] = !!item[fd.name];
-          } else {
-            throw new Error('TypeError', 'Unkown type ' + fd.type);
-          }
-        }
-      }
-      if(!valid){
-        throw new Error('InvalidItemError no valid field specified');
-      }
-    } else {
-      sanitizedItem = item;
-    }
-    sanitizedItem._key = key;
-    if(item.constructor !== {}.constructor){
-      throw new Error("Unserialisable object");
-    }
-    return sanitizedItem;
-  };
+  var sanitizeItem = UT.Collection.sanitizeItem;
 
   // constructor
   var initialize = function(options) {
-    if(!options.data) {
-      throw new Error("ArgumentError", "missing data");
-    }
-    if(!options.data.name) {
-      throw new Error("ArgumentError", "no name in data");
-    }
-    if(options.data.count === undefined) {
-      throw new Error("ArgumentError", "no count in data");
-    }
+    UT.Collection.validateOptions(options);
     operations = {}; // map of operations results
     keys = []; // all used keys
     dirtyKeys = []; // item keys to be saved
@@ -416,15 +234,6 @@ UT.Collection = function(options) {
     data = options.data;
     this.name = data.name;
     count = data.count;
-
-    // Build a map of operations : {field_name: {average: 2, average_count: 2, ...}}
-    if(data.operations) {
-      for(var i = 0; i < data.operations.length; i++) {
-        var operation = data.operations[i];
-        operations[operation.field] = operations[operation.field] || {};
-        opsToolbox[operation.operation].fromJsonData(operations[operation.field], operation);
-      }
-    }
     initializeItems.call(this, data.items);
   };
 
@@ -468,6 +277,57 @@ UT.Collection = function(options) {
   initialize.call(this, options);
 };
 
+UT.Collection.validateOptions = function(options){
+  if(!options.data) {
+    throw new Error("ArgumentError", "missing data");
+  }
+  if(!options.data.name) {
+    throw new Error("ArgumentError", "no name in data");
+  }
+  if(options.data.count === undefined) {
+    throw new Error("ArgumentError", "no count in data");
+  }
+};
+
+UT.Collection.marshallItem = function(item){
+  if(item && item.marshall){
+    return item.marshall();
+  } else if(item) {
+    return item;
+  } else {
+    return null; // item to delete
+  }
+};
+
+UT.Collection.sanitizeItem = function(key, item) {
+  if(item === undefined || item === null) { // Will delete the item
+    return;
+  }
+  if(item && item.marshall){
+    item._key = key;
+    return item; // This item know how to marshall properly
+  }
+
+  if(typeof item === 'function'){
+    throw new Error("ArgumentError cannot serialize function");
+  }
+
+  // Convert built-in type to literal object.
+  if(typeof(item) !== 'object' || [].constructor === item.constructor) {
+    item = {
+      _type: 'literal',
+      value: item
+    };
+  }
+
+  var sanitizedItem = {};
+  sanitizedItem = item;
+  sanitizedItem._key = key;
+  if(item.constructor !== {}.constructor){
+    throw new Error("Unserialisable object");
+  }
+  return sanitizedItem;
+};
 // Create a store for containing collections defined in data
 // mandatory options keys: data, currentUserId, delegate
 UT.CollectionStore = function(options) {
@@ -526,6 +386,314 @@ UT.CollectionStore = function(options) {
     delegate.refreshCollections(names, callback);
   };
 };
+
+; (function(){
+  "use strict";
+  /**
+   * valid options keys: data, delegate, currentUserId
+   */
+  UT.PublicCollection = function(options) {
+    // PUBLIC Properties
+    this.length = 0; // loded items count
+    this.name = null;
+
+    var userItem = null;
+    var dirty = false;
+
+    // PUBLIC Methods
+    // Add an anonymous item (without a key).
+    this.setUserItem = function(item) {
+      if(!currentUserId) {
+        delegate.authenticate();
+        throw new Error("ArgumentError", "No currentUserId defined");
+      }
+      var key = currentUserId;
+      var sanItem = sanitizeItem(key, item);
+      var oldItem = userItem;
+
+      if(!sanItem && !oldItem){
+        return sanItem;
+      }
+      recomputeOperations(oldItem, sanItem);
+
+      if(oldItem && (sanItem === null || sanItem === undefined)) {
+        // delete
+        count--;
+        userItem = null;
+      } else if(!oldItem && sanItem) {
+        // insert
+        count++;
+        userItem = sanItem;
+      } else {
+        // update
+        userItem = sanItem;
+      }
+      dirty = true;
+      return userItem;
+    };
+
+    this.getUserItem = function(item) {
+      if(!currentUserId) {
+        return;
+      }
+      return userItem;
+    };
+
+    this.average = function(name) {
+      if(!operations[name]) {
+        return;
+      }
+      return operations[name].average;
+    };
+
+    this.sum = function(name) {
+      if(!operations[name]) {
+        return;
+      }
+      return operations[name].sum;
+    };
+
+    var sanitizeItem = function(key, item){
+      var sanitizedItem = UT.Collection.sanitizeItem(key, item);
+      var fieldDefs = data.definition.fields;
+      if(item && fieldDefs && fieldDefs.length > 0) {
+        var valid = false;
+        for(var i = 0; i < fieldDefs.length; i++) {
+          var fd = fieldDefs[i];
+          if(item[fd.name] !== undefined) {
+            valid = true;
+            if(fd.type == 'string') {
+              sanitizedItem[fd.name] = item[fd.name];
+            } else if(fd.type == 'number') {
+              var n = parseFloat(item[fd.name]);
+              if(!isNaN(n) && isFinite(item[fd.name])) {
+                sanitizedItem[fd.name] = n;
+              } else {
+                throw new Error('TypeError', 'Wrong value for field note');
+              }
+            } else if(fd.type == 'boolean'){
+              sanitizedItem[fd.name] = !!item[fd.name];
+            } else {
+              throw new Error('TypeError', 'Unkown type ' + fd.type);
+            }
+          }
+        }
+        if(!valid){
+          throw new Error('InvalidItemError no valid field specified');
+        }
+      }
+      return sanitizedItem;
+    };
+
+    /**
+     * Without argument retrieve the total count
+     * if filterKey is given, return the number
+     * of item where this properties is defined and not null.
+     * This last option is available only for field declared
+     * in collection field.
+     */
+    this.count = function(filterKey) {
+      if(!filterKey){
+        return count;
+      } else if(!operations[filterKey]) {
+        return;
+      } else {
+        if(operations[filterKey]){
+          return operations[filterKey].count;
+        }
+      }
+    };
+
+    this.toString = function() {
+      return '<PublicCollection @name="' + this.name + '">';
+    };
+
+
+    var marshall = function(item){
+      if(item && item.marshall){
+        return item.marshall();
+      } else if(item) {
+        return item;
+      } else {
+        return null; // item to delete
+      }
+    };
+
+    this.save = function() {
+      if (!dirty){
+        return;
+      }
+      var items = {};
+      items[currentUserId] = UT.Collection.marshallItem(userItem);
+      delegate.save(this.name, items);
+      dirty = false;
+    };
+
+    /**
+     * Retrieve a hash of data compatible with the one received.
+     */
+    this.getCurrentData = function() {
+      var newData = {
+        name: this.name,
+        count: count,
+        definition: data.definition,
+        operations: [],
+        items: []
+      };
+
+      if(data.operations) {
+        for(var i = 0; i < data.operations.length; i++) {
+          var operation = {
+            operation: data.operations[i].operation,
+            field: data.operations[i].field
+          };
+          opsToolbox[operation.operation].toJsonData(operations[operation.field], operation);
+          newData.operations.push(operation);
+        }
+      }
+
+      userItem._key = currentUserId;
+      newData.items.push(userItem);
+      return newData;
+    };
+
+    this.refresh = function(json) {
+      initialize.call(this, {currentUserId: currentUserId, delegate: delegate, data: json});
+    };
+
+    // PRIVATE Properties
+    var currentUserId, delegate, data, items,
+        operations, count;
+
+    var opsToolbox = {
+      _transfer: function(source, dest /*, k1, k2, ..., kn*/){
+        var keys = Array.prototype.slice.call(arguments, 2);
+        for (var i = keys.length - 1; i >= 0; i--) {
+          dest[keys[i]] = source[keys[i]];
+        }
+      },
+      average: {
+        fromJsonData: function(field, operation){
+          if(operation.average === undefined || operation.average_count === undefined){
+            field.average = -1;
+            field.average_count = 0;
+          } else {
+            opsToolbox._transfer(operation, field, 'average', 'average_count');
+          }
+        },
+        toJsonData: function(field, operation){
+          opsToolbox._transfer(field, operation, 'average', 'average_count');
+        },
+        recompute: function(field, operation, oldItem, newItem){
+          var count = field.average_count;
+          if(oldItem && oldItem[operation.field] !== undefined) {
+            field.average = (field.average * (count) - oldItem[operation.field]) / parseFloat(count - 1);
+            count--;
+            console.log('Average: substract from old item:' + field.average);
+          }
+          if(newItem && newItem[operation.field] !== undefined) {
+            field.average = (field.average * (count) + newItem[operation.field]) / parseFloat(count + 1);
+            count++;
+            console.log('Average: add from new item:' + field.average);
+          }
+          field.average_count = count;
+        }
+      },
+      count: {
+        fromJsonData: function(field, operation) {
+          if(operation.count === undefined){
+            field.count = 0;
+          } else {
+            opsToolbox._transfer(operation, field, 'count');
+          }
+        },
+        toJsonData: function(field, operation) {
+          opsToolbox._transfer(field, operation, 'count');
+        },
+        recompute: function(field, operation, oldItem, newItem) {
+          if(oldItem && oldItem[operation.field] && oldItem[operation.field] !== undefined) {
+            field.count = field.count -1;
+          }
+          if(newItem && newItem[operation.field] && newItem[operation.field] !== undefined) {
+            field.count ++;
+          }
+        }
+      },
+      sum: {
+        fromJsonData: function(field, operation) {
+          if(operation.sum === undefined){
+            field.sum = 0;
+          } else {
+            opsToolbox._transfer(operation, field, 'sum');
+          }
+        },
+        toJsonData: function(field, operation) {
+          opsToolbox._transfer(field, operation, 'sum');
+        },
+        recompute: function(field, operation, oldItem, newItem) {
+          if(oldItem && oldItem[operation.field] && oldItem[operation.field] !== undefined) {
+            field.sum = field.sum - oldItem[operation.field];
+          }
+          if(newItem && newItem[operation.field] && newItem[operation.field] !== undefined) {
+            field.sum = field.sum + newItem[operation.field];
+          }
+        }
+      }
+    };
+
+
+    // PRIVATE Methods
+    // Recompute the operations results
+    var recomputeOperations = function(oldItem, newItem) {
+      if(data.operations) {
+        for(var i = 0; i < data.operations.length; i++) {
+          var operation = data.operations[i];
+          if(newItem && newItem[operation.field] !== undefined || oldItem && oldItem[operation.field] !== undefined) {
+            opsToolbox[operation.operation].recompute(operations[operation.field], operation, oldItem, newItem);
+          }
+        }
+      }
+    };
+
+    // constructor
+    var initialize = function(options) {
+      UT.Collection.validateOptions(options);
+      operations = {}; // map of operations results
+
+      currentUserId = options.currentUserId;
+      delegate = options.delegate;
+      data = options.data;
+      this.name = data.name;
+      count = data.count;
+
+      // Build a map of operations : {field_name: {average: 2, average_count: 2, ...}}
+      if(data.operations) {
+        for(var i = 0; i < data.operations.length; i++) {
+          var operation = data.operations[i];
+          operations[operation.field] = operations[operation.field] || {};
+          opsToolbox[operation.operation].fromJsonData(operations[operation.field], operation);
+        }
+      }
+      initializeItems.call(this, data.items);
+    };
+
+    var initializeItems = function(dataItems) {
+      if(!dataItems) {
+        return;
+      }
+      for(var j = 0; j < dataItems.length; j++) {
+        var item = dataItems[j];
+        var key = item._key;
+        if(key == currentUserId){
+          userItem = item;
+        }
+      }
+    };
+
+    initialize.call(this, options);
+  };
+
+})();
 
 ; (function(){
   // Scoped variables
@@ -621,6 +789,10 @@ UT.CollectionStore = function(options) {
     _callAPI("posted");
   };
 
+  var _pause = function() {
+    postInstance.fire('pause');
+  };
+
   UT.Expression._dispatch = function(msg) {
     switch (msg.type) {
       case 'ready' :
@@ -634,6 +806,9 @@ UT.CollectionStore = function(options) {
         break;
       case 'post' :
         _post();
+        break;
+      case 'pause':
+        _pause();
     }
   };
 
@@ -1056,14 +1231,28 @@ UT.CollectionStore = function(options) {
       UT.Expression._callAPI('container.resizeHeight', [height]);
     };
 
+    /**
+     * Push a navigation state
+     * @param  {String}   state    The state to push : 'default', 'back', 'cancel'
+     * @param  {Function} callback The function called when this state is clicked
+     */
     var pushNavigation = this.pushNavigation = function(state, callback) {
       UT.Expression._callAPI('container.pushNavigation', [state], callback);
     };
 
+    /**
+     * Pop the current navigation state
+     */
     var popNavigation = this.popNavigation = function() {
       UT.Expression._callAPI('container.popNavigation');
     };
 
+    /**
+     * Let the user navigate to an other website
+     * or to a particullar part of urturn
+     * @param  {string} app     the app to use [optional] 
+     * @param  {string} target  Where to navigate
+     */
     var navigate = this.navigate = function(app) {
       var options = {};
       if (arguments.length >= 2) {
@@ -1178,7 +1367,7 @@ UT.Image = function(imageDescriptor) {
    function(imageDescriptor) {
      this.init(imageDescriptor);
      callback.call(this, this);
-   }.on(this));
+   }.bind(this));
   };
 
   /**
@@ -1200,7 +1389,7 @@ UT.Image = function(imageDescriptor) {
    function(imageDescriptor) {
      this.init(imageDescriptor);
      callback.call(this, this);
-   }.on(this));
+   }.bind(this));
   };
 
   /**
@@ -1217,7 +1406,7 @@ UT.Image = function(imageDescriptor) {
    function(imageDescriptor) {
      this.init(imageDescriptor);
      callback.call(this, this);
-   }.on(this));
+   }.bind(this));
   };
 
   /**
@@ -1234,7 +1423,7 @@ UT.Image = function(imageDescriptor) {
      function(editableImageUrl) {
        this.url = editableImageUrl;
        callback.call(this, this);
-     }.on(this)
+     }.bind(this)
    );
   };
 
@@ -1247,13 +1436,22 @@ UT.Image = function(imageDescriptor) {
   // LOOK AWAY!
   // Use to on this interface with Urturn API
   this.init = function(imageDescriptor) {
-   this.url = imageDescriptor.url;
-   this.descriptor = imageDescriptor;
-   this.info = imageDescriptor.info;
-   if (imageDescriptor.center) {
-     this.info.crop = imageDescriptor.center;
-   }
+    if (typeof(imageDescriptor) == 'string') {
+      this.url = imageDescriptor;
+      this.descriptor = {};
+      this.descriptor.url = imageDescriptor;
+      this.descriptor._type = 'image';
+    }
+    else {
+      this.url = imageDescriptor.url;
+      this.descriptor = imageDescriptor;
+      this.info = imageDescriptor.info;
+      if (imageDescriptor.center) {
+        this.info.crop = imageDescriptor.center;
+      }
+    }
   };
+
   this.descriptor = {};
   if(imageDescriptor){
     this.init(imageDescriptor);

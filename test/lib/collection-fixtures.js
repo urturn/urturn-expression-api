@@ -34,25 +34,17 @@ window.fixtures.collectionData = {
       count: 0
     };
   },
-  myCollection: function(){
+  myCollection: function(userId){
     return {
       // name of the colleciton
       name: 'my-collection',
       count: 3,
       items: [{
         _type: "custom",
-        _key: "my-item",
-        _user_id: "4b78196c-d84f-4131-ae00-fcce5ac1a9cc",
-        note: 4
-      },{
-        _type: "custom",
-        _key: "my-appreciation",
-        _user_id: "4b78196c-d84f-4131-ae00-fcce5ac1a9cc",
-        love_it: true
-      },{
-        _type: "custom",
-        _key: "my-sum",
-        _user_id: "4b78196c-d84f-4131-ae00-fcce5ac1a9cc",
+        _key: userId,
+        _user_id: userId,
+        note: 4,
+        love_it: true,
         spentMoney: 98.20
       }],
       // operations on field
@@ -101,4 +93,4 @@ window.fixtures.collectionData = {
       }
     };
   }
-}
+};

@@ -1,7 +1,6 @@
 buster.spec.expose();
 
 describe('PublicCollection', function(){
-
   var dataDelegate;
   var data;
   var emptyData;
@@ -10,16 +9,21 @@ describe('PublicCollection', function(){
   var anItem;
   var document_id;
 
+  var publicFixture = function(theData){
+    theData = theData || data;
+    return new UT.PublicCollection({document_id: document_id, data: theData, delegate: dataDelegate, currentUserId: currentUserId});
+  };
+
   beforeEach(function(){
     currentUserId = UT.uuid();
-    data = fixtures.collectionData.myCollection();
+    data = fixtures.collectionData.myCollection(currentUserId);
     emptyData = fixtures.collectionData.empty();
     dataDelegate = new CollectionDataDelegate();
 
     postedMessages = [];
     document_id = UT.uuid();
 
-    collection = new UT.Collection({document_id: document_id, data: fixtures.collectionData.myCollection(), delegate: dataDelegate, currentUserId: currentUserId});
+    collection = publicFixture();
     anItem = {comment: 'hello world', note: 3};
   });
 
@@ -58,25 +62,16 @@ describe('PublicCollection', function(){
       expect(collection.count('leave_it')).toBe(3);
     });
     it('updates after insert', function(){
+      data.items = [];
+      collection = publicFixture(data);
+
       count = collection.count();
       love_it = collection.count('love_it');
       leave_it = collection.count('leave_it');
 
-      collection.setItem('i1', {love_it: 'a'});
+      collection.setUserItem({love_it: 'a'});
       expect(collection.count('love_it')).toBe(love_it + 1);
       expect(collection.count('leave_it')).toBe(leave_it);
-
-      collection.setItem('i2', {leave_it: true});
-      expect(collection.count('love_it')).toBe(love_it + 1);
-      expect(collection.count('leave_it')).toBe(leave_it + 1);
-
-      collection.setItem('i3', {love_it: -1, leave_it: 2});
-      expect(collection.count('love_it')).toBe(love_it + 2);
-      expect(collection.count('leave_it')).toBe(leave_it + 2);
-
-      collection.setItem('i4', {love_it: null, leave_it: undefined});
-      expect(collection.count('love_it')).toBe(love_it + 2);
-      expect(collection.count('leave_it')).toBe(leave_it + 2);
     });
 
     it('updates after update', function(){
@@ -84,7 +79,7 @@ describe('PublicCollection', function(){
       love_it = collection.count('love_it');
       leave_it = collection.count('leave_it');
 
-      collection.setItem('my-appreciation', {leave_it: true});
+      collection.setUserItem({leave_it: true});
       expect(collection.count('love_it')).toBe(love_it - 1);
       expect(collection.count('leave_it')).toBe(leave_it + 1);
     });
@@ -94,29 +89,31 @@ describe('PublicCollection', function(){
       love_it = collection.count('love_it');
       leave_it = collection.count('leave_it');
 
-      collection.setItem('my-appreciation', undefined);
+      collection.setUserItem(undefined);
       expect(collection.count('love_it')).toBe(love_it - 1);
     });
   });
 
   describe('#sum', function(){
     it('updates on insert', function(){
+      data.items = [];
+      collection = publicFixture(data);
       var sum = collection.sum('spentMoney');
-      collection.setItem('i1', {spentMoney: 22});
+      collection.setUserItem({spentMoney: 22});
       expect(collection.sum('spentMoney')).toBe(sum + 22);
     });
 
     it('updates on update', function(){
       var sum = collection.sum('spentMoney');
-      var item = collection.getItem('my-sum');
-      collection.setItem('my-sum', {spentMoney: 12});
+      var item = collection.getUserItem();
+      collection.setUserItem({spentMoney: 12});
       expect(collection.sum('spentMoney')).toBe(sum - item.spentMoney + 12);
     });
 
     it('updates on delete', function(){
       var sum = collection.sum('spentMoney');
-      var item = collection.getItem('my-sum');
-      collection.setItem('my-sum', undefined);
+      var item = collection.getUserItem();
+      collection.setUserItem(undefined);
       expect(collection.sum('spentMoney')).toBe(sum - item.spentMoney);
     });
   });
@@ -148,6 +145,8 @@ describe('PublicCollection', function(){
 
       collection.save();
       var message = dataDelegate.operations.pop();
+      console.log('currentUserId: ' + currentUserId);
+      console.log(message.items);
       expect(message.items[currentUserId]).toBeDefined();
       expect(message.items[currentUserId].note).toBe(5);
     });
@@ -158,18 +157,19 @@ describe('PublicCollection', function(){
         expect(collection.average('note')).toBe(4.0);
       });
       it('supports updating an item', function(){
-        collection.setItem('my-item', {note: 5.5});
+        collection.setUserItem({note: 5.5});
         expect(collection.average('note')).toBe(5.0);
       });
       it('supports updating without the field', function(){
-        collection.setItem('my-item', {comment: 'ciao'});
+        collection.setUserItem({comment: 'ciao'});
         expect(collection.average('note')).toBe(4.5);
       });
       it('supports deleting an item', function(){
-        collection.setItem('some', {note: 3.5});
-        expect(collection.average('note')).toBe(4.0);
-        collection.setItem('some', null);
         expect(collection.average('note')).toBe(4.25);
+        expect(collection.count('note')).toBe(2);
+        expect(collection.getUserItem().note).toBe(4.0);
+        collection.setUserItem(null);
+        expect(collection.average('note')).toBe(4.5);
       });
     });
   });
@@ -186,14 +186,28 @@ describe('PublicCollection', function(){
     });
 
     it('retrieve updated data after addition', function(){
+      data.items = [];
+      collection = publicFixture(data);
       expect(collection.getCurrentData).toBeDefined();
       var oldAverage = collection.average('note');
-      collection.setItem('another-item', {note: 6});
+      collection.setUserItem({note: 6});
       var newAverage = collection.average('note');
       var newData = collection.getCurrentData();
       expect(newAverage).not.toEqual(oldAverage);
       expect(newData.operations).not.toEqual(data.operations);
       expect(newData.items.length).not.toEqual(data.items.length);
+    });
+  });
+
+  describe('find recent', function(){
+    it('retrieve most recent items', function(){
+      expect(collection.find).toBeDefined();
+      var item;
+      collection.find('recent', function(items){
+        expect(items).toBeDefined();
+        item = items[0];
+      });
+      expect(postedMessages.length).toEqual(1);
     });
   });
 });
