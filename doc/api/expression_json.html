@@ -30,7 +30,7 @@
 <pre class="prettyprint"><code class="lang-json">{
   "system_name":"beautiful",
   "version":"1.2.8",
-  "api_version":"0.6.1-rc2"
+  "api_version":"0.6.1"
 }</code></pre>
 
 <h3><tt>system_name</tt></h3>
@@ -45,7 +45,11 @@
 <h2>Optional Attributes</h2>
 
 <h3><tt>title</tt></h3>
-<p>The expression title. Might be overidded by the graphical interface</p>
+<p>The expression title.</p>
+
+<h3><tt>description</tt></h3>
+<p>A description of the expression(no line wrap).</p>
+
 
 <h3><tt>accepted_media_types</tt></h3>
 <p>A hash describing what are the accepted media types associated to their default configurations. Every value declared here engage the expression owner to code the associated callback.</p>
@@ -109,3 +113,32 @@
   "version": "1.0.0",
   "indexed_keys": ['title', 'theHashTag', 'thePicture']
 }</code></pre>
+
+<h3><tt>collections</tt></h3>
+<p>Define an array of public collections that can be used by users other than the author to interact with a post. This might be useful to implement votes in an expression or collaborative doodle or... you name it.</p>
+<pre class="prettyprint"><code class="lang-json">{
+  "system_name": "example",
+  "version": "1.0.0",
+  "api_version": "0.6.1",
+  "collections": [{
+    "name": "vote",
+    "fields": [{
+      "name": "note",
+      "type": "number",
+      "operations": ["average", "count"]
+    }, {
+      "name": "comment",
+      "type": "string"
+    }]
+  }]
+}</code></pre>
+<p><tt>collections</tt> is an array of <tt>collection</tt> object containing the following attributes:</p>
+<ul>
+  <li><strong>name:</strong> the name of the collection to retrieve it from the code.</li>
+  <li><strong>fields:</strong> a list of authorized fields for the object saved in this collection. All attributes not declared as fields here will be silently stripped out by the post. <tt>fields</tt> is an array of <tt>field</tt> object containing the following attributes:
+    <ul>
+      <li><strong>name:</strong> the name of the field</li>
+      <li><strong>type:</strong> the kind of data stored (either <tt>"string"</tt> or <tt>"number"</tt>)</li>
+      <li><strong>operations:</strong> the kind of operations authorized on this field. Currently accept an array containing some of those values: (<tt>"sum"</tt>, <tt>"average"</tt> and <tt>"count"</tt>)</li>
+    </ul></li>
+</ul>
