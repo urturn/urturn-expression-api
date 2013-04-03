@@ -8,6 +8,7 @@
     <input type="radio" value="5" class="star" name="star"/>
   </div>
   <div><textarea rows="5" cols="40" class="comment"></textarea></div>
+  <div class="score">score: <span class="score-value"></span></div>
 </form>
 
 <script>
@@ -16,17 +17,13 @@ UT.Expression.ready(function(post){
   var votes = post.collection('votes');
   var score = -1;
   var comment = ""
+  post.node.querySelector('.score-value').innerHTML = votes.average('note')
   post.resize({height: post.node.querySelector('form').offsetHeight});
   for (var i = stars.length - 1; i >= 0; i--) {
     stars[i].onclick = function(event){
       score = parseInt(event.target.value, 10);
-      post.valid(true);
+      post.save();
     }
   };
-  post.on('publish', function(){
-    var value = {score: score, comment: post.node.querySelector('.comment').value};
-    votes.setUserItem(value);
-    post.save();
-  });
 });
 </script>

@@ -8,9 +8,8 @@
     "fields": [{
       "name": "note",
       "type": "number",
-      "operations": "average"
-    }],
-    "fields": [{
+      "operations": ["average"]
+    },{
       "name": "comment",
       "type": "string"
     }]

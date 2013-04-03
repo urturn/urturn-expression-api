@@ -163,7 +163,8 @@ UT.Collection = function(options) {
       count: count,
       definition: data.definition,
       operations: [],
-      items: []
+      items: [],
+      public: false
     };
 
     if(data.operations) {
@@ -554,7 +555,8 @@ UT.CollectionStore = function(options) {
         count: count,
         definition: data.definition,
         operations: [],
-        items: []
+        items: [],
+        public: true
       };
 
       if(data.operations) {
