@@ -17,4 +17,13 @@ describe('CollectionStore', function(){
       expect(collection.name).toBe('my-collection');
     });
   });
+
+  describe('public or private collection', function(){
+    it('create public collection', function(){
+      expect(collections.get('my-collection').isPublic()).toBe(true);
+    });
+    it('create private collection', function(){
+      expect(collections.get('default').isPublic()).toBe(false);
+    });
+  });
 });

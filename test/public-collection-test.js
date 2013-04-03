@@ -19,8 +19,6 @@ describe('PublicCollection', function(){
     data = fixtures.collectionData.myCollection(currentUserId);
     emptyData = fixtures.collectionData.empty();
     dataDelegate = new CollectionDataDelegate();
-
-    postedMessages = [];
     document_id = UT.uuid();
 
     collection = publicFixture();
@@ -145,8 +143,6 @@ describe('PublicCollection', function(){
 
       collection.save();
       var message = dataDelegate.operations.pop();
-      console.log('currentUserId: ' + currentUserId);
-      console.log(message.items);
       expect(message.items[currentUserId]).toBeDefined();
       expect(message.items[currentUserId].note).toBe(5);
     });
@@ -199,15 +195,48 @@ describe('PublicCollection', function(){
     });
   });
 
-  describe('find recent', function(){
-    it('retrieve most recent items', function(){
-      expect(collection.find).toBeDefined();
-      var item;
-      collection.find('recent', function(items){
+  describe('find recent', function() {
+    it('retrieve default items', function(done) {
+      collection.find(function(items){
         expect(items).toBeDefined();
-        item = items[0];
+        var item = items[0];
+        expect(item).toBeDefined();
+        done();
       });
-      expect(postedMessages.length).toEqual(1);
+      expect(dataDelegate.operations.length).toEqual(1);
+      var op = dataDelegate.operations.pop();
+      var result = [{}];
+      expect(op.options).toEqual({filters:{recent: true}});
+      expect(op.name).toEqual(collection.name);
+      expect(op.callback).toBeDefined();
+      op.callback(result);
+    });
+
+    it('retrieve most recent items', function() {
+      collection.find('recent', function(items){});
+      var op = dataDelegate.operations.pop();
+      var result = [{}];
+      expect(op.options).toEqual({filters:{recent: true}});
+      expect(op.name).toEqual(collection.name);
+      expect(op.callback).toBeDefined();
+      op.callback(result);
+    });
+
+    it('retrieve friends items', function() {
+      collection.find('friends', function(items){});
+      var op = dataDelegate.operations.pop();
+      var result = [{}];
+      expect(op.options).toEqual({filters:{friends: true}});
+      expect(op.name).toEqual(collection.name);
+      expect(op.callback).toBeDefined();
+      op.callback(result);
+    });
+
+    it('throw an error if no callback', function() {
+      expect(function(){collection.find();}).toThrow('Error');
+      expect(function(){collection.find('recent');}).toThrow('Error');
+      expect(function(){collection.find();}).toThrow('Error');
+      expect(function(){collection.find('recent', 'bis');}).toThrow('Error');
     });
   });
 });

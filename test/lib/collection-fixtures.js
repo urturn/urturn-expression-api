@@ -7,12 +7,16 @@ window.CollectionDataDelegate = function(){
   this.save = function(collectionName, items) {
     this.operations.push({name: collectionName, items: items});
   };
+  this.find = function(collectionName, options, callback) {
+    this.operations.push({name: collectionName, options: options, callback: callback});
+  };
 };
 
 window.fixtures.collectionData = {
   data: function(){
     var data = {
       name: 'default',
+      public: false,
       items: [{
         _type: 'image',
         _key: 'my-image',
@@ -31,6 +35,7 @@ window.fixtures.collectionData = {
   empty: function(){
     return {
       name: 'empty-collection',
+      public: false,
       count: 0
     };
   },
@@ -39,6 +44,7 @@ window.fixtures.collectionData = {
       // name of the colleciton
       name: 'my-collection',
       count: 3,
+      public: true,
       items: [{
         _type: "custom",
         _key: userId,
