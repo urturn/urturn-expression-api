@@ -238,5 +238,9 @@ describe('PublicCollection', function(){
       expect(function(){collection.find();}).toThrow('Error');
       expect(function(){collection.find('recent', 'bis');}).toThrow('Error');
     });
+
+    it('throw an error with unknown filters', function(){
+      expect(function(){collection.find('x', function(){});}).toThrow('Error');
+    });
   });
 });
