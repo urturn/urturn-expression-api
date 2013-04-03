@@ -1,0 +1,31 @@
+<form class="form">
+  <div>
+    Give your own score:
+    <input type="radio" value="1" class="star" name="star"/>
+    <input type="radio" value="2" class="star" name="star"/>
+    <input type="radio" value="3" class="star" name="star"/>
+    <input type="radio" value="4" class="star" name="star"/>
+    <input type="radio" value="5" class="star" name="star"/>
+  </div>
+  <div><textarea rows="5" cols="40" class="comment"></textarea></div>
+</form>
+
+<script>
+UT.Expression.ready(function(post){
+  var stars = post.node.querySelectorAll('.star');
+  var votes = post.collection('votes');
+  var score = -1;
+  var comment = ""
+  post.resize({height: post.node.querySelector('form').offsetHeight});
+  for (var i = stars.length - 1; i >= 0; i--) {
+    stars[i].onclick = function(event){
+      score = parseInt(event.target.value, 10);
+      post.valid(true);
+    }
+  };
+  post.on('publish', function(){
+    var value = {score: score, comment: post.node.querySelector('.comment').value};
+    votes.setUserItem(value);
+  });
+});
+</script>
