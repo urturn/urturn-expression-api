@@ -7,7 +7,7 @@ describe('CollectionStore', function(){
   beforeEach(function(){
     document_id = '123456-1234-1234-12345678';
     dataDelegate = new CollectionDataDelegate();
-    collections = new UT.CollectionStore({document_id: document_id, data: [fixtures.collectionData.myCollection()], delegate: dataDelegate, currentUserId: UT.uuid()});
+    collections = new UT.CollectionStore({document_id: document_id, data: [fixtures.collectionData.myCollection(UT.uuid()), fixtures.collectionData.data()], delegate: dataDelegate, currentUserId: UT.uuid()});
   });
 
   describe('#get', function(){
