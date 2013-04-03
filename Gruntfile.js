@@ -75,8 +75,8 @@ module.exports = function(grunt) {
         'lib/expression-api/uuid.js',
         'lib/expression-api/compat.js',
         'lib/expression-api/Collection.js',
-        'lib/expression-api/CollectionStore.js',
-        'lib/expression-api/PublicCollection.js'
+        'lib/expression-api/PublicCollection.js',
+        'lib/expression-api/CollectionStore.js'
       ],
       dest: 'dist/sandbox.js'
     },
