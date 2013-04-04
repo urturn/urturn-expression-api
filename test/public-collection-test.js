@@ -43,6 +43,24 @@ describe('PublicCollection', function(){
       expect(collection.average('note')).toBe(4.0);
     });
 
+    it('support removing the first element', function(){
+      collection = publicFixture({
+        // name of the colleciton
+        name: 'emptyCollection',
+        count: 0,
+        public: true,
+        items: [],
+        operations: [{ operation: "average", field: "note", average: -1, average_count: 0 }],
+        definition: {fields: [{name: 'note', type: 'number', operations: ['average']}]}
+      });
+      expect(collection.count()).toBe(0);
+      expect(collection.average('note')).toBe(-1);
+      collection.setUserItem({note: 4.2});
+      expect(collection.average('note')).toEqual(4.2);
+      collection.setUserItem(null);
+      expect(collection.average('note')).toEqual(-1);
+    });
+
     it('can be empty', function(){
       expect(collection.average('emptyField')).toBe(-1);
       collection.setUserItem({emptyField: 12});

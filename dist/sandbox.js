@@ -569,7 +569,11 @@ UT.Collection.sanitizeItem = function(key, item) {
         recompute: function(field, operation, oldItem, newItem){
           var count = field.average_count;
           if(oldItem && oldItem[operation.field] !== undefined) {
-            field.average = (field.average * (count) - oldItem[operation.field]) / parseFloat(count - 1);
+            if(count === 1){ // When we remove the only item.
+              field.average = -1;
+            } else {
+              field.average = (field.average * (count) - oldItem[operation.field]) / parseFloat(count - 1);
+            }
             count--;
           }
           if(newItem && newItem[operation.field] !== undefined) {
