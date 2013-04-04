@@ -570,8 +570,8 @@ UT.CollectionStore = function(options) {
         }
       }
 
-      userItem._key = currentUserId;
       if (getUserItem()){
+        userItem._key = currentUserId;
         newData.items.push(getUserItem());
       }
       for(var j = 0; j < data.items.length; j++){

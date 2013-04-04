@@ -59,6 +59,28 @@ describe('PublicCollection', function(){
       expect(collection.average('note')).toEqual(4.2);
       collection.setUserItem(null);
       expect(collection.average('note')).toEqual(-1);
+      expect(collection.getCurrentData().operations[0].average_count).toEqual(0);
+      expect(collection.getCurrentData().operations[0].average).toEqual(-1);
+    });
+
+    it('support updating the first element', function(){
+      collection = publicFixture({
+        // name of the colleciton
+        name: 'emptyCollection',
+        count: 0,
+        public: true,
+        items: [],
+        operations: [{ operation: "average", field: "note", average: -1, average_count: 0 }],
+        definition: {fields: [{name: 'note', type: 'number', operations: ['average']}]}
+      });
+      expect(collection.count()).toBe(0);
+      expect(collection.average('note')).toBe(-1);
+      collection.setUserItem({note: 4.2});
+      expect(collection.average('note')).toEqual(4.2);
+      collection.setUserItem({note: 3.2});
+      expect(collection.average('note')).toEqual(3.2);
+      expect(collection.getCurrentData().operations[0].average_count).toEqual(1);
+      expect(collection.getCurrentData().operations[0].average).toEqual(3.2);
     });
 
     it('can be empty', function(){
