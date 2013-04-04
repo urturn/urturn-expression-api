@@ -7,8 +7,9 @@
     <input type="radio" value="4" class="star" name="star"/>
     <input type="radio" value="5" class="star" name="star"/>
   </div>
-  <div><textarea rows="5" cols="40" class="comment"></textarea></div>
+  <div><textarea rows="5" cols="40" class="input-comment"></textarea></div>
   <div class="score">score: <span class="score-value"></span></div>
+  <ul class="comments"></ul>
 </form>
 
 <script>
@@ -16,8 +17,9 @@ UT.Expression.ready(function(post){
   var stars = post.node.querySelectorAll('.star');
   var votes = post.collection('votes');
   var comment = ""
-  post.resize({height: post.node.querySelector('form').offsetHeight});
+  resize();
   displayScore();
+  latestComment();
   var myVote = {};
   for (var i = stars.length - 1; i >= 0; i--) {
     stars[i].onclick = function(event){
@@ -29,8 +31,30 @@ UT.Expression.ready(function(post){
       console.log("New score is " + score + " and the new average is " + votes.average('note'));
     }
   };
+  post.node.querySelector('.input-comment').onchange = function(event){
+    var text = event.target.value
+    myVote.comment = text;
+    votes.setUserItem(myVote);
+    post.save();
+    latestComment();
+  };
+
   function displayScore(){
     post.node.querySelector('.score-value').innerHTML = votes.average('note');
+  }
+  function latestComment(){
+    votes.find('recent', function(items){
+      console.log('received recent items', items);
+      var list = '';
+      for(var i = 0; i < items.length; i++){
+        list += '<li class="comment">' + items[i].comment + '</li>';
+      }
+      post.node.querySelector('.comments').innerHTML = list;
+      resize();
+    });
+  }
+  function resize(){
+    post.resize({height: post.node.querySelector('form').offsetHeight});
   }
 });
 </script>
