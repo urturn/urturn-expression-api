@@ -26,6 +26,7 @@ UT.Expression.ready(function(post){
       votes.setUserItem(myVote);
       post.save();
       displayScore();
+      console.log("New score is " + score + " and the new average is " + votes.average('note'));
     }
   };
   function displayScore(){

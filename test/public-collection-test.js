@@ -83,6 +83,17 @@ describe('PublicCollection', function(){
       expect(collection.getCurrentData().operations[0].average).toEqual(3.2);
     });
 
+    it('support updates when value change by reference', function(){
+      collection.setUserItem({note: 1});
+      var baseAverage = collection.average('note');
+      var ref = {note: baseAverage + 1};
+      collection.setUserItem(ref);
+      expect(collection.average('note')).not.toEqual(baseAverage);
+      ref.note = 1;
+      collection.setUserItem(ref);
+      expect(collection.average('note')).toEqual(baseAverage);
+    });
+
     it('can be empty', function(){
       expect(collection.average('emptyField')).toBe(-1);
       collection.setUserItem({emptyField: 12});

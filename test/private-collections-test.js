@@ -82,10 +82,10 @@ describe('Collection', function(){
       }) ;
 
       it('removes an undefined item', function() {
-        expect(collection.getItem('my-image')).toBeDefined() ;
-        collection.setItem('my-image', undefined) ;
-        expect(collection.length).toBe(data.items.length - 1) ;
-        expect(collection.getItem('my-image')).not.toBeDefined() ;
+        expect(collection.getItem('my-image')).toBeDefined();
+        collection.setItem('my-image', undefined);
+        expect(collection.length).toBe(data.items.length - 1);
+        expect(collection.getItem('my-image')).not.toBeDefined();
         collection.save();
         var message = dataDelegate.operations.pop();
         expect(message.items['my-image']).toBeDefined();
@@ -167,7 +167,7 @@ describe('Collection', function(){
         var val = this.doTestWithValue(value);
         expect(val._key).toBe('val');
         expect(val._type).toBe('literal');
-        expect(val.value).toBe(value);
+        expect(val.value).toEqual(value);
         return val;
       };
     });

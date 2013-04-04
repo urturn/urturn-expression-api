@@ -300,34 +300,38 @@ UT.Collection.marshallItem = function(item){
   }
 };
 
+/**
+ * Send back a sanitized copy of the item.
+ */
 UT.Collection.sanitizeItem = function(key, item) {
   if(item === undefined || item === null) { // Will delete the item
     return;
   }
+  var result;
   if(item && item.marshall){
-    item._key = key;
-    return item; // This item know how to marshall properly
-  }
+    result = UT.Collection.marshall();
+  } else {
+    if(typeof item === 'function'){
+      throw new Error("ArgumentError cannot serialize function");
+    }
 
-  if(typeof item === 'function'){
-    throw new Error("ArgumentError cannot serialize function");
+    // Convert built-in type to literal object.
+    if(typeof(item) !== 'object' || [].constructor === item.constructor) {
+      result = {
+        _type: 'literal',
+        value: item
+      };
+    } else {
+      result = item;
+    }
   }
-
-  // Convert built-in type to literal object.
-  if(typeof(item) !== 'object' || [].constructor === item.constructor) {
-    item = {
-      _type: 'literal',
-      value: item
-    };
-  }
-
-  var sanitizedItem = {};
-  sanitizedItem = item;
-  sanitizedItem._key = key;
-  if(item.constructor !== {}.constructor){
+  result._key = key;
+  if(result.constructor !== {}.constructor){
     throw new Error("Unserialisable object");
   }
-  return sanitizedItem;
+  // Cloning this way is safe and only
+  // 18% slower than manual cloning given jsPerf results.
+  return JSON.parse(JSON.stringify(result));
 };
 // Create a store for containing collections defined in data
 // mandatory options keys: data, currentUserId, delegate
