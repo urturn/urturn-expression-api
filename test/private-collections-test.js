@@ -171,9 +171,22 @@ describe('Collection', function(){
         return val;
       };
     });
+    it('sanitize anonymous object with a marshall function', function(){
+      collection.val = {a:2, marshall: function(){return {a:2};}};
+      collection.save();
+      var message = dataDelegate.operations.pop();
+      expect(message).toBeDefined();
+      val = message.items.val;
+      expect(val).not.toBeNull();
+      expect(val.marshall).not.toBeDefined();
+      expect(val.a).toEqual(2);
+    });
     describe('literal values', function(){
       it('keep empty arrays', function(){
         this.testLiteralValue([]);
+      });
+      it('serialize arrays', function(){
+        this.testLiteralValue([{a:2}]);
       });
       it('keep numbers', function(){
         this.testLiteralValue(2);
