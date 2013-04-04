@@ -24,7 +24,7 @@ UT.Expression.ready(function(post){
     }
   };
   post.on('publish', function(){
-    var value = {score: score, comment: post.node.querySelector('.comment').value};
+    var value = {note: score, comment: post.node.querySelector('.comment').value};
     votes.setUserItem(value);
     post.save();
   });

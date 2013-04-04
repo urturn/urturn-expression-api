@@ -40,6 +40,7 @@ window.fixtures.collectionData = {
     };
   },
   myCollection: function(userId){
+    var otherUserId = UT.uuid();
     return {
       // name of the colleciton
       name: 'my-collection',
@@ -52,6 +53,13 @@ window.fixtures.collectionData = {
         note: 4,
         love_it: true,
         spentMoney: 98.20
+      },{
+        _type: "custom",
+        _key: otherUserId,
+        _user_id: otherUserId,
+        note: 2,
+        love_it: false,
+        spentMoney: 9.20
       }],
       // operations on field
       operations: [

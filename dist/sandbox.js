@@ -351,7 +351,7 @@ UT.Collection.sanitizeItem = function(key, item) {
 
     // PUBLIC Methods
     // Add an anonymous item (without a key).
-    this.setUserItem = function(item) {
+    var setUserItem = this.setUserItem = function(item) {
       if(!currentUserId) {
         delegate.authenticate();
         throw new Error("ArgumentError", "No currentUserId defined");
@@ -381,7 +381,7 @@ UT.Collection.sanitizeItem = function(key, item) {
       return userItem;
     };
 
-    this.getUserItem = function(item) {
+    var getUserItem = this.getUserItem = function(item) {
       if(!currentUserId) {
         return;
       }
@@ -503,7 +503,14 @@ UT.Collection.sanitizeItem = function(key, item) {
       }
 
       userItem._key = currentUserId;
-      newData.items.push(userItem);
+      if (getUserItem()){
+        newData.items.push(getUserItem());
+      }
+      for(var j = 0; j < data.items.length; j++){
+        if(data.items[j]._key && data.items[j]._key != currentUserId){
+          newData.items.push(data.items[j]);
+        }
+      }
       return newData;
     };
 

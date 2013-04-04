@@ -15,15 +15,21 @@
 UT.Expression.ready(function(post){
   var stars = post.node.querySelectorAll('.star');
   var votes = post.collection('votes');
-  var score = -1;
   var comment = ""
-  post.node.querySelector('.score-value').innerHTML = votes.average('note')
   post.resize({height: post.node.querySelector('form').offsetHeight});
+  displayScore();
+  var myVote = {};
   for (var i = stars.length - 1; i >= 0; i--) {
     stars[i].onclick = function(event){
-      score = parseInt(event.target.value, 10);
+      var score = parseInt(event.target.value, 10);
+      myVote.note = score;
+      votes.setUserItem(myVote);
       post.save();
+      displayScore();
     }
   };
+  function displayScore(){
+    post.node.querySelector('.score-value').innerHTML = votes.average('note');
+  }
 });
 </script>
