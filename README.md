@@ -22,6 +22,7 @@ Or join us on IRC (#urturn on freenode)
 - FIXED : Multiple bugs in user collection
 
 #### 0.6.0
+
 Initial version
 
 
