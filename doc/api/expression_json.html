@@ -10,6 +10,7 @@
   "version":"1.2.8",
   "accepted_media_types": {"image":true},
   "static_view": true,
+  "platform": ["desktop","bookmarklet", "ios"],
   "dependencies":[
     // js
     {"context":"editor", "path":"js/beautiful_editor.js"},
@@ -97,7 +98,16 @@
 
 <h3><tt>static_view</tt></h3>
 <p>If set to <tt>true</tt>, means that the view is static and don't offer any interaction. This will let Urturn make some optimization to render document based on this expression.</p>
-
+<p>
+  Available value are:
+  <ul>
+    <li>desktop: Compatible on desktop platform</li>
+    <li>bookmarklet: Compatible with the bookmarklet</li>
+    <li>ios: Compatible with the iOS app</li>
+  </ul>
+</p>
+<h3><tt>Platform</tt></h3>
+<p>Allow you to choose on which platform your expression is compatible. If not specified, the expression is compatible on all platform</p>
 <h3><tt>offline_support</tt></h3>
 <p>If set to <tt>true</tt>, means that the expression might be use to create document while offline. This means that no connection are required to create the document or that special care has been prodided to handle disconnection. <strong>At least one way to create the post offline must exists.</strong></p>
 <pre class="prettyprint"><code class="lang-json">{
