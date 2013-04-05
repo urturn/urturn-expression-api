@@ -1,9 +1,9 @@
 <h1>Store and Retrieve Data</h1>
 <p>This guide describe how to save and retrieve data in an expression.</p>
 
-<p>Stored data are either in <tt>#storage</tt> or in <tt>#collections</tt>.</p>
+<p>Stored data are either in <tt>#storage</tt> or in a <tt>#collection</tt>.</p>
 <p>The <strong>storage</strong> is made to store the post content and is loaded in editor and player. The storage can be written only during edition and, of course, only by the creator of the post. You can store any data of a reasonable size in this place.</p>
-<p>The <strong>collections</strong> are public spaces where post viewer can store data. As of today, only the current user data are retrieved. the goal of those collections are rather to make operations on public data (like votes).</p>
+<p>The <strong>collections</strong> are public spaces where post viewer can store data.</p>
 
 
 <h2>The Storage API</h2>
@@ -11,52 +11,55 @@
 <p>
   To use the simple storage API, you need to use the expression.storage object. Every properties of this object will be saved and can be retrieve in other instance of the current posts.<br/>
   This API try to be similar to W3C localStorage API with the adition of a save method. You can consider the expression.storage object as persistant accros all instances of a POST in view and edit mode.</p>
-<pre class="prettyprint"><code class="lang-javascript">
-  UT.Expression.ready( function( post ) 
-  {
-    if(post.storage.hello){
-      console.log(post.storage.hello);
-    }
-    post.storage.hello = 'hello WoRLD';
-    post.storage.save();
-  });
-</code></pre>
-<p>You can also use the storage object as an Array :</p>
-  <pre class="prettyprint"><code class="lang-javascript">
-  UT.Expression.ready( function( post ) 
-  {
-    if(post.storage['hello']){
-      console.log(post.storage['hello']);
-    }
-    post.storage['hello'] = 'hello WoRLD';
-    // TMP : To be sure datas are saved
-    post.storage.save();
-  });
-</code></pre>
+<pre class="prettyprint"><code class="lang-javscript">
+// editor.html
+&lt;script>
+  UT.Expression.ready( function(post) {
+    // Handle edition
+    var img = post.storage.grimPicture || null;
+    var saying = post.storage.saying || 'YES!';
+    var score = post.storage.score || 0;
+    var parameters = post.storage.parameters || {layout: 1, color: '#FFFFFF', ratio: 1.0};
 
-<p>You can also use the storage to store objects :</p>
-  <pre class="prettyprint"><code class="lang-javascript">
-  UT.Expression.ready( function( post ) 
-  {
-    if(post.storage.getItem('hello')){
-      console.log(post.storage.getItem('hello');
-    }
-    post.storage.setItem('hello', 'hello WoRLD');
-    // TMP : To be sure datas are saved
-    post.storage.commit();
+    // Set some data
+    post.storage.grimPicture = new UT.Image('http://superphoto.jk/photos/121233.jpg');
+    post.storage.saying = 'WHOA!';
+    post.storage.score = 2.13;
+    post.storage.parameters = {ratio: 0.92, layout: 2, color: '#443F22'};
+
+    // Save the data server side (from your side, it is synchronous call as we provide latency compensation).
+    post.save();
   });
+&lt;/script>
+
+// player.html
+&lt;script>
+  UT.Expression.ready( function(post) {
+    // Get the data
+    var img = post.storage.grimPicture;        // --> Retrieve a UT.Image instance
+    var saying = post.storage.saying;          // --> Retrieve a 'WHOA!'
+    var score = post.storage.score;            // --> Retrieve 2.13
+    var parameters = post.storage.parameters;  // retrieve {...}
+  }
+&lt;/script>
 </code></pre>
 
 <h2>The Collections API</h2>
-<p>The collections API let you store post viewers items in order to compute <tt>average</tt>, <tt>count</tt> or <tt>sum</tt> on specific fields.</p>
-<p>Public collections are writable by any Urturn users, you just have to give them some specifics. Those collections are limited by two important factors:</p>
+<p>The collections API let you store post viewers items in order to:</p>
 <ul>
-  <li>zero or one item per user per collection: no more</li>
-  <li>only the item of the current user can be retrieve and modified</li>
+  <li>compute <tt>average</tt>, <tt>count</tt> or <tt>sum</tt> on specific fields,</li>
+  <li>retrieve recent items stored by the user</li>
 </ul>
+<p>Public collections are writable by any Urturn users. They are limited by some important factors:</p>
+<ul>
+  <li>one item per user per collection: no more</li>
+  <li>only the item of the current user can be modified</li>
+  <li>only the recent items will be retrieve (but sum, average and count are including all items)</li>
+</ul>
+<h3>Samples</h3>
 <p>First, you need to define a collections in expression.json. All authorized fields
 must be declared here. All other fields will be silently stripped out on save of the items to those collections.</p>
-<pre class="prettyprint"><code class="lang-javascript">
+<pre class="prettyprint"><code class="lang-json">
 {
   "title":"This or That",
   "system_name":"this_or_that",
@@ -118,7 +121,7 @@ must be declared here. All other fields will be silently stripped out on save of
     }
     votes.setUserItem(item);
     // Now save the data
-    votes.save();
+    post.save();
   }
 
   function results() {

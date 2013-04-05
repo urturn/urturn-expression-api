@@ -7,9 +7,6 @@
     "title":"UT.Post",
     "bookmark":"api/post",
     "children":[{
-      "title":"Storage",
-      "bookmark":"api/post_storage"
-    },{
       "title":"Events",
       "bookmark":"api/post_events"
     },{
@@ -17,8 +14,11 @@
       "bookmark":"api/post_dialogs"
     }]
   },{
-    "title":"UT.Media",
-    "bookmark":"api/media"
+    "title":"UT.Collection",
+    "bookmark":"api/collection"
+  },{
+    "title":"UT.PublicCollection",
+    "bookmark":"api/public_collection"
   },{
     "title":"UT.Image",
     "bookmark":"api/image"

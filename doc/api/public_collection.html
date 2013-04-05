@@ -1,0 +1,226 @@
+<h1>UT.PublicCollection</h1>
+<p>An instance of <tt>UT.PublicCollection</tt> is:</p>
+<ul>
+  <li>writable by the world,</li>
+  <li>defined in <tt><a href="" data-bookmark="api/expression_json">expression.json</a> file</tt></li>
+  <li>contains 0 or 1 item per post viewer, no more,</li>
+  <li>only the current post viewer user's item can be modified.</li>
+</ul>
+<p>The purpose of a public collection is to let user interact with the post (eg. by voting for one item or another) in some way.
+  The public collection has been made with the ability to support thousands of items and to be world writable. That means you cannot retrieve all items, but only recent ones. But you can retrieve computed values like count, sum and average of a given fields. The items stored in public collections are Objects instance whose fields has been declared to contains a certain type of values.</p>
+<p>The collections are retrieved from the post instance using its <tt>collection(name)</tt> method.</p>
+
+<h2>Sample</h2>
+<p>First, you need to define a collections in expression.json. All authorized fields
+must be declared here. All other fields will be silently stripped out on save of the 
+items to those collections. Have a look at <tt><a href="" data-bookmark="api/expression_json">expression.json</a></tt> for all details</p>
+<pre class="prettyprint"><code class="lang-json">
+{
+  "title":"This or That",
+  "system_name":"this_or_that",
+  "version":"1.1.0",
+  "collections": [
+  {
+    "name":"votes", 
+    "fields":[
+      {
+        "name":"thisOne",
+        "type":"boolean",
+        "operations":["count"]
+      },
+      {
+        "name":"thatOne",
+        "type":"boolean",
+        "operations":["count"]
+      }
+    ]
+  }
+  ]
+}
+</code></pre>
+<pre class="prettyprint"><code class="lang-javascript">
+{
+  "title":"Trendy",
+  "system_name":"trendy",
+  "version":"1.1.0",
+  "collections": [
+  {
+    "name":"scores", 
+    "fields":[
+      {
+        "name":"note",
+        "type":"number",
+        "operations":["average"]
+      }
+    ]
+  }
+  ]
+}
+</code></pre>
+<p>Once declared in expression.json, you can retrieve a collection, get and set items and display the result of the announced operation.</p>
+<pre class="prettyprint"><code class="lang-javascript"
+>UT.Expression.ready( function( post ) {
+  var votes = post.collection('votes');
+  if(votes.getUserItem()){
+    // directly display the results.
+  } else {
+    // display the voting interface
+  }
+
+  function onVote(thisOrThat){
+    var item = {};
+    if(thisOrThat == 'this'){
+      item.thisOne = true;
+    } else {
+      item.thatOne = true;
+    }
+    votes.setUserItem(item);
+    // Now save the data
+    post.save();
+  }
+
+  function results() {
+    var total = votes.count();
+    var thisOne = votes.count('thisOne');
+    var thatOne = votes.count('thatOne');
+    return {
+      thisScore: thisOne/total * 100,
+      thatScore: thatOne/total * 100
+    };
+  }
+});
+</code></pre>
+
+<pre class="prettyprint"><code class="lang-javascript"
+>UT.Expression.ready( function( post ) {
+  var scores = post.collection('scores');
+  function results() {
+    return scores.average('notes');
+  }
+});
+</code></pre>
+
+<h2>.setUserItem(value)</h2>
+<div class="well">
+  <p>Assign the given javascript object as the current user item for this collection. 
+    If <tt>null</tt> or <tt>undefined</tt> is given, delete the current user item.</p>
+  <h4>Parameters</h4>
+  <ul>
+    <li><strong>value</strong>: an object to assign to the current user</li>
+  </ul>
+  
+  <h4>Return</h4>
+  <p><tt>value</tt></p>
+
+  <h4>Usage</h4>
+  <pre class="prettyprint"><code class="lang-javascript"
+>UT.Expression.ready( function( post ) {
+  var scores = post.collection('scores');
+  scores.setUserItem({note: 5.5, type: 2, comment: "Well done!"});
+});
+</code></pre>
+</div>
+
+<h2>.getUserItem()</h2>
+<div class="well">
+  <p>Returns the current user item object or <tt>undefined</tt> if it is not set.
+  <h4>Return</h4>
+  <p>an instance of <tt>Object</tt></p>
+
+  <h4>Usage</h4>
+  <pre class="prettyprint"><code class="lang-javascript"
+>UT.Expression.ready( function( post ) {
+  var scores = post.collection('scores');
+  var entry = scores.getUserItem();
+  if(entry){
+    // do something
+  }
+});
+  </code></pre>
+</div>
+
+
+<h2>.find([filter], [options], callback)</h2>
+<div class="well">
+  <h4>Parameters</h4>
+  <ul>
+    <li></li>
+  </ul>
+  
+  <h4>Return</h4>
+  <p><tt>value</tt></p>
+
+  <h4>Usage</h4>
+  <p></p>
+
+  <pre class="prettyprint"><code class="lang-javascript"
+>UT.Expression.ready( function( post ) {
+  var scores = post.collection('scores');
+  
+});
+  </code></pre>
+</div>
+
+
+<h2>.count([fieldName])</h2>
+<div class="well">
+  <h4>Parameters</h4>
+  <ul>
+    <li></li>
+  </ul>
+  
+  <h4>Return</h4>
+  <p><tt>value</tt></p>
+
+  <h4>Usage</h4>
+  <p></p>
+
+  <pre class="prettyprint"><code class="lang-javascript"
+>UT.Expression.ready( function( post ) {
+  var scores = post.collection('scores');
+  
+});
+  </code></pre>
+</div>
+
+<h2>.average(fieldName)</h2>
+<div class="well">
+  <h4>Parameters</h4>
+  <ul>
+    <li></li>
+  </ul>
+  
+  <h4>Return</h4>
+  <p><tt>value</tt></p>
+
+  <h4>Usage</h4>
+  <p></p>
+
+  <pre class="prettyprint"><code class="lang-javascript"
+>UT.Expression.ready( function( post ) {
+  var scores = post.collection('scores');
+  
+});
+  </code></pre>
+</div>
+
+<h2>.sum(fieldName)</h2>
+<div class="well">
+  <h4>Parameters</h4>
+  <ul>
+    <li></li>
+  </ul>
+  
+  <h4>Return</h4>
+  <p><tt>value</tt></p>
+
+  <h4>Usage</h4>
+  <p></p>
+
+  <pre class="prettyprint"><code class="lang-javascript"
+>UT.Expression.ready( function( post ) {
+  var scores = post.collection('scores');
+  
+});
+  </code></pre>
+</div>

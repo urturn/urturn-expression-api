@@ -1,0 +1,86 @@
+<h1>UT.Collection</h1>
+<h2>Introduction</h2>
+<p><strong>UT.Collection</strong> instances conform to the HTML5 storage API and let you store and retrieve data in your expression. The goal of this storage object is to provide persistance for a post instance.</p>
+<p>You can use it in a way simillar to <a href='http://diveintohtml5.info/storage.html'>HTML5 local storage API</a>.</p>
+<p><tt>post.storage</tt> is the instance you will most likely interact with, here is a simple example:</p>
+
+<pre class="prettyprint"><code class="lang-html"
+  >// editor.html
+&lt;script>
+  UT.Expression.ready( function(post) {
+    // Handle edition
+    var img = post.storage.grimPicture || null;
+    var saying = post.storage.saying || 'YES!';
+    var score = post.storage.score || 0;
+    var parameters = post.storage.parameters || {layout: 1, color: '#FFFFFF', ratio: 1.0};
+
+    // Set some data
+    post.storage.grimPicture = new UT.Image('http://superphoto.jk/photos/121233.jpg');
+    post.storage.saying = 'WHOA!';
+    post.storage.score = 2.13;
+    post.storage.parameters = {ratio: 0.92, layout: 2, color: '#443F22'};
+
+    // Save the data server side (from your side, it is synchronous call as we provide latency compensation).
+    post.save();
+  });
+&lt;/script>
+
+// player.html
+&lt;script>
+  UT.Expression.ready( function(post) {
+    // Get the data
+    var img = post.storage.grimPicture;        // --> Retrieve a UT.Image instance
+    var saying = post.storage.saying;          // --> Retrieve 'WHOA!'
+    var score = post.storage.score;            // --> Retrieve 2.13
+    var parameters = post.storage.parameters;  // retrieve {...}
+  }
+&lt;/script>
+</code></pre>
+
+<p>If you don't like magic, you can use instead the setter `setItem(key, val)` and the getter `getItem(key, [default_val])` to manage the store.</p>
+<h2>.getItem(key, [defaultValue])</h2>
+<div class="well">
+  <h4>Parameters</h4>
+  <ul>
+    <li><b>key</b>: a string representing the key of the item to retrieve</li>
+  	<li><b>defaultValue</b> [optional]: the value returned if no values match the asked key.</li>
+  </ul>
+  <h4>Return value</h4>
+  <p>
+  	<b>[any]</b> : The value associated with the key or defaultValue if no value is associated with key
+  </p>
+  <h4>Usage</h4>
+  <p>The <b>getItem</b> method will let you retrieve some data previously setted.</p>
+  <pre class="prettyprint"><code class="lang-javascript">
+    UT.Expression.ready( function( expression ) 
+    {
+      var test = post.storage.getItem('test', 'no result');
+      console.log (test);
+    });
+
+  </code></pre>
+</div>
+<h2>.setItem(key, value)</h2>
+<div class="well">
+  <h4>Parameters</h4>
+  <p>
+    <b>key [String]</b> : The key under wich the item will be saved. <br/>
+    <b>value [String | Object| Array | Number]</b> : The value you want to save. 
+  </p>
+  <h4>Return value</h4>
+  <p>
+  	<b>No Value return</b>
+  </p>
+  <h4>Usage</h4>
+  <p>The <b>setItem</b> method will let you save a ressource so you 
+    can retrieve it latter (for exemple : when a post is shown to an user).
+    Note that you can retrieve it later.
+  </p>
+  <pre class="prettyprint"><code class="lang-javascript">
+    UT.Expression.ready( function( expression ) 
+    {
+      post.storage.setItem('test', 'This is a Test');
+      post.storage.setItem('data', {date : '22-22-3232'});
+    });
+  </code></pre>
+</div>

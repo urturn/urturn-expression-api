@@ -171,10 +171,9 @@ Currently just support resize of post height.
 
 <h3><a id="wiki-save"/>.save()</h3>
 <div class='well'>
-
 <h4> Usage </h4>
 <p> 
-  Allow you to save content of post.storage to the server.
+  Allow you to save content of the post to the server.
 </p>
 
 <h4>Code example</h4>
@@ -184,7 +183,7 @@ Currently just support resize of post height.
   post.storage.day = 'sunday';
   post.storage.rainny = true;
   // save storage on serveur
-  post.storage.save();
+  post.save();
 });</code>
 </pre>
 
@@ -351,15 +350,14 @@ Currently just support resize of post height.
 </pre>
 </div>
 
-
 <h3><a id="wiki-collection"/>.collection(name)</h3>
 <div class='well'>
-
 <h4>Arguments</h4>
-<li>
-  <ul><b>name</b> (string) : Name of the collection to retrieve.</ul>
-</li>
-
+<ul>
+  <li><b>name</b> (string) : Name of the collection to retrieve.</li>
+</ul>
+<h4>Return</h4>
+<p>An <a href="" data-bookmark="api/public_collection">UT.PublicCollection</a> instance or an <a href="" data-bookmark="api/collection">UT.Collection</a> instance.
 <h4>Usage</h4>
 
 <p>Retrieve a storage collection given its name.</p>
@@ -409,7 +407,7 @@ Currently just support resize of post height.
 <p>the expression outter DOM node</p>
 
 <h3 id="a-idwiki-storagestorage"><a id="wiki-storage"/>.storage</a></h3>
-<p>Storage is the place where to store your data in an expression. <a href="#" data-bookmark="api/storage">Learn more</a></p>
+<p>Storage is the place where to store your data in an expression. It is an instance of <a href="#" data-bookmark="api/collection">UT.Collection</a></p>
 <hr/>
 <h3 id="a-idwiki-urlurl"><a id="wiki-url"/>.url</h3>
 
