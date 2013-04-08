@@ -39,6 +39,13 @@ UT.Expression.ready(function(post){
     latestComment();
   };
 
+  post.users(function(user){
+    if(post.isOwner(user)){
+      console.log('OWNER');
+      post.node.querySelector('.input-comment').style.display = 'none';
+    }
+  });
+
   function displayScore(){
     post.node.querySelector('.score-value').innerHTML = votes.average('note');
   }
@@ -46,19 +53,29 @@ UT.Expression.ready(function(post){
     votes.find('recent', function(items){
       console.log('received recent items', items);
       post.users(items, function(users, items){
+        console.log('received users', users, items);
         post.node.querySelector('.comments').innerHTML = '';
         var ul = post.node.querySelector('.comments');
         for(var i = 0; i < items.length; i++){
           var li = document.createElement('li');
           li.className = 'comment';
-          li.innerHTML = '<span class="user-avatar"></span><span class="user-name"></span>:' + items[i].comment
+          li.innerHTML = '<span class="user-avatar"></span><span class="user-name"></span>: ' + items[i].comment
           ul.appendChild(li);
           var user = users[i];
-          li.querySelector('.user-name').innerHTML = '@' + user.username;
-          li.querySelector('.user-avatar').innerHTML = '<img src="' + user.avatar('small') + '"/>';
-          resize();
+          console.log('user', user);
+          if(post.isCurrentUser(user)){
+            li.querySelector('.user-name').innerHTML = '<strong>You</strong>';
+          } else {
+            li.querySelector('.user-name').innerHTML = '@' + user.username;
+          }
+          var img = new Image();
+          img.onload = function(){
+            resize();
+          }
+          img.src = user.avatar('small');
+          li.querySelector('.user-avatar').appendChild(img);
         }
-        resize();  
+        resize();
       });
     });
   }
