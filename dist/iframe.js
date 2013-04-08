@@ -1154,6 +1154,7 @@ UT.CollectionStore = function(options) {
           listIndex,
           callbackFunction,
           callbackArgs,
+          callbackTarget,
           promise;
 
       // Nothing to fire
