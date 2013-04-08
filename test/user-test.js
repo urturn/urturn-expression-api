@@ -10,7 +10,7 @@
     },
     'created from json': function() {
       buster.assert.equals(this.user.username, this.username);
-      buster.assert.equals(this.user.avatar, this.avatar);
+      buster.assert.equals(this.user.avatar(), this.avatar);
       buster.assert.equals(this.user._id, this.userId);
     },
     'cannot be created from nothing': function() {

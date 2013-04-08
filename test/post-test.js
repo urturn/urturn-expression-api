@@ -362,6 +362,7 @@
           if(message.methodName == 'document.users'){
             assert.equals(message.args.length, 1);
             assert.equals(message.args[0].length, 1);
+            assert.equals(message.args[0][1], this.userId);
             callback([]);
           }
         });
@@ -378,11 +379,13 @@
           if(message.methodName == 'document.users'){
             try {
               assert.equals(message.args.length, 1);
-              assert.equals(2, message.args[0].length);
+              assert.equals(message.args[0].length, 2);
+              assert.equals(message.args[0][0], ids[0]);
+              assert.equals(message.args[0][1], ids[1]);
               callback([{userId: ids[1], username: 'testme', avatar: 'http://avatar.com/me'},
                 {userId: ids[0], username: 'testit', avatar: 'http://avatar.com/it'}]);
             } catch(e) {
-              console.log('error', e);
+              console.log('error in callback', e);
             }
           }
         });
