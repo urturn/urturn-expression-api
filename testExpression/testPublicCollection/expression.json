@@ -1,7 +1,7 @@
 {
   "title":"Test Public Collections",
   "system_name":"test-public-collection",
-  "version":"1.0.0",
+  "version":"1.1.0",
   "api_version": "0.7.0-alpha",
   "collections": [{
     "name": "votes", 
