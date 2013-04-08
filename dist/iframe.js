@@ -921,6 +921,21 @@ UT.CollectionStore = function(options) {
 ; (function(){
   "use strict";
 
+  UT.User = function(userDescriptor) {
+    this.username = userDescriptor.username;
+    this._id = userDescriptor.userId;
+    this.avatar = function(){
+      return userDescriptor.avatar;
+    };
+  };
+
+  UT.User.prototype.marshall = function(){
+    return { _type: 'user', userId: this._id };
+  };
+})();
+; (function(){
+  "use strict";
+
   UT.Post = function(states){
     if(!states || !states.collections){
       throw new Error("ArgumentError", "Missing collections in state arguments");
@@ -1394,8 +1409,10 @@ UT.CollectionStore = function(options) {
      * @param  {Function} callback the callback is been passed a UT.User instance.
      */
     var getUserData = this.getUserData = function(callback) {
-      console.log('deprecated, please use UT.Post#user([item], callback) instead');
-      user(callback);
+      if(window.console && console.log){
+        console.log('deprecated, please use UT.Post#user([item], callback) instead');
+      }
+      users('current', callback);
     };
 
     /**
@@ -1404,14 +1421,55 @@ UT.CollectionStore = function(options) {
      * @param {object|Array} items from which to retrieve the user.
      * @param {Function} callback the callback is been passed a UT.User instance.
      */
-    var user = this.user = function(items, callback) {
+    var users = this.users = function(items, callback) {
       if(typeof items === 'function'){
         callback = items;
-        UT.Expression._callAPI('document.getUserData', [], callback);
+        items = 'current';
       }
-      if(items && Object.prototype.toString.call(items) === "[object Array]") {
-        UT.Expression._callAPI('document.getUserData', [], callback);
+      if(items === 'current'){
+        UT.Expression._callAPI('document.getUserData', [], function(userInfo){
+          var user = (userInfo ? new UT.User(userInfo) : null);
+          callback(user, null);
+        });
+      } else if (Object.prototype.toString.call(items) === '[object Array]') {
+        var ids = [];
+        for(var k = 0; k < items.length; k++){
+          if(items[k]._key){
+            ids.push(items[k]._key);
+          }
+        }
+        UT.Expression._callAPI('document.users', [ids], function(users){
+          var validUsers = [];
+          var validItems = [];
+          for(var j = 0; j < items.length; j++){
+            for(var i = 0; i < users.length; i++){
+              if(items[j]._key == users[i].userId){
+                validUsers.push(new UT.User(users[i]));
+                validItems.push(items[j]);
+                break;
+              }
+            }
+          }
+          callback(validUsers, validItems);
+        });
+      } else  {
+        UT.Expression._callAPI('document.users', [[items._key]], function(data){
+          var userInfo = data[0];
+          if(userInfo){
+            callback(new UT.User(userInfo), items);
+          } else { // Missing user
+            callback(null, null);
+          }
+        });
       }
+    };
+
+    this.isOwner = function(user){
+      return user._id == states.postUserId;
+    };
+
+    this.isCurrentUser = function(user){
+      return user._id == states.currentUserId;
     };
 
     /**

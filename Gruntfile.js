@@ -25,6 +25,7 @@ module.exports = function(grunt) {
     'lib/expression-api/CollectionStore.js',
     'lib/expression-api/PublicCollection.js',
     'lib/expression-api/Expression.js',
+    'lib/expression-api/User.js',
     'lib/expression-api/Post.js',
     'lib/expression-api/Image.js',
     'lib/expression-api/Video.js',
