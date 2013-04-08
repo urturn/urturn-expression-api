@@ -22,7 +22,7 @@ Or join us on IRC (#urturn on freenode)
 
 ## 0.6.2
 
- FIX: a bug that prevent .on('media') to work correctly with bookmarklet. 
+- FIX: a bug that prevent .on('media') to work correctly with bookmarklet. 
 
 ## 0.6.1
 
