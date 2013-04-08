@@ -923,14 +923,14 @@ UT.CollectionStore = function(options) {
 
   UT.User = function(userDescriptor) {
     this.username = userDescriptor.username;
-    this._id = userDescriptor.userId;
+    this.uuid = userDescriptor.uuid;
     this.avatar = function(){
       return userDescriptor.avatar;
     };
   };
 
   UT.User.prototype.marshall = function(){
-    return { _type: 'user', userId: this._id };
+    return { _type: 'user', uuid: this.uuid };
   };
 })();
 ; (function(){
@@ -1444,7 +1444,7 @@ UT.CollectionStore = function(options) {
           var validItems = [];
           for(var j = 0; j < items.length; j++){
             for(var i = 0; i < users.length; i++){
-              if(items[j]._key == users[i].userId){
+              if(items[j]._key == users[i].uuid){
                 validUsers.push(new UT.User(users[i]));
                 validItems.push(items[j]);
                 break;
@@ -1466,11 +1466,11 @@ UT.CollectionStore = function(options) {
     };
 
     this.isOwner = function(user){
-      return user._id == states.postUserId;
+      return user.uuid == states.postUserId;
     };
 
     this.isCurrentUser = function(user){
-      return user._id == states.currentUserId;
+      return user.uuid == states.currentUserId;
     };
 
     /**

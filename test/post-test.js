@@ -306,13 +306,13 @@
     },
     "users()": {
       setUp: function(){
-        this.userId = UT.uuid();
-        setupExpression(this, {currentUserId: this.userId});
+        this.uuid = UT.uuid();
+        setupExpression(this, {currentUserId: this.uuid});
         this.currentUserCallback = function(message, callback){
           if(message.methodName == 'document.getUserData'){
             try {
               assert.equals(message.args.length, 0);
-              callback({userId: this.userId, username: 'testme', avatar: 'http://avatar.com'});
+              callback({uuid: this.uuid, username: 'testme', avatar: 'http://avatar.com'});
             } catch(e) {
               console.log(e);
               buster.fail(e);
@@ -324,7 +324,7 @@
             try {
               assert.equals(message.args.length, 1);
               assert.equals(message.args[0].length, 1);
-              callback([{userId: this.userId, username: 'testme', avatar: 'http://avatar.com'}]);
+              callback([{uuid: this.uuid, username: 'testme', avatar: 'http://avatar.com'}]);
             } catch(e) {
               console.log(e);
               buster.fail(e);
@@ -344,7 +344,7 @@
         });
       },
       "with one item": function(done) {
-        var item = {_key: this.userId, value: '22', _type: 'custom'};
+        var item = {_key: this.uuid, value: '22', _type: 'custom'};
         listenToMessage(this.oneItemCallback);
         this.post.users(item, function(user, theItem){
           try {
@@ -362,11 +362,11 @@
           if(message.methodName == 'document.users'){
             assert.equals(message.args.length, 1);
             assert.equals(message.args[0].length, 1);
-            assert.equals(message.args[0][1], this.userId);
+            assert.equals(message.args[0][1], this.uuid);
             callback([]);
           }
         });
-        this.post.users({_key: this.userId}, function(user, item){
+        this.post.users({_key: this.uuid}, function(user, item){
           assert.isNull(user);
           assert.isNull(item);
           done();
@@ -382,8 +382,8 @@
               assert.equals(message.args[0].length, 2);
               assert.equals(message.args[0][0], ids[0]);
               assert.equals(message.args[0][1], ids[1]);
-              callback([{userId: ids[1], username: 'testme', avatar: 'http://avatar.com/me'},
-                {userId: ids[0], username: 'testit', avatar: 'http://avatar.com/it'}]);
+              callback([{uuid: ids[1], username: 'testme', avatar: 'http://avatar.com/me'},
+                {uuid: ids[0], username: 'testit', avatar: 'http://avatar.com/it'}]);
             } catch(e) {
               console.log('error in callback', e);
             }
@@ -392,10 +392,10 @@
         this.post.users(items, function(users, theItems){
           try {
             assert.equals(users.length, 2);
-            assert.equals(ids[0], users[0]._id);
-            assert.equals(ids[1], users[1]._id);
-            assert.equals(users[1]._id, items[1]._key);
-            assert.equals(users[0]._id, items[0]._key);
+            assert.equals(ids[0], users[0].uuid);
+            assert.equals(ids[1], users[1].uuid);
+            assert.equals(users[1].uuid, items[1]._key);
+            assert.equals(users[0].uuid, items[0]._key);
             assert.equals(items[0], theItems[0]);
             assert.equals(items[1], theItems[1]);
             done();
@@ -412,7 +412,7 @@
             try {
               assert.equals(message.args.length, 1);
               assert.equals(2, message.args[0].length);
-              callback([{userId: ids[1], username: 'testme', avatar: 'http://avatar.com/me'}]);
+              callback([{uuid: ids[1], username: 'testme', avatar: 'http://avatar.com/me'}]);
               done();
             } catch(e) {
               console.log(e);
@@ -422,15 +422,15 @@
         this.post.users(items, function(users, theItems){
           assert.equals(1, users.length);
           assert.equals(1, items.length);
-          assert.equals(ids[1], users[0]._id);
+          assert.equals(ids[1], users[0].uuid);
           assert.equals(users[0], items[1]);
           assert.equals(theItems[0], items[1]);
         });
       },
       "isOwner(user) and isCurrentUser(user)":  function(){
-        var currentUser = new UT.User({userId: UT.uuid(), username: 'a'});
-        var postUser = new UT.User({userId: UT.uuid(), username: 'a'});
-        setupExpression(this, {currentUserId: currentUser._id, postUserId: postUser._id});
+        var currentUser = new UT.User({uuid: UT.uuid(), username: 'a'});
+        var postUser = new UT.User({uuid: UT.uuid(), username: 'a'});
+        setupExpression(this, {currentUserId: currentUser.uuid, postUserId: postUser.uuid});
         refute(this.post.isOwner(currentUser));
         refute(this.post.isCurrentUser(postUser));
         assert(this.post.isOwner(postUser));
