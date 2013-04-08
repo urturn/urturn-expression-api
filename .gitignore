@@ -2,3 +2,4 @@
 /components/
 /.s3private.json
 .urturn/
+*.expression
