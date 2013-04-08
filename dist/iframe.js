@@ -919,6 +919,8 @@ UT.CollectionStore = function(options) {
   };
 })();
 ; (function(){
+  "use strict";
+
   UT.Post = function(states){
     if(!states || !states.collections){
       throw new Error("ArgumentError", "Missing collections in state arguments");
@@ -1389,12 +1391,28 @@ UT.CollectionStore = function(options) {
     /**
      * Request an user data object containing informations on
      * current user
-     * @param  {Function} callback a callback called with the user datas
+     * @param  {Function} callback the callback is been passed a UT.User instance.
      */
     var getUserData = this.getUserData = function(callback) {
-      UT.Expression._callAPI('document.getUserData', [], callback);
+      console.log('deprecated, please use UT.Post#user([item], callback) instead');
+      user(callback);
     };
 
+    /**
+     * Asynchronously retrieve an UT.User instance given an optional array of items.
+     * 
+     * @param {object|Array} items from which to retrieve the user.
+     * @param {Function} callback the callback is been passed a UT.User instance.
+     */
+    var user = this.user = function(items, callback) {
+      if(typeof items === 'function'){
+        callback = items;
+        UT.Expression._callAPI('document.getUserData', [], callback);
+      }
+      if(items && Object.prototype.toString.call(items) === "[object Array]") {
+        UT.Expression._callAPI('document.getUserData', [], callback);
+      }
+    };
 
     /**
      * The default, private collection

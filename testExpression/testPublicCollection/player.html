@@ -45,11 +45,19 @@ UT.Expression.ready(function(post){
   function latestComment(){
     votes.find('recent', function(items){
       console.log('received recent items', items);
-      var list = '';
+      post.node.querySelector('.comments').innerHTML = '';
+      var ul = post.node.querySelector('.comments');
       for(var i = 0; i < items.length; i++){
-        list += '<li class="comment">' + items[i].comment + '</li>';
+        var li = document.createElement('li');
+        li.className = 'comment';
+        li.innerHTML = '<span class="user-avatar"></span><span class="user-name"></span>:' + items[i].comment
+        ul.appendChild(li);
+        post.getUserData(items[i], function(userInfo){
+          li.querySelector('.user-name').innerHTML = '@' + userInfo.username;
+          li.querySelector('.user-avatar').innerHTML = '<img src="' + userInfo.avatalUrl('small') + '"/>';
+          resize();
+        });
       }
-      post.node.querySelector('.comments').innerHTML = list;
       resize();
     });
   }

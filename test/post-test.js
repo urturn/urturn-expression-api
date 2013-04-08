@@ -301,6 +301,122 @@
         });
         this.post.note = null;
       }
+    },
+    "users()": {
+      setUp: function(){
+        this.userId = UT.uuid();
+        setupExpression(this, {currentUserId: this.userId});
+        this.currentUserCallback = function(message, callback){
+          if(message.methodName == 'document.getUserData'){
+            try {
+              assert.equals(message.args.length, 0);
+              callback({user_id: this.userId, username: 'testme', avatar: 'http://avatar.com'});
+            } catch(e) {
+              console.log(e);
+              buster.fail(e);
+            }
+          }
+        };
+        this.oneItemCallback = function(message, callback){
+          if(message.methodName == 'document.getUserData'){
+            try {
+              assert.equals(message.args.length, 1);
+              assert.defined(message.args[0]._key);
+              callback({user_id: this.userId, username: 'testme', avatar: 'http://avatar.com'});
+            } catch(e) {
+              console.log(e);
+              buster.fail(e);
+            }
+          }
+        };
+      },
+      "users('current', callback)": function(done){
+        listenToMessage(this.currentUserCallback);
+        this.post.users('current', function(user){
+          try {
+            assert.equals(user.constructor, UT.User);
+            done();
+          } catch(e) {
+            console.log(e);
+            buster.fail(e);
+          }
+        });
+      },
+      "users('currrent', callback) with missing user": function(done){
+        listenToMessage(function(message, callback){
+          if(message.methodName == 'document.getUserData'){
+            assert.equals(message.args.length, 0);
+            callback(null);
+          }
+        });
+        this.post.users('current', function(user){
+          assert.isNull(user);
+          done();
+        });
+      },
+      "users(callback)": function(done) {
+        listenToMessage(this.currentUserCallback);
+        this.post.users('current', function(user){
+          try {
+            assert.equals(user.constructor, UT.User);
+            done();
+          } catch(e) {
+            console.log(e);
+            buster.fail(e);
+          }
+        });
+      },
+      "users(oneItem)": function(done) {
+        var item = {_key: this.userId, value: '22', _type: 'custom'};
+        listenToMessage(this.oneItemCallback);
+        this.post.users(item, function(user){
+          try {
+            assert.equals(user.constructor, UT.User);
+            assert.equals(item._user, user);
+            done();
+          } catch(e) {
+            console.log(e);
+            done(e);
+          }
+        });
+      },
+      "users(oneItem) with missing user": function(done){
+        listenToMessage(function(message, callback){
+          if(message.methodName == 'document.getUserData'){
+            assert.equals(message.args.length, 0);
+            callback(null);
+          }
+        });
+        this.post.users('current', function(user){
+          assert.isNull(user);
+          done();
+        });
+      },
+      "users(arrayOfItems": function(done) {
+        var ids = [UT.uuid(), UT.uuid()];
+        var items = [{_key: ids[0]}, {_key: ids[1]}];
+        listenToMessage(function(message, callback){
+          if(message.methodName == 'document.getUserData'){
+            try {
+              assert.equals(message.args.length, 1);
+              assert.equals(2, message.args[0].length);
+              callback([{user_id: ids[1], username: 'testme', avatar: 'http://avatar.com/me'},
+                {user_id: ids[0], username: 'testit', avatar: 'http://avatar.com/it'}]);
+              done();
+            } catch(e) {
+              console.log(e);
+              buster.assert.fail(e);
+            }
+          }
+        });
+        this.post.users(items, function(users){
+          assert.equals(2, users.length);
+          assert.equals(ids[1], users[0]._id);
+          assert.equals(ids[0], users[1]._id);
+          assert.equals(users[0], items[1]);
+          assert.equals(users[1], items[0]);
+        });
+      }
     }
   });
 })();

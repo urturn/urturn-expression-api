@@ -8,6 +8,7 @@ config["default"] = {
     'lib/expression-api/uuid.js',
     'lib/expression-api/compat.js',
     'lib/expression-api/Expression.js',
+    'lib/expression-api/User.js',
     'lib/expression-api/Post.js',
     'lib/expression-api/Collection.js',
     'lib/expression-api/PublicCollection.js',
