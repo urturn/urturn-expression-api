@@ -12,7 +12,13 @@ Or join us on IRC (#urturn on freenode)
   are now two different classes given the fact their roles are indeed very differrent.
 - ADD: UT.PublicCollection.find() retrieve the most recent item of the collection.
   This open the door to a whole new kind of expression where viewer items are used directly
-  rather than with their comments. 
+  rather than with their comments.
+- ADD: UT.User, representing a user
+- ADD: UT.Post#users([items], callback) a method that retrieve an array of 
+  UT.User for a given array of items, the current user when 'current' is given as
+  first parameter or an UT.User instance if only one item is given.
+- ADD: UT.Post#isOwner(user) return true if the given user is the post owner
+- ADD: UT.Post#isCurrentUser(user) return true if the given user is the current user
 
 ## 0.6.1
 

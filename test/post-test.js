@@ -53,7 +53,9 @@
         assetPath: options.assetPath || 'http://assets.aaaaa.com',
         note : options.note || 'some',
         scrollValues: options.scrollValues || {},
-        parentData: options.parentData || null
+        parentData: options.parentData || null,
+        postUserId: options.postUserId || UT.uuid(),
+        expressionUserId: options.expressionUserId || UT.uuid()
       }
     });
 
@@ -310,7 +312,7 @@
           if(message.methodName == 'document.getUserData'){
             try {
               assert.equals(message.args.length, 0);
-              callback({user_id: this.userId, username: 'testme', avatar: 'http://avatar.com'});
+              callback({userId: this.userId, username: 'testme', avatar: 'http://avatar.com'});
             } catch(e) {
               console.log(e);
               buster.fail(e);
@@ -318,11 +320,11 @@
           }
         };
         this.oneItemCallback = function(message, callback){
-          if(message.methodName == 'document.getUserData'){
+          if(message.methodName == 'document.users'){
             try {
               assert.equals(message.args.length, 1);
-              assert.defined(message.args[0]._key);
-              callback({user_id: this.userId, username: 'testme', avatar: 'http://avatar.com'});
+              assert.equals(message.args[0].length, 1);
+              callback([{userId: this.userId, username: 'testme', avatar: 'http://avatar.com'}]);
             } catch(e) {
               console.log(e);
               buster.fail(e);
@@ -330,7 +332,7 @@
           }
         };
       },
-      "users('current', callback)": function(done){
+      "current": function(done){
         listenToMessage(this.currentUserCallback);
         this.post.users('current', function(user){
           try {
@@ -338,84 +340,98 @@
             done();
           } catch(e) {
             console.log(e);
-            buster.fail(e);
           }
         });
       },
-      "users('currrent', callback) with missing user": function(done){
-        listenToMessage(function(message, callback){
-          if(message.methodName == 'document.getUserData'){
-            assert.equals(message.args.length, 0);
-            callback(null);
-          }
-        });
-        this.post.users('current', function(user){
-          assert.isNull(user);
-          done();
-        });
-      },
-      "users(callback)": function(done) {
-        listenToMessage(this.currentUserCallback);
-        this.post.users('current', function(user){
-          try {
-            assert.equals(user.constructor, UT.User);
-            done();
-          } catch(e) {
-            console.log(e);
-            buster.fail(e);
-          }
-        });
-      },
-      "users(oneItem)": function(done) {
+      "with one item": function(done) {
         var item = {_key: this.userId, value: '22', _type: 'custom'};
         listenToMessage(this.oneItemCallback);
-        this.post.users(item, function(user){
+        this.post.users(item, function(user, theItem){
           try {
+            refute.isNull(user);
             assert.equals(user.constructor, UT.User);
-            assert.equals(item._user, user);
+            assert.equals(theItem, item);
             done();
           } catch(e) {
             console.log(e);
-            done(e);
           }
         });
       },
-      "users(oneItem) with missing user": function(done){
+      "missing user for one item": function(done){
         listenToMessage(function(message, callback){
-          if(message.methodName == 'document.getUserData'){
-            assert.equals(message.args.length, 0);
-            callback(null);
+          if(message.methodName == 'document.users'){
+            assert.equals(message.args.length, 1);
+            assert.equals(message.args[0].length, 1);
+            callback([]);
           }
         });
-        this.post.users('current', function(user){
+        this.post.users({_key: this.userId}, function(user, item){
           assert.isNull(user);
+          assert.isNull(item);
           done();
         });
       },
-      "users(arrayOfItems": function(done) {
+      "many items retrieve many users": function(done) {
         var ids = [UT.uuid(), UT.uuid()];
         var items = [{_key: ids[0]}, {_key: ids[1]}];
         listenToMessage(function(message, callback){
-          if(message.methodName == 'document.getUserData'){
+          if(message.methodName == 'document.users'){
             try {
               assert.equals(message.args.length, 1);
               assert.equals(2, message.args[0].length);
-              callback([{user_id: ids[1], username: 'testme', avatar: 'http://avatar.com/me'},
-                {user_id: ids[0], username: 'testit', avatar: 'http://avatar.com/it'}]);
-              done();
+              callback([{userId: ids[1], username: 'testme', avatar: 'http://avatar.com/me'},
+                {userId: ids[0], username: 'testit', avatar: 'http://avatar.com/it'}]);
             } catch(e) {
-              console.log(e);
-              buster.assert.fail(e);
+              console.log('error', e);
             }
           }
         });
-        this.post.users(items, function(users){
-          assert.equals(2, users.length);
-          assert.equals(ids[1], users[0]._id);
-          assert.equals(ids[0], users[1]._id);
-          assert.equals(users[0], items[1]);
-          assert.equals(users[1], items[0]);
+        this.post.users(items, function(users, theItems){
+          try {
+            assert.equals(users.length, 2);
+            assert.equals(ids[0], users[0]._id);
+            assert.equals(ids[1], users[1]._id);
+            assert.equals(users[1]._id, items[1]._key);
+            assert.equals(users[0]._id, items[0]._key);
+            assert.equals(items[0], theItems[0]);
+            assert.equals(items[1], theItems[1]);
+            done();
+          } catch(e) {
+            console.log('error', e);
+          }
         });
+      },
+      "many items with missing users": function(done) {
+        var ids = [UT.uuid(), UT.uuid()];
+        var items = [{_key: ids[0]}, {_key: ids[1]}];
+        listenToMessage(function(message, callback){
+          if(message.methodName == 'document.users'){
+            try {
+              assert.equals(message.args.length, 1);
+              assert.equals(2, message.args[0].length);
+              callback([{userId: ids[1], username: 'testme', avatar: 'http://avatar.com/me'}]);
+              done();
+            } catch(e) {
+              console.log(e);
+            }
+          }
+        });
+        this.post.users(items, function(users, theItems){
+          assert.equals(1, users.length);
+          assert.equals(1, items.length);
+          assert.equals(ids[1], users[0]._id);
+          assert.equals(users[0], items[1]);
+          assert.equals(theItems[0], items[1]);
+        });
+      },
+      "isOwner(user) and isCurrentUser(user)":  function(){
+        var currentUser = new UT.User({userId: UT.uuid(), username: 'a'});
+        var postUser = new UT.User({userId: UT.uuid(), username: 'a'});
+        setupExpression(this, {currentUserId: currentUser._id, postUserId: postUser._id});
+        refute(this.post.isOwner(currentUser));
+        refute(this.post.isCurrentUser(postUser));
+        assert(this.post.isOwner(postUser));
+        assert(this.post.isCurrentUser(currentUser));
       }
     }
   });
