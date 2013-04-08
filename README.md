@@ -20,6 +20,10 @@ Or join us on IRC (#urturn on freenode)
 - ADD: UT.Post#isOwner(user) return true if the given user is the post owner
 - ADD: UT.Post#isCurrentUser(user) return true if the given user is the current user
 
+## 0.6.2
+
+ FIX: a bug that prevent .on('media') to work correctly with bookmarklet. 
+
 ## 0.6.1
 
 - ADD User API: let you retrieve information on current user.
