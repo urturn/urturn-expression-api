@@ -117,7 +117,7 @@
 
         if( entry.children ){
           if(level % 2 == 1){
-            htmlString += '<ul class="nav nav-list">';
+            htmlString += '<ul class="nav nav-tabs nav-stacked bs-docs-sidenav">';
           }
           htmlString += renderToc( entry.children, level + 1 ) ;
           if(level % 2 == 1){
