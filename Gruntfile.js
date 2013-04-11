@@ -94,7 +94,6 @@ module.exports = function(grunt) {
   // Tests
   config.buster = {
     test: {
-      config: 'test/buster.js',
       'config-group': 'compiled'
     },
     server: {
