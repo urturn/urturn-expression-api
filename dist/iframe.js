@@ -1031,7 +1031,7 @@ UT.CollectionStore = function(options) {
       privacy: null
     };
     // set the proper context values
-    if(states.mode == 'edit'){
+    if(states.mode == 'editor'){
       context.editor = true;
     } else if(states.mode == 'player'){
       context.player = true;
