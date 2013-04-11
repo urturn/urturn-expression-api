@@ -14,8 +14,8 @@
     "grunt-contrib-cssmin": "~0.4.1",
     "grunt-contrib-uglify": "~0.1.2",
     "knox": "0.5.4",
-    "cloudfront" : "0.3.1",
-    "bower": "*"
+    "cloudfront": "0.3.1",
+    "grunt-bower-task": "~0.2.0"
   },
   "scripts": {
     "test": "grunt"

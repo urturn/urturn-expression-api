@@ -36,6 +36,14 @@ module.exports = function(grunt) {
   ];
 
   var config = {};
+
+  // Bower
+  config.bower = {
+    install : {
+
+    }
+  };
+
   // Lint
   config.jshint = {
     options: {
@@ -132,6 +140,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-bower-task');
 
   grunt.registerMultiTask('filecheck', "Ensure sources file are here", function(){
     for(var i in this.data){
@@ -219,7 +228,7 @@ module.exports = function(grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', ['jshint', 'filecheck', 'concat', 'uglify', 'buster', 'cssmin']);
+  grunt.registerTask('default', ['bower','jshint', 'filecheck', 'concat', 'uglify', 'buster', 'cssmin']);
   grunt.registerTask('all', ['default', 's3deploy']);
   grunt.registerTask('local', ['concat', 'uglify', 'cssmin']);
   grunt.registerTask('l', 'jshint');
