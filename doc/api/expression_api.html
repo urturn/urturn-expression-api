@@ -2,20 +2,20 @@
 
 <h3>Introduction</h3>
 <p>
-	The expression API is accessed when your expression is loaded and ready.
-	Use the <code>.ready()</code> method of the <code>Expression</code> object to wrap the code that controls your expression, like this:
+	The Expression API is accessed when your Expression is loaded and ready.
+	Use the <code>.ready()</code> method of the <code>Expression</code> object to wrap the code that controls your Expression, like this:
 </p>
 
 <pre class="prettyprint"><code class="lang-javascript">
 	UT.Expression.ready(function(expression) {
-	&nbsp;&nbsp;&nbsp;&nbsp;// The expression API is accessed on the expression object...
+	&nbsp;&nbsp;&nbsp;&nbsp;// The Expression API is accessed on the Expression object...
 	&nbsp;&nbsp;&nbsp;&nbsp;expression.dialog('sound', fn);
 	});
 </code></pre>
 
-<p>The following code examples assume that you are accessing the <code>expression</code> object inside a ready callback.</p>
+<p>The following code examples assumes that you are accessing the <code>Expression</code> object inside a ready callback.</p>
 
-<h3>The expression object</h3>
+<h3>The Expression object</h3>
 
 <h4>Methods</h4>
 
@@ -24,11 +24,11 @@
 		.create(type, options, callback, error)<br/>
 		.create(dataURI, options, callback, error)
 	</dt>
-	<dd>returns <code>expression</code></dd>
+	<dd>returns <code>Expression</code></dd>
 	<dd>
-		Creates a urturn media object.
+		Creates a Urturn media object.
 		The callback is called with one argument, a newly constructed <a href="#!expression/api/media_obj">media object</a>.
-		The context of the callback is the <code>expression</code>:
+		The context of the callback is the <code>Expression</code>:
 		<pre class="prettyprint"><code class="lang-javascript">
 			expression.create(dataURI, function(image) {
 			&nbsp;&nbsp;&nbsp;&nbsp;this.storage['image'] = image;
@@ -40,17 +40,17 @@
 		<span class="author">Olivier</span>:
 		<ul>
 			<li>We need to find a way to consistently manage callbacks.
-			I am for on or both of these solutions:
+			I am for both of these solutions:
 				<ol>
 					<li>Every asynchronous method takes one (and only one) callback as last argument</li>
-					<li>Every asynchronous method retrieve a defered object, conforming to Promise/A pattern</li>
+					<li>Every asynchronous method retrieves a deferred object, conforming to Promise/A pattern</li>
 				</ol>
-				I'm against the error as a second callback because nobody will never implement this. Actually I love the node way where the first argument is always the error (or null), but I'will be flexible on this.
+				I'm against the error as a second callback because nobody will ever implement this. Actually I love the node way where the first argument is always the error (or null), but I'm flexible on this.
 				Note that #2 will discard the ability to chain methods.</li>
-			<li>Skipping error handling: dodging the real question. How do we ask expression maker to handle errors? What kind of errors, and so on.</li>
+			<li>Skipping error handling: dodging the real question. How do we ask Expression makers to handle errors? What kind of errors, and so on.</li>
 			<li>See general comment at the bottom about callback, error</li>
-			<li>One function to create all: ok to avoid number of methods explosion but: how do you document that? every type of object will have its own parameters and so on.</li>
-			<li>create(<b>URL</b>,...): Not sure it is resilient to future and that we can guess the type of any url. We might use various protocol and link them to factory but... well.</li>
+			<li>One function to create all: Ok to avoid number of methods explosion but: how do you document that? Every type of object will have its own parameters and so on.</li>
+			<li>create(<b>URL</b>,...): Not sure it is resilient to future and that we can guess the type of any url. We might use various protocols and link them to factory but... well.</li>
 		</ul>
 	</div>
 
@@ -74,8 +74,8 @@
 		Depending on the type of media requested, the options object can have the following properties:
 		<pre class="prettyprint"><code class="lang-javascript">
 			{
-			&nbsp;&nbsp;&nbsp;&nbsp;types: 'camera file search', // Types of input to ask the user for.
-			&nbsp;&nbsp;&nbsp;&nbsp;defaultType: 'camera'        // The type to highlight on opening the dialog.
+			&nbsp;&nbsp;&nbsp;&nbsp;types: 'camera file search', // Type of inputs to ask the user for
+			&nbsp;&nbsp;&nbsp;&nbsp;defaultType: 'camera'        // The type to highlight on opening the dialog
 			}
 		</code></pre>
 	</dd>
@@ -93,13 +93,13 @@
 	
 
 	<dt>.height()</dt>
-	<dd>returns <code>expression</code></dd>
-	<dd>Automatically resize the height of the expression such that the aspect ratio of it's container matches the current device.</dd>
+	<dd>returns <code>Expression</code></dd>
+	<dd>Automatically resize the height of the Expression so that the aspect ratio of its container matches the current device.</dd>
 	<div class="comment">
 		<span class="author">Olivier</span>:
 		<ul>
-				<li>Either a bad name or a bad description. What I'm missing today is a method that give the right size to my iframe. container.autoResize() is not working anymore.</li>
-				<li>Resizing as original size need to be discussed. I'm against the fact the default size is not identic
+				<li>Either a bad name or a bad description. What I'm missing today is a method that gives the right size to my iframe. container.autoResize() is not working anymore.</li>
+				<li>Resizing as original size needs to be discussed. I'm against the fact the default size is not identic
 				 in editor and client. It means that the same page run in different context won't render with the same height. Interesting values to consider are:
 				<ol>
 				 	<li>content height</li>
@@ -141,9 +141,9 @@
 	</div>
 	
 	<dt>.save()</dt>
-	<dd>returns <code>expression</code></dd>
+	<dd>returns <code>Expression</code></dd>
 	<dd>
-		Force the storage object to sync with the <b>urturn</b> server.
+		Force the storage object to sync with the <b>Urturn</b> server.
 		Normally saving the store is automatic, and you should not need to worry about it, but if you need to make sure your data is stored, use <code>.save()</code>.
 	</dd>
 	<div class="comment">
@@ -197,18 +197,18 @@
 	</dd>
 	
 	<dt>.node</dt>
-	<dd>The parent node that wraps the expression.</dd>
+	<dd>The parent node that wraps the Expression.</dd>
 	
 	<dt>.title</dt>
 	<dd><code>string</code></dd>
-	<dd>Title of the expression.</dd>
+	<dd>Title of the Expression.</dd>
 	
 	<dt>.note</dt>
 	<dd><code>string</code></dd>
-	<dd>Note of the expression.</dd>
+	<dd>Note of the Expression.</dd>
 	
 	<dt>.url</dt>
-	<dd>URL of the expression.</dd>
+	<dd>URL of the Expression.</dd>
 
 	<dt>.environment</dt>
 	<dd>
