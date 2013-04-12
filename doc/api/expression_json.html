@@ -1,11 +1,11 @@
 <h1>Expression Descriptor File</h1>
 <h2>expression.json</h2>
 
-<p>expression.json lay in the root of your expression project. It is a mandatory that describe what the expression is and how it should behave by default. Most of the parameters defined here might be overriden during expression run.</p>
+<p>expression.json lay in the root of your Expression project. It is mandatory to describe what the Expression is and how it should behave by default. Most of the parameters defined here might be overriden during Expression run.</p>
 
 <p>Example</p>
 <pre class="prettyprint"><code class="lang-json">{
-  "title":"My beautiful expression",
+  "title":"My beautiful Expression",
   "system_name":"beautiful",
   "version":"1.2.8",
   "accepted_media_types": {"image":true},
@@ -35,25 +35,25 @@
 }</code></pre>
 
 <h3><tt>system_name</tt></h3>
-<p>The expression <tt>system_name</tt> must be unique on Urturn. It is the prefered way to navigate to your expressions. The system_name will be used in Urturn Urls and must follow those naming conventions: <strong>alphanumeric characters without space or any accent, might contains minus(-) and underscore(_) sign as well</strong>.</p>
+<p>The Expression <tt>system_name</tt> must be unique on Urturn. It is the preferred way to navigate to your Expressions. The system_name will be used in Urturn URLs and must follow those naming conventions: <strong>alphanumeric characters without space or any accent, might contains minus(-) and underscore(_) sign as well</strong>.</p>
 
 <h3><tt>version</tt></h3>
-<p>The version of the expression following (major.minor.subminor) pattern. Every time you deploy an updated version of your code on Urturn, this version number must increase.</p>
+<p>The version of the Expression following (major.minor.subminor) pattern. Every time you deploy an updated version of your code on Urturn, this version number must increase.</p>
 
 <h3><tt>api_version</tt></h3>
-<p>The version of the expression API to use.</p>
+<p>The version of the Expression API to use.</p>
 
 <h2>Optional Attributes</h2>
 
 <h3><tt>title</tt></h3>
-<p>The expression title.</p>
+<p>The Expression title.</p>
 
 <h3><tt>description</tt></h3>
-<p>A description of the expression(no line wrap).</p>
+<p>A description of the Expression(no line wrap).</p>
 
 
 <h3><tt>accepted_media_types</tt></h3>
-<p>A hash describing what are the accepted media types associated to their default configurations. Every value declared here engage the expression owner to code the associated callback.</p>
+<p>A hash describing what are the accepted media types associated to their default configurations. Every value declared here engage the Expression owner to code the associated callback.</p>
 <p>Accepting an image as input:</p>
 <pre class="prettyprint"><code class="lang-json">{
   "system_name": "example",
@@ -74,11 +74,11 @@
 }</code></pre>
 <p>Supported keys are:</p>
 <ul>
-  <li><tt>image</tt>: the expression knows in any case what to do of an incoming image. <strong>It engages to implement <tt>UT.Expression#imageAdded</tt> callback</strong>. The associated Hash of configuration is the same that might be passed to <tt>UT.Expression#medias.imageDialog()</tt>. If no options are specified, the value <tt>true</tt> is accepted.</li>
+  <li><tt>image</tt>: the Expression knows in any case what to do with an incoming image. <strong>It engages to implement <tt>UT.Expression#imageAdded</tt> callback</strong>. The associated Hash of configuration is the same that might be passed to <tt>UT.Expression#medias.imageDialog()</tt>. If no options are specified, the value <tt>true</tt> is accepted.</li>
 </ul>
 
 <h3><tt>dependencies</tt></h3>
-<p>An array that list the scripts and stylesheets that need to be added to the expression templates</p>
+<p>An array that list the scripts and stylesheets that need to be added to the Expression templates</p>
 <pre class="prettyprint"><code class="lang-json">{
   "system_name": "example",
   "version": "1.0.0",
@@ -97,10 +97,10 @@
 }</code></pre>
 
 <h3><tt>static_view</tt></h3>
-<p>If set to <tt>true</tt>, means that the view is static and don't offer any interaction. This will let Urturn make some optimization to render document based on this expression.</p>
+<p>If set to <tt>true</tt>, means that the view is static and don't offer any interaction. This will let Urturn make some optimization to render document based on this Expression.</p>
 
 <h3><tt>platform</tt></h3>
-<p>An array allowing you to choose on which platform your expression is compatible. If not specified, the expression is compatible on all platform</p>
+<p>An array enabling you to choose on which platform your Expression is compatible. If not specified, the Expression is compatible on all platforms</p>
 <p>
   Available value are:
   <ul>
@@ -117,7 +117,7 @@
 }</code></pre>
 
 <h3><tt>offline_support</tt></h3>
-<p>If set to <tt>true</tt>, means that the expression might be use to create document while offline. This means that no connection are required to create the document or that special care has been prodided to handle disconnection. <strong>At least one way to create the post offline must exists.</strong></p>
+<p>If set to <tt>true</tt>, means that the Expression might be used to create document while offline. This means that no connection is required to create the document or that special care has been provided to handle disconnection. <strong>At least one way to create the post offline must exist.</strong></p>
 <pre class="prettyprint"><code class="lang-json">{
   "system_name": "example",
   "version": "1.0.0",
@@ -125,7 +125,7 @@
 }</code></pre>
 
 <h3><tt>indexed_keys</tt></h3>
-<p>Define an array of key names in UT.Expression#storage that might be indexed by Urturn. Built-in types will be indexed using their string value, special types are indexed using special rules and anonymous object are indexed using their accessible property if it exists.</p>
+<p>Define an array of key names in UT.Expression#storage that might be indexed by Urturn. Built-in types will be indexed using their string value, special types are indexed using special rules and anonymous objects are indexed using their accessible property if it exists.</p>
 <pre class="prettyprint"><code class="lang-json">{
   "system_name": "example",
   "version": "1.0.0",
@@ -133,7 +133,7 @@
 }</code></pre>
 
 <h3><tt>collections</tt></h3>
-<p>Define an array of public collections that can be used by users other than the author to interact with a post. This might be useful to implement votes in an expression or collaborative doodle or... you name it.</p>
+<p>Define an array of public collections that can be used by users other than the author to interact with a post. This might be useful to implement votes in an Expression or collaborative doodle or... you name it.</p>
 <pre class="prettyprint"><code class="lang-json">{
   "system_name": "example",
   "version": "1.0.0",
