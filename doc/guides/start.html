@@ -1,16 +1,16 @@
   <h1>From <tt>undefined</tt> to "Hello World" in 5 minutes</h1>
-  <p>Create and deploy your first expression</p>
+  <p>Create and deploy your first Expression</p>
 
 <h2>Install the urturn toolbelt</h2>
 
-<p>To work and deploy an expression, you will need some precious tools. All of them are available in our command line, working on top of NodeJS 0.8.x (not compatible with NodeJS 0.10.0 at this time).</p>
+<p>To work and deploy an Expression, you will need some valuable tools. All of them are available in our command line, working on top of NodeJS 0.8.x (not compatible with NodeJS 0.10.0 at this time).</p>
 
 <pre>
 Prerequisite: install <a href="http://nodejs.org">NodeJS</a>
 npm install urturn-toolbelt -g
 </pre>
 
-<h2>Create an expression project, the hard way</h2>
+<h2>Create an Expression project the hard way</h2>
 <pre class="prettyprint"><code class="lang-sh"
 >cd ~/Code
 mkdir hello-world
@@ -20,9 +20,9 @@ cd hello-world
 <p>An expression basically need 3 files to run:</p>
 <pre>
 hello-world/
-           /expression.json    --> the expression descriptor file
-           /editor.html        --> used when someone create a post with your expression
-           /player.html        --> used when someone see a post made with your expression
+           /expression.json    --> The Expression descriptor file
+           /editor.html        --> Used when someone creates a post with your Expression
+           /player.html        --> Used when someone sees a post made with your Expression
 </pre>
 
 <p>Let's feed those with the following content</p>
@@ -46,13 +46,13 @@ hello-world/
   UT.Expression.ready(function(post){
     var titleNode = post.node.querySelector('.title');
     post.storage.title = "Hello World!"; // Store content
-    post.storage.ratio =                 // to be able to display a post with the same ratio.
+    post.storage.ratio =                 // Ensure that a post is displayed with the same ratio
         post.node.offsetHeight / post.node.offsetWidth;
 
     titleNode.innerHTML = post.storage.title;
     
-    post.save();                         // save current state
-    post.valid(true);                    // the post can be anytime from now.
+    post.save();                         // Save current state
+    post.valid(true);                    // Posts can be published from that moment on
   });
 &lt;/script>
 </code></pre>
@@ -78,15 +78,15 @@ Use the <tt>ur</tt> command from the toolbelt to start a Sandbox
   >ur sandbox
 </code></pre>
 
-<p>Visit <a href="http://localhost:3333">http://localhost:3333</a> to try out your first expression.</p>
+<p>Visit <a href="http://localhost:3333">http://localhost:3333</a> to try out your first Expression.</p>
 
-<p>It works? so lets deploy it. (<tt>&lt;Ctrl+C to kill the sandbox</tt>)</p>
-<h2>Deploy your expression and get famous</h2>
+<p>It's working? Let's deploy it! (<tt>&lt;Ctrl+C to kill the sandbox</tt>)</p>
+<h2>Deploy your Expression and get famous</h2>
 Use the <tt>ur</tt> command again:
 
 <pre class="prettyprint"><code class="lang-shell"
   >ur deploy</code></pre>
 
-<p>This will ask you to login to urturn.com using your email and password. Create an account on <a href="urturn.com">urturn.com</a> first if needed.</p>
+<p>This will require you to login to urturn.com using your email and password. Create an account on <a href="urturn.com">urturn.com</a> first, if needed.</p>
 
-<p>Once the command finish, your expression is deployed (but still private). Follow the link in the console output and enjoy your first hello world!</p>
+<p>Once the command is finished, your Expression is deployed (but still private). Follow the link in the console output and enjoy your first 'hello world'!</p>
