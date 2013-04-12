@@ -6,14 +6,14 @@
   <li>contains 0 or 1 item per post viewer, no more,</li>
   <li>only the current post viewer user's item can be modified.</li>
 </ul>
-<p>The purpose of a public collection is to let user interact with the post (eg. by voting for one item or another) in some way.
-  The public collection has been made with the ability to support thousands of items and to be world writable. That means you cannot retrieve all items, but only recent ones. But you can retrieve computed values like count, sum and average of a given fields. The items stored in public collections are Objects instance whose fields has been declared to contains a certain type of values.</p>
+<p>The purpose of a public collection is to let users interact with the post (eg. by voting for one item or another) in some way.
+  The public collection has the ability to support thousands of items and to be world writable. That means you cannot retrieve all items but only recent ones. You can however retrieve computed values like count, sum and average of a given fields. The items stored in public collections are objects instances whose fields have been declared to contain a certain type of values.</p>
 <p>The collections are retrieved from the post instance using its <tt>collection(name)</tt> method.</p>
 
 <h2>Sample</h2>
 <p>First, you need to define a collections in expression.json. All authorized fields
 must be declared here. All other fields will be silently stripped out on save of the 
-items to those collections. Have a look at <tt><a href="" data-bookmark="api/expression_json">expression.json</a></tt> for all details</p>
+items to those collections. Have a look at <tt><a href="" data-bookmark="api/expression_json">expression.json</a></tt> for further details</p>
 <pre class="prettyprint"><code class="lang-json">
 {
   "title":"This or That",
