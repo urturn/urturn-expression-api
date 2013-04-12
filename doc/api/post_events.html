@@ -3,18 +3,18 @@
 <p>Fired when the user wants to post his content. The callback 
 will be called on the Post instance and receive no argument.
 It must be runnable synchronously as the current context 
-will be destroyed after all callbacks as been processed.</p>
+will be destroyed after all callbacks have been processed.</p>
 
 <h2 id="a-idwiki-scroll-scroll-callbackscrolldataevent"><a id="wiki-scroll" />scroll callback(ScrollDataEvent)</h2>
 
 <p>Fired every time the visible part of the iframe
-on the page change. 
+on the page changes. 
 the callback is passed the scrolling data.
 XXX what are the scrolling data?</p>
 
 <h2 id="a-idwiki-resize-resize-callbackresizeevent"><a id="wiki-resize" />resize callback(ResizeEvent)</h2>
 
-<p>Fired when the content box size changed. The callback is
+<p>Fired when the content box size changes. The callback is
 called on the event and will be passed the ResizeEvent instance.</p>
 
 <h2 id="a-idwiki-media-media-callbackmediaevent"><a id="wiki-media" />media callback(MediaEvent)</h2>
@@ -26,4 +26,4 @@ the MediaEvent instance.</p>
 
 <h2 id="pause"><a id="wiki-pause" />pause callback()</h2>
 
-<p>Fired when the pos is hided. Should be implemented in every expression playing a media, so it doesn't continu to play in background when user navigate away.</p>
+<p>Fired when the pos is hidden. Should be implemented in every Expression playing a media, so it doesn't continue to play in background when the user navigates away.</p>
