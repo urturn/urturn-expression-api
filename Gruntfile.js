@@ -158,7 +158,8 @@ module.exports = function(grunt) {
     var client = knox.createClient({
       key: this.data.apiKey,
       secret: this.data.secretKey,
-      bucket: this.data.bucket
+      bucket: this.data.bucket,
+      secure: false
     });
     var cf = cloudfront.createClient(this.data.apiKey, this.data.secretKey);
     var counter = 0;
