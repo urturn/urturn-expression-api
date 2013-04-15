@@ -8,7 +8,10 @@ Or join us on IRC (#urturn on freenode)
 
 # Changelogs
 
-## 0.7.0-alpha
+## 0.7.2
+- FIX: context use indiferently 'editor' or 'edit'. Now use 'editor' or 'player' syntax.
+
+## 0.7.1
 
 - REFACTOR UT.Collection / UT.PublicCollection: Collection and PublicCollection
   are now two different classes given the fact their roles are indeed very differrent.
