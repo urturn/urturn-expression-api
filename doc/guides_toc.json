@@ -1,16 +1,16 @@
 [{
   "title":"Using Expression API",
   "children":[{
-    "title":"Getting Started",
+    "title":"Getting started",
     "bookmark":"guides/start"
   },{
-    "title":"Image Basics",
+    "title":"Image basics",
     "bookmark":"guides/image"
   },{
-    "title" : "Use Filters, Let the magic happen!",
+    "title" : "Image filters",
     "bookmark" : "guides/filters"
   },{
-    "title" : "Create links (no kidding)",
+    "title" : "External links",
     "bookmark" : "guides/link"
   },{
     "title" : "Store and retrieve data",
