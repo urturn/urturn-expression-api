@@ -1,46 +1,44 @@
-  <h1>From <tt>undefined</tt> to "Hello World" in 5 minutes</h1>
-  <p>Create and deploy your first Expression</p>
+<h1>From <tt>undefined</tt> to “Hello World”</h1>
+<p class="lead">Create and deploy your first Expression in 5 minutes.</p>
 
-<h2>Install the urturn toolbelt</h2>
+<section>
+  <h2>Install the urturn toolbelt</h2>
+  <p>To work and deploy an Expression, you will need some valuable tools. All of them are available in our command line, working on top of NodeJS 0.8.x. We are not compatible with NodeJS 0.10.0 at this time.</p>
 
-<p>To work and deploy an Expression, you will need some valuable tools. All of them are available in our command line, working on top of NodeJS 0.8.x (not compatible with NodeJS 0.10.0 at this time).</p>
+  <ol>
+    <li>Prerequisite: install <a href="http://nodejs.org">NodeJS</a></li>
+    <li><code>npm install urturn-toolbelt -g</code></li>
+  </ol>
+</section>
 
-<pre>
-Prerequisite: install <a href="http://nodejs.org">NodeJS</a>
-npm install urturn-toolbelt -g
-</pre>
-
-<h2>Create an Expression project the hard way</h2>
-<pre class="prettyprint"><code class="lang-sh"
->cd ~/Code
+<section>
+  <h2>Create an Expression project the hard way</h2>
+  <pre class="prettyprint">
+    <code class="lang-sh">cd ~/Code
 mkdir hello-world
-cd hello-world
-</code></pre>
+cd hello-world</code></pre>
 
-<p>An expression basically need 3 files to run:</p>
-<pre>
-hello-world/
+  <p>An expression basically need 3 files to run.</p>
+  <pre>hello-world/
            /expression.json    --> The Expression descriptor file
            /editor.html        --> Used when someone creates a post with your Expression
-           /player.html        --> Used when someone sees a post made with your Expression
-</pre>
+           /player.html        --> Used when someone sees a post made with your Expression</pre>
 
-<p>Let's feed those with the following content</p>
+  <p>Let's feed those with the following content.</p>
 
-<h3>expression.json</h3>
-<pre class="prettyprint"><code class="lang-json
-  ">{
-  "system_name": "helloworld",
-  "title": "Hello World",
-  "description": "You know... testing",
-  "version": "1.0.0",
-  "api_version": "0.6.1"
-}
-</code></pre>
+  <h3>expression.json</h3>
+  <pre class="prettyprint">
+    <code class="lang-json">{
+    "system_name": "helloworld",
+    "title": "Hello World",
+    "description": "You know... testing",
+    "version": "1.0.0",
+    "api_version": "0.6.1"
+}</code></pre>
 
-<h3>editor.html</h3>
-<pre class="prettyprint"><code class="lang-html"
-  >&lt;p>&lt;small>editor:&lt;/small>&lt;/p>
+  <h3>editor.html</h3>
+  <pre class="prettyprint">
+    <code class="lang-html">&lt;p>&lt;small>editor:&lt;/small>&lt;/p>
 &lt;h1 class="title">&lt;/h1>
 &lt;script>
   UT.Expression.ready(function(post){
@@ -50,17 +48,15 @@ hello-world/
         post.node.offsetHeight / post.node.offsetWidth;
 
     titleNode.innerHTML = post.storage.title;
-    
+
     post.save();                         // Save current state
     post.valid(true);                    // Posts can be published from that moment on
   });
-&lt;/script>
-</code></pre>
+&lt;/script></code></pre>
 
-
-<h3>player.html</h3>
-<pre class="prettyprint"><code class="lang-html"
-  >&lt;p>&lt;small>player:&lt;/small>&lt;/p>
+  <h3>player.html</h3>
+  <pre class="prettyprint">
+    <code class="lang-html">&lt;p>&lt;small>player:&lt;/small>&lt;/p>
 &lt;h1 class="title">&lt;/h1>
 &lt;script>
   UT.Expression.ready(function(post){
@@ -69,24 +65,27 @@ hello-world/
     post.resize(post.storage.ratio * post.node.offsetWidth);
     titleNode.innerHTML = post.storage.title;
   });
-&lt;/script>
-</code></pre>
+&lt;/script></code></pre>
+</section>
 
-<h2>Work with the sandbox</h2>
-Use the <tt>ur</tt> command from the toolbelt to start a Sandbox
-<pre class="prettyprint"><code class="lang-shell"
-  >ur sandbox
-</code></pre>
+<section>
+  <h2>Work with the sandbox</h2>
+  <p>Use the <code>ur</code> command from the toolbelt to start a Sandbox.</p>
+  <pre class="prettyprint">
+    <code class="lang-shell">ur sandbox</code></pre>
 
-<p>Visit <a href="http://localhost:3333">http://localhost:3333</a> to try out your first Expression.</p>
+  <p>Visit <a href="http://localhost:3333" target="_blank">localhost:3333</a> to try out your first Expression.</p>
 
-<p>It's working? Let's deploy it! (<tt>&lt;Ctrl+C to kill the sandbox</tt>)</p>
-<h2>Deploy your Expression and get famous</h2>
-Use the <tt>ur</tt> command again:
+  <p>It's working? Let's deploy it! <code>Ctrl+C</code> to kill the sandbox.</p>
+</section>
 
-<pre class="prettyprint"><code class="lang-shell"
-  >ur deploy</code></pre>
+<section>
+  <h2>Deploy your Expression</h2>
+  <p>Use the <code>ur</code> command again.</p>
+  <pre class="prettyprint">
+    <code class="lang-shell">ur deploy</code></pre>
 
-<p>This will require you to login to urturn.com using your email and password. Create an account on <a href="urturn.com">urturn.com</a> first, if needed.</p>
+  <p>This will require you to login to urturn.com using your email and password. Create an account on <a href="http://urturn.com" target="_blank">urturn.com</a> first, if needed.</p>
 
-<p>Once the command is finished, your Expression is deployed (but still private). Follow the link in the console output and enjoy your first 'hello world'!</p>
+  <p>Once the command is finished, your Expression is deployed (but still private). Follow the link in the console output and enjoy your first “hello world”!</p>
+</section>
