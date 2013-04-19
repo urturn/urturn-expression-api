@@ -1,16 +1,16 @@
 <h1>Store and Retrieve Data</h1>
 <p>This guide describes how to save and retrieve data in an Expression.</p>
 
-<p>Stored data are either in <tt>#storage</tt> or in a <tt>#collection</tt>.</p>
-<p>The <strong>storage</strong> is used to store post content and is loaded in the editor and the player. The storage can be written during editing only and by the creator of the post only, obviously. You can store any data of a reasonable size in this place.</p>
+<p>Stored data are either in <tt>#storage</tt> or in <tt>#collection</tt>.</p>
+<p>The <strong>storage</strong> is used to store post content and is loaded in the editor and the player. The storage can be written only during editing and only by the creator of the post himself. Any amout of reasonably-sized data can be stored in this place.</p>
 <p>The <strong>collections</strong> are public spaces where post viewers can store data.</p>
 
 
 <h2>The Storage API</h2>
 
 <p>
-  To use the simple storage API, you need to use the expression.storage object. All the properties of this object will be saved and can be retrieved in other instances of the current posts.<br/>
-  This API tries to be similar to W3C localStorage API with the addition of a save method. You can consider the expression.storage object as persistant accros all instances of a POST in view and edit mode.</p>
+  To use the simple storage API, you need to use the expression.storage object. All the properties of this object will be saved and can be retrieved in other instances of the current post.<br/>
+  This API is similar to the W3C localStorage API, with the addition of a save method. You can consider the expression.storage object as persistant across all instances of a post in "view" and "edit" mode.</p>
 <pre class="prettyprint"><code class="lang-javscript">
 // editor.html
 &lt;script>
@@ -27,7 +27,7 @@
     post.storage.score = 2.13;
     post.storage.parameters = {ratio: 0.92, layout: 2, color: '#443F22'};
 
-    // Save the data server side (from your side, it is synchronous call as we provide latency compensation).
+    // Save the data on the server side (the call is synchronous on your side since we provide latency compensation).
     post.save();
   });
 &lt;/script>
@@ -39,22 +39,22 @@
     var img = post.storage.grimPicture;        // --> Retrieve a UT.Image instance
     var saying = post.storage.saying;          // --> Retrieve a 'WHOA!'
     var score = post.storage.score;            // --> Retrieve 2.13
-    var parameters = post.storage.parameters;  // retrieve {...}
+    var parameters = post.storage.parameters;  // Retrieve {...}
   }
 &lt;/script>
 </code></pre>
 
 <h2>The Collections API</h2>
-<p>The collections API lets you store post viewers' items in order to:</p>
+<p>The collections API lets you store items of viewers' posts in order to:</p>
 <ul>
-  <li>compute <tt>average</tt>, <tt>count</tt> or <tt>sum</tt> on specific fields,</li>
-  <li>retrieve recent items stored by the user</li>
+  <li>Compute <tt>average</tt>, <tt>count</tt> or <tt>sum</tt> on specific fields.</li>
+  <li>Retrieve recent items stored by the user.</li>
 </ul>
-<p>Public collections are writable by any Urturn users. They are limited by some important factors:</p>
+<p>Public collections are writable by any Urturn users. However, there are some important restrictive factors:</p>
 <ul>
-  <li>one item per user per collection: no more</li>
-  <li>only the item of the current user can be modified</li>
-  <li>only the recent items will be retrieve (but sum, average and count include all items)</li>
+  <li>No more than one item per user and per collection.</li>
+  <li>Only the item of the current user can be modified.</li>
+  <li>Only the recent items will be retrieved (although sum, average and count include all items).</li>
 </ul>
 <h3>Samples</h3>
 <p>First, you need to define a collection in expression.json. All authorized fields
