@@ -3,7 +3,7 @@
 
 <section>
   <h2>Install the Urturn toolbelt</h2>
-  <p>To work and deploy an Expression, you will need some valuable tools. All of them are available in our command line, working on top of NodeJS 0.8.x. We are not compatible with NodeJS 0.10.0 at this time.</p>
+  <p>To work and deploy an Expression, you will need some specific tools. All of them are available in our command line, working with NodeJS 0.8 or a more recent version.</p>
 
   <ol>
     <li>Prerequisite: install <a href="http://nodejs.org">NodeJS</a></li>
@@ -21,8 +21,8 @@ cd hello-world</code></pre>
   <p>An Expression basically needs 3 files to run</p>
   <pre>hello-world/
            /expression.json    --> The Expression descriptor file
-           /editor.html        --> Used when someone creates a post with your Expression
-           /player.html        --> Used when someone sees a post made with your Expression</pre>
+           /editor.html        --> Template used to create a new post
+           /player.html        --> Template used to display a post</pre>
 
   <p>Let's feed those with the following content.</p>
 
@@ -43,14 +43,18 @@ cd hello-world</code></pre>
 &lt;script>
   UT.Expression.ready(function(post){
     var titleNode = post.node.querySelector('.title');
-    post.storage.title = "Hello World!"; // Store content
-    post.storage.ratio =                 // Ensure that a post is displayed with the same ratio
+    // Store content
+    post.storage.title = "Hello World!";
+    // Ensure that a post is displayed with the same ratio
+    post.storage.ratio =
         post.node.offsetHeight / post.node.offsetWidth;
 
     titleNode.innerHTML = post.storage.title;
-
-    post.save();                         // Save current state
-    post.valid(true);                    // Posts can be published from that moment on
+    // Save current state
+    post.save();
+    
+    // Posts can be published from that moment on
+    post.valid(true);
   });
 &lt;/script></code></pre>
 
@@ -70,7 +74,7 @@ cd hello-world</code></pre>
 
 <section>
   <h2>Work with the sandbox</h2>
-  <p>Use the <code>ur</code> command from the toolbelt to start a Sandbox.</p>
+  <p>Use the <code>ur</code> command from the toolbelt to start the Sandbox.</p>
   <pre class="prettyprint">
     <code class="lang-shell">ur sandbox</code></pre>
 
@@ -87,5 +91,5 @@ cd hello-world</code></pre>
 
   <p>You will have to log in to urturn.com using your email and password. Create an account on <a href="http://urturn.com" target="_blank">urturn.com</a> first, if required.</p>
 
-  <p>Once the command is finished, your Expression is deployed (but still private). Follow the link in the console output and enjoy your first “hello world”!</p>
+  <p>Once the command is finished, your Expression is deployed (but still private). Follow the link in the console output and enjoy your first “Hello World”!</p>
 </section>
