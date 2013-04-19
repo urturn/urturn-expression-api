@@ -1,5 +1,5 @@
 <h1>UT.Post Class</h1>
-<p>Post instances are retrieved by the callback registered on Expression.ready(callback). They are the entry point of all the functionalities to create a new post on urturn.com</p>
+<p>Post instances are retrieved by the callback registered on Expression.ready (callback). They are the entry point of all the functionalities needed to create a new post on urturn.com</p>
 
 <p>methods: <a href="#wiki-resize">resize</a>, <a href="#wiki-valid">valid</a>, <a href="#wiki-save">save</a>, <a href="#wiki-on">on</a>, <a href="#wiki-off">off</a>, <a href="#wiki-fire">fire</a>, <a href="#wiki-pushNavigation">pushNavigation</a>, <a href="#wiki-popNavigation">popNavigation</a>, <a href="#wiki-navigate">navigate</a>, <a href="#wiki-collection">collection</a></p>
 
@@ -7,9 +7,9 @@
 
 <h2 id="methods">Methods</h2>
 
-<p>Methods of the Expression object are asynchronous, because ultimately they must communicate with Urturn via the postMessage API.</p>
+<p>Methods of the Expression object are asynchronous, since they will have to communicate with Urturn via the postMessage API ultimately.</p>
 
-<h3><a id="wiki-dialog"/>.dialog( type, [options], [callback] )</h3>
+<h3><a id="wiki-dialog"/>.dialog(type, [options], [callback])</h3>
 
 <div class='well'>
 <h4>Parameters </h4>
@@ -18,11 +18,11 @@
     <b>type</b> : A string containing the type of dialog you wish to open. Possible dialogs are  '<a href="Post-Dialogs#wiki-image">image</a>', 'sound', 'video', 'crop', and '<a href="Post-Dialogs#wiki-text">text</a>'
   </li>
   <li>
-    <b>options</b> [optional] : A hash of options to pass to the dialog. Every type of dialog supports specific options.
+    <b>options</b> [optional]: A hash of options to pass to the dialog. Every type of dialog supports specific options.
   </li>
   <li>
-    <b>callback </b> [optional] : A callback function that will be called with results of dialog. <br/>
-    <b>(Warning ! Some dialog return null when users quit them without performing actions)</b> 
+    <b>callback </b> [optional]: A callback function that will be called with results of dialog. <br/>
+    <b>(Warning! Some dialogs return null when users quit without performing actions)</b> 
   </li>
 </ul>
 
@@ -37,7 +37,7 @@
     <li><b>'sound'</b> : Ask the user to select a sound </li>
     <li><b>'video'</b> : Ask the user to select a video </li>
     <li><b>'crop'</b> : Diplay a panel that lets users crop an image </li>
-    <li><b>'text'</b> : Diplay a panel that lets users enter a text (<a href="Post-Dialogs#wiki-text">more details)</a></li>
+    <li><b>'text'</b> : Diplay a panel that lets users enter some text (<a href="Post-Dialogs#wiki-text">more details)</a></li>
   </ul>
 </p>
 
@@ -66,19 +66,19 @@
 
 
 
-<h3><a id="wiki-resize"/>.resize( sizeInfo )</h3>
+<h3><a id="wiki-resize"/>.resize(sizeInfo)</h3>
 
 <div class='well'>
 <h4>Parameters</h4>
 <ul>
-<li><b>sizeInfo</b> : The size at wich you want to resize the post. Possible values are 'auto', {height: 99}, {height: '99px'}, 99</li>
+<li><b>sizeInfo</b>: The size at wich you want to resize the post. Possible values are 'auto', {height: 99}, {height: '99px'}, 99</li>
 </ul>
 
 
 <h4> Usage </h4>
 <p>Ask the container to resize to the given parameters. The asynchronous result of this function can be listened on the post resize event. 
 <br/>
-Currently just support resize of post height.
+Only supports resize of post height for the moment.
 </p>
 
 <h4>Code example</h4>
@@ -102,7 +102,7 @@ Currently just support resize of post height.
 <div class='well'>
 <h4>Parameters</h4>
 <ul>
-<li><b>callback</b> : The parameters of the function called with userdatas are defined once they are retrieved</li>
+<li><b>callback</b>: The parameters of the function called with userdata are defined once they are retrieved</li>
 </ul>
 
 
@@ -141,7 +141,7 @@ Currently just support resize of post height.
 
 <h4>Parameters</h4>
 <ul>
-<li><b>flag</b> (boolean) : True if the post is valid and can be posted, false if not.</li>
+<li><b>flag</b> (boolean): True if the post is valid and can be posted, false if not.</li>
 </ul>
 
 
@@ -149,9 +149,9 @@ Currently just support resize of post height.
 <p> 
   By default a user can't publish a post on Urturn until you set it to valid. Once you have set a post as valid it can be saved synchronously at any time.<br/>
 
-  You can set back a post to invalid to post using false as parameter.<br/>
+  You can set a post back to invalid for posting using false as parameter.<br/>
 
-  When the post is vaild the user sees the post button, when it's not, the post button is hidden or unclickable (mobile).
+  When the post is valid, the user sees the post button. When it's not, the post button is hidden or unclickable (on mobile).
   
 
 <h4>Code example</h4>
@@ -179,10 +179,10 @@ Currently just support resize of post height.
 <h4>Code example</h4>
 <pre class="prettyprint">
 <code class="lang-javascript">UT.Expression.ready(function(post) {
-  // set some value inside storage
+  // set a value inside storage
   post.storage.day = 'sunday';
   post.storage.rainny = true;
-  // save storage on serveur
+  // save storage on server
   post.save();
 });</code>
 </pre>
@@ -201,8 +201,8 @@ Currently just support resize of post height.
 </h4>
 
 <ul>
-  <li><b>eventName</b> (string) : The name of the event to listen ('<a href="#" data-bookmark="api/post_events">publish</a>', '<a href="#" data-bookmark="api/post_events">scroll</a>', '<a href="#" data-bookmark="api/post_events">resize</a>', '<a href="#" data-bookmark="api/post_events">media</a>').</li>
-  <li><b>callback</b> : A callback function called when event is fire.</li>
+  <li><b>eventName</b> (string): The name of the event to listen to ('<a href="#" data-bookmark="api/post_events">publish</a>', '<a href="#" data-bookmark="api/post_events">scroll</a>', '<a href="#" data-bookmark="api/post_events">resize</a>', '<a href="#" data-bookmark="api/post_events">media</a>').</li>
+  <li><b>callback</b>: A callback function called when event is fire.</li>
 </ul>
 
 <h4> Usage </h4>
@@ -238,8 +238,8 @@ Currently just support resize of post height.
   Parameters
 </h4>
 <ul>
-  <li><b>eventName</b> (string) : The name of the event to stop listen ('<a href="#" data-bookmark="api/post_events">publish</a>', '<a href="#" data-bookmark="api/post_events">scroll</a>', '<a href="#" data-bookmark="api/post_events">resize</a>', '<a href="#" data-bookmark="api/post_events">media</a>').</li>
-  <li><b>callback</b> : A callback function to remove from list of listener.</li>
+  <li><b>eventName</b> (string): The name of the event to stop listen ('<a href="#" data-bookmark="api/post_events">publish</a>', '<a href="#" data-bookmark="api/post_events">scroll</a>', '<a href="#" data-bookmark="api/post_events">resize</a>', '<a href="#" data-bookmark="api/post_events">media</a>').</li>
+  <li><b>callback</b>: A callback function to remove from list of listener.</li>
 </ul>
 
 <h4> Usage </h4>
@@ -275,16 +275,16 @@ Currently just support resize of post height.
   Parameters
 </h4>
 <ul>
-  <li><b>state</b> (string) : A navigation state ('default', 'cancel' or 'back') </li>
-  <li><b>callback</b> : A callback function called when the state is pop by user navigation.</li>
+  <li><b>state</b> (string): A navigation state ('default', 'cancel' or 'back') </li>
+  <li><b>callback</b>: A callback function called when the state is pop by user navigation.</li>
 </ul>
 
 <h4> Usage </h4>
 <p>Pushnavigation enables you to push a navigation state to override Urturn UI. This will change the navigation button. The different possible states are :
 <ul>
-  <li><b>default</b> : the default state. When a user clicks on the navigation button, he leaves the editor</li>
-  <li><b>cancel</b> : display a cancel button in place of the standard button. When a user clicks on it, the callback is called and this state is pop (this means the button goes back to its previous state).</li>
-   <li><b>back</b> : display a back button in place of the standard button. When a user clicks on it, the callback is called and this state is pop (this means the button goes back to its previous state).</li>
+  <li><b>default</b>: The default state ; when a user clicks on the navigation button, he leaves the editor.</li>
+  <li><b>cancel</b>: Displays a cancel button in place of the standard button ; when a user clicks on it, the callback is called and this state is pop (this means the button goes back to its previous state).</li>
+   <li><b>back</b>: Displays a back button in place of the standard button ; when a user clicks on it, the callback is called and this state is pop (this means the button goes back to its previous state).</li>
 </ul>
 </p>
 
@@ -328,16 +328,16 @@ Currently just support resize of post height.
   Parameters
 </h4>
 <ul>
-  <li><b>app</b> (optional, default=browse) : The 'app' to use to navigate ('browse', 'search', 'user') </li>
+  <li><b>app</b> (optional, default=browse): The 'app' to use to navigate ('browse', 'search', 'user') </li>
   <li><b>target</b> (string): The navigation target</li>
 </ul>
 
 <h4> Usage </h4>
-<p>navigate lets you navigate inside and outside of Urturn. There are three different navigation 'apps'
+<p>Navigate lets you navigate inside and outside of Urturn. There are three different navigation 'apps':
 <ul>
-  <li><b>browse</b> : browse a website (ex : example.org)</li>
-  <li><b>search</b> : do a search on Urturn and display the result page.</li>
-  <li><b>user</b> : display a user profile on Urturn.</li>
+  <li><b>browse</b>: Browse a website (ex : example.org).</li>
+  <li><b>search</b>: Do a search on Urturn and display the result page.</li>
+  <li><b>user</b>: Display a user profile on Urturn.</li>
 </ul>
 </p>
 
@@ -354,7 +354,7 @@ Currently just support resize of post height.
 <div class='well'>
 <h4>Arguments</h4>
 <ul>
-  <li><b>name</b> (string) : Name of the collection to retrieve.</li>
+  <li><b>name</b> (string): Name of the collection to retrieve.</li>
 </ul>
 <h4>Return</h4>
 <p>An <a href="" data-bookmark="api/public_collection">UT.PublicCollection</a> instance or an <a href="" data-bookmark="api/collection">UT.Collection</a> instance.
@@ -365,9 +365,9 @@ Currently just support resize of post height.
 <p>The name can be:</p>
 
 <ul>
-<li>any collection defined in expression.json,</li>
-<li>'parent' to retrieve the storage item from the parent document.</li>
-<li>'default' to retrieve the default collection (aka Post.storage)</li>
+<li>Any collection defined in expression.json.</li>
+<li>'Parent' to retrieve the storage item from the parent document.</li>
+<li>'Default' to retrieve the default collection (aka Post.storage).</li>
 </ul>
 
 <h4>Code example</h4>
@@ -411,12 +411,12 @@ Currently just support resize of post height.
 <hr/>
 <h3 id="a-idwiki-urlurl"><a id="wiki-url"/>.url</h3>
 
-<p>Retrieve the public url of the document.</p>
+<p>Retrieve the public URL of the document.</p>
 <hr/>
 <h3 id="a-idwiki-notenote"><a id="wiki-note"/>.note</h3>
 
 <p>The 'note' of the document.</p>
-<p>The note is the text display under the post and use when a post is shared on social networks. By default the note is empty. When an user creates a post, he will have the opportunity to change the note. The note is accessible inside the Expression using the post.note property. In edit mode, you have the possibility to modify it :</p>
+<p>The note is the text displayed under the post and used when a post is shared on social networks. By default the note is empty. When a user creates a post, he will have the opportunity to change the note. The note is accessible inside the Expression using the post.note property. In edit mode, it can be modified:</p>
 <pre class="prettify"><code class="lang-javascript">UT.Expression.ready(function(post) {
   post.note = 'This is a new note!';
 })
