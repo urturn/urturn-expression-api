@@ -1,4 +1,4 @@
-<h1>Urturn API support the following filters :</h1>
+<h1>The Urturn API supports the following filters:</h1>
 
 <ul>
 <li>Brightness</li>
@@ -17,13 +17,13 @@
 
 <h2 id="brightness-filter">Brightness Filter</h2>
 
-<p>The Brightness filter let you change image Brightness.</p>
+<p>The Brightness filter lets you change the image brightness.</p>
 
-<p><strong>Parameters :</strong></p>
+<p><strong>Parameters:</strong></p>
 
 <ul>
-<li>strenght : from -1.0 to 1.0, default 0.0
-Let you control brightness strenght. -1.0 is for a black image, 1.0 is for a white image, 0.0 leave image as it is. </li>
+<li>strength: from -1.0 to 1.0, default 0.0
+Lets you control how bright the image is. -1.0 is for a black image, 1.0 is for a white image, 0.0 leaves image unchanged. </li>
 </ul>
 
 <p><strong>example:</strong>
@@ -38,13 +38,13 @@ Let you control brightness strenght. -1.0 is for a black image, 1.0 is for a whi
 
 <h2 id="contrast">Contrast</h2>
 
-<p>The Contrast filter let you change image Contrast.</p>
+<p>The Contrast filter lets you change the image contrast.</p>
 
-<p><strong>Parameters :</strong></p>
+<p><strong>Parameters:</strong></p>
 
 <ul>
-<li>strenght : from -1.0 to 1.0, default 0.0
-Let you control contrast strenght. -1.0 is for a grey image, 1.0 is for a high contrast, 0.0 leave image as it is. </li>
+<li>strength: from -1.0 to 1.0, default 0.0
+Lets you control the level of contrast. -1.0 is for a grey image, 1.0 is for a high contrast, 0.0 leaves image unchanged. </li>
 </ul>
 
 <p><strong>example:</strong>
@@ -57,15 +57,15 @@ Let you control contrast strenght. -1.0 is for a grey image, 1.0 is for a high c
 }
 </code></p>
 
-<h2 id="hue">HUE</h2>
+<h2 id="hue">Hue</h2>
 
-<p>The HUE filter let you change image HUE.</p>
+<p>The Hue filter let you change the hue of the image.</p>
 
-<p><strong>Parameters :</strong></p>
+<p><strong>Parameters:</strong></p>
 
 <ul>
-<li>strenght : from -1.0 to 1.0, default 0.0
-Let you control hue strenght. 0.0 leave image as it is. </li>
+<li>strength: from -1.0 to 1.0, default 0.0
+Lets you control the hue. 0.0 leaves image unchanged. </li>
 </ul>
 
 <p><strong>example:</strong>
@@ -80,13 +80,13 @@ Let you control hue strenght. 0.0 leave image as it is. </li>
 
 <h2 id="saturation">Saturation</h2>
 
-<p>The Saturation filter let you change image saturation.</p>
+<p>The Saturation filter lets you change the image saturation.</p>
 
-<p><strong>Parameters :</strong></p>
+<p><strong>Parameters:</strong></p>
 
 <ul>
-<li>strenght : from -1.0 to 1.0, default 0.0
-Let you control saturation strenght. 0.0 leave image as it is. -1.0 give you a desaturated (black and white) image, 1.0 an over saturated one.</li>
+<li>strength: from -1.0 to 1.0, default 0.0
+Lets you control the saturation. 0.0 leaves image unchanged. -1.0 gives you a desaturated (black and white) image, 1.0 an over-saturated one.</li>
 </ul>
 
 <p><strong>example:</strong>
@@ -101,14 +101,14 @@ Let you control saturation strenght. 0.0 leave image as it is. -1.0 give you a d
 
 <h2 id="sepia">Sepia</h2>
 
-<p>The Sepia filter let you apply a yellow-black filter on your image.</p>
+<p>The Sepia filter lets you apply a yellow-black filter on your image.</p>
 
-<p><strong>Parameters :</strong></p>
+<p><strong>Parameters:</strong></p>
 
 <ul>
-<li><p>strenght : from 0.0 to 1.0, default 0.0</p>
+<li><p>strength: from 0.0 to 1.0, default 0.0</p>
 
-<p>Let you control sepia strenght. 0.0 leave image as it is. 1.0 apply a full sepia filter</p></li>
+<p>Lets you control sepia levels. 0.0 leaves image unchanged. 1.0 applies a full sepia filter</p></li>
 </ul>
 
 <p><strong>example:</strong>
@@ -123,23 +123,23 @@ Let you control saturation strenght. 0.0 leave image as it is. -1.0 give you a d
 
 <h2 id="threshold">Threshold</h2>
 
-<p>The Threshold filter transform your image to a 2 different color image. </p>
+<p>The Threshold filter transforms your image to a 2-color image. </p>
 
-<p><strong>Parameters :</strong></p>
+<p><strong>Parameters:</strong></p>
 
 <ul>
-<li><p>strenght : from 0.0 to 1.0, default 0.5</p>
+<li><p>strength: from 0.0 to 1.0, default 0.5</p>
 
-<p>Let you control the threshold limit. 0.5 mean all color under 128 will be of primary, all color up of secondary.</p></li>
-<li><p>alpha : from 0.0 to 1.0, default 1.0</p>
+<p>Lets you control the threshold limit. 0.5 means all colors under 128 will be primary, all colors up of 128 will be secondary.</p></li>
+<li><p>alpha: from 0.0 to 1.0, default 1.0</p>
 
-<p>Let you control the alpha of this filter.</p></li>
-<li><p>primaryColor : Array of 3 number defining RGB chanels [r (0-255),g (0-255),b (0-255)], default [0,0,0];</p>
+<p>Lets you control the alpha of this filter.</p></li>
+<li><p>primaryColor: array of 3 numbers defining the RGB channels [r (0-255),g (0-255),b (0-255)], default [0,0,0];</p>
 
-<p>Let you define the primary color.</p></li>
-<li><p>secondaryColor : Array of  number defining RGB chanels[r (0-255),g (0-255),b (0-255)], default [255,255,255];</p>
+<p>Lets you define the primary color.</p></li>
+<li><p>secondaryColor: array of numbers defining RGB channels[r (0-255),g (0-255),b (0-255)], default [255,255,255];</p>
 
-<p>Let you define the secondary color.</p></li>
+<p>Lets you define the secondary color.</p></li>
 </ul>
 
 <p><strong>example:</strong>
@@ -159,10 +159,10 @@ Let you control saturation strenght. 0.0 leave image as it is. -1.0 give you a d
 
 <p>Invert color on your image.</p>
 
-<p><strong>Parameters :</strong></p>
+<p><strong>Parameters:</strong></p>
 
 <ul>
-<li>No Parameters !</li>
+<li>No Parameters!</li>
 </ul>
 
 <p><strong>example:</strong>
@@ -174,28 +174,28 @@ Let you control saturation strenght. 0.0 leave image as it is. -1.0 give you a d
 
 <h2 id="vignette">Vignette</h2>
 
-<p>Add a Vignette in top of your image</p>
+<p>Add a Vignette on top of your image</p>
 
-<p><strong>Parameters :</strong></p>
+<p><strong>Parameters:</strong></p>
 
 <ul>
-<li><p>amount : from 0.0 to 1.0, default 0.0
-The amount of vignette added to your image, 0.0 no vignette, 1.0 max amount</p></li>
-<li><p>size : from : 0.0 to 1.0
-The size of the vignette border : 0.0 no vignette, 1.0 max size</p></li>
-<li><p>centerX : from 0.0 to 1.0, default 0.5
-The X coordinate of center of your vignette. 0.0 mean totaly left, 1.0 totaly right of your image. 0.5 mean exact middle of your image.</p></li>
-<li><p>centerY : from 0.0 to 1.0, default 0.5
-The Y coordinate of center of your vignette. 0.0 mean totaly top, 1.0 totaly bottom of your image. 0.5 mean exact middle of your image.</p></li>
-<li><p>r : from 0 to 255, default 0
-The red chanel of vignette color</p></li>
+<li><p>amount: from 0.0 to 1.0, default 0.0
+Amount of vignettes added to your image, 0.0 no vignette, 1.0 maximum amount</p></li>
+<li><p>size: from 0.0 to 1.0
+Size of the vignette border: 0.0 no vignette, 1.0 maximum size</p></li>
+<li><p>centerX: from 0.0 to 1.0, default 0.5
+X coordinate of the center of your vignette. 0.0 means completely to the left, 1.0 completely to the right of your image. 0.5 means exactly in the middle of your image.</p></li>
+<li><p>centerY: from 0.0 to 1.0, default 0.5
+Y coordinate of the center of your vignette. 0.0 means right at the top, 1.0 right at the bottom of your image. 0.5 means exactly in the middle of your image.</p></li>
+<li><p>r: from 0 to 255, default 0
+The red channel of vignette color</p></li>
 </ul>
 
-<p>*g : from 0 to 255, default 0
-The green chanel of vignette color</p>
+<p>*g: from 0 to 255, default 0
+The green channel of vignette color</p>
 
-<p>*b : from 0 to 255, default 0
-The blue chanel of vignette color</p>
+<p>*b: from 0 to 255, default 0
+The blue channel of vignette color</p>
 
 <p><strong>example:</strong>
 <code>json
@@ -215,14 +215,14 @@ The blue chanel of vignette color</p>
 
 <h2 id="gamma">Gamma</h2>
 
-<p>The Gamma filter let you change gamma of your image.</p>
+<p>The Gamma filter lets you change the gamma of your image.</p>
 
-<p><strong>Parameters :</strong></p>
+<p><strong>Parameters:</strong></p>
 
 <ul>
-<li><p>strenght : from 0.0 to 3.0, default 1.0</p>
+<li><p>strength: from 0.0 to 3.0, default 1.0</p>
 
-<p>Let you control gamma strenght. 0.0 image is white. 1.0 image intact. 3.0 Strong Gamma</p></li>
+<p>Lets you control the gamma strength. 0.0 image is white. 1.0 image intact. 3.0 Strong Gamma</p></li>
 </ul>
 
 <p><strong>example:</strong>
@@ -237,14 +237,14 @@ The blue chanel of vignette color</p>
 
 <h2 id="exposure">Exposure</h2>
 
-<p>The Exposure filter let you change exposure of your image.</p>
+<p>The Exposure filter lets you change the exposure of your image.</p>
 
-<p><strong>Parameters :</strong></p>
+<p><strong>Parameters:</strong></p>
 
 <ul>
-<li><p>strenght : from 0.0 to 1.0, default 0.0</p>
+<li><p>strength: from 0.0 to 1.0, default 0.0</p>
 
-<p>Let you control exposure strenght. 0.0 image is untouched. 1.0 image over-exposed. </p></li>
+<p>Lets you control the exposure. 0.0 image is untouched. 1.0 image is over-exposed. </p></li>
 </ul>
 
 <p><strong>example:</strong>
@@ -259,23 +259,23 @@ The blue chanel of vignette color</p>
 
 <h2 id="color">Color</h2>
 
-<p>The color filter let you change colo balance of your image.</p>
+<p>The color filter lets you change the color balance of your image.</p>
 
-<p><strong>Parameters :</strong></p>
+<p><strong>Parameters:</strong></p>
 
 <ul>
-<li><p>a : from 0.0 to 1.0, default 0.0</p>
+<li><p>a: from 0.0 to 1.0, default 0.0</p>
 
-<p>Let you control alpha of this filter</p></li>
-<li><p>r : from 0.0 to 1.0, default : 0.0</p>
+<p>Lets you control alpha of this filter</p></li>
+<li><p>r: from 0.0 to 1.0, default : 0.0</p>
 
-<p>Let you control influence of this filter to red chanel.</p></li>
-<li><p>g : from 0.0 to 1.0, default : 0.0</p>
+<p>Lets you control the influence of this filter to the red channel.</p></li>
+<li><p>g: from 0.0 to 1.0, default : 0.0</p>
 
-<p>Let you control influence of this filter to green chanel.</p></li>
-<li><p>g : from 0.0 to 1.0, default : 0.0</p>
+<p>Lets you control the influence of this filter to the green channel.</p></li>
+<li><p>g: from 0.0 to 1.0, default : 0.0</p>
 
-<p>Let you control influence of this filter to blue chanel.</p></li>
+<p>Lets you control the influence of this filter to the blue channel.</p></li>
 </ul>
 
 <p><strong>example:</strong>
@@ -295,12 +295,12 @@ The blue chanel of vignette color</p>
 
 <p>Add noise to your image.</p>
 
-<p><strong>Parameters :</strong></p>
+<p><strong>Parameters:</strong></p>
 
 <ul>
-<li><p>Amount : from 0.0 to 1.0, default 0.0</p>
+<li><p>Amount: from 0.0 to 1.0, default 0.0</p>
 
-<p>Let you control amount of noise on your image. 0.0 image is untouched. 1.0 lot of noise.</p></li>
+<p>Lets you control the amount of noise in your image. 0.0 image is untouched. 1.0 lots of noise.</p></li>
 </ul>
 
 <p><strong>example:</strong>
