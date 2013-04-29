@@ -6,6 +6,9 @@ Or join us on IRC (#urturn on freenode)
 
 # Changelogs
 
+## 0.7.5
+- FIX: fixed a bug where parent data collection was preventing expression loading on mobile.
+
 ## 0.7.2
 - FIX: context use indiferently 'editor' or 'edit'. Now use 'editor' or 'player' syntax.
 
