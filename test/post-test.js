@@ -304,6 +304,18 @@
         this.post.note = null;
       }
     },
+    "counter()": {
+      setUp: function(){
+        setupExpression(this);
+      },
+      'can retrieve a ticket in counter': function(done){
+        listenToMessage(1);
+        this.post.counter('XYZ', function(number){
+          assert.equals(number, 1);
+          done();
+        });
+      }
+    },
     "users()": {
       setUp: function(){
         this.uuid = UT.uuid();
