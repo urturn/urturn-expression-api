@@ -2,26 +2,29 @@
 
 <script type="text/javascript">
   // A GLOBAL
-  expression = null;
+  var post = null;
   // Bootstrap you expression editor
   UT.Expression.ready(function(exp){
     // Read more in test.js
-   expression = exp;
+    post = exp;
   });
 </script>
 
 <input type='button' value='setPublishFunction'
     onclick='expression.on("publish", function(){alert("User Will Publish");})'/> <br/>
 
-<input type='button' value='valid' onclick='expression.valid(true)'/> 
+<input type='button' value='valid' onclick='expression.valid(true)'/>
 <input type='button' value='invalid' onclick='expression.valid(false)'/><br/>
 
 <input type='button' value='create Image' onclick='createImage()'/>
 <input type='button' value='crop Image' onclick='cropImage()'/>
 <input type='button' value='Filter Image' onclick='filterImage()'/>
 <input type='button' value='toJSON' onclick='jsonImage()'/>
- <br/>
+<br/>
 <img id='testImage1' />
+<br/>
+<input type='button' value='QueueUp' onclick='queueUp()'/>
+<br/>
 
 <script>
 	var image = null;
@@ -32,26 +35,31 @@
 	}
 
 	function createImage() {
-		expression.dialog("image", newImage);
+		post.dialog("image", newImage);
 	}
 
 	function cropImage() {
-		expression.dialog(
-			'crop', 
+		post.dialog(
+			'crop',
 			{
-				image : image, 
+				image : image,
 				size : {width : 100, height : 100, felxRatio : true}
-			}, 
+			},
 			newImage);
 	}
 
 	function jsonImage() {
-			console.log(image.toJSON());
+		console.log(image.toJSON());
 	}
-
 
 	function filterImage() {
 		image.filter([{"filter":"threshold","parameters":{"strength":"0.41","alpha":"0.9","primaryColor":[0,0,0],"secondaryColor":[255,255,255]}}], newImage);
 	}
+
+  function queueUp(event) {
+    console.log(post.queueUp('test', function(){
+      
+    }));
+  }
 
 </script>

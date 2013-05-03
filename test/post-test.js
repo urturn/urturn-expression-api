@@ -358,6 +358,37 @@
             done();
           }
         });
+      },
+      'ask ticket in two different queue': function(done){
+        var count = 0;
+        var post = this.post;
+        listenToMessage(function(message, callback){
+          if(message.methodName == 'document.queueUp'){
+            try {
+              count ++;
+              callback( (message.args[0] == 'A'? 45 : 42) );
+            } catch (e) {
+              done();
+            }
+          }
+        });
+        post.queueUp('A', function(number){
+          try {
+            assert.equals(number, 45);
+            assert.equals(count, 1);
+            post.queueUp('B', function(number){
+              try {
+                assert.equals(number, 42);
+                assert.equals(count, 2); // did not call the API again.
+                done();
+              } catch (e) {
+                done();
+              }
+            });
+          } catch (e) {
+            done();
+          }
+        });
       }
     },
     "users()": {

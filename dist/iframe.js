@@ -1226,15 +1226,15 @@ UT.CollectionStore = function(options) {
      *
      * publish callback()
      * ------------------
-     * Fired when the user wants to post his content. The callback 
+     * Fired when the user wants to post his content. The callback
      * will be called on the Post instance and receive no argument.
-     * It must be runnable synchronously as the current context 
+     * It must be runnable synchronously as the current context
      * will be destroyed after all callbacks as been processed.
      *
      * scroll callback(ScrollDataEvent)
      * --------------------------------
      * Fired every time the visible part of the iframe
-     * on the page change. 
+     * on the page change.
      * the callback is passed the scrolling data.
      * XXX what are the scrolling data?
      *
@@ -1388,6 +1388,8 @@ UT.CollectionStore = function(options) {
      * Retrieve a unique number for a given queue
      * name. This number would be the last attributed
      * number + one.
+     *
+     * @version 0.8.0
      */
     var queueUp = this.queueUp = function(name, callback) {
       var self = this;
@@ -1432,9 +1434,9 @@ UT.CollectionStore = function(options) {
      * The name can be any public collection defined in expression.json,
      * 'default' for the default collection (aka post.storage)
      * or parent for this post parent default collection (this is available
-     * only during the first edition of a post if the expression is created 
+     * only during the first edition of a post if the expression is created
      * from another one.)
-     * 
+     *
      * @param {String} name the collection name
      */
     var collection = this.collection = function(name){
@@ -1468,7 +1470,7 @@ UT.CollectionStore = function(options) {
 
     /**
      * Asynchronously retrieve an UT.User instance given an optional array of items.
-     * 
+     *
      * @param {object|Array} items from which to retrieve the user.
      * @param {Function} callback the callback is been passed a UT.User instance.
      */
