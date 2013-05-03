@@ -304,15 +304,59 @@
         this.post.note = null;
       }
     },
-    "counter()": {
+    "queueUp()": {
       setUp: function(){
         setupExpression(this);
       },
-      'can retrieve a ticket in counter': function(done){
-        listenToMessage(1);
-        this.post.counter('XYZ', function(number){
-          assert.equals(number, 1);
-          done();
+      'can retrieve the number in the queue': function(done){
+        listenToMessage(function(message){
+          if(message.methodName == 'document.queueUp'){
+            try {
+              assert.equals(message.args[0], 'XYZ');
+              callback(1);
+            } catch(e) {
+              done();
+            }
+          }
+        });
+        this.post.queueUp('XYZ', function(number){
+          try {
+            assert.equals(number, 1);
+          } catch(e) {
+            done();
+          }
+        });
+      },
+      'subsequent call will retrieve the same number': function(done){
+        var count = 0;
+        var post = this.post;
+        listenToMessage(function(message, callback){
+          if(message.methodName == 'document.queueUp'){
+            try {
+              assert.equals(message.args[0], 'XYZ');
+              count ++;
+              callback(122);
+            } catch (e) {
+              done();
+            }
+          }
+        });
+        post.queueUp('XYZ', function(number){
+          try {
+            assert.equals(number, 122);
+            assert.equals(count, 1);
+            post.queueUp('XYZ', function(number){
+              try {
+                assert.equals(number, 122);
+                assert.equals(count, 1); // did not call the API again.
+                done();
+              } catch (e) {
+                done();
+              }
+            });
+          } catch (e) {
+            done();
+          }
         });
       }
     },

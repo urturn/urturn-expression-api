@@ -952,6 +952,7 @@ UT.CollectionStore = function(options) {
 
 
 
+    var queuedUpTickets = {};
     var eventTypesBindings = {}; // handle event bindings for each event type
     var collectionStore = new UT.CollectionStore({
       data: states.collections,
@@ -1293,7 +1294,7 @@ UT.CollectionStore = function(options) {
     /**
      * Flag a post as being valid or not.
      * A valid document can be posted synchronously at any time.
-     * 
+     *
      * @param flag {boolean} if provided, set the current validity state.
      * @return {boolean} the current validity flag
      */
@@ -1384,9 +1385,29 @@ UT.CollectionStore = function(options) {
     };
 
     /**
+     * Retrieve a unique number for a given queue
+     * name. This number would be the last attributed
+     * number + one.
+     */
+    var queueUp = this.queueUp = function(name, callback) {
+      var self = this;
+      if (queuedUpTickets[name] !== undefined) {
+        callback(queuedUpTickets[name]);
+        return this;
+      } else {
+        queuedUpTickets[name] = -1;
+        UT.Expression._callAPI('document.queueUp', [name], function(number){
+          queuedUpTickets[name] = number;
+          callback(number);
+        });
+        return this;
+      }
+    };
+
+    /**
      * Let the user navigate to an other website
      * or to a particullar part of urturn
-     * @param  {string} app     the app to use [optional] 
+     * @param  {string} app     the app to use [optional]
      * @param  {string} target  Where to navigate
      */
     var navigate = this.navigate = function(app) {
