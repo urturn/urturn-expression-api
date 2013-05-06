@@ -56,10 +56,12 @@
 		image.filter([{"filter":"threshold","parameters":{"strength":"0.41","alpha":"0.9","primaryColor":[0,0,0],"secondaryColor":[255,255,255]}}], newImage);
 	}
 
-  function queueUp(event) {
-    console.log(post.queueUp('test', function(){
-      
-    }));
+  function queueUp() {
+    post.queueUp('test', function(number){
+      var p = document.createElement('p');
+      p.innerHTML = 'Get #' + number;
+      post.node.appendChild(p);
+    });
   }
 
 </script>
