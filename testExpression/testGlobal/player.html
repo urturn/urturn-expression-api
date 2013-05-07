@@ -1,10 +1,37 @@
 <div class="picture"></div>
 <p class="text">Hello, My name is <span class="name"></span></p>
+<form>
+  <fieldset>
+    <legend>Resize</legend>
+    <input type="text" id="height"/>
+    <button id="doResize">Resize</button>
+  </fieldset>
+</form>
 
 <script type="text/javascript">
+  var resize = function(post, height){
+    post.resize({height: height}, function(){
+      console.log('resized', arguments);
+    });
+  };
+  var initResize = function(post){
+    var btn = post.node.querySelector('#doResize');
+    var field = post.node.querySelector('#height');
+
+    resize(post, post.storage.height);
+    field.value = post.storage.height;
+    btn.onclick = function(event){
+      event.preventDefault(true);
+      resize(post, field.value);
+    }
+  }
+
   // Bootstrap you expression editor
   UT.Expression.ready(function(post){
+    console.log('Height ', post.storage.height);
     // Read more in test.js
-    var testInstance = new Test(post);
+    var test = new Test(post);
+    test.bindEvents();
+    initResize(post);
   });
 </script>

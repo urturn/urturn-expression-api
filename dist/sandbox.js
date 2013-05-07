@@ -551,7 +551,7 @@ supportGetSet();
 
     /**
      * Let you find the latest items.
-     * 
+     *
      * @params [options] or a filter string
      * @params callback function
      */

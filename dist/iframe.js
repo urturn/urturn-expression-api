@@ -619,7 +619,7 @@ UT.CollectionStore = function(options) {
 
     /**
      * Let you find the latest items.
-     * 
+     *
      * @params [options] or a filter string
      * @params callback function
      */
@@ -792,7 +792,7 @@ UT.CollectionStore = function(options) {
   /**
    * Expression static class is the wrapper between the client code, server code. It is responsible
    * to setup a proper environment and notify actor of global state changes.
-   * 
+   *
    * @throw StaticClass error if instantiated.
    */
   UT.Expression = function(){ throw new Error('StaticClass'); };
@@ -900,6 +900,11 @@ UT.CollectionStore = function(options) {
         break;
       case 'media' :
         postInstance.fire('media', msg.eventArgs[0]);
+        break;
+      default:
+        if(window.console && console.log){
+          console.log('Unkown event ' + msg.type);
+        }
     }
   };
 
@@ -928,10 +933,13 @@ UT.CollectionStore = function(options) {
 
   UT.User = function(userDescriptor) {
     this.username = userDescriptor.username;
-    this.uuid = userDescriptor.uuid;
     this.avatar = function(){
       return userDescriptor.avatar;
     };
+    // Might not be set
+    this.uuid = userDescriptor.uuid;
+    this.numberOfPost = userDescriptor.numberOfPost;
+    this.numberOfUse = userDescriptor.numberOfUse;
   };
 
   UT.User.prototype.marshall = function(){
@@ -1179,7 +1187,6 @@ UT.CollectionStore = function(options) {
     var fire = this.fire = function(eventName) {
       var list = eventTypesBindings[eventName],
           promises = [],
-          nextTrigger = 'after' + eventName.charAt(0).toUpperCase() + eventName.slice(1),
           listLength,
           listIndex,
           callbackFunction,
@@ -1192,14 +1199,22 @@ UT.CollectionStore = function(options) {
         return;
       }
 
+      callbackArgs = Array.prototype.slice.call(arguments, 1);
+      callbackTarget = (callbackArgs.length !== 0 ? callbackArgs[0] : self);
+
+      // convert to newer name and fire them as well.
+      switch(eventName){
+        case 'scrollChanged':
+          fire.apply(this, ['scroll'].concat(callbackArgs));
+          break;
+      }
+
       // We copy the list in case the original mutates while we're
       // looping over it. We take the arguments, lop of the first entry,
       // and pass the rest to the listeners when we call them.
       list = list.slice(0);
       listLength = list.length;
       listIndex = -1;
-      callbackArgs = Array.prototype.slice.call(arguments, 1);
-      callbackTarget = (callbackArgs.length !== 0 ? callbackArgs[0] : self);
 
       while (++listIndex < listLength) {
         callbackFunction = list[listIndex];
@@ -1209,6 +1224,7 @@ UT.CollectionStore = function(options) {
         }
       }
 
+      var nextTrigger = 'after' + eventName.charAt(0).toUpperCase() + eventName.slice(1);
       if(promises.length > 0) {
         when.all(promises).then(function() {
           fire(nextTrigger);
@@ -1389,7 +1405,7 @@ UT.CollectionStore = function(options) {
      * name. This number would be the last attributed
      * number + one.
      *
-     * @version 0.8.0
+     * @since 0.8.0
      */
     var queueUp = this.queueUp = function(name, callback) {
       var self = this;
@@ -1458,7 +1474,8 @@ UT.CollectionStore = function(options) {
 
     /**
      * Request an user data object containing informations on
-     * current user
+     * current user.
+     * Deprecated, please use UT.Post#user([item], callback) instead
      * @param  {Function} callback the callback is been passed a UT.User instance.
      */
     var getUserData = this.getUserData = function(callback) {
@@ -1531,7 +1548,7 @@ UT.CollectionStore = function(options) {
     this.storage = collection('default');
 
     window.addEventListener('resize', function(){
-      self.fire('resize', new UT.ResizeEvent(window.offsetWidth, window.offsetHeight));
+      self.fire('resize', new UT.ResizeEvent(window.innerWidth, window.innerHeight));
     }, false);
   };
 })();

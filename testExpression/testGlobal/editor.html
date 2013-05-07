@@ -7,14 +7,23 @@
   UT.Expression.ready(function(exp){
     // Read more in test.js
     post = exp;
+
+    var test = new Test(post);
+    test.bindEvents();
+
+    post.on('publish', function(){
+      console.log('set the final size');
+      post.storage.height = post.node.offsetHeight;
+      post.save();
+    })
   });
 </script>
 
 <input type='button' value='setPublishFunction'
-    onclick='expression.on("publish", function(){alert("User Will Publish");})'/> <br/>
+    onclick='post.on("publish", function(){alert("User Will Publish");})'/> <br/>
 
-<input type='button' value='valid' onclick='expression.valid(true)'/>
-<input type='button' value='invalid' onclick='expression.valid(false)'/><br/>
+<input type='button' value='valid' onclick='post.valid(true)'/>
+<input type='button' value='invalid' onclick='post.valid(false)'/><br/>
 
 <input type='button' value='create Image' onclick='createImage()'/>
 <input type='button' value='crop Image' onclick='cropImage()'/>
@@ -24,6 +33,8 @@
 <img id='testImage1' />
 <br/>
 <input type='button' value='QueueUp' onclick='queueUp()'/>
+<br/>
+<input type="text" value="200" id="height"/><input type='button' value='Resize' onclick='doResize()'/>
 <br/>
 
 <script>
@@ -48,6 +59,10 @@
 			newImage);
 	}
 
+  function doResize() {
+    post.resize({height: post.node.querySelector('#height').value});
+  }
+
 	function jsonImage() {
 		console.log(image.toJSON());
 	}
@@ -63,5 +78,4 @@
       post.node.appendChild(p);
     });
   }
-
 </script>

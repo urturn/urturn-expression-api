@@ -1,15 +1,18 @@
 {
-  "title":"Test",
-  "system_name":"test",
-  "version":"1.0.12",
-  "api_version" : "0.6.0-alpha",
-  "dependencies": [{
-    "path":"test.css"
-  },{
-    "path":"test_editor.css",
-    "context":"editor"
-  },{
-    "path":"test.js"
-  }]
-  
+  "title": "Test",
+  "system_name": "test",
+  "version": "1.0.35",
+  "api_version": "0.8.0-alpha",
+  "dependencies": [
+    {
+      "path": "test.css"
+    },
+    {
+      "path": "test_editor.css",
+      "context": "editor"
+    },
+    {
+      "path": "test.js"
+    }
+  ]
 }

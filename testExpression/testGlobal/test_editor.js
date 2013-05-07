@@ -3,10 +3,10 @@
 Test.prototype.enableEditing = function() {
   this.chooseImageButton = this.expression.getElement().querySelector('button.choose_image');
   this.nameEditor = this.expression.getElement().querySelector('input.name_editor');
-  
+
   // open image dialog when user click on the button.
   this.chooseImageButton.addEventListener('click', this.bindChooseImage());
-  
+
   // redefine displayImage() to open image dialog when user click on the image.
   var playerDisplayImage = this.displayImage;
   this.displayImage = function(imageResource) {
@@ -16,11 +16,11 @@ Test.prototype.enableEditing = function() {
   if(this.img){
     this.editorDisplayImage();
   }
-  
+
   var self = this;
   // display text in editor
   self.nameEditor.value = this.expression.storage.getItem('myName', "");
-  
+
   // save text on post
   this.expression.post(function(doPostCallback){
     self.expression.storage.setItem('myName', self.nameEditor.value);
