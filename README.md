@@ -1,9 +1,5 @@
 [![Build Status](https://travis-ci.org/urturn/urturn-expression-api.png?branch=master)](https://travis-ci.org/urturn/urturn-expression-api)
 
-[Read the doc](http://webdoc.github.com/urturn-expression-api)
-
-Or join us on IRC (#urturn on freenode)
-
 # Changelogs
 
 ## 0.7.5
