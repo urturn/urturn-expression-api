@@ -1,0 +1,15 @@
+{
+  "title": "qunit",
+  "description": "Unit Test With QUnit",
+  "system_name": "qunit",
+  "version": "1.0.0",
+  "api_version": "0.8.0-alpha",
+  "platform": [
+    "desktop"
+  ],
+  "dependencies": [
+    {"path": "components/qunit/qunit.css"},
+    {"path": "components/qunit/qunit.js"},
+    {"path": "test.js"}
+  ]
+}
