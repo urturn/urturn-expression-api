@@ -8,6 +8,8 @@
     // Read more in test.js
     post = exp;
 
+    initResize(post);
+
     var test = new Test(post);
     test.bindEvents();
 
@@ -19,23 +21,35 @@
   });
 </script>
 
-<input type='button' value='setPublishFunction'
-    onclick='post.on("publish", function(){alert("User Will Publish");})'/> <br/>
+<fieldset>
+  <legend>Post Life Cycle</legend>
+  <input type='button' value='valid' onclick='post.valid(true)'/>
+  <input type='button' value='invalid' onclick='post.valid(false)'/>
+  <input type='button' value='setPublishFunction'
+    onclick='post.on("publish", function(){alert("User Will Publish");})'/>
+</fieldset>
 
-<input type='button' value='valid' onclick='post.valid(true)'/>
-<input type='button' value='invalid' onclick='post.valid(false)'/><br/>
+<fieldset>
+  <legend>Image</legend>
+  <input type='button' value='create Image' onclick='createImage()'/>
+  <input type='button' value='crop Image' onclick='cropImage()'/>
+  <input type='button' value='Filter Image' onclick='filterImage()'/>
+  <input type='button' value='toJSON' onclick='jsonImage()'/>
+  <img id='testImage1' />
+</fieldset>
 
-<input type='button' value='create Image' onclick='createImage()'/>
-<input type='button' value='crop Image' onclick='cropImage()'/>
-<input type='button' value='Filter Image' onclick='filterImage()'/>
-<input type='button' value='toJSON' onclick='jsonImage()'/>
-<br/>
-<img id='testImage1' />
-<br/>
-<input type='button' value='QueueUp' onclick='queueUp()'/>
-<br/>
-<input type="text" value="200" id="height"/><input type='button' value='Resize' onclick='doResize()'/>
-<br/>
+<fieldset>
+  <legend>Queue Up</legend>
+  <input type='button' value='QueueUp' onclick='queueUp()'/>
+</fieldset>
+
+<fieldset>
+  <legend>Resize and Scroll</legend>
+  <input type="text" value="200" id="height"/>
+  <button class="btn-resize">Resize</button>
+  <button class="btn-scroll-top">ScrollTop</button>
+  <button class="btn-scroll-bottom">ScrollTop</button>
+</fieldset>
 
 <script>
 	var image = null;
@@ -77,5 +91,25 @@
       p.innerHTML = 'Get #' + number;
       post.node.appendChild(p);
     });
+  }
+
+  var initResize = function(post){
+    var resizeBtn = post.node.querySelector('.btn-resize');
+    var scrollTopBtn = post.node.querySelector('.btn-scroll-top');
+    var scrollBottomBtn = post.node.querySelector('.btn-scroll-bottom');
+    var field = post.node.querySelector('#height');
+    field.value = post.storage.height || 250;
+    resizeBtn.onclick = function(event){
+      event.preventDefault(true);
+      post.resize({height: field.value});
+    }
+    scrollTopBtn.onclick = function(event){
+      event.preventDefault(true);
+      post.scroll({scrollTop:field.value});
+    }
+    scrollBottomBtn.onclick = function(event){
+      event.preventDefault(true);
+      post.scroll({scrollBottom: field.value});
+    }
   }
 </script>

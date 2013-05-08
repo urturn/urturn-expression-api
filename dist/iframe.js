@@ -1385,6 +1385,18 @@ UT.CollectionStore = function(options) {
     };
 
     /**
+     * Ask the container to scroll to the top OR bottom position.
+     *
+     * @param {Object{scrollTop,scrollBottom}} position
+     */
+    var scroll = this.scroll = function(position, callback){
+      UT.Expression._callAPI('container.scroll',
+        [position.scrollTop||position.scrollBottom, (position.scrollTop?'top':'bottom')],
+        callback
+      );
+    };
+
+    /**
      * Push a navigation state
      * @param  {String}   state    The state to push : 'default', 'back', 'cancel'
      * @param  {Function} callback The function called when this state is clicked

@@ -1,7 +1,7 @@
 {
   "title": "Test",
   "system_name": "test",
-  "version": "1.0.35",
+  "version": "1.0.38",
   "api_version": "0.8.0-alpha",
   "dependencies": [
     {
