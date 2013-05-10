@@ -1,0 +1,27 @@
+{
+  "title": "unit",
+  "description": "",
+  "system_name": "unit",
+  "version": "0.1.0",
+  "api_version": "0.8.0-alpha",
+  "platform": [
+    "desktop"
+  ],
+  "dependencies": [
+    {
+      "path": "lib/qunit/qunit.css"
+    },
+    {
+      "path": "lib/qunit/qunit.js"
+    },
+    {
+      "path": "lib/helper.js"
+    },
+    {
+      "path": "test/expression-test.js"
+    },
+    {
+      "path": "test/post-test.js"
+    }
+  ]
+}
