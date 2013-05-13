@@ -1,5 +1,5 @@
 UT.Expression.ready(function(post){
-  describe("queueUp()", function() {
+  describe("UT.Post.queueUp()", function() {
     it('retrieve a number from the queue', function(done){
       post.queueUp('XYZ', function(number){
         expect(number).to.be.greaterThan(0);
