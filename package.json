@@ -8,7 +8,7 @@
     "grunt-cli": "~0.1",
     "grunt-mocha": "*",
     "mocha": "~1.9.0",
-    "expect": "0.0.2",
+    "expect.js": "~0.2.0",
     "grunt-css": "*",
     "grunt-contrib-jshint": "~0.2.0",
     "grunt-contrib-concat": "~0.1.3",
