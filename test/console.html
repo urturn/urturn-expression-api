@@ -1,0 +1,51 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Mocha Tests</title>
+  <link rel="stylesheet" href="../node_modules/mocha/mocha.css" />
+</head>
+<body>
+  <div id="mocha"></div>
+
+  <script src="../node_modules/expect.js/expect.js"></script>
+  <script src="../node_modules/mocha/mocha.js"></script>
+  <script src="../lib/expression-api/namespace.js"></script>
+  <script src="../lib/expression-api/uuid.js"></script>
+  <script src="../lib/expression-api/CollectionStore.js"></script>
+  <script src="../lib/expression-api/Collection.js"></script>
+  <script src="../lib/expression-api/PublicCollection.js"></script>
+  <script src="../lib/expression-api/Post.js"></script>
+  <script src="../lib/expression-api/Expression.js"></script>
+  <script src="../lib/expression-api/User.js"></script>
+  <script src="../lib/expression-api/Sound.js"></script>
+  <script src="../lib/expression-api/Image.js"></script>
+  <script src="../lib/expression-api/Video.js"></script>
+  <script src="../lib/expression-api/events.js"></script>
+  <script src="../lib/expression-api/init.js"></script>
+
+  <script src="lib/dom.js"></script>
+  <script src="lib/collection-fixtures.js"></script>
+
+  <script>
+    mocha.setup('bdd')
+    window.TEST_ENV='unit'
+  </script>
+
+  <script src="expression-test.js"></script>
+  <script src="post-test.js"></script>
+  <script src="collection-store-test.js"></script>
+  <script src="public-collection-test.js"></script>
+  <script src="private-collection-test.js"></script>
+  <script src="user-test.js"></script>
+
+  <script>
+    // If tests run in a real browser
+    // Can alternatively do a check on window.PHANTOMJS
+    if (navigator.userAgent.indexOf('PhantomJS') === -1) {
+      mocha
+          // .globals(['Wombat', 'Apple']) // acceptable globals
+          .run();
+    }
+  </script>
+</body>
+</html>

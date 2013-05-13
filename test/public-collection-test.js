@@ -13,8 +13,8 @@
     return new UT.PublicCollection({document_id: document_id, data: theData, delegate: dataDelegate, currentUserId: currentUserId});
   };
 
-  buster.testCase('PublicCollection', {
-    setUp: function(){
+  describe('PublicCollection', function() {
+    beforeEach(function(){
       currentUserId = UT.uuid();
       data = fixtures.collectionData.myCollection(currentUserId);
       emptyData = fixtures.collectionData.empty();
@@ -23,26 +23,27 @@
 
       collection = publicFixture();
       anItem = {comment: 'hello world', note: 3};
-    },
-    '#average': {
-      'retrieve average on a specific field': function(){
-        expect(collection).toBeDefined();
-        expect(collection.average('note')).toBe(4.25);
-        expect(collection.average('inexistant')).not.toBeDefined();
-      },
+    });
 
-      'is updated when data are added': function(){
-        collection.setUserItem({note: 3.5});
-        expect(collection.average('note')).toBe(4.0);
-      },
+    describe('#average', function(){
+      it('retrieve average on a specific field', function(){
+        expect(collection).to.be.ok();
+        expect(collection.average('note')).to.be(4.25);
+        expect(collection.average('inexistant')).not.to.be.ok();
+      });
 
-      'is maintained when data are re-added': function(){
+      it('is updated when data are added', function(){
         collection.setUserItem({note: 3.5});
-        collection.setUserItem({note: 3.5});
-        expect(collection.average('note')).toBe(4.0);
-      },
+        expect(collection.average('note')).to.be(4.0);
+      });
 
-      'support removing the first element': function(){
+      it('is maintained when data are re-added', function(){
+        collection.setUserItem({note: 3.5});
+        collection.setUserItem({note: 3.5});
+        expect(collection.average('note')).to.be(4.0);
+      });
+
+      it('support removing the first element', function(){
         collection = publicFixture({
           // name of the colleciton
           name: 'emptyCollection',
@@ -52,17 +53,17 @@
           operations: [{ operation: "average", field: "note", average: -1, average_count: 0 }],
           definition: {fields: [{name: 'note', type: 'number', operations: ['average']}]}
         });
-        expect(collection.count()).toBe(0);
-        expect(collection.average('note')).toBe(-1);
+        expect(collection.count()).to.be(0);
+        expect(collection.average('note')).to.be(-1);
         collection.setUserItem({note: 4.2});
-        expect(collection.average('note')).toEqual(4.2);
+        expect(collection.average('note')).to.eql(4.2);
         collection.setUserItem(null);
-        expect(collection.average('note')).toEqual(-1);
-        expect(collection.getCurrentData().operations[0].average_count).toEqual(0);
-        expect(collection.getCurrentData().operations[0].average).toEqual(-1);
-      },
+        expect(collection.average('note')).to.eql(-1);
+        expect(collection.getCurrentData().operations[0].average_count).to.eql(0);
+        expect(collection.getCurrentData().operations[0].average).to.eql(-1);
+      });
 
-      'support updating the first element': function(){
+      it('support updating the first element', function(){
         collection = publicFixture({
           // name of the colleciton
           name: 'emptyCollection',
@@ -72,44 +73,44 @@
           operations: [{ operation: "average", field: "note", average: -1, average_count: 0 }],
           definition: {fields: [{name: 'note', type: 'number', operations: ['average']}]}
         });
-        expect(collection.count()).toBe(0);
-        expect(collection.average('note')).toBe(-1);
+        expect(collection.count()).to.be(0);
+        expect(collection.average('note')).to.be(-1);
         collection.setUserItem({note: 4.2});
-        expect(collection.average('note')).toEqual(4.2);
+        expect(collection.average('note')).to.eql(4.2);
         collection.setUserItem({note: 3.2});
-        expect(collection.average('note')).toEqual(3.2);
-        expect(collection.getCurrentData().operations[0].average_count).toEqual(1);
-        expect(collection.getCurrentData().operations[0].average).toEqual(3.2);
-      },
+        expect(collection.average('note')).to.eql(3.2);
+        expect(collection.getCurrentData().operations[0].average_count).to.eql(1);
+        expect(collection.getCurrentData().operations[0].average).to.eql(3.2);
+      });
 
-      'support updates when value change by reference': function(){
+      it('support updates when value change by reference', function(){
         collection.setUserItem({note: 1});
         var baseAverage = collection.average('note');
         var ref = {note: baseAverage + 1};
         collection.setUserItem(ref);
-        expect(collection.average('note')).not.toEqual(baseAverage);
+        expect(collection.average('note')).not.to.eql(baseAverage);
         ref.note = 1;
         collection.setUserItem(ref);
-        expect(collection.average('note')).toEqual(baseAverage);
-      },
+        expect(collection.average('note')).to.eql(baseAverage);
+      });
 
-      'can be empty': function(){
-        expect(collection.average('emptyField')).toBe(-1);
+      it('can be empty', function(){
+        expect(collection.average('emptyField')).to.be(-1);
         collection.setUserItem({emptyField: 12});
-        expect(collection.average('emptyField')).toBe(12);
-      }
-    },
+        expect(collection.average('emptyField')).to.be(12);
+      });
+    });
 
-    '#count': {
-      'returns the number of record without arguments': function(){
-        expect(collection.count()).toBe(data.count);
-      },
+    describe('#count', function() {
+      it('returns the number of record without arguments', function(){
+        expect(collection.count()).to.be(data.count);
+      });
 
-      'returns the count of record that setted a properties': function(){
-        expect(collection.count('love_it')).toBe(5);
-        expect(collection.count('leave_it')).toBe(3);
-      },
-      'updates after insert': function(){
+      it('returns the count of record that setted a properties', function(){
+        expect(collection.count('love_it')).to.be(5);
+        expect(collection.count('leave_it')).to.be(3);
+      });
+      it('updates after insert', function(){
         data.items = [];
         collection = publicFixture(data);
 
@@ -118,180 +119,180 @@
         var leave_it = collection.count('leave_it');
 
         collection.setUserItem({love_it: 'a'});
-        expect(collection.count('love_it')).toBe(love_it + 1);
-        expect(collection.count('leave_it')).toBe(leave_it);
-      },
+        expect(collection.count('love_it')).to.be(love_it + 1);
+        expect(collection.count('leave_it')).to.be(leave_it);
+      });
 
-      'updates after update': function(){
+      it('updates after update', function(){
         var count = collection.count();
         var love_it = collection.count('love_it');
         var leave_it = collection.count('leave_it');
 
         collection.setUserItem({leave_it: true});
-        expect(collection.count('love_it')).toBe(love_it - 1);
-        expect(collection.count('leave_it')).toBe(leave_it + 1);
-      },
+        expect(collection.count('love_it')).to.be(love_it - 1);
+        expect(collection.count('leave_it')).to.be(leave_it + 1);
+      });
 
-      'updates after delete': function(){
+      it('updates after delete', function(){
         var count = collection.count();
         var love_it = collection.count('love_it');
         var leave_it = collection.count('leave_it');
 
         collection.setUserItem(undefined);
-        expect(collection.count('love_it')).toBe(love_it - 1);
-      }
-    },
+        expect(collection.count('love_it')).to.be(love_it - 1);
+      });
+    });
 
-    '#sum': {
-      'updates on insert': function(){
+    describe('#sum', function() {
+      it('updates on insert', function(){
         data.items = [];
         collection = publicFixture(data);
         var sum = collection.sum('spentMoney');
         collection.setUserItem({spentMoney: 22});
-        expect(collection.sum('spentMoney')).toBe(sum + 22);
-      },
+        expect(collection.sum('spentMoney')).to.be(sum + 22);
+      });
 
-      'updates on update': function(){
+      it('updates on update', function(){
         var sum = collection.sum('spentMoney');
         var item = collection.getUserItem();
         collection.setUserItem({spentMoney: 12});
-        expect(collection.sum('spentMoney')).toBe(sum - item.spentMoney + 12);
-      },
+        expect(collection.sum('spentMoney')).to.be(sum - item.spentMoney + 12);
+      });
 
-      'updates on delete': function(){
+      it('updates on delete', function(){
         var sum = collection.sum('spentMoney');
         var item = collection.getUserItem();
         collection.setUserItem(undefined);
-        expect(collection.sum('spentMoney')).toBe(sum - item.spentMoney);
-      }
-    },
+        expect(collection.sum('spentMoney')).to.be(sum - item.spentMoney);
+      });
+    });
 
-    '#setUserItem': {
-      'let you add an item': function(){
-        expect(collection).toBeDefined();
+    describe('#setUserItem', function() {
+      it('let you add an item', function(){
+        expect(collection).to.be.ok();
         collection.setUserItem(anItem);
-      },
+      });
 
-      'throw an exception if the item contains wrong values in some field': function(){
+      it('throw an exception if the item contains wrong values in some field', function(){
         var values = ['wrong', {i:1}];
         try {
           collection.setUserItem({note: 'wrong'});
           fail('Should throw an exception');
         } catch (e){
-          expect(e.message).toBe('TypeError');
+          expect(e.message).to.be('TypeError');
         }
-      },
+      });
 
-      'define the key to the user id': function(){
+      it('define the key to the user id', function(){
         var item = {note: 4} ;
         var result = collection.setUserItem(item);
-        expect(result).toBeDefined();
-        expect(result.note).toBe(4);
+        expect(result).to.be.ok();
+        expect(result.note).to.be(4);
         var result2 = collection.setUserItem({note: 5});
         var result3 = collection.getUserItem();
-        expect(result3.note).toBe(result2.note);
+        expect(result3.note).to.be(result2.note);
 
         collection.save();
         var message = dataDelegate.operations.pop();
-        expect(message.items[currentUserId]).toBeDefined();
-        expect(message.items[currentUserId].note).toBe(5);
-      },
+        expect(message.items[currentUserId]).to.be.ok();
+        expect(message.items[currentUserId].note).to.be(5);
+      });
 
-      'effects on average': {
-        'supports adding an item': function(){
+      describe('effects on average', function() {
+        it('supports adding an item', function(){
           collection.setUserItem({note: 3.5});
-          expect(collection.average('note')).toBe(4.0);
-        },
-        'supports updating an item': function(){
+          expect(collection.average('note')).to.be(4.0);
+        });
+        it('supports updating an item', function(){
           collection.setUserItem({note: 5.5});
-          expect(collection.average('note')).toBe(5.0);
-        },
-        'supports updating without the field': function(){
+          expect(collection.average('note')).to.be(5.0);
+        });
+        it('supports updating without the field', function(){
           collection.setUserItem({comment: 'ciao'});
-          expect(collection.average('note')).toBe(4.5);
-        },
-        'supports deleting an item': function(){
-          expect(collection.average('note')).toBe(4.25);
-          expect(collection.count('note')).toBe(2);
-          expect(collection.getUserItem().note).toBe(4.0);
+          expect(collection.average('note')).to.be(4.5);
+        });
+        it('supports deleting an item', function(){
+          expect(collection.average('note')).to.be(4.25);
+          expect(collection.count('note')).to.be(2);
+          expect(collection.getUserItem().note).to.be(4.0);
           collection.setUserItem(null);
-          expect(collection.average('note')).toBe(4.5);
-        }
-      }
-    },
+          expect(collection.average('note')).to.be(4.5);
+        });
+      });
+    });
 
-    '#getCurrentData': {
-      'retrieve the same data as given if no operations occured': function(){
-        expect(collection.getCurrentData).toBeDefined();
+    describe('#getCurrentData', function() {
+      it('retrieve the same data as given if no operations occured', function(){
+        expect(collection.getCurrentData).to.be.ok();
         var newData = collection.getCurrentData();
-        expect(newData).toBeDefined();
-        expect(newData.name).toEqual(data.name);
-        expect(newData.count).toEqual(data.count);
-        expect(newData.operations).toEqual(data.operations);
-        expect(newData.items.length).toEqual(data.items.length);
-      },
+        expect(newData).to.be.ok();
+        expect(newData.name).to.eql(data.name);
+        expect(newData.count).to.eql(data.count);
+        expect(newData.operations).to.eql(data.operations);
+        expect(newData.items.length).to.eql(data.items.length);
+      });
 
-      'retrieve updated data after addition': function(){
+      it('retrieve updated data after addition', function(){
         data.items = [];
         collection = publicFixture(data);
-        expect(collection.getCurrentData).toBeDefined();
+        expect(collection.getCurrentData).to.be.ok();
         var oldAverage = collection.average('note');
         collection.setUserItem({note: 6});
         var newAverage = collection.average('note');
         var newData = collection.getCurrentData();
-        expect(newAverage).not.toEqual(oldAverage);
-        expect(newData.operations).not.toEqual(data.operations);
-        expect(newData.items.length).not.toEqual(data.items.length);
-      }
-    },
+        expect(newAverage).not.to.eql(oldAverage);
+        expect(newData.operations).not.to.eql(data.operations);
+        expect(newData.items.length).not.to.eql(data.items.length);
+      });
+    });
 
-    'find recent': {
-      'retrieve default items': function(done){
+    describe('find recent', function() {
+      it('retrieve default items', function(done){
         collection.find(function(items){
-          expect(items).toBeDefined();
+          expect(items).to.be.ok();
           var item = items[0];
-          expect(item).toBeDefined();
+          expect(item).to.be.ok();
           done();
         });
-        expect(dataDelegate.operations.length).toEqual(1);
+        expect(dataDelegate.operations.length).to.eql(1);
         var op = dataDelegate.operations.pop();
         var result = [{}];
-        expect(op.options).toEqual({filters:{recent: true}});
-        expect(op.name).toEqual(collection.name);
-        expect(op.callback).toBeDefined();
+        expect(op.options).to.eql({filters:{recent: true}});
+        expect(op.name).to.eql(collection.name);
+        expect(op.callback).to.be.ok();
         op.callback(result);
-      },
+      });
 
-      'retrieve most recent items': function(){
+      it('retrieve most recent items', function(){
         collection.find('recent', function(items){});
         var op = dataDelegate.operations.pop();
         var result = [{}];
-        expect(op.options).toEqual({filters:{recent: true}});
-        expect(op.name).toEqual(collection.name);
-        expect(op.callback).toBeDefined();
+        expect(op.options).to.eql({filters:{recent: true}});
+        expect(op.name).to.eql(collection.name);
+        expect(op.callback).to.be.ok();
         op.callback(result);
-      },
+      });
 
-      'retrieve friends items': function(){
+      it('retrieve friends items', function(){
         collection.find('friends', function(items){});
         var op = dataDelegate.operations.pop();
         var result = [{}];
-        expect(op.options).toEqual({filters:{friends: true}});
-        expect(op.name).toEqual(collection.name);
-        expect(op.callback).toBeDefined();
+        expect(op.options).to.eql({filters:{friends: true}});
+        expect(op.name).to.eql(collection.name);
+        expect(op.callback).to.be.ok();
         op.callback(result);
-      },
+      });
 
-      'throw an error if no callback': function(){
-        expect(function(){collection.find();}).toThrow('Error');
-        expect(function(){collection.find('recent');}).toThrow('Error');
-        expect(function(){collection.find();}).toThrow('Error');
-        expect(function(){collection.find('recent', 'bis');}).toThrow('Error');
-      },
+      it('throw an error if no callback', function(){
+        expect(function(){collection.find();}).to.throwException('Error');
+        expect(function(){collection.find('recent');}).to.throwException('Error');
+        expect(function(){collection.find();}).to.throwException('Error');
+        expect(function(){collection.find('recent', 'bis');}).to.throwException('Error');
+      });
 
-      'throw an error with unknown filters': function(){
-        expect(function(){collection.find('x', function(){});}).toThrow('Error');
-      }
-    }
+      it('throw an error with unknown filters', function(){
+        expect(function(){collection.find('x', function(){});}).to.throwException('Error');
+      });
+    });
   });
 })();

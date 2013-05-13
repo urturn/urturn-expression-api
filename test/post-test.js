@@ -6,10 +6,6 @@
     });
     messageListeners = [];
   };
-
-  var assert = buster.assert;
-  var refute = buster.refute;
-
   var listenToMessage = function(callback){
     var func = function(event){
       if(callback){
@@ -62,20 +58,19 @@
     context.post = UT.Expression._postInstance();
   };
 
-  buster.testCase("Post", {
-    setUp: function(){
-      this.node = createExpressionDOM();
-    },
-    tearDown: function(){
+  describe("Post", function(){
+    beforeEach(function(){
+      this.node = TestHelpers.createExpressionDOM();
+    });
+    afterEach(function(){
       if(this.node){
         document.body.removeChild(this.node);
       }
       dropListeners();
       UT.Expression._reset();
-    },
-
-    "collection()": {
-      "retrieve a collection given its name": function(){
+    });
+    describe("collection()", function(){
+      it("retrieve a collection given its name", function(){
         setupExpression(this, {
           collections: [{
             name: 'default',
@@ -87,38 +82,38 @@
             count: 0
           }]
         });
-        assert.equals(this.post.collection('default'), this.post.storage);
-        assert.equals(this.post.collection('testAnotherOne').name, 'testAnotherOne');
-      }
-    },
+        expect(this.post.collection('default')).to.eql(this.post.storage);
+        expect(this.post.collection('testAnotherOne').name).to.eql('testAnotherOne');
+      });
+    });
 
-    "valid": {
-      "default state is false": function(){
+    describe("valid", function() {
+      it("default state is false", function(){
         setupExpression(this);
-        buster.assert.defined(this.post);
-        buster.assert.equals(this.post.valid(), false);
-      },
+        expect(this.post).to.be.ok();
+        expect(this.post.valid()).to.be(false);
+      });
 
-      "state can be set to true": function(){
+      it("state can be set to true", function(){
         setupExpression(this);
-        buster.assert.defined(this.post);
-        buster.assert.equals(this.post.valid(true), true);
-        buster.assert.equals(this.post.valid(), true);
-        buster.assert.equals(this.post.valid(true), true);
-        buster.assert.equals(this.post.valid(), true);
-      },
+        expect(this.post).to.be.ok();
+        expect(this.post.valid(true)).to.eql(true);
+        expect(this.post.valid()).to.eql(true);
+        expect(this.post.valid(true)).to.eql(true);
+        expect(this.post.valid()).to.eql(true);
+      });
 
-      "state can be set back to false": function(){
+      it("state can be set back to false", function(){
         setupExpression(this);
-        buster.assert.defined(this.post);
-        buster.assert.equals(this.post.valid(true), true);
-        buster.assert.equals(this.post.valid(false), false);
-        buster.assert.equals(this.post.valid(), false);
-      }
-    },
+        expect(this.post).to.be.ok();
+        expect(this.post.valid(true)).to.eql(true);
+        expect(this.post.valid(false)).to.eql(false);
+        expect(this.post.valid()).to.eql(false);
+      });
+    });
 
-    "parent collection": {
-      "retrieve same data as storage": function(){
+    describe("parent collection", function() {
+      it("retrieve same data as storage", function(){
         setupExpression(this, {
           parentData: {
             aString: {
@@ -151,29 +146,30 @@
           }
         });
         var col = this.post.collection('parent');
-        assert(col.anObject);
-        assert.equals(col.anObject.plain, 'object');
-        assert.equals(col.aString, 'aString');
-        assert.isNull(col.aNullValue);
-        assert.equals(true, col.aBoolean);
-        assert.equals(2.4, col.aNumber);
-        assert.equals([1, 'test', {plain: 'object'}], col.anArray);
+        expect(col.anObject).to.be.ok();
+        expect(col.anObject.plain).to.eql('object');
+        expect(col.aString).to.eql('aString');
+        expect(col.aNullValue).to.be(null);
+        expect(true).to.eql(col.aBoolean);
+        expect(2.4).to.eql(col.aNumber);
+        expect([1, 'test', {plain: 'object'}]).to.eql(col.anArray);
         // XXX need to test the image
-      },
-      "isNull when no parent data": function(){
+      });
+      it("isNull when no parent data", function(){
         setupExpression(this, {parentData: null});
-        assert.isNull(this.post.collection('parent'));
-      }
-    },
+        expect(this.post.collection('parent')).to.be(null);
+      });
+    });
 
-    "dialog/text": {
-      "using option hash": function(done){
+    describe("dialog/text", function() {
+      it("using option hash", function(done){
         setupExpression(this);
         listenToMessage(function(message, callback){
           if(message.methodName == 'document.textInput'){
-            buster.assert.equals(message.args[0], 'default');
-            buster.assert.equals(message.args[1], 15);
-            buster.assert.equals(message.args[2], true);
+            expect(message.args[0]).to.eql('default');
+            expect(message.args[1]).to.eql(15);
+            expect(message.args[2]).to.eql(true);
+            expect(callback).to.be.ok();
             callback('hello');
           }
         });
@@ -182,23 +178,24 @@
           max: 15,
           multiline: true
         }, function(data){
-          buster.assert.equals(data, 'hello');
+          expect(data).to.eql('hello');
           done();
         });
-      },
-      "using a single callback": function(done){
+      });
+      it("using a single callback", function(done){
         setupExpression(this);
         listenToMessage(function(message, callback){
           callback('hello');
         });
         this.post.dialog('text', function(data){
-          buster.assert.equals(data, 'hello');
+          expect(data).to.eql('hello');
           done();
         });
-      }
-    },
-    "save()": {
-      "save all collections": function(done){
+      });
+    });
+
+    describe("save()", function() {
+      it("save all collections", function(done){
         setupExpression(this, {
           collections: [{
             name: 'default',
@@ -216,34 +213,35 @@
             if(message.methodName == 'collections.save'){
               if(message.args[0] == 'default'){
                 defaultSaved = true;
-                assert.equals(message.args[1].anObject.hello, 'world');
+                expect(message.args[1].anObject.hello).to.eql('world');
               } else if (message.args[0] == 'testAnotherOne'){
                 testAnotherOneSaved = true;
-                assert.equals(message.args[1].aValue.value, 'Hello World');
+                expect(message.args[1].aValue.value).to.eql('Hello World');
               } else {
-                buster.fail('cannot guess arguments', message);
+                expect().fail('cannot guess arguments', message);
               }
             }
           } catch (e){
             done(e);
           }
           if(defaultSaved && testAnotherOneSaved){
-            assert(true);
             done();
           }
         });
         this.post.collection('testAnotherOne').aValue = 'Hello World';
         this.post.collection('default').anObject = {hello: 'world'};
         this.post.save();
-      }
-    },
-    "resize()": {
-      setUp: function(){
+      });
+    });
+    describe("resize()", function() {
+      beforeEach(function(){
         this.assertHeightMessage = function(expected, done){
           listenToMessage(function(message){
             if(message.methodName == 'container.resizeHeight'){
               try {
-                assert.equals(message.args[0], expected);
+                if(expected !== null){
+                  expect(message.args[0]).to.eql(expected);
+                }
                 done();
               } catch(e) {
                 done(e);
@@ -252,35 +250,39 @@
           });
         };
         setupExpression(this);
-      },
-      "with 'auto'": function(done){
+      });
+      it("with 'auto'", function(done){
         var div = document.createElement('div');
         div.style.height = "233px";
-        refute.isNull(this.post.node);
+        expect(this.post.node).to.be.ok();
         this.post.node.appendChild(div);
-        this.assertHeightMessage(233, done);
+        if(TEST_ENV=='unit'){
+          this.assertHeightMessage(233, done);
+        } else {
+          this.assertHeightMessage(null, done);
+        }
         this.post.resize('auto');
-      },
-      "with height in pixel": function(done){
+      });
+      it("with height in pixel", function(done){
         this.assertHeightMessage(532, done);
         this.post.resize(532);
-      },
-      "with height in object": function(done){
+      });
+      it("with height in object", function(done){
         this.assertHeightMessage(345, done);
         this.post.resize({height: 345});
-      },
-      "with a string height in object": function(done){
+      });
+      it("with a string height in object", function(done){
         this.assertHeightMessage(123, done);
         this.post.resize({height: '123px'});
-      }
-    },
-    "note property": {
-      "set to a new string": function(done){
+      });
+    });
+    describe("note property", function() {
+      it("set to a new string", function(done){
         setupExpression(this);
         listenToMessage(function(message){
           if(message.methodName == 'document.setNote'){
             try {
-              assert.equals(message.args[0], 'Hello World');
+              expect(message.args[0]).to.eql('Hello World');
               done();
             } catch(e) {
               done(e);
@@ -288,13 +290,13 @@
           }
         });
         this.post.note = "Hello World";
-      },
-      "set to null": function(done){
+      });
+      it("set to null", function(done){
         setupExpression(this);
         listenToMessage(function(message){
           if(message.methodName == 'document.setNote'){
             try {
-              assert.equals(message.args[0], null);
+              expect(message.args[0]).to.eql(null);
               done();
             } catch(e) {
               done(e);
@@ -302,17 +304,17 @@
           }
         });
         this.post.note = null;
-      }
-    },
-    "queueUp()": {
-      setUp: function(){
+      });
+    });
+    describe("queueUp()", function() {
+      beforeEach(function(){
         setupExpression(this);
-      },
-      'can retrieve the number in the queue': function(done){
+      });
+      it('can retrieve the number in the queue', function(done){
         listenToMessage(function(message){
           if(message.methodName == 'document.queueUp'){
             try {
-              assert.equals(message.args[0], 'XYZ');
+              expect(message.args[0]).to.eql('XYZ');
               callback(1);
             } catch(e) {
               done();
@@ -321,19 +323,19 @@
         });
         this.post.queueUp('XYZ', function(number){
           try {
-            assert.equals(number, 1);
+            expect(number).to.eql(1);
           } catch(e) {
             done();
           }
         });
-      },
-      'subsequent call will retrieve the same number': function(done){
+      });
+      it('subsequent call will retrieve the same number', function(done){
         var count = 0;
         var post = this.post;
         listenToMessage(function(message, callback){
           if(message.methodName == 'document.queueUp'){
             try {
-              assert.equals(message.args[0], 'XYZ');
+              expect(message.args[0]).to.eql('XYZ');
               count ++;
               callback(122);
             } catch (e) {
@@ -343,12 +345,12 @@
         });
         post.queueUp('XYZ', function(number){
           try {
-            assert.equals(number, 122);
-            assert.equals(count, 1);
+            expect(number).to.eql(122);
+            expect(count).to.eql(1);
             post.queueUp('XYZ', function(number){
               try {
-                assert.equals(number, 122);
-                assert.equals(count, 1); // did not call the API again.
+                expect(number).to.eql(122);
+                expect(count).to.eql(1); // did not call the API again.
                 done();
               } catch (e) {
                 done();
@@ -358,8 +360,8 @@
             done();
           }
         });
-      },
-      'ask ticket in two different queue': function(done){
+      });
+      it('ask ticket in two different queue', function(done){
         var count = 0;
         var post = this.post;
         listenToMessage(function(message, callback){
@@ -374,12 +376,12 @@
         });
         post.queueUp('A', function(number){
           try {
-            assert.equals(number, 45);
-            assert.equals(count, 1);
+            expect(number).to.eql(45);
+            expect(count).to.eql(1);
             post.queueUp('B', function(number){
               try {
-                assert.equals(number, 42);
-                assert.equals(count, 2); // did not call the API again.
+                expect(number).to.eql(42);
+                expect(count).to.eql(2); // did not call the API again.
                 done();
               } catch (e) {
                 done();
@@ -389,86 +391,72 @@
             done();
           }
         });
-      }
-    },
-    "users()": {
-      setUp: function(){
+      });
+    });
+    describe("users()", function() {
+      beforeEach(function(){
         this.uuid = UT.uuid();
         setupExpression(this, {currentUserId: this.uuid});
         this.currentUserCallback = function(message, callback){
           if(message.methodName == 'document.getUserData'){
             try {
-              assert.equals(message.args.length, 0);
+              expect(message.args.length).to.eql(0);
               callback({uuid: this.uuid, username: 'testme', avatar: 'http://avatar.com'});
             } catch(e) {
               console.log(e);
-              buster.fail(e);
+              expect().fail(e);
             }
           }
         };
         this.oneItemCallback = function(message, callback){
           if(message.methodName == 'document.users'){
             try {
-              assert.equals(message.args.length, 1);
-              assert.equals(message.args[0].length, 1);
+              expect(message.args.length).to.eql(1);
+              expect(message.args[0].length).to.eql(1);
               callback([{uuid: this.uuid, username: 'testme', avatar: 'http://avatar.com'}]);
             } catch(e) {
               console.log(e);
-              buster.fail(e);
+              expect().fail(e);
             }
           }
         };
-      },
-      "current": function(done){
+      });
+      it("current", function(done){
         listenToMessage(this.currentUserCallback);
         this.post.users('current', function(user){
           try {
-            assert.equals(user.constructor, UT.User);
+            expect(user.constructor).to.eql(UT.User);
             done();
           } catch(e) {
             console.log(e);
           }
         });
-      },
-      "with one item": function(done) {
+      });
+      it("with one item", function(done) {
         var item = {_key: this.uuid, value: '22', _type: 'custom'};
         listenToMessage(this.oneItemCallback);
         this.post.users(item, function(user, theItem){
           try {
-            refute.isNull(user);
-            assert.equals(user.constructor, UT.User);
-            assert.equals(theItem, item);
+            expect(user).to.be.ok();
+            expect(user.constructor).to.eql(UT.User);
+            expect(theItem).to.eql(item);
             done();
           } catch(e) {
             console.log(e);
           }
         });
-      },
-      "missing user for one item": function(done){
-        listenToMessage(function(message, callback){
-          if(message.methodName == 'document.users'){
-            assert.equals(message.args.length, 1);
-            assert.equals(message.args[0].length, 1);
-            assert.equals(message.args[0][1], this.uuid);
-            callback([]);
-          }
-        });
-        this.post.users({_key: this.uuid}, function(user, item){
-          assert.isNull(user);
-          assert.isNull(item);
-          done();
-        });
-      },
-      "many items retrieve many users": function(done) {
+      });
+
+      it("many items retrieve many users", function(done) {
         var ids = [UT.uuid(), UT.uuid()];
         var items = [{_key: ids[0]}, {_key: ids[1]}];
         listenToMessage(function(message, callback){
           if(message.methodName == 'document.users'){
             try {
-              assert.equals(message.args.length, 1);
-              assert.equals(message.args[0].length, 2);
-              assert.equals(message.args[0][0], ids[0]);
-              assert.equals(message.args[0][1], ids[1]);
+              expect(message.args.length).to.eql(1);
+              expect(message.args[0].length).to.eql(2);
+              expect(message.args[0][0]).to.eql(ids[0]);
+              expect(message.args[0][1]).to.eql(ids[1]);
               callback([{uuid: ids[1], username: 'testme', avatar: 'http://avatar.com/me'},
                 {uuid: ids[0], username: 'testit', avatar: 'http://avatar.com/it'}]);
             } catch(e) {
@@ -478,51 +466,69 @@
         });
         this.post.users(items, function(users, theItems){
           try {
-            assert.equals(users.length, 2);
-            assert.equals(ids[0], users[0].uuid);
-            assert.equals(ids[1], users[1].uuid);
-            assert.equals(users[1].uuid, items[1]._key);
-            assert.equals(users[0].uuid, items[0]._key);
-            assert.equals(items[0], theItems[0]);
-            assert.equals(items[1], theItems[1]);
+            expect(users.length).to.eql(2);
+            expect(ids[0]).to.eql(users[0].uuid);
+            expect(ids[1]).to.eql(users[1].uuid);
+            expect(users[1].uuid).to.eql(items[1]._key);
+            expect(users[0].uuid).to.eql(items[0]._key);
+            expect(items[0]).to.eql(theItems[0]);
+            expect(items[1]).to.eql(theItems[1]);
             done();
           } catch(e) {
             console.log('error', e);
           }
         });
-      },
-      "many items with missing users": function(done) {
-        var ids = [UT.uuid(), UT.uuid()];
-        var items = [{_key: ids[0]}, {_key: ids[1]}];
-        listenToMessage(function(message, callback){
-          if(message.methodName == 'document.users'){
-            try {
-              assert.equals(message.args.length, 1);
-              assert.equals(2, message.args[0].length);
-              callback([{uuid: ids[1], username: 'testme', avatar: 'http://avatar.com/me'}]);
-              done();
-            } catch(e) {
-              console.log(e);
-            }
-          }
-        });
-        this.post.users(items, function(users, theItems){
-          assert.equals(1, users.length);
-          assert.equals(1, items.length);
-          assert.equals(ids[1], users[0].uuid);
-          assert.equals(users[0], items[1]);
-          assert.equals(theItems[0], items[1]);
-        });
-      },
-      "isOwner(user) and isCurrentUser(user)":  function(){
+      });
+      it("isOwner(user) and isCurrentUser(user)", function(){
         var currentUser = new UT.User({uuid: UT.uuid(), username: 'a'});
         var postUser = new UT.User({uuid: UT.uuid(), username: 'a'});
         setupExpression(this, {currentUserId: currentUser.uuid, postUserId: postUser.uuid});
-        refute(this.post.isOwner(currentUser));
-        refute(this.post.isCurrentUser(postUser));
-        assert(this.post.isOwner(postUser));
-        assert(this.post.isCurrentUser(currentUser));
+        expect(this.post.isOwner(currentUser)).to.be(false);
+        expect(this.post.isCurrentUser(postUser)).to.be(false);
+        expect(this.post.isOwner(postUser)).to.be.ok();
+        expect(this.post.isCurrentUser(currentUser)).to.be.ok();
+      });
+      if(TEST_ENV !== 'integration'){
+        it("missing user for one item", function(done){
+          listenToMessage(function(message, callback){
+            if(message.methodName == 'document.users'){
+              expect(message.args.length).to.eql(1);
+              expect(message.args[0].length).to.eql(1);
+              expect(message.args[0][1]).to.eql(this.uuid);
+              callback([]);
+            }
+          });
+          this.post.users({_key: this.uuid}, function(user, item){
+            expect(user).to.be(null);
+            expect(item).to.be(null);
+            done();
+          });
+        });
+
+        it("many items with missing users", function(done) {
+          var ids = [UT.uuid(), UT.uuid()];
+          var items = [{_key: ids[0]}, {_key: ids[1]}];
+          listenToMessage(function(message, callback){
+            if(message.methodName == 'document.users'){
+              try {
+                expect(message.args.length).to.eql(1);
+                expect(2).to.eql(message.args[0].length);
+                callback([{uuid: ids[1], username: 'testme', avatar: 'http://avatar.com/me'}]);
+                done();
+              } catch(e) {
+                console.log(e);
+              }
+            }
+          });
+          this.post.users(items, function(users, theItems){
+            expect(1).to.eql(users.length);
+            expect(1).to.eql(theItems.length);
+            expect(ids[1]).to.eql(users[0].uuid);
+            expect(theItems[0]).to.eql(items[1]);
+            expect(theItems[0]).to.eql(items[1]);
+          });
+        });
       }
-    }
+    });
   });
 })();

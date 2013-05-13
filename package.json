@@ -6,8 +6,9 @@
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-cli": "~0.1",
-    "grunt-buster": "*",
-    "buster": "~0.6.12",
+    "grunt-mocha": "*",
+    "mocha": "~1.9.0",
+    "expect": "0.0.2",
     "grunt-css": "*",
     "grunt-contrib-jshint": "~0.2.0",
     "grunt-contrib-concat": "~0.1.3",

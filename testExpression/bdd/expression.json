@@ -1,0 +1,14 @@
+{
+  "title": "bdd",
+  "description": "",
+  "system_name": "bdd",
+  "version": "0.1.0",
+  "api_version": "0.8.0-alpha",
+  "dependencies": [
+    {"path": "lib/mocha.css"},
+    {"path": "styles.css"},
+    {"path": "lib/mocha.js"},
+    {"path": "lib/expect.js"},
+    {"path": "test/lib/dom.js"}
+  ]
+}

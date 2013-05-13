@@ -49,7 +49,9 @@ module.exports = function(grunt) {
     options: {
       browser: true
     },
-    all: ['grunt.js', 'lib/**/*.js', 'test/**/*.js']
+    build: ['grunt.js'],
+    lib: ['lib/**/*.js'],
+    test: ['test/*.js', 'test/lib/collection-fixtures.js', 'test/lib/dom.js']
   };
 
   // Minify JS
@@ -100,12 +102,13 @@ module.exports = function(grunt) {
   };
 
   // Tests
-  config.buster = {
-    test: {
-      'config-group': 'compiled'
-    },
-    server: {
-      port: 1111
+  config.mocha = {
+    console: {
+      src: ['test/console.html'],
+      options: {
+        run: true,
+        reporter: 'Nyan'
+      }
     }
   };
 
@@ -135,7 +138,7 @@ module.exports = function(grunt) {
   grunt.initConfig(config);
 
   // Load external grunt Task
-  grunt.loadNpmTasks('grunt-buster');
+  grunt.loadNpmTasks('grunt-mocha');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-concat');
@@ -228,9 +231,24 @@ module.exports = function(grunt) {
     }
   });
 
+  grunt.registerTask('buildTestExpression', function(){
+    expPath = path.join('testExpression', 'bdd');
+    expTestPath = path.join(expPath, 'test');
+    if(grunt.file.exists(expTestPath)){
+      grunt.file['delete'](expTestPath);
+    }
+    grunt.file.mkdir(expTestPath);
+    var files = grunt.file.expand('test/**/*.js');
+    files.forEach(function(f){
+      grunt.file.copy(f, path.join(expPath, f));
+    });
+    grunt.file.copy('node_modules/mocha/mocha.js', path.join(expPath, 'lib', 'mocha.js'));
+    grunt.file.copy('node_modules/mocha/mocha.css', path.join(expPath, 'lib', 'mocha.css'));
+    grunt.file.copy('node_modules/expect.js/expect.js', path.join(expPath, 'lib', 'expect.js'));
+  });
+
   // Default task.
-  grunt.registerTask('default', ['bower','jshint', 'filecheck', 'concat', 'uglify', 'buster', 'cssmin']);
+  grunt.registerTask('default', ['bower','jshint', 'filecheck', 'concat', 'uglify', 'mocha', 'cssmin', 'buildTestExpression']);
   grunt.registerTask('all', ['default', 's3deploy']);
   grunt.registerTask('local', ['concat', 'uglify', 'cssmin']);
-  grunt.registerTask('l', 'jshint');
 };

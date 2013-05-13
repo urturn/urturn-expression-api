@@ -1,4 +1,8 @@
-function createExpressionDOM(){
+if(!window.TestHelpers){
+  window.TestHelpers = {};
+}
+
+TestHelpers.createExpressionDOM = function createExpressionDOM(){
   var node = document.querySelector('.webdoc_expression_wrapper');
   if(!node){
     node = document.createElement('div');
@@ -7,4 +11,4 @@ function createExpressionDOM(){
   } else {
     node.innerHTML = "";
   }
-}
+};

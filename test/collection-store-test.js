@@ -1,5 +1,3 @@
-buster.spec.expose();
-
 describe('CollectionStore', function(){
   var collections;
   var document_id;
@@ -13,17 +11,17 @@ describe('CollectionStore', function(){
   describe('#get', function(){
     it('retrieves a collection', function(){
       var collection = collections.get('my-collection');
-      expect(collection).toBeDefined();
-      expect(collection.name).toBe('my-collection');
+      expect(collection).to.be.ok();
+      expect(collection.name).to.be('my-collection');
     });
   });
 
   describe('public or private collection', function(){
     it('create public collection', function(){
-      expect(collections.get('my-collection').isPublic()).toBe(true);
+      expect(collections.get('my-collection').isPublic()).to.be(true);
     });
     it('create private collection', function(){
-      expect(collections.get('default').isPublic()).toBe(false);
+      expect(collections.get('default').isPublic()).to.be(false);
     });
   });
 });
