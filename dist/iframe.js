@@ -815,7 +815,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '0.0.0';
+    return '0.8.0-alpha';
   };
 
   /**

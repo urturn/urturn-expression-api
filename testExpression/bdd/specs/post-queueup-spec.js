@@ -1,88 +1,38 @@
 UT.Expression.ready(function(post){
   describe("queueUp()", function() {
-    beforeEach(function(){
-      setupExpression(this);
-    });
-    it('can retrieve the number in the queue', function(done){
-      listenToMessage(function(message){
-        if(message.methodName == 'document.queueUp'){
-          try {
-            expect(message.args[0]).to.eql('XYZ');
-            callback(1);
-          } catch(e) {
-            done();
-          }
-        }
-      });
-      this.post.queueUp('XYZ', function(number){
-        try {
-          expect(number).to.eql(1);
-        } catch(e) {
-          done();
-        }
+    it('retrieve a number from the queue', function(done){
+      post.queueUp('XYZ', function(number){
+        expect(number).to.be.greaterThan(0);
+        done();
       });
     });
     it('subsequent call will retrieve the same number', function(done){
-      var count = 0;
-      var post = this.post;
-      listenToMessage(function(message, callback){
-        if(message.methodName == 'document.queueUp'){
-          try {
-            expect(message.args[0]).to.eql('XYZ');
-            count ++;
-            callback(122);
-          } catch (e) {
-            done();
-          }
-        }
-      });
       post.queueUp('XYZ', function(number){
-        try {
-          expect(number).to.eql(122);
-          expect(count).to.eql(1);
-          post.queueUp('XYZ', function(number){
-            try {
-              expect(number).to.eql(122);
-              expect(count).to.eql(1); // did not call the API again.
-              done();
-            } catch (e) {
-              done();
-            }
-          });
-        } catch (e) {
+        expect(number).to.be.greaterThan(0);
+        post.queueUp('XYZ', function(n){
+          expect(n).to.eql(number);
           done();
+        });
+        if(post.context.editor){
+          post.storage.number = number;
         }
+        post.save();
       });
     });
-    it('ask ticket in two different queue', function(done){
-      var count = 0;
-      var post = this.post;
-      listenToMessage(function(message, callback){
-        if(message.methodName == 'document.queueUp'){
-          try {
-            count ++;
-            callback( (message.args[0] == 'A'? 45 : 42) );
-          } catch (e) {
-            done();
-          }
-        }
+    if(post.context.player){
+      it('retrieves different number in player if called again', function(){
+        post.queueUp('XYZ', function(n){
+          expect(n).not.eql(post.storage.number);
+        });
       });
-      post.queueUp('A', function(number){
-        try {
-          expect(number).to.eql(45);
-          expect(count).to.eql(1);
-          post.queueUp('B', function(number){
-            try {
-              expect(number).to.eql(42);
-              expect(count).to.eql(2); // did not call the API again.
-              done();
-            } catch (e) {
-              done();
-            }
-          });
-        } catch (e) {
+    }
+    it('two different queue migth retrieve different numbers', function(done){
+      post.queueUp('XYZ', function(number){
+        expect(number).to.be.greaterThan(0);
+        post.queueUp('XYZ', function(n){
+          expect(n).to.eql(number);
           done();
-        }
+        });
       });
     });
   });

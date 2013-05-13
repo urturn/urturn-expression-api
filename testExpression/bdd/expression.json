@@ -9,6 +9,13 @@
     {"path": "styles.css"},
     {"path": "lib/mocha.js"},
     {"path": "lib/expect.js"},
-    {"path": "test/lib/dom.js"}
+
+    {"path": "setup.js"},
+
+    {"path": "specs/expression-spec.js"},
+    {"path": "specs/post-queueup-spec.js"},
+    {"path": "specs/post-size-spec.js"},
+
+    {"path": "start.js"}
   ]
 }
