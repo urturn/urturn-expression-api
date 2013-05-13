@@ -24,4 +24,9 @@ describe('UT.Expression', function() {
       expression.fire('ready', expression);
     });
   });
+  describe('apiVersion()', function(){
+    it('returns the current API Version', function(){
+      expect(UT.Expression.apiVersion()).to.eql('0.0.0');
+    });
+  });
 });

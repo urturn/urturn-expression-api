@@ -247,8 +247,21 @@ module.exports = function(grunt) {
     grunt.file.copy('node_modules/expect.js/expect.js', path.join(expPath, 'lib', 'expect.js'));
   });
 
+  grunt.registerTask('updateVersionNumber', function(){
+    function replace(src) {
+      content = grunt.file.read(src);
+      content = content.replace(/0\.0\.0/g, info.version);
+      grunt.file.write(src, content);
+    }
+    ['iframe', 'sandbox'].forEach(function(name){
+      replace('dist/'+name+'.js');
+    });
+    replace('testExpression/bdd/specs/expression-spec.js');
+
+  });
+
   // Default task.
-  grunt.registerTask('default', ['bower','jshint', 'filecheck', 'concat', 'uglify', 'mocha', 'cssmin', 'buildTestExpression']);
+  grunt.registerTask('default', ['bower','jshint', 'filecheck', 'concat', 'buildTestExpression', 'updateVersionNumber', 'uglify', 'mocha', 'cssmin']);
   grunt.registerTask('all', ['default', 's3deploy']);
-  grunt.registerTask('local', ['concat', 'uglify', 'cssmin']);
+  grunt.registerTask('local', ['concat', 'buildTestExpression', 'updateVersionNumber', 'uglify', 'cssmin']);
 };
