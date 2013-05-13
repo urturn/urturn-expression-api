@@ -233,15 +233,6 @@ module.exports = function(grunt) {
 
   grunt.registerTask('buildTestExpression', function(){
     expPath = path.join('testExpression', 'bdd');
-    expTestPath = path.join(expPath, 'test');
-    if(grunt.file.exists(expTestPath)){
-      grunt.file['delete'](expTestPath);
-    }
-    grunt.file.mkdir(expTestPath);
-    var files = grunt.file.expand('test/**/*.js');
-    files.forEach(function(f){
-      grunt.file.copy(f, path.join(expPath, f));
-    });
     grunt.file.copy('node_modules/mocha/mocha.js', path.join(expPath, 'lib', 'mocha.js'));
     grunt.file.copy('node_modules/mocha/mocha.css', path.join(expPath, 'lib', 'mocha.css'));
     grunt.file.copy('node_modules/expect.js/expect.js', path.join(expPath, 'lib', 'expect.js'));
