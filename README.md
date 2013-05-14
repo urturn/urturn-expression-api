@@ -2,6 +2,14 @@
 
 # Changelogs
 
+## 0.8.0
+- NEW: Use scroll() to get the current scroll position and scroll({top: 123}) or scroll({bottom: 0}) to scroll to specific positions.
+- NEW: Added the method UT.Post.queueUp(name, callback) that will retrieve the next available number in the sequence name.
+- NEW: use size() to retrieve the current size.
+- REFACTOR: Listen on 'scroll' instead of 'scrollChanged' to get notified when the scroll has been updated.
+- REFACTOR: use size(args) instead of resize(args) to resize the post.
+- FIX: scroll event is fixed.
+
 ## 0.7.5
 - FIX: fixed a bug where parent data collection was preventing expression loading on mobile.
 
@@ -16,7 +24,7 @@
   This open the door to a whole new kind of expression where viewer items are used directly
   rather than with their comments.
 - ADD: UT.User, representing a user
-- ADD: UT.Post#users([items], callback) a method that retrieve an array of 
+- ADD: UT.Post#users([items], callback) a method that retrieve an array of
   UT.User for a given array of items, the current user when 'current' is given as
   first parameter or an UT.User instance if only one item is given.
 - ADD: UT.Post#isOwner(user) return true if the given user is the post owner

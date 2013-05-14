@@ -1,8 +1,8 @@
 {
-  "title": "bdd",
+  "title": "bdd-0-8-0-beta",
   "description": "",
   "system_name": "bdd-0-8-0-beta",
-  "version": "0.1.5",
+  "version": "0.1.8",
   "api_version": "0.8.0-beta",
   "dependencies": [
     {
