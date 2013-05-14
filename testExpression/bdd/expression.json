@@ -1,21 +1,36 @@
 {
   "title": "bdd",
   "description": "",
-  "system_name": "bdd",
+  "system_name": "bdd-0.8.0-alpha",
   "version": "0.1.0",
   "api_version": "0.8.0-alpha",
   "dependencies": [
-    {"path": "lib/mocha.css"},
-    {"path": "styles.css"},
-    {"path": "lib/mocha.js"},
-    {"path": "lib/expect.js"},
-
-    {"path": "setup.js"},
-
-    {"path": "specs/expression-spec.js"},
-    {"path": "specs/post-queueup-spec.js"},
-    {"path": "specs/post-size-spec.js"},
-
-    {"path": "start.js"}
+    {
+      "path": "lib/mocha.css"
+    },
+    {
+      "path": "styles.css"
+    },
+    {
+      "path": "lib/mocha.js"
+    },
+    {
+      "path": "lib/expect.js"
+    },
+    {
+      "path": "setup.js"
+    },
+    {
+      "path": "specs/expression-spec.js"
+    },
+    {
+      "path": "specs/post-queueup-spec.js"
+    },
+    {
+      "path": "specs/post-size-spec.js"
+    },
+    {
+      "path": "start.js"
+    }
   ]
 }

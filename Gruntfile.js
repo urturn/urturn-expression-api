@@ -236,6 +236,12 @@ module.exports = function(grunt) {
     grunt.file.copy('node_modules/mocha/mocha.js', path.join(expPath, 'lib', 'mocha.js'));
     grunt.file.copy('node_modules/mocha/mocha.css', path.join(expPath, 'lib', 'mocha.css'));
     grunt.file.copy('node_modules/expect.js/expect.js', path.join(expPath, 'lib', 'expect.js'));
+
+    var expJsonPath = path.join(expPath, 'expression.json');
+    content = JSON.parse(grunt.file.read(expJsonPath));
+    content.api_version = info.version;
+    content.system_name =  'bdd-' + info.version;
+    grunt.file.write(expJsonPath,JSON.stringify(content, null, 2));
   });
 
   grunt.registerTask('updateVersionNumber', function(){
