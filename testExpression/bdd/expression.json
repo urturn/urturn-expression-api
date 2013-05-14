@@ -27,6 +27,9 @@
       "path": "specs/post-queueup-spec.js"
     },
     {
+      "path": "specs/post-scroll-spec.js"
+    },
+    {
       "path": "specs/post-size-spec.js"
     },
     {

@@ -233,7 +233,7 @@
         this.post.save();
       });
     });
-    describe("resize()", function() {
+    describe("DEPRECATED resize()", function() {
       beforeEach(function(){
         this.assertHeightMessage = function(expected, done){
           listenToMessage(function(message){
@@ -276,6 +276,67 @@
         this.post.resize({height: '123px'});
       });
     });
+
+    describe("size()", function() {
+      beforeEach(function(){
+        this.assertHeightMessage = function(expected, done){
+          listenToMessage(function(message){
+            if(message.methodName == 'container.resizeHeight'){
+              try {
+                if(expected !== null){
+                  expect(message.args[0]).to.eql(expected);
+                }
+                done();
+              } catch(e) {
+                done(e);
+              }
+            }
+          });
+        };
+        setupExpression(this);
+      });
+      it("with 'auto'", function(done){
+        var div = document.createElement('div');
+        div.style.height = "233px";
+        expect(this.post.node).to.be.ok();
+        this.post.node.appendChild(div);
+        if(TEST_ENV=='unit'){
+          this.assertHeightMessage(233, done);
+        } else {
+          this.assertHeightMessage(null, done);
+        }
+        this.post.size('auto');
+      });
+      it("with height in pixel", function(done){
+        this.assertHeightMessage(532, done);
+        this.post.size(532);
+      });
+      it("with height in object", function(done){
+        this.assertHeightMessage(345, done);
+        this.post.size({height: 345});
+      });
+      it("with a string height in object", function(done){
+        this.assertHeightMessage(123, done);
+        this.post.size({height: '123px'});
+      });
+      it("calls the callback with the new size", function(done){
+        this.post.size(333, function(event){
+          expect(event.height).to.be.greaterThan(0);
+          expect(event.width).to.be.greaterThan(0);
+          done();
+        });
+        listenToMessage(function(message, callback){
+          if(message.methodName == 'container.resizeHeight'){
+            callback();
+          }
+        });
+      });
+      it("retrieve size without arguments", function(done){
+        var size = this.post.size(done);
+        expect(size.constructor).to.be(UT.ResizeEvent);
+      });
+    });
+
     describe("note property", function() {
       it("set to a new string", function(done){
         setupExpression(this);
@@ -311,21 +372,22 @@
         setupExpression(this);
       });
       it('can retrieve the number in the queue', function(done){
-        listenToMessage(function(message){
+        listenToMessage(function(message, callback){
           if(message.methodName == 'document.queueUp'){
             try {
               expect(message.args[0]).to.eql('XYZ');
               callback(1);
             } catch(e) {
-              done();
+              done(e);
             }
           }
         });
         this.post.queueUp('XYZ', function(number){
           try {
             expect(number).to.eql(1);
-          } catch(e) {
             done();
+          } catch(e) {
+            done(e);
           }
         });
       });
@@ -339,7 +401,7 @@
               count ++;
               callback(122);
             } catch (e) {
-              done();
+              done(e);
             }
           }
         });
@@ -353,11 +415,11 @@
                 expect(count).to.eql(1); // did not call the API again.
                 done();
               } catch (e) {
-                done();
+                done(e);
               }
             });
           } catch (e) {
-            done();
+            done(e);
           }
         });
       });
@@ -370,7 +432,7 @@
               count ++;
               callback( (message.args[0] == 'A'? 45 : 42) );
             } catch (e) {
-              done();
+              done(e);
             }
           }
         });
@@ -384,11 +446,11 @@
                 expect(count).to.eql(2); // did not call the API again.
                 done();
               } catch (e) {
-                done();
+                done(e);
               }
             });
           } catch (e) {
-            done();
+            done(e);
           }
         });
       });
@@ -403,7 +465,6 @@
               expect(message.args.length).to.eql(0);
               callback({uuid: this.uuid, username: 'testme', avatar: 'http://avatar.com'});
             } catch(e) {
-              console.log(e);
               expect().fail(e);
             }
           }
@@ -428,7 +489,7 @@
             expect(user.constructor).to.eql(UT.User);
             done();
           } catch(e) {
-            console.log(e);
+            done(e);
           }
         });
       });
@@ -442,7 +503,7 @@
             expect(theItem).to.eql(item);
             done();
           } catch(e) {
-            console.log(e);
+            done(e);
           }
         });
       });
@@ -516,7 +577,7 @@
                 callback([{uuid: ids[1], username: 'testme', avatar: 'http://avatar.com/me'}]);
                 done();
               } catch(e) {
-                console.log(e);
+                done(e);
               }
             }
           });
