@@ -332,7 +332,7 @@
         });
       });
       it("retrieve size without arguments", function(done){
-        var size = this.post.size(done);
+        var size = this.post.size(function(){done()});
         expect(size.constructor).to.be(UT.ResizeEvent);
       });
     });
@@ -476,7 +476,6 @@
               expect(message.args[0].length).to.eql(1);
               callback([{uuid: this.uuid, username: 'testme', avatar: 'http://avatar.com'}]);
             } catch(e) {
-              console.log(e);
               expect().fail(e);
             }
           }

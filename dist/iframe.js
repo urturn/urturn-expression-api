@@ -1412,7 +1412,9 @@ UT.CollectionStore = function(options) {
         UT.Expression._callAPI('container.resizeHeight', [height], fn);
         return this;
       } else {
-        callback(sizeInfo);
+        if(callback){
+          callback(sizeInfo);
+        }
         return new UT.ResizeEvent(currentSize.width, currentSize.height);
       }
     };
@@ -1453,6 +1455,9 @@ UT.CollectionStore = function(options) {
      * @since 0.8.0
      */
     var queueUp = this.queueUp = function(name, callback) {
+      if(!callback){
+        return this;
+      }
       var self = this;
       if (queuedUpTickets[name] !== undefined) {
         callback(queuedUpTickets[name]);
