@@ -240,7 +240,7 @@ module.exports = function(grunt) {
     var expJsonPath = path.join(expPath, 'expression.json');
     content = JSON.parse(grunt.file.read(expJsonPath));
     content.api_version = info.version;
-    content.system_name =  'bdd-' + info.version;
+    content.system_name =  'bdd-' + info.version.replace(/\./g, '-');
     grunt.file.write(expJsonPath,JSON.stringify(content, null, 2));
   });
 
