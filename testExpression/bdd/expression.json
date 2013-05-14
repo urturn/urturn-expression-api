@@ -1,9 +1,9 @@
 {
   "title": "bdd",
   "description": "",
-  "system_name": "bdd-0-8-0-alpha",
-  "version": "0.1.4",
-  "api_version": "0.8.0-alpha",
+  "system_name": "bdd-0-8-0-beta",
+  "version": "0.1.5",
+  "api_version": "0.8.0-beta",
   "dependencies": [
     {
       "path": "lib/mocha.css"
