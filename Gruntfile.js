@@ -49,7 +49,9 @@ module.exports = function(grunt) {
     options: {
       browser: true
     },
-    all: ['grunt.js', 'lib/**/*.js', 'test/**/*.js']
+    build: ['grunt.js'],
+    lib: ['lib/**/*.js'],
+    test: ['test/*.js', 'test/lib/collection-fixtures.js', 'test/lib/dom.js']
   };
 
   // Minify JS
@@ -100,12 +102,13 @@ module.exports = function(grunt) {
   };
 
   // Tests
-  config.buster = {
-    test: {
-      'config-group': 'compiled'
-    },
-    server: {
-      port: 1111
+  config.mocha = {
+    console: {
+      src: ['test/console.html'],
+      options: {
+        run: true,
+        reporter: 'Nyan'
+      }
     }
   };
 
@@ -135,7 +138,7 @@ module.exports = function(grunt) {
   grunt.initConfig(config);
 
   // Load external grunt Task
-  grunt.loadNpmTasks('grunt-buster');
+  grunt.loadNpmTasks('grunt-mocha');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-concat');
@@ -228,9 +231,34 @@ module.exports = function(grunt) {
     }
   });
 
+  grunt.registerTask('buildTestExpression', function(){
+    expPath = path.join('testExpression', 'bdd');
+    grunt.file.copy('node_modules/mocha/mocha.js', path.join(expPath, 'lib', 'mocha.js'));
+    grunt.file.copy('node_modules/mocha/mocha.css', path.join(expPath, 'lib', 'mocha.css'));
+    grunt.file.copy('node_modules/expect.js/expect.js', path.join(expPath, 'lib', 'expect.js'));
+
+    var expJsonPath = path.join(expPath, 'expression.json');
+    content = JSON.parse(grunt.file.read(expJsonPath));
+    content.api_version = info.version;
+    content.title = content.system_name =  'bdd-' + info.version.replace(/\./g, '-');
+    grunt.file.write(expJsonPath,JSON.stringify(content, null, 2));
+  });
+
+  grunt.registerTask('updateVersionNumber', function(){
+    function replace(src) {
+      content = grunt.file.read(src);
+      content = content.replace(/0\.0\.0/g, info.version);
+      grunt.file.write(src, content);
+    }
+    ['iframe', 'sandbox'].forEach(function(name){
+      replace('dist/'+name+'.js');
+    });
+    replace('testExpression/bdd/specs/expression-spec.js');
+
+  });
+
   // Default task.
-  grunt.registerTask('default', ['bower','jshint', 'filecheck', 'concat', 'uglify', 'buster', 'cssmin']);
+  grunt.registerTask('default', ['bower','jshint', 'filecheck', 'concat', 'buildTestExpression', 'updateVersionNumber', 'uglify', 'mocha', 'cssmin']);
   grunt.registerTask('all', ['default', 's3deploy']);
-  grunt.registerTask('local', ['concat', 'uglify', 'cssmin']);
-  grunt.registerTask('l', 'jshint');
+  grunt.registerTask('local', ['concat', 'buildTestExpression', 'updateVersionNumber', 'uglify', 'cssmin']);
 };

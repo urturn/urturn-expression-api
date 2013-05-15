@@ -4,3 +4,5 @@
 .urturn/
 *.expression
 /lib/fastclick
+/testExpression/bdd/lib
+/testExpression/bdd/test

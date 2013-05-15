@@ -1,17 +1,16 @@
-
-buster.testCase('UT.Expression', {
-  setUp: function(){
-    this.node = createExpressionDOM();
-  },
-  tearDown: function(){
+describe('UT.Expression', function() {
+  beforeEach(function() {
+    this.node = TestHelpers.createExpressionDOM();
+  });
+  afterEach(function() {
     UT.Expression._reset();
-  },
-  'ready callback': {
-    'has a ready event that is called with an instance of expression': function(done){
+  });
+  describe('ready callback', function() {
+    it('has a ready event that is called with an instance of expression', function(done){
       var readyFunc = function(expression_instance){
         try {
-          buster.assert(expression_instance);
-          buster.assert(expression_instance.fire);
+          expect(expression_instance).to.be.ok();
+          expect(expression_instance.fire).to.be.ok();
           expression_instance.off('ready', readyFunc);
           done();
         } catch (e) {
@@ -21,8 +20,13 @@ buster.testCase('UT.Expression', {
       UT.Expression.ready(readyFunc);
       UT.Expression._dispatch({type: 'ready', options: {collections:[]}});
       var expression = UT.Expression._postInstance();
-      buster.assert(expression);
+      expect(expression).to.be.ok();
       expression.fire('ready', expression);
-    }
-  }
+    });
+  });
+  describe('apiVersion()', function(){
+    it('returns the current API Version', function(){
+      expect(UT.Expression.apiVersion()).to.eql('0.0.0');
+    });
+  });
 });

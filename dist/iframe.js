@@ -815,7 +815,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states.apiVersion;
+    return '0.8.0-beta';
   };
 
   /**
@@ -876,6 +876,7 @@ UT.CollectionStore = function(options) {
     for(var i = 0; i < readyListeners.length; i++){
       readyListeners[i].apply(postInstance, [postInstance]);
     }
+    readyListeners = [];
      _callAPI("changeCurrentState", ["initialized"]);
   };
 
@@ -1383,7 +1384,11 @@ UT.CollectionStore = function(options) {
      * - Number the height in pixel
      * - 'auto' automatically resize to the actual content size
      */
-    var size = this.size = function(sizeInfo) {
+    var size = this.size = function(sizeInfo, callback) {
+      if(typeof sizeInfo === 'function'){
+        callback = sizeInfo;
+        sizeInfo = null;
+      }
       if(sizeInfo){
         var height;
         if(typeof sizeInfo === 'number'){ // 99
@@ -1398,10 +1403,17 @@ UT.CollectionStore = function(options) {
             height = sizeInfo.height;
           }
         }
-        UT.Expression._callAPI('container.resizeHeight', [height]);
+        var fn = null;
+        if(callback){
+          fn = function(){
+            callback(new UT.ResizeEvent(currentSize.width, currentSize.height));
+          };
+        }
+        UT.Expression._callAPI('container.resizeHeight', [height], fn);
         return this;
       } else {
-        return {width: currentSize.width, height: currentSize.height};
+        callback(sizeInfo);
+        return new UT.ResizeEvent(currentSize.width, currentSize.height);
       }
     };
 
@@ -1879,7 +1891,7 @@ UT.Sound = function(soundDescriptor) {
 /**
  * @preserve FastClick: polyfill to remove click delays on browsers with touch UIs.
  *
- * @version 0.6.5
+ * @version 0.6.7
  * @codingstandard ftlabs-jsv2
  * @copyright The Financial Times Limited [All Rights Reserved]
  * @license MIT License (see LICENSE.txt)
@@ -1974,7 +1986,7 @@ function FastClick(layer) {
 	/** @type function() */
 	this.onTouchCancel = function() { return FastClick.prototype.onTouchCancel.apply(self, arguments); };
 
-	if (FastClick.notNeeded()) {
+	if (FastClick.notNeeded(layer)) {
 		return;
 	}
 
@@ -2231,6 +2243,11 @@ FastClick.prototype.getTargetElementFromEventTarget = function(eventTarget) {
 FastClick.prototype.onTouchStart = function(event) {
 	'use strict';
 	var targetElement, touch, selection;
+
+	// Ignore multiple touches, otherwise pinch-to-zoom is prevented if both fingers are on the FastClick element (issue #111).
+	if (event.targetTouches.length > 1) {
+		return true;
+	}
 
 	targetElement = this.getTargetElementFromEventTarget(event.target);
 	touch = event.targetTouches[0];
@@ -2538,7 +2555,12 @@ FastClick.prototype.destroy = function() {
 };
 
 
-FastClick.notNeeded = function() {
+/**
+ * Check whether FastClick is needed.
+ *
+ * @param {Element} layer The layer to listen on
+ */
+FastClick.notNeeded = function(layer) {
 	'use strict';
 	var metaViewport;
 
@@ -2560,6 +2582,11 @@ FastClick.notNeeded = function() {
 		} else {
 			return true;
 		}
+	}
+
+	// IE10 with -ms-touch-action: none, which disables double-tap-to-zoom (issue #97)
+	if (layer.style.msTouchAction === 'none') {
+		return true;
 	}
 
 	return false;
