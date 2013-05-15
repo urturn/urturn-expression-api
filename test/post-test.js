@@ -331,9 +331,16 @@
           }
         });
       });
-      it("retrieve size without arguments", function(done){
-        var size = this.post.size(done);
+      it("retrieve size without arguments", function(){
+        var size = this.post.size();
         expect(size.constructor).to.be(UT.ResizeEvent);
+      });
+      it("send size to callback and retrieve post instance with a single callback argument", function(done){
+        var p = this.post.size(function(event){
+          expect(event.constructor).to.be(UT.ResizeEvent);
+          done();
+        });
+        expect(p).to.be(this.post);
       });
     });
 

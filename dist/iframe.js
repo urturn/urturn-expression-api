@@ -870,7 +870,7 @@ UT.CollectionStore = function(options) {
     // create scoped post instance
     postInstance = new UT.Post(states);
 
-    postInstance.on('scrollChanged', function(newScrollValues) {
+    postInstance.on('scroll', function(newScrollValues) {
       states.scrollValues = newScrollValues;
     });
     for(var i = 0; i < readyListeners.length; i++){
@@ -968,6 +968,7 @@ UT.CollectionStore = function(options) {
 
 
     var currentSize = {height: 0, width: 0};
+    var currentScroll = {scrollTop: 0, scrollBottom: 0};
     var queuedUpTickets = {};
     var eventTypesBindings = {}; // handle event bindings for each event type
     var collectionStore = new UT.CollectionStore({
@@ -1199,6 +1200,9 @@ UT.CollectionStore = function(options) {
      * @params {String} eventName The eventName to fire
      */
     var fire = this.fire = function(eventName) {
+      if(eventName == 'scrollChanged'){
+        eventName = 'scroll';
+      }
       var list = eventTypesBindings[eventName],
           promises = [],
           listLength,
@@ -1207,6 +1211,10 @@ UT.CollectionStore = function(options) {
           callbackArgs,
           callbackTarget,
           promise;
+
+      if(eventName == 'scroll'){
+        list = (list ? list.concat(eventTypesBindings['scrollChanged']) : eventTypesBindings['scrollChanged'] );
+      }
 
       // Nothing to fire
       if (!list) {
@@ -1218,8 +1226,9 @@ UT.CollectionStore = function(options) {
 
       // convert to newer name and fire them as well.
       switch(eventName){
-        case 'scrollChanged':
-          fire.apply(this, ['scroll'].concat(callbackArgs));
+        case 'scroll':
+          currentScroll.scrollTop = callbackArgs[0].scrollTop;
+          currentScroll.scrollBottom = callbackArgs[0].scrollBottom;
           break;
       }
 
@@ -1232,9 +1241,11 @@ UT.CollectionStore = function(options) {
 
       while (++listIndex < listLength) {
         callbackFunction = list[listIndex];
-        promise = callbackFunction.apply(callbackTarget, callbackArgs);
-        if(promise && typeof promise.then === 'function') {
-          promises.push(promise);
+        if(callbackFunction){
+          promise = callbackFunction.apply(callbackTarget, callbackArgs);
+          if(promise && typeof promise.then === 'function') {
+            promises.push(promise);
+          }
         }
       }
 
@@ -1412,8 +1423,13 @@ UT.CollectionStore = function(options) {
         UT.Expression._callAPI('container.resizeHeight', [height], fn);
         return this;
       } else {
-        callback(sizeInfo);
-        return new UT.ResizeEvent(currentSize.width, currentSize.height);
+        var event = new UT.ResizeEvent(currentSize.width, currentSize.height);
+        if(callback){
+          callback(event);
+          return this;
+        } else {
+          return event;
+        }
       }
     };
 
@@ -1421,12 +1437,31 @@ UT.CollectionStore = function(options) {
      * Ask the container to scroll to the top OR bottom position.
      *
      * @param {Object{scrollTop,scrollBottom}} position
+     * @param callback receives a UT.ScrollEvent
+     * @return this or scroll values if called without arguments
      */
     var scroll = this.scroll = function(position, callback){
-      UT.Expression._callAPI('container.scroll',
-        [position.scrollTop||position.scrollBottom, (position.scrollTop?'top':'bottom')],
-        callback
-      );
+      if(typeof position === 'function') {
+        callback = position;
+        position = null;
+      }
+      if(position) {
+        UT.Expression._callAPI('container.scroll',
+          [position.scrollTop||position.scrollBottom, (position.scrollTop?'top':'bottom')],
+          function(){
+            callback(new UT.ScrollEvent(currentScroll.scrollTop, currentScroll.scrollBottom));
+          }
+        );
+        return this;
+      } else {
+        var event = new UT.ScrollEvent(currentScroll.scrollTop, currentScroll.scrollBottom);
+        if(callback) {
+          callback(event);
+          return this;
+        } else {
+          return event;
+        }
+      }
     };
 
     /**
@@ -1582,6 +1617,11 @@ UT.CollectionStore = function(options) {
     var updateSize = function(){
       currentSize.width = window.innerWidth;
       currentSize.height = window.innerHeight;
+    };
+
+    var updateScroll = function(values){
+      currentScroll.scrollTop = values.scrollTop;
+      currentScroll.scrollBottom = values.scrollBottom;
     };
 
     /**
@@ -1886,6 +1926,11 @@ UT.Sound = function(soundDescriptor) {
   UT.ResizeEvent = function(width, height){
     this.height = height;
     this.width = width;
+  };
+
+  UT.ScrollEvent = function(scrollTop, scrollBottom){
+    this.scrollTop = scrollTop;
+    this.scrollBottom = scrollBottom;
   };
 })();
 /**
