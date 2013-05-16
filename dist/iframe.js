@@ -1448,8 +1448,10 @@ UT.CollectionStore = function(options) {
       if(position) {
         UT.Expression._callAPI('container.scroll',
           [position.scrollTop||position.scrollBottom, (position.scrollTop?'top':'bottom')],
-          function(){
-            callback(new UT.ScrollEvent(currentScroll.scrollTop, currentScroll.scrollBottom));
+          function(scrollValues){
+            currentScroll.scrollTop = scrollValues.scrollTop;
+            currentScroll.scrollBottom = scrollValues.scrollBottom;
+            callback(new UT.ScrollEvent(scrollValues.scrollTop, scrollValues.scrollBottom));
           }
         );
         return this;

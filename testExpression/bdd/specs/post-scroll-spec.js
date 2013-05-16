@@ -1,5 +1,5 @@
 UT.Expression.ready(function(post){
-  describe.only('UT.Post.scroll()', function(){
+  describe('UT.Post.scroll()', function(){
     function resize(height, done){
       var scope = {};
       scope.fn = function(evt){
@@ -47,11 +47,21 @@ UT.Expression.ready(function(post){
       expect(result).to.be(post);
     });
 
-    it('let you scroll to a specific position', function(done){
+    it('let you scroll to bottom', function(done){
       resize(5000, function(){
-        post.scroll({bottom:0}, function(event){
+        post.scroll({scrollBottom:0}, function(event){
           expect(event.scrollBottom).to.be(0);
           expect(event.scrollTop).to.be.greaterThan(0);
+          done();
+        });
+      });
+    });
+
+    it('let you scroll to top', function(done){
+      resize(5000, function(){
+        post.scroll({scrollTop:100}, function(event){
+          expect(event.scrollBottom).to.be.greaterThan(0);
+          expect(event.scrollTop).to.be(100);
           done();
         });
       });

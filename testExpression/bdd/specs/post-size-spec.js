@@ -1,9 +1,8 @@
 UT.Expression.ready(function(post){
   describe('UT.Post.size()', function(){
 
-    it('retrieve size informations', function(done){
+    it('trigger a resize event', function(done){
       var cb = function(){
-        console.log('resized A');
         var size = post.size();
         expect(size.height).to.eql(50);
         expect(size.width).to.be.greaterThan(0);
@@ -16,7 +15,6 @@ UT.Expression.ready(function(post){
 
     it('let you set a new size', function(done){
       var cb = function(size){
-        console.log('resized B');
         var w = post.size().width;
         expect(size.height).to.eql(233);
         expect(size.width).to.eql(w);
@@ -27,14 +25,32 @@ UT.Expression.ready(function(post){
       post.size({height: 233});
     });
 
-    it('call a callback with a resize event while reading', function(done){
-      var size1, size2;
-      post.size(function(event){
-        expect(event).to.be.ok();
-        var size1 = {width: event.width, height: event.height};
-        expect(size1).to.eql(size2);
+    it('gives the new size to the resize event', function(done){
+      post.size(200, function(event){
+        expect(event.height).to.be(200);
         done();
       });
+    });
+
+    it('trigger a scroll event if scroll position changed', function(done){
+      var cb = function(event){
+        expect(event.scrollTop).to.be(0);
+        done();
+      };
+      post.on('scroll', cb);
+      post.size({height: 5000});
+    });
+
+    it('gives the callback a resize event or retrieve the size if no callback', function(done){
+      var p = post.size(function(event){
+        expect(event.constructor).to.be(UT.ResizeEvent);
+
+        size = post.size();
+        expect(event.height).to.be(size.height);
+        expect(event.width).to.be(size.width);
+        done();
+      });
+      expect(p).to.be(post);
     });
   });
 });
