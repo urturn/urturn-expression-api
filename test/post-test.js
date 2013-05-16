@@ -6,12 +6,19 @@
     });
     messageListeners = [];
   };
-  var listenToMessage = function(callback){
+  var listenToMessage = function(methodName, callback){
+    if(typeof methodName == 'function'){
+      callback = methodName;
+      methodName = null;
+    }
     var func = function(event){
       if(callback){
         var data;
         data = JSON.parse(event.data);
         if(data){
+          if(methodName && methodName !== data.methodName){
+            return;
+          }
           callback(data, function(result){
             window.postMessage(JSON.stringify({
               type: 'callback',
@@ -164,14 +171,12 @@
     describe("dialog/text", function() {
       it("using option hash", function(done){
         setupExpression(this);
-        listenToMessage(function(message, callback){
-          if(message.methodName == 'document.textInput'){
-            expect(message.args[0]).to.eql('default');
-            expect(message.args[1]).to.eql(15);
-            expect(message.args[2]).to.eql(true);
-            expect(callback).to.be.ok();
-            callback('hello');
-          }
+        listenToMessage('document.textInput', function(message, callback){
+          expect(message.args[0]).to.eql('default');
+          expect(message.args[1]).to.eql(15);
+          expect(message.args[2]).to.eql(true);
+          expect(callback).to.be.ok();
+          callback('hello');
         });
         this.post.dialog('text', {
           value: 'default',
@@ -208,18 +213,16 @@
           }]
         });
         var defaultSaved, testAnotherOneSaved;
-        listenToMessage(function(message, callback){
+        listenToMessage('collections.save', function(message, callback){
           try {
-            if(message.methodName == 'collections.save'){
-              if(message.args[0] == 'default'){
-                defaultSaved = true;
-                expect(message.args[1].anObject.hello).to.eql('world');
-              } else if (message.args[0] == 'testAnotherOne'){
-                testAnotherOneSaved = true;
-                expect(message.args[1].aValue.value).to.eql('Hello World');
-              } else {
-                expect().fail('cannot guess arguments', message);
-              }
+            if(message.args[0] == 'default'){
+              defaultSaved = true;
+              expect(message.args[1].anObject.hello).to.eql('world');
+            } else if (message.args[0] == 'testAnotherOne'){
+              testAnotherOneSaved = true;
+              expect(message.args[1].aValue.value).to.eql('Hello World');
+            } else {
+              expect().fail('cannot guess arguments', message);
             }
           } catch (e){
             done(e);
@@ -236,16 +239,14 @@
     describe("DEPRECATED resize()", function() {
       beforeEach(function(){
         this.assertHeightMessage = function(expected, done){
-          listenToMessage(function(message){
-            if(message.methodName == 'container.resizeHeight'){
-              try {
-                if(expected !== null){
-                  expect(message.args[0]).to.eql(expected);
-                }
-                done();
-              } catch(e) {
-                done(e);
+          listenToMessage('container.resizeHeight', function(message){
+            try {
+              if(expected !== null){
+                expect(message.args[0]).to.eql(expected);
               }
+              done();
+            } catch(e) {
+              done(e);
             }
           });
         };
@@ -277,19 +278,71 @@
       });
     });
 
+    describe("scroll()", function() {
+      it("retrieve the scroll position", function(){
+        var position = this.post.scroll();
+        expect(position.scrollTop).to.be(0);
+        expect(position.scrollBottom).to.be(0);
+      });
+      it("retrieve this when a callback is given", function(){
+        var p = this.post.scroll(function(){});
+        expect(p).to.be(this.post);
+      });
+      it("send the scrollPosition to the callback", function(done){
+        this.post.scroll(function(event){
+          expect(event.constructor).to.be(UT.ScrollEvent);
+          expect(event.scrollTop).to.be(0);
+          expect(event.scrollBottom).to.be(0);
+          done();
+        });
+      });
+      it("let you scroll to top", function(done) {
+        listenToMessage('container.scroll', function(message, callback) {
+          expect(message.args[0]).to.be(100);
+          expect(message.args[1]).to.eql('top');
+          callback({scrollTop:100, scrollBottom:12});
+        });
+        var post = this.post;
+        post.scroll({scrollTop: 100}, function(event) {
+          expect(event.scrollTop).to.be(100);
+          expect(event.scrollBottom).to.be(12);
+
+          var pos = post.scroll();
+          expect(pos.scrollTop).to.be(100);
+          expect(pos.scrollBottom).to.be(12);
+          done();
+        });
+      });
+      it("let you scroll to bottom", function(done) {
+        listenToMessage('container.scroll', function(message, callback) {
+          expect(message.args[0]).to.be(20);
+          expect(message.args[1]).to.eql('bottom');
+          callback({scrollTop:400, scrollBottom:20});
+        });
+        var post = this.post;
+        post.scroll({scrollBottom: 20}, function(event) {
+          expect(event.scrollTop).to.be(400);
+          expect(event.scrollBottom).to.be(20);
+
+          var pos = post.scroll();
+          expect(pos.scrollTop).to.be(400);
+          expect(pos.scrollBottom).to.be(20);
+          done();
+        });
+      });
+    });
+
     describe("size()", function() {
       beforeEach(function(){
         this.assertHeightMessage = function(expected, done){
-          listenToMessage(function(message){
-            if(message.methodName == 'container.resizeHeight'){
-              try {
-                if(expected !== null){
-                  expect(message.args[0]).to.eql(expected);
-                }
-                done();
-              } catch(e) {
-                done(e);
+          listenToMessage('container.resizeHeight', function(message){
+            try {
+              if(expected !== null){
+                expect(message.args[0]).to.eql(expected);
               }
+              done();
+            } catch(e) {
+              done(e);
             }
           });
         };
