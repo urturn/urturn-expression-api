@@ -32,14 +32,16 @@ UT.Expression.ready(function(post){
       });
     });
 
-    it('trigger a scroll event if scroll position changed', function(done){
-      var cb = function(event){
-        expect(event.scrollTop).to.be(0);
-        done();
-      };
-      post.on('scroll', cb);
-      post.size({height: 5000});
-    });
+    if(post.context.editor){
+      it('trigger a scroll event if scroll position changed', function(done){
+        var cb = function(event){
+          expect(event.scrollTop).to.be(0);
+          done();
+        };
+        post.on('scroll', cb);
+        post.size({height: 5000});
+      });
+    }
 
     it('gives the callback a resize event or retrieve the size if no callback', function(done){
       var p = post.size(function(event){
