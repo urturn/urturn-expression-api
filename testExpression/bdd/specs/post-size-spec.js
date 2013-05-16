@@ -33,9 +33,10 @@ UT.Expression.ready(function(post){
     });
 
     if(post.context.editor){
-      it('trigger a scroll event if scroll position changed', function(done){
+      it('triggers a scroll event if scroll position changed', function(done){
         var cb = function(event){
           expect(event.scrollTop).to.be(0);
+          post.off('scroll', cb);
           done();
         };
         post.on('scroll', cb);

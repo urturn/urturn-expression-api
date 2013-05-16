@@ -7,9 +7,13 @@ UT.Expression.ready(function(post){
         post.off('scroll', scope.fn);
         done();
       };
-      post.size(height, function(event){
-        post.on('scroll', scope.fn);
-        scope.resized = true;
+      // Ensure the resize will trigger a scroll event
+      expect(height).not.to.eql(4000);
+      post.size(4000, function(){
+        post.size(height, function(event){
+          post.on('scroll', scope.fn);
+          scope.resized = true;
+        });
       });
     }
 

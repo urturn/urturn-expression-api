@@ -1157,9 +1157,6 @@ UT.CollectionStore = function(options) {
     };
 
     var videoDialog = function(options, callback) {
-      if (!callback) {
-        return;
-      }
       UT.Expression._callAPI(
         'medias.openVideoChooser',
         [options],

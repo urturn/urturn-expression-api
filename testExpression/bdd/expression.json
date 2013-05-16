@@ -24,6 +24,9 @@
       "path": "specs/expression-spec.js"
     },
     {
+      "path": "specs/post-users-spec.js"
+    },
+    {
       "path": "specs/post-queueup-spec.js"
     },
     {
