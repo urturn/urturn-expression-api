@@ -1122,6 +1122,9 @@ UT.CollectionStore = function(options) {
     };
 
     var imageDialog = function(options, callback) {
+      if (!callback) {
+        return;
+      }
       UT.Expression._callAPI(
         'medias.openImageChooser',
         [options],
@@ -1137,6 +1140,9 @@ UT.CollectionStore = function(options) {
     };
 
     var soundDialog = function(options, callback) {
+      if (!callback) {
+        return;
+      }
       UT.Expression._callAPI(
         'medias.openSoundChooser',
         [options],
@@ -1148,10 +1154,12 @@ UT.CollectionStore = function(options) {
           var sound = new UT.Sound(soundDecriptor);
           callback.call(self, sound);
       });
-      UT.Expression._callAPI('medias.openSoundChooser', [options], callback);
     };
 
     var videoDialog = function(options, callback) {
+      if (!callback) {
+        return;
+      }
       UT.Expression._callAPI(
         'medias.openVideoChooser',
         [options],
@@ -1451,7 +1459,9 @@ UT.CollectionStore = function(options) {
           function(scrollValues){
             currentScroll.scrollTop = scrollValues.scrollTop;
             currentScroll.scrollBottom = scrollValues.scrollBottom;
-            callback(new UT.ScrollEvent(scrollValues.scrollTop, scrollValues.scrollBottom));
+            if(callback){
+              callback(new UT.ScrollEvent(scrollValues.scrollTop, scrollValues.scrollBottom));
+            }
           }
         );
         return this;
@@ -1572,6 +1582,9 @@ UT.CollectionStore = function(options) {
       if(typeof items === 'function'){
         callback = items;
         items = 'current';
+      }
+      if (!callback) {
+        return;
       }
       if(items === 'current'){
         UT.Expression._callAPI('document.getUserData', [], function(userInfo){
