@@ -1590,7 +1590,7 @@ UT.CollectionStore = function(options) {
         });
       } else if (Object.prototype.toString.call(items) === '[object Array]') {
         var ids = [];
-        for(var k = 0; k < items.length; k++){
+        for(var k = 0; k < items.length; k++) {
           if(items[k]._key){
             ids.push(items[k]._key);
           }
