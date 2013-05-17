@@ -2,13 +2,16 @@
 
 # Changelogs
 
-## 0.8.0
+## 0.8.0-rc1
 - NEW: Use scroll() to get the current scroll position and scroll({top: 123}) or scroll({bottom: 0}) to scroll to specific positions.
 - NEW: Added the method UT.Post.queueUp(name, callback) that will retrieve the next available number in the sequence name.
+- NEW: Expression starting from 0.8.0 must support to be resized in width at runtime.
 - NEW: use size() to retrieve the current size.
 - REFACTOR: Listen on 'scroll' instead of 'scrollChanged' to get notified when the scroll has been updated.
 - REFACTOR: use size(args) instead of resize(args) to resize the post.
+- REFACTOR: post.size() and post.scroll() now accept an optional callback that will be triggered once the operation complete. The global events post.on('scroll') and post.on('resize') will be called as well as before.
 - FIX: scroll event is fixed.
+- FIX: post.users('current') now have valid numberOfPost and numberOfUse values (notes that there might be some delays to the update).
 
 ## 0.7.5
 - FIX: fixed a bug where parent data collection was preventing expression loading on mobile.
