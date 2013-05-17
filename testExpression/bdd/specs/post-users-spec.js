@@ -1,32 +1,61 @@
-UT.Expression.ready(function(post){
+UT.Expression.ready(function(p) {
   describe("UT.Post.users()", function() {
-    it("might add one to number of use and number of post", function(done){
-      post.users('current', function(user){
-        if(post.context.editor){
-          post.storage.numberOfPost = user.numberOfPost;
-          post.storage.numberOfUse = user.numberOfUse;
-          post.save();
-        } else {
-          if(post.isOwner(user)){
-            expect(post.storage.numberOfPost).to.be(user.numberOfPost - 1);
-            expect(post.storage.numberOfUse).to.be(user.numberOfUse - 1);
+    var currentUser, post, isAnonymous;
+    var skipAnonymous = function skipAnonymous() {
+      if (currentUser == 'Anonymous') {
+        fail('Skip: user is anonymous');
+      }
+    };
+
+    it.player = function (name, test){
+      (p.context.player ? it : it.skip)(name, test);
+    };
+
+    before(function(done) {
+      // Define post and current user
+      UT.Expression.ready(function(p){
+        post = p;
+        post.users('current', function(user) {
+          currentUser = user;
+          isAnonymous = (currentUser.username == 'Anonymous');
+          // Set value for player test if needed
+          if(post.context.editor) {
+            post.storage.numberOfPost = currentUser.numberOfPost;
+            post.storage.numberOfUse = currentUser.numberOfUse;
+            post.save();
           }
-        }
-        done();
+          done();
+        });
       });
+    });
+
+    it.player("increments numberOfPost counter of the post's owner", function(){
+      if(! post.isOwner(currentUser)){
+        console.log('Skipped: increments counter of the post s owner');
+        return;
+      }
+      expect(currentUser.numberOfPost).to.be.greaterThan(post.storage.numberOfPost);
+    });
+
+    it.player("increments numberOfUse counter of the post's owner", function(){
+      if(! post.isOwner(currentUser)){
+        console.log('Skipped: increments counter of the post s owner');
+        return;
+      }
+      expect(currentUser.numberOfUse).to.be.greaterThan(post.storage.numberOfUse);
     });
 
     it("might retrieve current user", function(done){
-      post.users('current', function(user){
-        expect(user.constructor).to.eql(UT.User);
-        expect(typeof user.numberOfPost).to.be('number');
-        expect(typeof user.numberOfUse).to.be('number');
-        done();
-      });
+      skipAnonymous();
+      expect(currentUser.constructor).to.eql(UT.User);
+      expect(typeof currentUser.numberOfPost).to.be('number');
+      expect(typeof currentUser.numberOfUse).to.be('number');
+      done();
     });
 
     it("retrieve one user for one item", function(done) {
-      var userUuid = UT.uuid();
+      skipAnonymous();
+      var userUuid = currentUser.uuid;
       var item = {_key: userUuid, value: '22', _type: 'custom'};
       post.users(item, function(user, theItem) {
         expect(item).to.be(theItem);
@@ -37,14 +66,13 @@ UT.Expression.ready(function(post){
     });
 
     it("retrieve an array of user for an array of items", function(done) {
-      var items = [{_key: UT.uuid(), value: '22', _type: 'custom'}, {_key: UT.uuid(), value: '23', _type: 'custom'}];
+      skipAnonymous();
+      var items = [{_key: currentUser.uuid, value: '22', _type: 'custom'}];
       post.users(items, function(users, someItems) {
-        expect(someItems.length).to.be(2);
+        expect(someItems.length).to.be(1);
         expect(someItems[0]).to.be(items[0]);
-        expect(someItems[1]).to.be(items[1]);
-        expect(users.length).to.be(2);
+        expect(users.length).to.be(1);
         expect(users[0].uuid).to.be(items[0]._key);
-        expect(users[1].uuid).to.be(items[1]._key);
         done();
       });
     });
