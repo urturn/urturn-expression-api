@@ -1,4 +1,3 @@
-.DS_Store
 /node_modules/
 /components/
 /.s3private.json
@@ -9,3 +8,5 @@
 /testExpression/bdd/test
 /dist/*
 /dist_gz/*
+.idea/*
+.DS_Store
