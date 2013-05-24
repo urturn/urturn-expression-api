@@ -16,7 +16,8 @@
     "grunt-contrib-uglify": "~0.1.2",
     "knox": "0.7.0",
     "cloudfront": "0.3.1",
-    "grunt-bower-task": "~0.2.0"
+    "grunt-bower-task": "~0.2.0",
+    "grunt-contrib-compress": "~0.5.0"
   },
   "scripts": {
     "test": "grunt"

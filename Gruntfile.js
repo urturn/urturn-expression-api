@@ -120,18 +120,31 @@ module.exports = function(grunt) {
         bucket: configs.bucket,
         distribution: configs.distribution,
         files: {
-          'dist/sandbox.js': '/expression/lib/urturn-expression-api/' + info.version + '/sandbox.js',
-          'dist/iframe.js': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.js',
-          'dist/sandbox.min.js': '/expression/lib/urturn-expression-api/' + info.version + '/sandbox.min.js',
-          'dist/iframe.min.js': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.min.js',
-          'dist/iframe.css': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.css',
-          'dist/iframe.min.css': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.min.css'
+          'dist_gz/sandbox.js.gz': '/expression/lib/urturn-expression-api/' + info.version + '/sandbox.js',
+          'dist_gz/iframe.js.gz': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.js',
+          'dist_gz/sandbox.min.js.gz': '/expression/lib/urturn-expression-api/' + info.version + '/sandbox.min.js',
+          'dist_gz/iframe.min.js.gz': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.min.js',
+          'dist_gz/iframe.css.gz': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.css',
+          'dist_gz/iframe.min.css.gz': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.min.css'
         }
       };
     };
     config.s3deploy = {};
     for(var target in s3Config){
       config.s3deploy[target] = genS3Config(s3Config[target]);
+    }
+  }
+
+  config.compress =
+  {
+    main: {
+      options: {
+        mode: 'gzip'
+      },
+      expand: true,
+      cwd: 'dist/',
+      src: ['**/*'],
+      dest: 'dist_gz/'
     }
   }
 
@@ -144,6 +157,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-bower-task');
+  grunt.loadNpmTasks('grunt-contrib-compress');
 
   grunt.registerMultiTask('filecheck', "Ensure sources file are here", function(){
     for(var i in this.data){
@@ -184,22 +198,28 @@ module.exports = function(grunt) {
       };
     };
 
-    var headers = {'x-amz-acl': 'public-read'};
-    // Define cache controle policy (no-cache if -beta, -alpha or -rc)
-    if(info.version.match(/^[0-9]+\.[0-9]+\.[0-9]+$/)){
-      headers['Cache-Control'] = "public, max-age=" + 60*60*24*365;
-    } else {
-      headers['Cache-Control'] = "no-cache";
-    }
-
-    function doUpload(src, dest, headers, retry, callback){
+    function doUpload(src, dest, retry, callback){
+      var headers = {'x-amz-acl': 'public-read'};
+      // Define cache controle policy (no-cache if -beta, -alpha or -rc)
+      if(info.version.match(/^[0-9]+\.[0-9]+\.[0-9]+$/)){
+        headers['Cache-Control'] = "public, max-age=" + 60*60*24*365;
+      } else {
+        headers['Cache-Control'] = "no-cache";
+      }
+      headers['Content-Encoding'] = 'gzip';
+      if (dest.match(/\.js$/)) {
+        headers['Content-Type'] = 'application/javascript';
+      }
+      else if (dest.match(/\.css$/)) {
+        headers['Content-Type'] = 'text/css; charset=UTF-8';
+      }
       client.putFile(src, dest, headers, function(err){
         if(err){
           if(retry > 2){
             callback(err);
           } else {
             console.log(err, "Retrying...");
-            doUpload(src, dest, headers, retry + 1, callback);
+            doUpload(src, dest, retry + 1, callback);
           }
         } else {
           callback();
@@ -227,7 +247,7 @@ module.exports = function(grunt) {
       var src = key;
       var dest = files[src];
       counter ++;
-      doUpload(src, dest, headers, 0, syncPoint(src, dest, bucket, invalidate));
+      doUpload(src, dest, 0, syncPoint(src, dest, bucket, invalidate));
     }
   });
 
@@ -258,7 +278,7 @@ module.exports = function(grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', ['bower','jshint', 'filecheck', 'concat', 'buildTestExpression', 'updateVersionNumber', 'uglify', 'mocha', 'cssmin']);
+  grunt.registerTask('default', ['bower','jshint', 'filecheck', 'concat', 'buildTestExpression', 'updateVersionNumber', 'uglify', 'mocha', 'cssmin', 'compress']);
   grunt.registerTask('all', ['default', 's3deploy']);
-  grunt.registerTask('local', ['concat', 'buildTestExpression', 'updateVersionNumber', 'uglify', 'cssmin']);
+  grunt.registerTask('local', ['concat', 'buildTestExpression', 'updateVersionNumber', 'uglify', 'cssmin', 'compress']);
 };
