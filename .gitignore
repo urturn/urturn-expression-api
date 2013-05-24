@@ -6,3 +6,5 @@
 /lib/fastclick
 /testExpression/bdd/lib
 /testExpression/bdd/test
+dist_gz/*
+dist/*
