@@ -815,7 +815,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '0.8.0';
+    return '0.8.1';
   };
 
   /**
@@ -1815,6 +1815,7 @@ UT.Video = function(videoDescriptor) {
 	this.marshall = function(){
 		descriptor.url = this.url;
 		descriptor._type = 'video';
+		descriptor.appData = this.appData;
 		return descriptor;
 	};
 
@@ -1823,6 +1824,7 @@ UT.Video = function(videoDescriptor) {
 	// Use to on this interface with Urturn API
 	function _buildVideo(videoDescriptor) {
 		this.url = videoDescriptor.url;
+		this.appData = videoDescriptor.appData;
 		descriptor = videoDescriptor;
 	}
 	var descriptor = {};
