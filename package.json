@@ -1,6 +1,6 @@
 {
   "name": "urturn-expression-api",
-  "version": "0.8.1",
+  "version": "0.8.2-alpha",
   "description": "Urturn.com expression API",
   "main": "lib/urturn-expression-api",
   "devDependencies": {
