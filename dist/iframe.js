@@ -802,12 +802,13 @@ UT.CollectionStore = function(options) {
    * @param callback {function} will be passed a Post instance
    */
   UT.Expression.ready = function(callback){
-    if(readyListeners.indexOf(callback) == -1){
-      readyListeners.push(callback);
-    }
     if(isReady){
       callback.call(this, postInstance);
       _callAPI("changeCurrentState", ["initialized"]);
+    } else {
+      if(readyListeners.indexOf(callback) === -1){
+        readyListeners.push(callback);
+      }
     }
   };
 
