@@ -6,7 +6,6 @@
 /lib/fastclick
 /testExpression/bdd/lib
 /testExpression/bdd/test
-/dist/*
 /dist_gz/*
 .idea/*
 .DS_Store
