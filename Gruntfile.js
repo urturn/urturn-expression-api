@@ -1,7 +1,8 @@
 module.exports = function(grunt) {
 
   var fs = require('fs'),
-      path = require('path');
+      path = require('path'),
+      mime = require('mime');
 
   function loadS3Config(){
     if(fs.existsSync(s3PrivatePath)){
@@ -126,12 +127,7 @@ module.exports = function(grunt) {
         bucket: configs.bucket,
         distribution: configs.distribution,
         files: {
-          'dist_gz/sandbox.js.gz': '/expression/lib/urturn-expression-api/' + info.version + '/sandbox.js',
-          'dist_gz/iframe.js.gz': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.js',
-          'dist_gz/sandbox.min.js.gz': '/expression/lib/urturn-expression-api/' + info.version + '/sandbox.min.js',
-          'dist_gz/iframe.min.js.gz': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.min.js',
-          'dist_gz/iframe.css.gz': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.css',
-          'dist_gz/iframe.min.css.gz': '/expression/lib/urturn-expression-api/' + info.version + '/iframe.min.css'
+          'dist_gz/**/*': '/expression/lib/urturn-expression-api/' + info.version
         }
       };
     };
@@ -211,7 +207,19 @@ module.exports = function(grunt) {
     var counter = 0;
     var bucket = this.data.bucket;
     var distribution = this.data.distribution;
-    var files = this.data.files;
+    var files = {};
+    var doMap = function(source){
+      if(!grunt.file.isFile(source)){
+        return;
+      }
+      var splits = source.split('/');
+      var filename = splits[splits.length-1];
+      files[source] = path.join(this.data.files[pattern], filename);
+      console.log(source, files[source]);
+    }.bind(this);
+    for(var pattern in this.data.files){
+      grunt.file.expand(pattern).forEach(doMap);
+    }
 
     var syncPoint = function(src, dest, bucket, callback){
       return function(err){
@@ -236,12 +244,9 @@ module.exports = function(grunt) {
         headers['Cache-Control'] = "no-cache";
       }
       headers['Content-Encoding'] = 'gzip';
-      if (dest.match(/\.js$/)) {
-        headers['Content-Type'] = 'application/javascript';
-      }
-      else if (dest.match(/\.css$/)) {
-        headers['Content-Type'] = 'text/css; charset=UTF-8';
-      }
+      var mimeType = mime.lookup(dest.replace(/\.gz/, ''));
+      console.log(dest, mimeType);
+      headers['Content-Type'] = mimeType;
       client.putFile(src, dest, headers, function(err){
         if(err){
           if(retry > 2){
@@ -369,6 +374,6 @@ module.exports = function(grunt) {
   grunt.registerTask('dependencies', ['bower-install', 'urturn_component']);
   grunt.registerTask('minify', ['uglify', 'cssmin']);
 
-  grunt.registerTask('all', ['default', 'compress', 's3deploy']);
+  grunt.registerTask('deploy', ['default', 'compress', 's3deploy']);
   grunt.registerTask('local', ['concat', 'buildTestExpression', 'updateVersionNumber', 'uglify', 'cssmin', 'compress']);
 };

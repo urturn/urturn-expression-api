@@ -22,7 +22,8 @@
     "underscore": "~1.4.4",
     "grunt-concat-css": "git://github.com/webdoc/grunt-concat-css.git",
     "grunt-urturn-component": "git://github.com/urturn/grunt-urturn-component.git",
-    "grunt-contrib-clean": "~0.4.1"
+    "grunt-contrib-clean": "~0.4.1",
+    "mime": "~1.2.9"
   },
   "scripts": {
     "test": "grunt",
