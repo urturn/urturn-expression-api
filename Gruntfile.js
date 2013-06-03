@@ -73,7 +73,8 @@ module.exports = function(grunt) {
 
   config.clean = {
     dist: ['dist/'],
-    gz: ['dist_gz/']
+    gz: ['dist_gz/'],
+    components: ['components/']
   };
 
   config.filecheck = {
@@ -289,7 +290,8 @@ module.exports = function(grunt) {
         "fastclick",
         "urturn-expression-css",
         "jquery",
-        "jquery.ut-sticker"
+        "jquery.ut-sticker",
+        "jquery.ut-image"
       ]
     }
   },

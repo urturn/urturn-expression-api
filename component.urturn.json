@@ -8,7 +8,8 @@
     "fastclick",
     "urturn-expression-css",
     "jquery",
-    "jquery.ut-sticker"
+    "jquery.ut-sticker",
+    "jquery.ut-image"
   ],
   "main": [
     "iframe.min.css",
