@@ -2,7 +2,13 @@
 
 # Changelogs
 
-## 0.8.0-rc1
+## 0.8.2
+- FIX: ready event triggered twice if registered after edit.
+
+## 0.8.1
+- NEW: Video data added
+
+## 0.8.0
 - NEW: Use scroll() to get the current scroll position and scroll({top: 123}) or scroll({bottom: 0}) to scroll to specific positions.
 - NEW: Added the method UT.Post.queueUp(name, callback) that will retrieve the next available number in the sequence name.
 - NEW: Expression starting from 0.8.0 must support to be resized in width at runtime.
@@ -67,6 +73,9 @@
 
 - new method signature for Post#textInput([options], [callback]) where options support keys value, max and multiline, and callback receive the resulting string or null if none are typed.
 
+## Build Process
+
+We use Grunt to build the package and bower to manage our internal dependencies. Every dependencies must have a valid bower.json file that will list their main resources.
 
 ## License
 

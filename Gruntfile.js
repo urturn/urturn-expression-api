@@ -31,18 +31,13 @@ module.exports = function(grunt) {
     'lib/expression-api/Video.js',
     'lib/expression-api/Sound.js',
     'lib/expression-api/events.js',
-    'components/fastclick/lib/fastclick.js',
     'lib/expression-api/init.js'
   ];
 
+  sourcesCSS = ['lib/iframe.css'];
+  sourcesAssets = [];
+
   var config = {};
-
-  // Bower
-  config.bower = {
-    install : {
-
-    }
-  };
 
   // Lint
   config.jshint = {
@@ -68,10 +63,17 @@ module.exports = function(grunt) {
 
   // Minify CSS
   config.cssmin = {
-    csscompress: {
-      src: 'dist/iframe.css',
-      dest: 'dist/iframe.min.css'
+    minify: {
+      report: false,
+      files: {
+        "dist/iframe.min.css": "dist/iframe.css"
+      }
     }
+  };
+
+  config.clean = {
+    dist: ['dist/'],
+    gz: ['dist_gz/']
   };
 
   config.filecheck = {
@@ -94,10 +96,13 @@ module.exports = function(grunt) {
     iframe: {
       src: sources,
       dest: 'dist/iframe.js'
-    },
-    iframecss: {
-      src: ['lib/iframe.css'],
-      dest: 'dist/iframe.css'
+    }
+  };
+
+  config.concat_css = {
+    all: {
+      src: sourcesCSS,
+      dest: "dist/iframe.css"
     }
   };
 
@@ -146,18 +151,41 @@ module.exports = function(grunt) {
       src: ['**/*'],
       dest: 'dist_gz/'
     }
-  }
+  };
 
   grunt.initConfig(config);
 
+  grunt.registerTask('bower-version', function(){
+    var bower = require('bower');
+    var bowerInfo = grunt.file.readJSON(bower.config.json);
+    if(bowerInfo.version !== info.version) {
+      grunt.log.writeln("Upload version to " + bowerInfo.version);
+      bowerInfo.version = info.version;
+      grunt.file.write(bower.config.json, JSON.stringify(bowerInfo, null, 2));
+    }
+  });
+
+  grunt.registerTask('bower-install', function(){
+    var done = this.async();
+    var bower = require('bower');
+    bower.commands.install()
+      .on('end', function() { done(); })
+      .on('error', function(message) { done(message); });
+  });
+
   // Load external grunt Task
+  grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-mocha');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-bower-task');
   grunt.loadNpmTasks('grunt-contrib-compress');
+  grunt.loadNpmTasks('grunt-concat-css');
+  grunt.loadNpmTasks('grunt-urturn-component');
+
+  grunt.registerTask('bower', ['bower-version', 'bower-install', 'bower-include']);
+
 
   grunt.registerMultiTask('filecheck', "Ensure sources file are here", function(){
     for(var i in this.data){
@@ -251,6 +279,37 @@ module.exports = function(grunt) {
     }
   });
 
+  config.urturn_component = {
+    options: {
+      main: ['iframe.min.css', 'iframe.min.js'],
+      dependencies: {
+        'jquery': '~2.0.0'
+      },
+      includes: [
+        "fastclick",
+        "urturn-expression-css",
+        "jquery",
+        "jquery.ut-sticker"
+      ]
+    }
+  },
+
+  config.urturn_component_install = {
+    options: {
+      dest: "dist"
+    }
+  },
+
+  grunt.registerTask('copyAssetToDist', function(){
+    sourcesAssets.forEach( function(filepath) {
+      if(grunt.file.isFile(filepath)){
+        grunt.file.copy(filepath, path.join('dist', filepath));
+      } else {
+        grunt.log.writeln(filepath + " is not a file.");
+      }
+    });
+  });
+
   grunt.registerTask('buildTestExpression', function(){
     expPath = path.join('testExpression', 'bdd');
     grunt.file.copy('node_modules/mocha/mocha.js', path.join(expPath, 'lib', 'mocha.js'));
@@ -277,8 +336,37 @@ module.exports = function(grunt) {
 
   });
 
+  grunt.registerTask('addIncludedModule', function(){
+    var Component = require('grunt-urturn-component/component');
+    var path = require('path');
+    info = grunt.file.readJSON('component.urturn.json');
+    info.basedir = '.';
+    var component = Component.fromOptions(info);
+    component.eachInclude(function(comp){
+      comp.main.forEach(function(f){
+        filepath = path.join(comp.basedir, f);
+        if (filepath.match(/\.js$/)) {
+          sources.push(filepath);
+        } else if (filepath.match(/\.css$/)) {
+          sourcesCSS.push(filepath);
+        } else {
+          sourcesAssets.push(filepath);
+        }
+      });
+      comp.assets.forEach(function(f){
+        filepath = path.join(comp.basedir, f);
+        sourcesAssets.push(filepath);
+      });
+    });
+    console.log(sources, sourcesCSS, sourcesAssets);
+  });
+
   // Default task.
-  grunt.registerTask('default', ['bower','jshint', 'filecheck', 'concat', 'buildTestExpression', 'updateVersionNumber', 'uglify', 'mocha', 'cssmin', 'compress']);
-  grunt.registerTask('all', ['default', 's3deploy']);
+  grunt.registerTask('default', ['clean', 'jshint', 'build', 'buildTestExpression', 'updateVersionNumber', 'mocha', 'minify', 'copyAssetToDist']);
+  grunt.registerTask('build', ['dependencies', 'addIncludedModule', 'filecheck', "concat", "concat_css"]);
+  grunt.registerTask('dependencies', ['bower-install', 'urturn_component']);
+  grunt.registerTask('minify', ['uglify', 'cssmin']);
+
+  grunt.registerTask('all', ['default', 'compress', 's3deploy']);
   grunt.registerTask('local', ['concat', 'buildTestExpression', 'updateVersionNumber', 'uglify', 'cssmin', 'compress']);
 };

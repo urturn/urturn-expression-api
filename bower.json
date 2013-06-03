@@ -1,7 +1,28 @@
 {
   "name": "urturn-expression-api",
-  "version": "0.0.0",
+  "version": "0.9.0-alpha1",
+  "main": [
+    "dist/iframe.min.css",
+    "dist/iframe.min.js"
+  ],
+  "ignore": [
+    "dist",
+    "dist_gz",
+    "lib",
+    "components",
+    "node_modules",
+    "test",
+    "testExpression",
+    ".sample.s3private.json",
+    ".travis.yml",
+    "Gruntfile.js",
+    "package.json"
+  ],
   "dependencies": {
-    "fastclick": "~0.6.2"
+    "fastclick": "~0.6.2",
+    "urturn-expression-css": "git://github.com/urturn/urturn-expression-css.git",
+    "jquery.ut-image": "git://github.com/urturn/jquery.ut-image.git",
+    "jquery.ut-sticker": "git://github.com/urturn/jquery.ut-sticker.git",
+    "jquery.ut-video": "git@github.com:urturn/jquery.ut-video.git"
   }
 }
