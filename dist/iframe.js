@@ -12182,7 +12182,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     }
 
     function trigger(name, data){
-      $el.trigger(name+':'+namespace, data);
+      $el.trigger(namespace+':'+name, data);
     }
 
     function displayEmptyPlaceHolder(enabled){
