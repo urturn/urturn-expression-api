@@ -11572,25 +11572,59 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+
 ; (function( UT, $, window, document, undefined ) {
   "use strict";
-
   /**
-   * Render this element as sticker
+   * This plug-in let you instantiate and manage resizable floating DOM objects.
+   *
+   * @provide $.fn.utSticker()
+   *
+   * ## Constructor
+   *
+   * $(sel).utSticker(options)
+   *
    * @param  options :
    * {
    *   position : stickerPosition,
-   *   disabled (bolean) : if sticker is editable or not
-   *   change : callback
+   *   editable (bolean) : if sticker is editable or not
    * }
    * @return
    */
-  $.fn.utSticker = function(options) {
-    return this.each( function() {
-      if ( !$.data(this, 'utSticker') ) {
-        $.data(this, 'utSticker', new Sticker(this, options));
-      }
-    });
+  $.fn.utSticker = function(method) {
+    if (methods[method]) {
+      return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+    } else if (typeof method === 'object' || !method) {
+      methods.init.apply(this, arguments);
+    } else {
+      $.error('Method ' + method + ' does not exist on $.utVideo');
+    }
+    return this;
+  };
+
+  function callOnEach(method){
+    return function(){
+      var args = arguments;
+      this.each(function(){
+        var sticker = $(this).data('utSticker');
+        if(sticker){
+          sticker[method].apply(sticker, args);
+        }
+      });
+      return this;
+    };
+  }
+
+  var methods = {
+    init: function(options){
+      this.each(function(){
+        if( ! $.data(this, 'utSticker')){
+          $.data(this, 'utSticker', new Sticker(this, options));
+        }
+      });
+      return this;
+    },
+    editable: callOnEach('editable')
   };
 
   // Constant to convert Radian to degrees.
@@ -11634,64 +11668,66 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
    *
    * The element will be wrapped in a new node (div.ut-sticker-wrapper) containing the various handlers as well.
    */
-  var Sticker = function(element, options) {
-    this.init(element, options);
-  };
+  function Sticker(element, options) {
+    this.options = $.extend( {}, this.defaults, options);
+    this.options.movableArea = $.extend({}, this.defaults.movableArea, this.options.movableArea);
+    this.parent = this.options.parent || $(element).parent();
+    if(this.options.parent){
+      $(this.parent).append(element);
+    }
+    this.wrapper = this._wrap(element);
+    this.element = element;
+
+    createEventFunction(this);
+
+    // Store jQuery Selector
+    this.$wrapper = $(this.wrapper);
+    this.$element = $(this.element);
+    this.$handler = this.$wrapper.find('.ut-sticker-handler');
+    this.$deleteHandler = this.$wrapper.find('.ut-sticker-delete');
+    this.$parent = $(this.parent);
+    this.$movableArea = this._findOrCreateMovableArea();
+    this.$movableArea.append(this.wrapper);
+    this.$element.addClass('ut-sticker');
+
+    this.$movableArea.css(this.options.movableArea);
+
+    // Update CSS
+    this._absolutize();
+    this.zIndex(this.options.zIndex);
+    this.data = {};
+
+    if (this.options.name) {
+      this.name = this.options.name;
+    } else {
+      this.name = 'ut-sticker-' + this.$element.attr('id');
+    }
+
+    this.moveTo(this.options.left, this.options.top);
+    this.rotateTo(this.options.rotation);
+    this.sizeTo(this.options.width || this.$element.width(), this.options.height || this.$element.height());
+
+    if(this.options.editable !== undefined){
+      this.editable(this.options.editable);
+    }
+
+    // Bind to post instance events
+    // and save the initial data if needed.
+    UT.Expression.ready(function(post){
+      this.post = post;
+      post.on('resize', this.refresh.bind(this));
+      this.load();
+      if(this.options.editable === undefined){
+        this.editable(post.context.editor);
+      }
+
+      if(this.options.autoSave){
+        this.save();
+      }
+    }.bind(this));
+  }
 
   Sticker.prototype = {
-    /**
-     * Initialize the sticker
-     */
-    init: function(element, options){
-      this.options = $.extend( {}, this.defaults, options);
-      this.parent = this.options.parent || $(element).parent();
-      if(this.options.parent){
-        $(this.parent).append(element);
-      }
-      this.wrapper = this._wrap(element);
-      this.element = element;
-
-      // Store jQuery Selector
-      this.$wrapper = $(this.wrapper);
-      this.$element = $(this.element);
-      this.$handler = this.$wrapper.find('.ut-sticker-handler');
-      this.$deleteHandler = this.$wrapper.find('.ut-sticker-delete');
-      this.$parent = $(this.parent);
-      this.$element.addClass('ut-sticker');
-
-      // Update CSS
-      this._absolutize();
-      this.zIndex(this.options.zIndex);
-      this.data = {};
-
-      // Bind events
-      this.$wrapper.on('click', discardEvent); // discard click event
-      this.$wrapper.on('mousedown touchstart', this._handleMouseDownEvent.bind(this));
-      this.$deleteHandler.on('click touchstart', this._handleDeleteHandlerClickEvent.bind(this));
-      this.$handler.on('mousedown touchstart', this._handleMoveHandlerMouseDownEvent.bind(this));
-
-      if (this.options.name) {
-        this.name = this.options.name;
-      } else {
-        this.name = 'ut-sticker-' + this.$element.attr('id');
-      }
-
-      this.moveTo(this.options.left, this.options.top);
-      this.rotateTo(this.options.rotation);
-      this.sizeTo(this.options.width || this.$element.width(), this.options.height || this.$element.height());
-
-      // Bind to post instance events
-      // and save the initial data if needed.
-      UT.Expression.ready(function(post){
-        this.post = post;
-        post.on('resize', this.refresh.bind(this));
-        this.load();
-
-        if(this.options.autoSave){
-          this.save();
-        }
-      }.bind(this));
-    },
     destroy: function() {
       this.$wrapper.remove();
       if(this.options.autoSave){
@@ -11729,6 +11765,30 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       var value = (enabled ? 'block':'none');
       $('.ut-sticker-handler', this.wrapper).css('display', value);
       $('.ut-sticker-delete', this.wrapper).css('display', value);
+    },
+
+    /**
+     * Define whether a sticker can be edited or not.
+     */
+    editable: function(enabled) {
+      if(enabled !== undefined){
+        this.options.editable = enabled;
+        if(this.options.editable) {
+          // Bind events
+          this.$wrapper.on('click', discardEvent); // discard click event
+          this.$wrapper.on('mousedown touchstart', this._handleMouseDownEvent);
+          this.$deleteHandler.on('click touchstart', this._handleDeleteHandlerClickEvent);
+          this.$handler.on('mousedown touchstart', this._handleMoveHandlerMouseDownEvent);
+        } else {
+          this.$wrapper.off('click', discardEvent);
+          this.$wrapper.off('mousedown touchstart', this._handleMouseDownEvent);
+          this.$deleteHandler.off('click touchstart', this._handleDeleteHandlerClickEvent);
+          this.$handler.off('mousedown touchstart', this._handleMoveHandlerMouseDownEvent);
+        }
+        return this;
+      } else {
+        return enabled;
+      }
     },
 
     offset: function() {
@@ -11863,17 +11923,22 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       name: null,     // component name used as a key for data in storage,
       top: 0,         // distance from parent top
       left: 0,        // distance from parent left
-      rotation: 0     // rotation in radian (range from 0 to 2π)
+      rotation: 0,    // rotation in radian (range from 0 to 2π)
+      movableArea: {  // default css style that define the movable area zone.
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+        position: 'absolute'
+      }
     },
     _absolutize: function(){
-      var $wrapper = $(this.wrapper);
-      var $parent = $wrapper.parent();
-      if($parent.css('position') === 'static'){
-        $parent.css('position', 'relative');
+      if(this.$parent.css('position') === 'static'){
+        this.$parent.css('position', 'relative');
       }
-      $parent.addClass('ut-sticker-parent');
+      this.$parent.addClass('ut-sticker-parent');
       var offset = this.offset();
-      $wrapper.css({
+      this.$wrapper.css({
         position: 'absolute',
         top: offset.top,
         left: offset.left,
@@ -11883,16 +11948,51 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       });
       this.$element.css('overflow', 'visible');
     },
+    _wrap: function(node) {
+      return $('<div class="ut-sticker-wrapper"></div>')
+        .append("<a class='ut-sticker-delete item-button tl button icon_delete' title='delete' href='#'></a>")
+        .append($(node).detach())
+        .append("<a class='ut-sticker-handler item-button br button icon_rotate' title='scale and rotate' href='#'></a>")
+        .get(0);
+    },
+    _findOrCreateMovableArea: function(){
+      var area = this.$parent.find('.ut-sticker-movable-area');
+      if( area.length === 0 ){
+        area = $('<div class="ut-sticker-movable-area"/>').appendTo(this.$parent);
+      }
+      return area;
+    }
+  };
+
+  var createEventFunction = function attachEvent(sticker) {
+    var position = function($sel, parentOffset, vx, vy) {
+      var offset = $sel.offset();
+      offset.left += -parentOffset.left + (vx||0);
+      offset.top += -parentOffset.top + (vy||0);
+      return {
+        x: offset.left,
+        x1: offset.left + $sel.width(),
+        y: offset.top,
+        y1: offset.top + $sel.height()
+      };
+    };
+
+    var intersect = function intersect(p1, p2) {
+      return (p1.x <= p2.x1 && p1.x1 >= p2.x) && (p1.y <= p2.y1 && p1.y1 >= p2.y);
+    };
+
     /**
      * focus the current sticker and register
      * the global move tracking event.
      */
-    _handleMouseDownEvent: function(event) {
+    sticker._handleMouseDownEvent = function(event) {
       discardEvent(event);
       fixTouchEvent(event);
-      this.focus();
+      sticker.focus();
       var x0 = event.clientX;
       var y0 = event.clientY;
+      var parentOffset = sticker.$parent.offset();
+      var movableArea = position(sticker.$movableArea, parentOffset);
       var doMove = function(event){
         discardEvent(event);
         fixTouchEvent(event);
@@ -11904,48 +12004,52 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         var y = event.clientY;
         var vx = x - x0;
         var vy = y - y0;
-        x0 = x;
-        y0 = y;
-        focusedSticker.move(vx, vy);
+        if(intersect(position(sticker.$element, parentOffset, vx, vy), movableArea)){
+          x0 = x;
+          y0 = y;
+          focusedSticker.move(vx, vy);
+        }
       };
       var endMove = function(){
         $(document)
           .off('mousemove touchmove', doMove)
           .off('mouseup touchend', endMove);
-        if(focusedSticker.options.autoSave){
+        if (focusedSticker.options.autoSave) {
           focusedSticker.save();
         }
       };
-      $(document).on('mousemove touchmove', doMove);
-      $(document).on('mouseup touchend', endMove);
-    },
-    _handleDeleteHandlerClickEvent: function(event) {
+      $(document)
+        .on('mousemove touchmove', doMove)
+        .on('mouseup touchend', endMove);
+    };
+    sticker._handleDeleteHandlerClickEvent = function(event) {
       discardEvent(event);
-      this.destroy();
-    },
-    _handleMoveHandlerMouseDownEvent: function(event) {
+      sticker.destroy();
+    };
+    sticker._handleMoveHandlerMouseDownEvent = function(event) {
       discardEvent(event);
       fixTouchEvent(event);
-      var position = this.position();
-      var pOffset = this.$parent.offset();
+      var pos = sticker.position();
+      var pOffset = sticker.$parent.offset();
+      var movableArea = position(sticker.$movableArea, pOffset);
       var center = {
         handleX: event.clientX - pOffset.left,
         handleY: event.clientY - pOffset.top,
-        x: position.left + position.width/2,
-        y: position.top + position.height/2,
-        w: position.width / 2,
-        h: position.height / 2
+        x: pos.left + pos.width/2,
+        y: pos.top + pos.height/2,
+        w: pos.width / 2,
+        h: pos.height / 2
       };
       center.r = Math.sqrt(Math.pow(center.w, 2) + Math.pow(center.h, 2));
 
-      var doAction = function(event){
+      var doTransform = function(event){
         discardEvent(event);
         fixTouchEvent(event);
         if(event.type === "mousemove" && event.which !== 1){
-          endAction();
+          endTransform();
           return;
         }
-        var pOffset = this.$parent.offset();
+        var pOffset = sticker.$parent.offset();
         var handleX = event.clientX - pOffset.left;
         var handleY = event.clientY - pOffset.top;
 
@@ -11959,42 +12063,400 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         var height = ratio * center.h;
         var left = center.x - width;
         var top = center.y - height;
-        this.sizeTo(width*2, height*2);
-        this.moveTo(left, top);
+        if( intersect({
+          x: left,
+          x1: left + width * 2,
+          y: top,
+          y1: top + height * 2
+        }, movableArea) ) {
+          sticker.sizeTo(width * 2, height * 2);
+          sticker.moveTo(left, top);
 
-        // handle rotation
-        var a = Math.atan2(handleY - center.y, handleX - center.x) - Math.PI/4;
-        this.rotateTo(a);
-      }.bind(this);
-      var endAction = function(event){
+          // handle rotation
+          var a = Math.atan2(handleY - center.y, handleX - center.x) - Math.PI/4;
+          sticker.rotateTo(a);
+        }
+      };
+      var endTransform = function(event){
         if(event){
           discardEvent(event);
         }
-        $(document).off('mousemove touchmove', doAction);
-        $(document).off('mouseup touchend', endAction);
-        if(this.options.autoSave){
-          this.save();
+        $(document).off('mousemove touchmove', doTransform);
+        $(document).off('mouseup touchend', endTransform);
+        if(sticker.options.autoSave){
+          sticker.save();
         }
-      }.bind(this);
+      };
       $(document)
-        .on('mousemove touchmove', doAction)
-        .on('mouseup touchend', endAction);
-    },
-    _wrap: function(node) {
-      return $(node).wrap('<div class="ut-sticker-wrapper"></div>').parent()
-        .prepend("<a class='ut-sticker-delete item-button tl button icon_delete' title='delete' href='#'></a>")
-        .append("<a class='ut-sticker-handler item-button br button icon_rotate' title='scale and rotate' href='#'></a>")
-        .get(0);
-    }
+        .on('mousemove touchmove', doTransform)
+        .on('mouseup touchend', endTransform);
+    };
   };
 }(UT, jQuery, window, document, undefined));
-/* This source code is licensed under version 3 of the AGPL.
-
+/*
+ * This source code is licensed under version 3 of the AGPL.
+ *
  * Copyright (c) 2013 by urturn
-
+ *
  * Addendum to the license AGPL-3:
-
+ *
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+ * OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+;(function($) {
+  "use strict";
+  /**
+   * Enhace the given <code>element</code> to make it a placeholder for images.
+   *
+   * It will displays a add button if none image has been selected and an
+   * edit and delete button if an image has been choosen. This component
+   * will manage its data automatically, making it saved and initialized
+   * given post#storage content.
+   *
+   * Data(the image) will be stored in two different keys:
+   * - utImagePanel_[element.id]_img contains an UT.Image instance
+   * - utImagePanel_[element.id]_ratio contains the selected image ratio
+   *
+   * The element size will be defined by the element size, or will take
+   * the full post height or width if they are 0 (see <code>defineSize()</code>
+   * function below).
+   */
+  function UtImagePanel(element, options) {
+    options = $.extend({}, $.fn.utImagePanel.defaults, options);
+    var el              = element,
+        storagePrefix   = 'utImagePanel_',
+        $el             = $(el),
+        post            = options.post || {},
+        storage         = post.storage,
+        mode            = post.context,
+        imageStorageKey = storagePrefix+$el.attr('id')+'_img',
+        ratioStorageKey = storagePrefix+$el.attr('id')+'_ratio',
+        ratio           = storage && storage[ratioStorageKey],
+        minSize         = 32,
+        image;
 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */(function(t){"use strict";function e(e,a){function i(){P.addClass("ut-image-panel ut-image-placeholder"),a.image?C=a.image:z&&z[k]&&(C=z[k]),o(),n(!0),c(),_&&_.editor===!0&&d(),P.trigger("ready")}function n(t){t?P.addClass("ut-image-placeholder"):P.removeClass("ut-image-placeholder")}function o(){var e=t(x.node);a.width?P.width(a.width):D>=P.width()&&e.width()&&P.css("width",e.width()+"px"),R?P.height(Math.round(P.width()*R)):a.height?P.height(a.height):D>=P.height()&&e.height()&&P.css("height",e.height()+"px")}function d(){var t='<ul class="tls horizontal index spaced"><li><a href="#" class="edit-button action-button icon_camera spaced-right large-button button">Edit</a></li><li><a href="#" class="remove-button action-button icon_trash large-button button"></a></li></ul><div class="add-button-wrapper"><a href="#" class="add-button dark-button icon_camera spaced-right large-button button">Add Image</a></div>';P.append(t).on("click",".add-button",u).on("click",".edit-button",l).on("click",".remove-button",s),C||a.autoAdd!==!0||u(),C&&(f(C),P.addClass("ut-image-active"))}function r(t,e){var a={};return a.size={width:P.width(),flexRatio:t.flexRatio},a.size.autoCrop=void 0!==t.autoCrop?t.autoCrop:"add"===e,a.size.autoCrop&&a.size.flexRatio||(a.size.height=P.height()),a.size.height&&a.size.width&&(a.adaptUI=!0),t.filter&&(a.applyShaders=t.filter),a}function u(e){e&&e.preventDefault(),t(".add-button",P).addClass("is-hidden"),x.dialog("image",r(a,"add"),function(t,e){return h(),e?(m(),void 0):(g(t,"Added"),void 0)})}function s(t){t.preventDefault(),P.removeClass("ut-image-active").addClass("ut-image-placeholder").css("background-image",""),a.autoSave===!0&&(z[k]=null,x.save()),P.removeData("image"),C=null,a.autoAdd===!0&&u(),P.trigger("imageRemoved")}function l(t){t.preventDefault(),x.dialog("image",r("edit"),function(t,e){return e?(m(),void 0):(P.css("background-image",""),g(t,"Recroped"),void 0)})}function c(e){if(C){var a=new Image;a.onload=function(){m(),R=a.width?a.height/a.width:0,o(),f(),P.trigger("loaded",C),e&&e(a,R),t(".button",P).removeClass("is-hidden")},a.onerror=function(){m()},a.src=C.url}}function g(e,i){return C=e,e?(c(function(t,e){a.autoSave===!0&&(z[k]=C,z[A]=e,x.save(),P.trigger("saved"),i&&P.trigger("image"+i,C))}),void 0):(m(),t(".button",P).removeClass("is-hidden"),!1)}function h(){var t='<div class="loading_dots absolute centered"><span></span><span></span><span></span><span></span><span></span></div>';P.append(t)}function m(){P.find(".loading_dots").remove()}function f(){C&&(P.css("background-image","url("+C.url+")").addClass("ut-image-active"),n(!1))}function p(t,e){return e?(a[t]=e,void 0):a[t]}function v(){P.each(function(){P.trigger("destroy"),P.removeData("utImagePanel").removeClass("ut-image-panel ut-image-active ut-image-placeholder").empty()})}function b(t){return void 0!==t?(C=t,P):C}function w(t){return void 0!==t?(R=t,P):R}a=t.extend({},t.fn.utImagePanel.defaults,a);var C,I=e,y="utImagePanel_",P=t(I),x=a.post||{},z=x.storage,_=x.context,k=y+P.attr("id")+"_img",A=y+P.attr("id")+"_ratio",R=z&&z[A],D=32;return i(),{option:p,destroy:v,image:b,ratio:w}}t.fn.utImagePanel=function(a){if("string"==typeof arguments[0]){var i,n=arguments[0],o=Array.prototype.slice.call(arguments,1);return this.each(function(){if(!t.data(this,"utImagePanel")||"function"!=typeof t.data(this,"utImagePanel")[n])throw Error("Method "+n+" does not exist on jQuery.utImagePanel");i=t.data(this,"utImagePanel")[n].apply(this,o)}),void 0!==i?i:this}return"object"!=typeof a&&a?void 0:this.each(function(){t.data(this,"utImagePanel")||t.data(this,"utImagePanel",new e(this,a))})},t.expr[":"].utImagePanel=function(e){return t(e).hasClass("ut-image-panel")},t.fn.utImagePanel.defaults={autoAdd:!1,autoSave:!0,flexRatio:!0}})(jQuery);
+    function init() {
+      $el.addClass('ut-image-panel ut-image-placeholder');
+
+      if (options.image) {
+        image = options.image;
+      } else if (storage && storage[imageStorageKey]) {
+        image = storage[imageStorageKey];
+      }
+      defineSize();
+      displayEmptyPlaceHolder(true);
+      loadImage();
+      if (mode && mode.editor === true) {
+        renderEdit();
+      }
+      $el.trigger('ready');
+    }
+
+    function displayEmptyPlaceHolder(enabled){
+      if(enabled) {
+        $el.addClass('ut-image-placeholder');
+      } else {
+        $el.removeClass('ut-image-placeholder');
+      }
+    }
+
+    /**
+     * Compute the placeholder size depending of the current node, parent node, ratio and so on
+     *
+     * The size is computed given the followings rules:
+     * 1) the width is by order
+     *    a) options.width
+     *    b) element.width()
+     *    c) post.node.width()
+     *    d) css#min-width
+     * 2) the height is by order
+     *    a) width*ratio
+     *    b) options.height
+     *    c) element.height()
+     *    d) post.node.height()
+     *    e) css#min-height
+     */
+    function defineSize() {
+      var postNode = $(post.node);
+      if(options.width){
+        $el.width(options.width);
+      } else if($el.width() <= minSize && postNode.width()){
+        $el.css('width', postNode.width() + 'px');
+      }
+      if(ratio){
+        $el.height(Math.round($el.width()*ratio));
+      } else if(options.height){
+        $el.height(options.height);
+      } else if($el.height() <= minSize && postNode.height()){
+        $el.css('height', postNode.height() + 'px');
+      }
+    }
+
+    function renderEdit() {
+      var actionButtons = '<ul class="tls horizontal index spaced">'+
+          '<li><a href="#" class="edit-button action-button icon_camera spaced-right large-button button">Edit</a></li>'+
+          '<li><a href="#" class="remove-button action-button icon_trash large-button button"></a></li>'+
+          '</ul>'+
+          '<div class="add-button-wrapper"><a href="#" class="add-button dark-button icon_camera spaced-right large-button button">Add Image</a></div>';
+
+      $el
+        .append(actionButtons)
+        .on('click','.add-button',addImage)
+        .on('click','.edit-button', recropImage )
+        .on('click','.remove-button', removeImage);
+
+      if (!image && options.autoAdd === true) {
+          addImage();
+      }
+
+      if (image) {
+        displayImage(image);
+        $el.addClass('ut-image-active');
+      }
+    }
+
+
+    /**
+     * Retrieve proper image dialog options given the passed options object.
+     */
+    function imageOptions(options, context){
+      var imgOptions = {};
+
+      // At least a width and flex ratio is true by default.
+      imgOptions.size = {
+        width: $el.width(),
+        flexRatio : options.flexRatio
+      };
+
+      // If autocrop is not specified, it will auto crop
+      // on edition but not on insertion (add image).
+      if( options.autoCrop !== undefined ) {
+        imgOptions.size.autoCrop = options.autoCrop;
+      } else {
+        imgOptions.size.autoCrop = (context === 'add');
+      }
+
+      // Specify an height only if one of autoCrop or flexRatio is false.
+      if( ! (imgOptions.size.autoCrop && imgOptions.size.flexRatio) ) {
+        imgOptions.size.height = $el.height();
+      }
+
+      // In the case where an height is defined, adapt the UI of the camera.
+      if(imgOptions.size.height && imgOptions.size.width){
+        imgOptions.adaptUI = true;
+      }
+
+      // Apply any predefined filters.
+      if (options.filter) {
+        imgOptions.applyShaders = options.filter;
+      }
+      return imgOptions;
+    }
+
+    function addImage(e) {
+      if (e) { e.preventDefault(); }
+
+      $('.add-button',$el).addClass('is-hidden');
+
+      post.dialog('image', imageOptions(options, 'add'), function(data, error){
+        addLoader();
+        if(error) {
+          removeLoader();
+          return;
+        }
+        handleImageReceived(data,'Added');
+      });
+    }
+
+    function removeImage(e) {
+      e.preventDefault();
+      $el.removeClass('ut-image-active').addClass('ut-image-placeholder').css('background-image', '');
+      if (options.autoSave === true) {
+        storage[imageStorageKey] = null;
+        post.save();
+      }
+
+      $el.removeData('image');
+      image = null;
+
+      if (options.autoAdd === true) {
+        addImage();
+      }
+
+      $el.trigger('imageRemoved');
+    }
+
+    function recropImage(e) {
+      e.preventDefault();
+
+      post.dialog('image', imageOptions('edit'), function(data,error){
+        if(error) {
+          removeLoader();
+          return;
+        }
+        $el.css('background-image', '');
+
+        handleImageReceived(data,'Recroped');
+      });
+    }
+
+    function loadImage(onload) {
+      if(!image){
+        return;
+      }
+      var newImage = new Image();
+
+      newImage.onload = function() {
+        removeLoader();
+        // Compute image ratio
+        if(newImage.width){
+          ratio = newImage.height / newImage.width;
+        } else {
+          ratio = 0;
+        }
+        defineSize();
+        displayImage();
+        $el.trigger('loaded', image);
+        if(onload){
+          onload(newImage, ratio);
+        }
+
+        $('.button',$el).removeClass('is-hidden');
+      };
+
+      newImage.onerror = function() {
+        removeLoader();
+      };
+
+      newImage.src = image.url;
+    }
+
+    function handleImageReceived(data, action) {
+      image = data;
+
+      if(!data) {
+        removeLoader();
+        $('.button',$el).removeClass('is-hidden');
+        return false;
+      }
+
+      loadImage(function(domImage, ratio){
+        if (options.autoSave === true) {
+          storage[imageStorageKey] = image;
+          storage[ratioStorageKey] = ratio;
+          post.save();
+          $el.trigger('saved');
+
+          if(action){
+            $el.trigger('image'+action, image);
+          }
+        }
+      });
+    }
+
+    function addLoader() {
+      var domnode = '<div class="loading_dots absolute centered"><span></span><span></span><span></span><span></span><span></span></div>';
+      $el.append(domnode);
+    }
+
+    function removeLoader() {
+      $el.find('.loading_dots').remove();
+    }
+
+    function displayImage() {
+      if (image) {
+        $el.css('background-image', 'url(' + image.url + ')')
+          .addClass('ut-image-active');
+        displayEmptyPlaceHolder(false);
+      }
+    }
+
+    function option (key, val) {
+      if (val) {
+        options[key] = val;
+      } else {
+        return options[key];
+      }
+    }
+
+    function destroy() {
+      $el.each(function() {
+        $el.trigger('destroy');
+        $el
+          .removeData('utImagePanel')
+          .removeClass('ut-image-panel ut-image-active ut-image-placeholder')
+          .empty();
+      });
+    }
+
+    function imageAccessor(val) {
+      if(val !== undefined){
+        image = val;
+        return $el;
+      } else {
+        return image;
+      }
+    }
+
+    function ratioAccessor(val) {
+      if(val !== undefined){
+        ratio = val;
+        return $el;
+      } else {
+        return ratio;
+      }
+    }
+
+    init();
+
+    return {
+      option: option,
+      destroy: destroy,
+      image: imageAccessor,
+      ratio: ratioAccessor
+    };
+  }
+
+  $.fn.utImage = function(options) {
+    if (typeof arguments[0] === 'string') {
+      var methodName = arguments[0];
+      var args = Array.prototype.slice.call(arguments, 1);
+      var returnVal;
+      this.each(function() {
+        if ($.data(this, 'utImagePanel') && typeof $.data(this, 'utImagePanel')[methodName] === 'function') {
+          returnVal = $.data(this, 'utImagePanel')[methodName].apply(this, args);
+        } else {
+          throw new Error('Method ' +  methodName + ' does not exist on jQuery.utImagePanel');
+        }
+      });
+      if (returnVal !== undefined){
+        return returnVal;
+      } else {
+        return this;
+      }
+    } else if (typeof options === "object" || !options) {
+      return this.each(function() {
+        if (!$.data(this, 'utImagePanel')) {
+          $.data(this, 'utImagePanel', new UtImagePanel(this, options));
+        }
+      });
+    }
+  };
+
+  $.expr[':'].utImage = function(elem) {
+    return $(elem).hasClass('ut-image');
+  };
+
+  $.fn.utImagePanel.defaults = {
+    autoAdd: false,
+    autoSave: true,
+    flexRatio: true
+  };
+
+})(jQuery);

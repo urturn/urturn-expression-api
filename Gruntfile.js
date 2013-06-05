@@ -4,6 +4,10 @@ module.exports = function(grunt) {
       path = require('path'),
       mime = require('mime');
 
+  var s3PrivatePath = path.join(__dirname, '.s3private.json');
+  var s3Config = loadS3Config();
+  var info = JSON.parse(grunt.file.read('package.json'));
+
   function loadS3Config(){
     if(fs.existsSync(s3PrivatePath)){
       return JSON.parse(fs.readFileSync(s3PrivatePath));
@@ -12,10 +16,6 @@ module.exports = function(grunt) {
       return null;
     }
   }
-
-  var s3PrivatePath = path.join(__dirname, '.s3private.json');
-  var s3Config = loadS3Config();
-  var info = JSON.parse(grunt.file.read('package.json'));
 
   // List all source files that might be include.
   var sources = [
@@ -137,8 +137,7 @@ module.exports = function(grunt) {
     }
   }
 
-  config.compress =
-  {
+  config.compress = {
     main: {
       options: {
         mode: 'gzip'
@@ -150,25 +149,35 @@ module.exports = function(grunt) {
     }
   };
 
-  grunt.initConfig(config);
-
-  grunt.registerTask('bower-version', function(){
-    var bower = require('bower');
-    var bowerInfo = grunt.file.readJSON(bower.config.json);
-    if(bowerInfo.version !== info.version) {
-      grunt.log.writeln("Upload version to " + bowerInfo.version);
-      bowerInfo.version = info.version;
-      grunt.file.write(bower.config.json, JSON.stringify(bowerInfo, null, 2));
+  config.urturn_component = {
+    config: {
+      bower: true,
+      manifest: {
+        main: ['iframe.min.css', 'iframe.min.js'],
+        dependencies: {
+          'jquery': '~2.0.0'
+        },
+        includes: [
+          "fastclick",
+          "urturn-expression-css",
+          "jquery",
+          "jquery.ut-sticker",
+          "jquery.ut-image"
+        ]
+      }
     }
-  });
+  };
 
-  grunt.registerTask('bower-install', function(){
-    var done = this.async();
-    var bower = require('bower');
-    bower.commands.install()
-      .on('end', function() { done(); })
-      .on('error', function(message) { done(message); });
-  });
+  config.exec = {
+    tag: {
+      cmd: "git tag v" + info.version + " && git push --tags"
+    },
+    npmpublish: {
+      cmd: "npm publish"
+    }
+  };
+
+  grunt.initConfig(config);
 
   // Load external grunt Task
   grunt.loadNpmTasks('grunt-contrib-clean');
@@ -180,9 +189,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-compress');
   grunt.loadNpmTasks('grunt-concat-css');
   grunt.loadNpmTasks('grunt-urturn-component');
-
-  grunt.registerTask('bower', ['bower-version', 'bower-install', 'bower-include']);
-
+  grunt.loadNpmTasks('grunt-exec');
 
   grunt.registerMultiTask('filecheck', "Ensure sources file are here", function(){
     for(var i in this.data){
@@ -285,28 +292,6 @@ module.exports = function(grunt) {
     }
   });
 
-  config.urturn_component = {
-    options: {
-      main: ['iframe.min.css', 'iframe.min.js'],
-      dependencies: {
-        'jquery': '~2.0.0'
-      },
-      includes: [
-        "fastclick",
-        "urturn-expression-css",
-        "jquery",
-        "jquery.ut-sticker",
-        "jquery.ut-image"
-      ]
-    }
-  },
-
-  config.urturn_component_install = {
-    options: {
-      dest: "dist"
-    }
-  },
-
   grunt.registerTask('copyAssetToDist', function(){
     sourcesAssets.forEach( function(filepath) {
       if(grunt.file.isFile(filepath)){
@@ -331,16 +316,28 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('updateVersionNumber', function(){
-    function replace(src) {
-      content = grunt.file.read(src);
-      content = content.replace(/0\.0\.0/g, info.version);
-      grunt.file.write(src, content);
+    function updateInJSFiles(filename, version){
+      content = grunt.file.read(filename);
+      content = content.replace(/0\.0\.0/g, version);
+      grunt.file.write(filename, content);
     }
-    ['iframe', 'sandbox'].forEach(function(name){
-      replace('dist/'+name+'.js');
+    function updateInBower(version){
+      var bower = require('bower');
+      var bowerInfo = grunt.file.readJSON(bower.config.json);
+      if(bowerInfo.version !== version) {
+        grunt.log.writeln("Upload version to " + bowerInfo.version);
+        bowerInfo.version = version;
+        grunt.file.write(bower.config.json, JSON.stringify(bowerInfo, null, 2));
+      }
+    }
+    [
+      'testExpression/bdd/specs/expression-spec.js',
+      'dist/iframe.js',
+      'dist/sandbox.js'
+    ].forEach(function(name) {
+      updateInJSFiles(name, info.version);
     });
-    replace('testExpression/bdd/specs/expression-spec.js');
-
+    updateInBower(info.version);
   });
 
   grunt.registerTask('addIncludedModule', function(){
@@ -350,6 +347,7 @@ module.exports = function(grunt) {
     info.basedir = '.';
     var component = Component.fromOptions(info);
     component.eachInclude(function(comp){
+      console.log('main', comp.name);
       comp.main.forEach(function(f){
         filepath = path.join(comp.basedir, f);
         if (filepath.match(/\.js$/)) {
@@ -360,6 +358,7 @@ module.exports = function(grunt) {
           sourcesAssets.push(filepath);
         }
       });
+      console.log('assets', comp.main.length);
       comp.assets.forEach(function(f){
         filepath = path.join(comp.basedir, f);
         sourcesAssets.push(filepath);
@@ -371,9 +370,9 @@ module.exports = function(grunt) {
   // Default task.
   grunt.registerTask('default', ['clean', 'jshint', 'build', 'buildTestExpression', 'updateVersionNumber', 'mocha', 'minify', 'copyAssetToDist']);
   grunt.registerTask('build', ['dependencies', 'addIncludedModule', 'filecheck', "concat", "concat_css"]);
-  grunt.registerTask('dependencies', ['bower-install', 'urturn_component']);
+  grunt.registerTask('dependencies', ['urturn_component']);
   grunt.registerTask('minify', ['uglify', 'cssmin']);
-
-  grunt.registerTask('deploy', ['default', 'compress', 's3deploy']);
+  grunt.registerTask('publish', ['exec:tag', 'exec:npmpublish']);
+  grunt.registerTask('deploy', ['publish', 'compress', 's3deploy']);
   grunt.registerTask('local', ['concat', 'buildTestExpression', 'updateVersionNumber', 'uglify', 'cssmin', 'compress']);
 };
