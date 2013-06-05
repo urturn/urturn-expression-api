@@ -373,6 +373,6 @@ module.exports = function(grunt) {
   grunt.registerTask('dependencies', ['urturn_component']);
   grunt.registerTask('minify', ['uglify', 'cssmin']);
   grunt.registerTask('publish', ['exec:tag', 'exec:npmpublish']);
-  grunt.registerTask('deploy', ['publish', 'compress', 's3deploy']);
+  grunt.registerTask('deploy', ['compress', 's3deploy']);
   grunt.registerTask('local', ['concat', 'buildTestExpression', 'updateVersionNumber', 'uglify', 'cssmin', 'compress']);
 };

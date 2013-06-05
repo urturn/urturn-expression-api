@@ -11582,14 +11582,26 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
    *
    * ## Constructor
    *
-   * $(sel).utSticker(options)
+   * ### $(sel).utSticker(options)
    *
    * @param  options :
    * {
-   *   position : stickerPosition,
-   *   editable (bolean) : if sticker is editable or not
+   *   @param {String|Number} height The height of the sticker as a number or a valid css value
+   *   @param {String|Number} width The width of the sticker as a number or a valid css value
+   *   @param {String|Number} top The distance from the parent element as a number or a valid css value
+   *   @param {String|Number} left The distance from the parent element as a number or a valid css value
+   *   @param {Number} zIndex The initial z-index of the element, default to the 0
+   *   @param {Number} rotation The Sticker angle in radian
+   *   @param {boolean} editable True if sticker is editable, default to post.context.editor
+   *   @param {boolean} autoSave False if the component should not save its own data
    * }
-   * @return
+   * @return $
+   *
+   * ## Commands
+   *
+   * ### $(sel).utSticker('editable', true)
+   *
+   *
    */
   $.fn.utSticker = function(method) {
     if (methods[method]) {
@@ -11632,20 +11644,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   var focusedSticker = null;
   var maxZ = 0;
 
-  var discardEvent = function(event) {
-    event.stopPropagation(true);
-    event.preventDefault(true);
-    return event;
-  };
-
-  var fixTouchEvent = function(event) {
-    if (event.originalEvent && event.originalEvent.touches && event.originalEvent.touches.length) {
-      event.clientX = event.originalEvent.touches[0].clientX;
-      event.clientY = event.originalEvent.touches[0].clientY;
-    }
-    return event;
-  };
-
   $(document).on('click', function(){
     if(focusedSticker){
       focusedSticker.blur();
@@ -11656,17 +11654,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
    * A Sticker Delegate that will handle a sticker element and
    * its various behaviour.
    *
-   * @param el Sticker DOM Element
-   * @param options
-   *
-   * Available options:
-   * - {Integer} zIndex = 0: the initial z-index of the element
-   * - {boolean} autoSave = true: disable and enable the saving of the sticker
-   *
-   * The sticker movements are constrained by its parent node. The parent node will
-   * be assigned the CSS attribute {overflow: hidden} to enforce this rule.
-   *
-   * The element will be wrapped in a new node (div.ut-sticker-wrapper) containing the various handlers as well.
+   * @param element Sticker DOM Element
+   * @param options see $.fn.utSticker
    */
   function Sticker(element, options) {
     this.options = $.extend( {}, this.defaults, options);
@@ -11687,7 +11676,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     this.$deleteHandler = this.$wrapper.find('.ut-sticker-delete');
     this.$parent = $(this.parent);
     this.$movableArea = this._findOrCreateMovableArea();
-    this.$movableArea.append(this.wrapper);
+    this.$parent.append(this.wrapper);
     this.$element.addClass('ut-sticker');
 
     this.$movableArea.css(this.options.movableArea);
@@ -11929,7 +11918,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         left: 0,
         bottom: 0,
         right: 0,
-        position: 'absolute'
+        position: 'absolute',
+        zIndex: -9999
       }
     },
     _absolutize: function(){
@@ -11965,21 +11955,13 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   };
 
   var createEventFunction = function attachEvent(sticker) {
-    var position = function($sel, parentOffset, vx, vy) {
-      var offset = $sel.offset();
-      offset.left += -parentOffset.left + (vx||0);
-      offset.top += -parentOffset.top + (vy||0);
-      return {
-        x: offset.left,
-        x1: offset.left + $sel.width(),
-        y: offset.top,
-        y1: offset.top + $sel.height()
-      };
-    };
 
-    var intersect = function intersect(p1, p2) {
-      return (p1.x <= p2.x1 && p1.x1 >= p2.x) && (p1.y <= p2.y1 && p1.y1 >= p2.y);
-    };
+    function initMoveEventHandling(event){
+      discardEvent(event);
+      fixTouchEvent(event);
+      // Validates we still click the mouse
+      return (event.which === 1 || event.type !== "mousemove");
+    }
 
     /**
      * focus the current sticker and register
@@ -11992,19 +11974,26 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       var x0 = event.clientX;
       var y0 = event.clientY;
       var parentOffset = sticker.$parent.offset();
-      var movableArea = position(sticker.$movableArea, parentOffset);
+      var movableZone = position(
+        relativeOffset(sticker.$movableArea.offset(), parentOffset),
+        sticker.$movableArea.width(),
+        sticker.$movableArea.height()
+      );
       var doMove = function(event){
-        discardEvent(event);
-        fixTouchEvent(event);
-        if(event.type === "mousemove" && event.which !== 1){
+        if (!initMoveEventHandling(event)){
+          console.log('end move');
           endMove();
           return;
         }
-        var x = event.clientX;
-        var y = event.clientY;
-        var vx = x - x0;
-        var vy = y - y0;
-        if(intersect(position(sticker.$element, parentOffset, vx, vy), movableArea)){
+        var x = event.clientX,
+            y = event.clientY,
+            vx = x - x0,
+            vy = y - y0;
+        if(intersect(movableZone, position(
+            relativeOffset(sticker.$element.offset(), parentOffset),
+            sticker.$element.width() + vx,
+            sticker.$element.height() + vy
+          ))) {
           x0 = x;
           y0 = y;
           focusedSticker.move(vx, vy);
@@ -12030,11 +12019,15 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       discardEvent(event);
       fixTouchEvent(event);
       var pos = sticker.position();
-      var pOffset = sticker.$parent.offset();
-      var movableArea = position(sticker.$movableArea, pOffset);
+      var parentOffset = sticker.$parent.offset();
+      var movableZone = position(
+        relativeOffset(sticker.$movableArea.offset(), parentOffset),
+        sticker.$movableArea.width(),
+        sticker.$movableArea.height()
+      );
       var center = {
-        handleX: event.clientX - pOffset.left,
-        handleY: event.clientY - pOffset.top,
+        handleX: event.clientX - parentOffset.left,
+        handleY: event.clientY - parentOffset.top,
         x: pos.left + pos.width/2,
         y: pos.top + pos.height/2,
         w: pos.width / 2,
@@ -12043,15 +12036,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       center.r = Math.sqrt(Math.pow(center.w, 2) + Math.pow(center.h, 2));
 
       var doTransform = function(event){
-        discardEvent(event);
-        fixTouchEvent(event);
-        if(event.type === "mousemove" && event.which !== 1){
+        if (!initMoveEventHandling(event)){
           endTransform();
           return;
         }
-        var pOffset = sticker.$parent.offset();
-        var handleX = event.clientX - pOffset.left;
-        var handleY = event.clientY - pOffset.top;
+        var handleX = event.clientX - parentOffset.left;
+        var handleY = event.clientY - parentOffset.top;
 
         // handle resize
         var r = Math.sqrt(
@@ -12063,12 +12053,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         var height = ratio * center.h;
         var left = center.x - width;
         var top = center.y - height;
-        if( intersect({
-          x: left,
-          x1: left + width * 2,
-          y: top,
-          y1: top + height * 2
-        }, movableArea) ) {
+        if( intersect(movableZone, position({left: left, top: top}, width*2, height*2))) {
           sticker.sizeTo(width * 2, height * 2);
           sticker.moveTo(left, top);
 
@@ -12092,6 +12077,36 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         .on('mouseup touchend', endTransform);
     };
   };
+
+  function relativeOffset(offset, parentOffset) {
+    return {
+      left: offset.left - parentOffset.left,
+      top: offset.top -parentOffset.top
+    };
+  }
+  function position(offset, width, height) {
+    return {
+      x: offset.left,
+      x1: offset.left + width,
+      y: offset.top,
+      y1: offset.top + height
+    };
+  }
+  function intersect(p1, p2) {
+    return (p1.x <= p2.x1 && p1.x1 >= p2.x) && (p1.y <= p2.y1 && p1.y1 >= p2.y);
+  }
+  function discardEvent(event) {
+    event.stopPropagation(true);
+    event.preventDefault(true);
+    return event;
+  }
+  function fixTouchEvent(event) {
+    if (event.originalEvent && event.originalEvent.touches && event.originalEvent.touches.length) {
+      event.clientX = event.originalEvent.touches[0].clientX;
+      event.clientY = event.originalEvent.touches[0].clientY;
+    }
+    return event;
+  }
 }(UT, jQuery, window, document, undefined));
 /*
  * This source code is licensed under version 3 of the AGPL.
@@ -12120,42 +12135,54 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
    * given post#storage content.
    *
    * Data(the image) will be stored in two different keys:
-   * - utImagePanel_[element.id]_img contains an UT.Image instance
-   * - utImagePanel_[element.id]_ratio contains the selected image ratio
+   * - utImage_[element.id]_img contains an UT.Image instance
+   * - utImage_[element.id]_ratio contains the selected image ratio
    *
    * The element size will be defined by the element size, or will take
    * the full post height or width if they are 0 (see <code>defineSize()</code>
    * function below).
    */
-  function UtImagePanel(element, options) {
-    options = $.extend({}, $.fn.utImagePanel.defaults, options);
+  function UtImage(element, options) {
+    options = $.extend({}, $.fn.utImage.defaults, options);
     var el              = element,
-        storagePrefix   = 'utImagePanel_',
+        storagePrefix   = 'utImage_',
+        namespace       = 'utImage',
         $el             = $(el),
-        post            = options.post || {},
-        storage         = post.storage,
-        mode            = post.context,
+        post            = options.post || null,
+        storage         = null,
+        mode            = null,
         imageStorageKey = storagePrefix+$el.attr('id')+'_img',
         ratioStorageKey = storagePrefix+$el.attr('id')+'_ratio',
-        ratio           = storage && storage[ratioStorageKey],
+        ratio           = 1,
         minSize         = 32,
         image;
 
     function init() {
-      $el.addClass('ut-image-panel ut-image-placeholder');
+      $el.addClass('ut-image ut-image-placeholder');
 
-      if (options.image) {
-        image = options.image;
-      } else if (storage && storage[imageStorageKey]) {
-        image = storage[imageStorageKey];
-      }
-      defineSize();
-      displayEmptyPlaceHolder(true);
-      loadImage();
-      if (mode && mode.editor === true) {
-        renderEdit();
-      }
-      $el.trigger('ready');
+      UT.Expression.ready(function(p){
+        post = p;
+        storage = p.storage;
+        mode = p.context;
+        ratio = storage && storage[ratioStorageKey];
+
+        if (options.image) {
+          image = options.image;
+        } else if (storage && storage[imageStorageKey]) {
+          image = storage[imageStorageKey];
+        }
+        defineSize();
+        displayEmptyPlaceHolder(true);
+        loadImage();
+        if (mode && mode.editor === true) {
+          renderEdit();
+        }
+        trigger('ready');
+      });
+    }
+
+    function trigger(name, data){
+      $el.trigger(name+':'+namespace, data);
     }
 
     function displayEmptyPlaceHolder(enabled){
@@ -12289,7 +12316,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         addImage();
       }
 
-      $el.trigger('imageRemoved');
+      trigger('removed');
     }
 
     function recropImage(e) {
@@ -12322,7 +12349,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         }
         defineSize();
         displayImage();
-        $el.trigger('loaded', image);
+        trigger('loaded', image);
         if(onload){
           onload(newImage, ratio);
         }
@@ -12351,10 +12378,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           storage[imageStorageKey] = image;
           storage[ratioStorageKey] = ratio;
           post.save();
-          $el.trigger('saved');
+          trigger('saved', image);
 
           if(action){
-            $el.trigger('image'+action, image);
+            trigger(action, image);
           }
         }
       });
@@ -12387,10 +12414,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
     function destroy() {
       $el.each(function() {
-        $el.trigger('destroy');
+        trigger('destroy');
         $el
-          .removeData('utImagePanel')
-          .removeClass('ut-image-panel ut-image-active ut-image-placeholder')
+          .removeData('utImage')
+          .removeClass('ut-image ut-image-active ut-image-placeholder')
           .empty();
       });
     }
@@ -12429,10 +12456,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       var args = Array.prototype.slice.call(arguments, 1);
       var returnVal;
       this.each(function() {
-        if ($.data(this, 'utImagePanel') && typeof $.data(this, 'utImagePanel')[methodName] === 'function') {
-          returnVal = $.data(this, 'utImagePanel')[methodName].apply(this, args);
+        if ($.data(this, 'utImage') && typeof $.data(this, 'utImage')[methodName] === 'function') {
+          returnVal = $.data(this, 'utImage')[methodName].apply(this, args);
         } else {
-          throw new Error('Method ' +  methodName + ' does not exist on jQuery.utImagePanel');
+          throw new Error('Method ' +  methodName + ' does not exist on jQuery.utImage');
         }
       });
       if (returnVal !== undefined){
@@ -12442,8 +12469,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       }
     } else if (typeof options === "object" || !options) {
       return this.each(function() {
-        if (!$.data(this, 'utImagePanel')) {
-          $.data(this, 'utImagePanel', new UtImagePanel(this, options));
+        if (!$.data(this, 'utImage')) {
+          $.data(this, 'utImage', new UtImage(this, options));
         }
       });
     }
@@ -12453,7 +12480,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     return $(elem).hasClass('ut-image');
   };
 
-  $.fn.utImagePanel.defaults = {
+  $.fn.utImage.defaults = {
     autoAdd: false,
     autoSave: true,
     flexRatio: true
