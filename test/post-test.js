@@ -212,6 +212,7 @@
             count: 0
           }]
         });
+        this.post.context.editor = true;
         var defaultSaved, testAnotherOneSaved;
         listenToMessage('collections.save', function(message, callback){
           try {

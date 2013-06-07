@@ -53,7 +53,7 @@ var supportGetSet = function() {
   }
 };
 supportGetSet();
-; (function(){
+; (function(UT, window, document, undefined){
   "use strict";
   /**
    * valid options keys: data, delegate, currentUserId
@@ -363,8 +363,8 @@ supportGetSet();
       return data.value;
     }
   };
-})();
-; (function(){
+})(UT, window, document, undefined);
+; (function(UT, window, document, undefined){
   "use strict";
 
   var VALID_FILTERS = ['recent', 'friends'];
@@ -711,7 +711,7 @@ supportGetSet();
 
     initialize.call(this, options);
   };
-})();
+})(UT, window, document, undefined);
 
 // Create a store for containing collections defined in data
 // mandatory options keys: data, currentUserId, delegate

@@ -53,7 +53,7 @@ var supportGetSet = function() {
   }
 };
 supportGetSet();
-; (function(){
+; (function(UT, window, document, undefined){
   "use strict";
   /**
    * valid options keys: data, delegate, currentUserId
@@ -363,7 +363,7 @@ supportGetSet();
       return data.value;
     }
   };
-})();
+})(UT, window, document, undefined);
 // Create a store for containing collections defined in data
 // mandatory options keys: data, currentUserId, delegate
 UT.CollectionStore = function(options) {
@@ -432,7 +432,7 @@ UT.CollectionStore = function(options) {
   };
 };
 
-; (function(){
+; (function(UT, window, document, undefined){
   "use strict";
 
   var VALID_FILTERS = ['recent', 'friends'];
@@ -779,9 +779,9 @@ UT.CollectionStore = function(options) {
 
     initialize.call(this, options);
   };
-})();
+})(UT, window, document, undefined);
 
-; (function(){
+; (function(UT, window, document, undefined){
   // Scoped variables
   var readyListeners = []; // contains the various ready event callbacks
   var apiListeners = {}; // contains the various api callbacks keyed by uuid
@@ -936,8 +936,8 @@ UT.CollectionStore = function(options) {
     postInstance = postInstance;
     return postInstance;
   };
-})();
-; (function(){
+})(UT, window, document, undefined);
+; (function(UT){
   "use strict";
 
   UT.User = function(userDescriptor) {
@@ -954,8 +954,8 @@ UT.CollectionStore = function(options) {
   UT.User.prototype.marshall = function(){
     return { _type: 'user', uuid: this.uuid };
   };
-})();
-; (function(){
+})(UT);
+; (function(UT, window, document, undefined){
   "use strict";
 
   UT.Post = function(states){
@@ -1561,10 +1561,29 @@ UT.CollectionStore = function(options) {
      */
     var save = this.save = function(){
       collectionStore.each(function(c){
-        c.save();
+        if(context.editor || c.isPublic()){
+          c.save();
+        }
       });
     };
 
+    /**
+     * urturn
+     * Make a urturn on this post
+     * Param (Hash) :
+     * - expressionFullSystemName : (String) ex : thefactory/pix
+     * - documentId : UUID of document on wich the urturn is done
+     * - creatorId : Id du createur a notifier
+     * Callback : called with 0 as parameter if Urturn fail
+     */
+    var urturn = this.urturn = function (params, callback)  {
+      UT.Expression._callAPI('document.urturn', [params], function(){});
+    };
+
+    /**
+     * DEPRECATED
+     * See post.users()
+     */
     var getUserData = this.getUserData = function(callback) {
       deprecated('post.getUserData()', '0.7.4', '1.0.0', 'post.users("current", callback)');
       users('current', callback);
@@ -1651,7 +1670,8 @@ UT.CollectionStore = function(options) {
     }, false);
     updateSize();
   };
-})();
+})(UT, window, document, undefined);
+
 /**
 * An image object return by create('image');
 * Use it to manipulate an image (crop, filter, ...)
@@ -1838,14 +1858,14 @@ UT.Video = function(videoDescriptor) {
  * @param {object} soundDescriptor an object return by internal sdk
  */
 UT.Sound = function(soundDescriptor) {
-	
+
 	/**
 	 * Name of the service in wich this sound is hosted
 	 * Currently soundcloud or itunes
 	 * @type {String}
 	 */
 	this.service = '';
-	
+
 	/**
 	 * url of the sound on the service
 	 * @type {URL}
@@ -1937,7 +1957,7 @@ UT.Sound = function(soundDescriptor) {
 	var descriptor = {};
 	_buildSound.call(this, soundDescriptor);
 };
-; (function(){
+; (function(UT){
   /**
    * This event is sent by the on('resize') producers.
    */
@@ -1950,7 +1970,7 @@ UT.Sound = function(soundDescriptor) {
     this.scrollTop = scrollTop;
     this.scrollBottom = scrollBottom;
   };
-})();
+})(UT);
 /**
  * Initialization code
  */
@@ -12108,6 +12128,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     return event;
   }
 }(UT, jQuery, window, document, undefined));
+/*global UT: true, jQuery: true */
 /*
  * This source code is licensed under version 3 of the AGPL.
  *
@@ -12223,6 +12244,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       } else if($el.height() <= minSize && postNode.height()){
         $el.css('height', postNode.height() + 'px');
       }
+      trigger('resize');
     }
 
     function renderEdit() {
@@ -12322,7 +12344,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     function recropImage(e) {
       e.preventDefault();
 
-      post.dialog('image', imageOptions('edit'), function(data,error){
+      post.dialog('crop', imageOptions('edit'), function(data,error){
         if(error) {
           removeLoader();
           return;

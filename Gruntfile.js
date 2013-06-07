@@ -113,8 +113,7 @@ module.exports = function(grunt) {
     console: {
       src: ['test/console.html'],
       options: {
-        run: true,
-        reporter: 'Nyan'
+        run: true
       }
     }
   };
