@@ -218,9 +218,8 @@ module.exports = function(grunt) {
       if(!grunt.file.isFile(source)){
         return;
       }
-      var splits = source.split('/');
-      var filename = splits[splits.length-1];
-      files[source] = path.join(this.data.files[pattern], filename);
+      var filepath = source.replace(/^.*?\//, '').replace(/\.gz$/, '');
+      files[source] = this.data.files[pattern] + '/' + filepath;
       console.log(source, files[source]);
     }.bind(this);
     for(var pattern in this.data.files){
