@@ -12618,7 +12618,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         };
 
         that.eventer = function(event,data){
-          $that.trigger(event+':'+that.eventNS,data);
+          $that.trigger(that.eventNS+':'+event,data);
         };
 
 
