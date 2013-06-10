@@ -35,8 +35,9 @@ module.exports = function(grunt) {
     'lib/expression-api/init.js'
   ];
 
-  sourcesCSS = ['lib/iframe.css'];
-  sourcesAssets = [];
+  var sourcesCSS = ['lib/iframe.css'];
+  var sourcesAssets = [];
+  var pathMap = {}; // map relative path to asset paths
 
   var config = {};
 
@@ -101,13 +102,6 @@ module.exports = function(grunt) {
     }
   };
 
-  config.concat_css = {
-    all: {
-      src: sourcesCSS,
-      dest: "dist/iframe.css"
-    }
-  };
-
   // Tests
   config.mocha = {
     console: {
@@ -161,9 +155,17 @@ module.exports = function(grunt) {
           "urturn-expression-css",
           "jquery",
           "jquery.ut-sticker",
-          "jquery.ut-image"
+          "jquery.ut-image",
+          "jquery.ut-audio"
         ]
       }
+    }
+  };
+
+  config.concat_css = {
+    all: {
+      src: sourcesCSS,
+      dest: "dist/iframe.css"
     }
   };
 
@@ -345,24 +347,32 @@ module.exports = function(grunt) {
     info.basedir = '.';
     var component = Component.fromOptions(info);
     component.eachInclude(function(comp){
-      console.log('main', comp.name);
+      var pathMap = {};
       comp.main.forEach(function(f){
         filepath = path.join(comp.basedir, f);
+        fileToRebind = [];
         if (filepath.match(/\.js$/)) {
           sources.push(filepath);
+          fileToRebind.push(filepath);
         } else if (filepath.match(/\.css$/)) {
           sourcesCSS.push(filepath);
         } else {
           sourcesAssets.push(filepath);
         }
       });
-      console.log('assets', comp.main.length);
       comp.assets.forEach(function(f){
         filepath = path.join(comp.basedir, f);
+        pathMap[f] = filepath;
         sourcesAssets.push(filepath);
       });
+      fileToRebind.forEach(function(filepath){
+        var content = grunt.file.read(filepath);
+        for(var f in pathMap){
+          content = content.replace(new RegExp(f, 'gm'), pathMap[f]);
+        }
+        grunt.file.write(filepath, content);
+      });
     });
-    console.log(sources, sourcesCSS, sourcesAssets);
   });
 
   // Default task.

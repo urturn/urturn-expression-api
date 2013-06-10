@@ -23,6 +23,7 @@
     "urturn-expression-css": "git://github.com/urturn/urturn-expression-css.git",
     "jquery.ut-image": "git://github.com/urturn/jquery.ut-image.git",
     "jquery.ut-sticker": "git://github.com/urturn/jquery.ut-sticker.git",
-    "jquery.ut-video": "git@github.com:urturn/jquery.ut-video.git"
+    "jquery.ut-video": "git://github.com/urturn/jquery.ut-video.git",
+    "jquery.ut-audio": "git://github.com/urturn/jquery.ut-audio.git"
   }
 }

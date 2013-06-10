@@ -9,7 +9,8 @@
     "urturn-expression-css",
     "jquery",
     "jquery.ut-sticker",
-    "jquery.ut-image"
+    "jquery.ut-image",
+    "jquery.ut-audio"
   ],
   "main": [
     "iframe.min.css",
