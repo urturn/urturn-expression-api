@@ -12536,21 +12536,29 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   var methods = {
     init: function(options) {
       this.each(function() {
-        var defaults = {
-          data: false,
-          skin:'default',
-          ui:true,
-          editable: true,
-          SCKEY: 'T8Yki6U2061gLUkWvLA'
-        };
 
         var $that = $(this);
         var that = {};
+        this.utAudio = that;
+
+        var defaults = {
+          data: false,
+          skin:'default',
+          ui:{
+            play:    true,
+            progress:true,
+            time:    true,
+            title:   true,
+            source:  true,
+            artwork: true
+          },
+          editable: true
+        };
 
         that.options = $.extend(true, defaults, options);
 
-        this.utAudio = that;
         that.isTouch = (('ontouchstart' in window) || (window.navigator.msMaxTouchPoints > 0));
+        that.sckey   = 'T8Yki6U2061gLUkWvLA';
 
         that.eventNS   = 'utAudio';
         that.storageNS = 'ut_audio_data';
@@ -12573,7 +12581,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             source:  false,
             artwork: false
           };
-        } else if(typeof(that.options.ui) !== 'object') {
+        } else if(that.options.ui === true) {
           that.options.ui = {
             play:    true,
             progress:true,
@@ -12587,7 +12595,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         that.requestSoundcloudAboutAppData = function(url,callback) {
           var requestTimeOut = 10000;
           var timeoutId = 0;
-          var apiUrl = (document.location.protocol === 'https:' || (/^https/i).test(url) ? 'https' : 'http') + '://api.soundcloud.com/resolve?url=' + url + '&format=json&consumer_key=' + that.options.SCKEY + '&callback=?';
+          var apiUrl = (document.location.protocol === 'https:' || (/^https/i).test(url) ? 'https' : 'http') + '://api.soundcloud.com/resolve?url=' + url + '&format=json&consumer_key=' + that.sckey + '&callback=?';
           $.getJSON(apiUrl, function(data) {
             if(timeoutId) {
               callback.call(this, data);
@@ -12885,7 +12893,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           that.setupServiceDataIntoPlayer = function(data){
             var type,url;
             if (that.getServiceName() === 'soundcloud') {
-              url = data.stream_url + (/\?/.test(data.stream_url) ? '&' : '?') + 'consumer_key=' + that.options.SCKEY;
+              url = data.stream_url + (/\?/.test(data.stream_url) ? '&' : '?') + 'consumer_key=' + that.sckey;
               type = "mp3";
             } else {
               url = data.previewUrl;
@@ -13083,7 +13091,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     init: function(options) {
       this.each(function() {
         var defaults = {
-          path:"lib/jquery.ut-audio/swf/Jplayer.swf".split('Jplayer.swf')[0],
+          path:"components/jquery.ut-audio/swf/Jplayer.swf".split('Jplayer.swf')[0],
           url: null,
           type: "mp3",
           duration: false,

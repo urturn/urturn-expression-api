@@ -347,10 +347,11 @@ module.exports = function(grunt) {
     info.basedir = '.';
     var component = Component.fromOptions(info);
     component.eachInclude(function(comp){
+      console.log('Includes component', comp.name);
       var pathMap = {};
+      var fileToRebind = [];
       comp.main.forEach(function(f){
-        filepath = path.join(comp.basedir, f);
-        fileToRebind = [];
+        var filepath = path.join(comp.basedir, f);
         if (filepath.match(/\.js$/)) {
           sources.push(filepath);
           fileToRebind.push(filepath);
@@ -361,12 +362,13 @@ module.exports = function(grunt) {
         }
       });
       comp.assets.forEach(function(f){
-        filepath = path.join(comp.basedir, f);
+        var filepath = path.join(comp.basedir, f);
         pathMap[f] = filepath;
         sourcesAssets.push(filepath);
       });
       fileToRebind.forEach(function(filepath){
         var content = grunt.file.read(filepath);
+        console.log('WILL REBIND', filepath, 'using', pathMap);
         for(var f in pathMap){
           content = content.replace(new RegExp(f, 'gm'), pathMap[f]);
         }
