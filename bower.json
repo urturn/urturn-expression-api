@@ -24,6 +24,7 @@
     "jquery.ut-image": "git://github.com/urturn/jquery.ut-image.git",
     "jquery.ut-sticker": "git://github.com/urturn/jquery.ut-sticker.git",
     "jquery.ut-video": "git://github.com/urturn/jquery.ut-video.git",
-    "jquery.ut-audio": "git://github.com/urturn/jquery.ut-audio.git"
+    "jquery.ut-audio": "git://github.com/urturn/jquery.ut-audio.git",
+    "jquery.ut-text": "git://github.com/urturn/jquery.ut-text.git"
   }
 }

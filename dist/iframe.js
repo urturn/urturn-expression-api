@@ -12169,14 +12169,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         storagePrefix   = 'utImage_',
         namespace       = 'utImage',
         $el             = $(el),
-        post            = options.post || null,
         storage         = null,
-        mode            = null,
-        imageStorageKey = storagePrefix+$el.attr('id')+'_img',
-        ratioStorageKey = storagePrefix+$el.attr('id')+'_ratio',
-        ratio           = 1,
-        minSize         = 32,
-        image;
+        initialized     = false,
+        ratio,
+        imageStorageKey,
+        ratioStorageKey,
+        post;
 
     function init() {
       $el.addClass('ut-image ut-image-placeholder');
@@ -12184,21 +12182,39 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       UT.Expression.ready(function(p){
         post = p;
         storage = p.storage;
-        mode = p.context;
-        ratio = storage && storage[ratioStorageKey];
 
-        if (options.image) {
-          image = options.image;
-        } else if (storage && storage[imageStorageKey]) {
-          image = storage[imageStorageKey];
+        // Default editable value depends on the post context
+        if (options.editable === undefined){
+          options.editable = p.context.editor;
         }
+
+        // options.name will be used to store the data
+        options.name = options.name || $el.attr('id') || 'noname';
+
+        imageStorageKey = storagePrefix+name+'_img';
+        ratioStorageKey = storagePrefix+name+'_ratio';
+
+        // Default image came from storage if not in options
+        if (!options.image && storage && storage[imageStorageKey]) {
+          options.image = storage[imageStorageKey];
+        }
+
+        ratio = storage && storage[ratioStorageKey];
         defineSize();
-        displayEmptyPlaceHolder(true);
-        loadImage();
-        if (mode && mode.editor === true) {
+
+        if(options.editable) {
           renderEdit();
+        } else {
+          removeEdit();
         }
-        trigger('ready');
+        if(!initialized){
+          initialized = true;
+          displayEmptyPlaceHolder(true);
+          loadImage();
+          trigger('ready');
+        } else {
+          trigger('change');
+        }
       });
     }
 
@@ -12234,21 +12250,21 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       var postNode = $(post.node);
       if(options.width){
         $el.width(options.width);
-      } else if($el.width() <= minSize && postNode.width()){
+      } else if($el.width() <= options.minSize && postNode.width()){
         $el.css('width', postNode.width() + 'px');
       }
       if(ratio){
         $el.height(Math.round($el.width()*ratio));
       } else if(options.height){
         $el.height(options.height);
-      } else if($el.height() <= minSize && postNode.height()){
+      } else if($el.height() <= options.minSize && postNode.height()){
         $el.css('height', postNode.height() + 'px');
       }
       trigger('resized');
     }
 
     function renderEdit() {
-      var actionButtons = '<ul class="tls horizontal index spaced">'+
+      var actionButtons = '<ul class="tls horizontal index spaced ut-image-action-list">'+
           '<li><a href="#" class="edit-button action-button icon_camera spaced-right large-button button">Edit</a></li>'+
           '<li><a href="#" class="remove-button action-button icon_trash large-button button"></a></li>'+
           '</ul>'+
@@ -12260,14 +12276,23 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         .on('click','.edit-button', recropImage )
         .on('click','.remove-button', removeImage);
 
-      if (!image && options.autoAdd === true) {
+      if (!options.image && options.autoAdd === true) {
           addImage();
       }
 
-      if (image) {
-        displayImage(image);
+      if (options.image) {
+        displayImage(options.image);
         $el.addClass('ut-image-active');
       }
+    }
+
+    function removeEdit() {
+      $el
+        .off('click','.add-button', addImage)
+        .off('click','.edit-button', recropImage)
+        .off('click','.remove-button', removeImage);
+      $el.find('.add-button-wrapper').remove();
+      $el.find('.ut-image-action-list').remove();
     }
 
 
@@ -12337,7 +12362,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       }
 
       $el.removeData('image');
-      image = null;
+      options.image = null;
 
       if (options.autoAdd === true) {
         addImage();
@@ -12361,7 +12386,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     }
 
     function loadImage(onload) {
-      if(!image){
+      if(!options.image){
         return;
       }
       var newImage = new Image();
@@ -12376,7 +12401,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         }
         defineSize();
         displayImage();
-        trigger('loaded', image);
+        trigger('loaded', options.image);
         if(onload){
           onload(newImage, ratio);
         }
@@ -12388,11 +12413,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         removeLoader();
       };
 
-      newImage.src = image.url;
+      newImage.src = options.image.url;
     }
 
     function handleImageReceived(data, action) {
-      image = data;
+      options.image = data;
 
       if(!data) {
         removeLoader();
@@ -12402,13 +12427,13 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
       loadImage(function(domImage, ratio){
         if (options.autoSave === true) {
-          storage[imageStorageKey] = image;
+          storage[imageStorageKey] = options.image;
           storage[ratioStorageKey] = ratio;
           post.save();
-          trigger('saved', image);
+          trigger('saved', options.image);
 
           if(action){
-            trigger(action, image);
+            trigger(action, options.image);
           }
         }
       });
@@ -12424,8 +12449,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     }
 
     function displayImage() {
-      if (image) {
-        $el.css('background-image', 'url(' + image.url + ')')
+      if (options.image) {
+        $el.css('background-image', 'url(' + options.image.url + ')')
           .addClass('ut-image-active');
         displayEmptyPlaceHolder(false);
       }
@@ -12451,10 +12476,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
     function imageAccessor(val) {
       if(val !== undefined){
-        image = val;
+        options.image = val;
         return $el;
       } else {
-        return image;
+        return options.image;
       }
     }
 
@@ -12467,13 +12492,19 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       }
     }
 
+    function update(opts) {
+      options = $.extend(options, opts);
+      init();
+    }
+
     init();
 
     return {
       option: option,
       destroy: destroy,
       image: imageAccessor,
-      ratio: ratioAccessor
+      ratio: ratioAccessor,
+      update: update
     };
   }
 
@@ -12508,9 +12539,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   };
 
   $.fn.utImage.defaults = {
-    autoAdd: false,
     autoSave: true,
-    flexRatio: true
+    flexRatio: true,
+    minSize: 32
   };
 
 })(jQuery);
@@ -12908,7 +12939,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
               type:type,
               onReady: function() {
                 that.setPlayPos(0);
-                that.eventer('ready',that.currents.serviceData);
               },
               onPlay: function() {
                 that.setState('play');
@@ -12932,13 +12962,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
               onSeekStart: function() {
                 that.setState('seek');
                 that.eventer('seek');
-                //that.setPlayPos(-1);
               },
-              // onSeekEnd: function() {
-              //   that.setState('play');
-              //   that.eventer('seekEnd');
-              //   that.setPlayPos(-1);
-              // },
+              onSeekEnd: function() {
+                // that.setState('play');
+                // that.eventer('seekEnd');
+                // that.setPlayPos(-1);
+              },
               onTimeUpdate: function(pos) {
                 that.setPlayPos(pos,true);
               },
@@ -12953,6 +12982,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
             if($that.utAudioEngine) {
               that.setState('launch');
+              setTimeout(function(){
+                that.eventer('ready',that.currents.serviceData);
+              },10);
               $that.utAudioEngine(that.utAudioEngineOptions);
             } else {
               that.setState('error',"Sound Player !!! The library not found.");
@@ -13474,3 +13506,1428 @@ b.jPlayer.error={FLASH:"e_flash",FLASH_DISABLED:"e_flash_disabled",NO_SOLUTION:"
 NO_SUPPORT:"It is not possible to play any media format provided in setMedia() on this browser using your current options.",URL:"Media URL could not be loaded.",URL_NOT_SET:"Attempt to issue media playback commands, while no media url is set.",VERSION:"jPlayer "+b.jPlayer.prototype.version.script+" needs Jplayer.swf version "+b.jPlayer.prototype.version.needFlash+" but found "};b.jPlayer.errorHint={FLASH:"Check your swfPath option and that Jplayer.swf is there.",FLASH_DISABLED:"Check that you have not display:none; the jPlayer entity or any ancestor.",
 NO_SOLUTION:"Review the jPlayer options: support and supplied.",NO_SUPPORT:"Video or audio formats defined in the supplied option are missing.",URL:"Check media URL is valid.",URL_NOT_SET:"Use setMedia() to set the media URL.",VERSION:"Update jPlayer files."};b.jPlayer.warning={CSS_SELECTOR_COUNT:"e_css_selector_count",CSS_SELECTOR_METHOD:"e_css_selector_method",CSS_SELECTOR_STRING:"e_css_selector_string",OPTION_KEY:"e_option_key"};b.jPlayer.warningMsg={CSS_SELECTOR_COUNT:"The number of css selectors found did not equal one: ",
 CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a valid jPlayer method.",CSS_SELECTOR_STRING:"The methodCssSelector given in jPlayer('cssSelector') is not a String or is empty.",OPTION_KEY:"The option requested in jPlayer('option') is undefined."};b.jPlayer.warningHint={CSS_SELECTOR_COUNT:"Check your css selector and the ancestor.",CSS_SELECTOR_METHOD:"Check your method name.",CSS_SELECTOR_STRING:"Check your css selector is a string.",OPTION_KEY:"Check your option name."}});
+/*
+ * This source code is licensed under version 3 of the AGPL.
+ *
+ * Copyright (c) 2013 by urturn
+ *
+ * Addendum to the license AGPL-3:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+ * OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+ "use strict";
+;(function ($) {
+
+  var methods = {
+    init:function (opts) {
+      this.each(function () {
+
+        var $that = $(this);
+        var that = {};
+        this.utVideo = that;
+
+        var defaults = {
+          data: false,
+          skin:'default',
+          ui:{
+            artwork: true,
+            loading: true,
+            play:    true,
+            title:   true,
+            source:  true
+          },
+          editable: true
+        };
+
+        that.isTouch = (('ontouchstart' in window) || (window.navigator.msMaxTouchPoints > 0));
+        that.options = $.extend(true, defaults, opts);
+
+        if(that.options.ui === false){
+          that.options.ui = {
+            artwork: false,
+            loading: false,
+            play:    false,
+            title:   false,
+            source:  false
+          };
+        } else if(that.options.ui === true) {
+          that.options.ui = {
+            artwork: true,
+            loading: true,
+            play:    true,
+            title:   true,
+            source:  true
+          };
+        }
+
+        that.eventNS   = 'utVideo';
+        that.storageNS = 'ut_video_data';
+        that.stateNS   = "ut-video-state";
+        that.editableNS= "ut-video-editable";
+        that.uiNS      = "ut-video-ui";
+        that.modeNS    = "ut-video-mode";
+        that.skinNS    = "ut-video-skin";
+        that.serviceNS = "ut-video-service";
+        that.aspectNS  = "ut-video-aspect";
+        that.sizeNS    = "ut-video-size";
+        that.touchNS   = "ut-video-touch";
+
+        /************************************************************/
+        /* video.embedProcessor start*/
+        /************************************************************/
+
+        var embedProcessor = {
+          debug:false,
+          defaultWorker:'embedly',
+          getVideoPlayerParameters:function (url, appData, options, callback) {
+            var param = {};
+            if (url.indexOf('youtu.be/') !== -1) {
+              url = '//youtube.com?v=' + url.split('youtu.be/')[1];
+            } // fix for short youtube url format
+
+            param.url = url;
+            param.appData = appData;
+            param.source = this._getSourceNameByUrl(url);
+            param.options = options;
+            param.autoplay = true;
+
+            if (!this._sources[param.source]) {
+              param.worker = this.defaultWorker;
+            } else {
+              param.worker = this._sources[param.source].worker;
+            }
+
+            this._workers[param.worker](param, options, callback);
+          },
+
+          embedVideoByParameters:function (param, options) {
+            if (param.url && param.status) {
+              if (this._sources[param.source] && this._sources[param.source].embedVideo && typeof(this._sources[param.source].embedVideo) === 'function') {
+                this._sources[param.source].embedVideo(param, options);
+              } else {
+                that.ui.video.html(param.html);
+              }
+            }
+          },
+
+          _sources:{
+            'youtube':{
+              urlPart:'youtube.com',
+              worker:'youtube',
+              getVideoId:function (url) {
+                var id = '';
+                if (url.indexOf("#") >= 0){
+                  url = url.substr(0, url.indexOf("#"));
+                }
+                if (url.indexOf('v=') !== -1) {
+                  id = url.split('v=')[1].split('&')[0];
+                } else if (url.indexOf('video_ids=') !== -1) {
+                  var ids = url.split('video_ids=')[1].split('%2C');
+                  var index = (url.indexOf('index=') !== -1) ? url.split('index=')[1].split('&')[0] : 0;
+                  id = ids[index].split('&')[0];
+                } else if (url.indexOf('v%3D') !== -1) {
+                  id = url.split('v%3D')[1].split('&')[0];
+                } else {
+                  var urlParts = url.split('/');
+                  id = urlParts[urlParts.length - 1];
+                }
+                return id;
+              },
+
+              prepareEmbedCode:function (param) {
+                //var urlParams = 'enablejsapi=1&rel=0&fs=1';
+                param.id = this.getVideoId(param.url);
+                return param;
+              },
+
+              embedVideo:function (param) {
+                var container = that.ui.video.empty();
+                param.safeID = param.id.replace(/[^a-z0-9]/ig, '');
+                //var videoFrame = $("<div class='videoIframeSrc'></div>").appendTo(container);
+                function initYTPlayer() {
+                  window.youtubeApiReady = true;
+
+                  function onPlayerReady(event) {
+                    event.target.playVideo();
+                  }
+
+                  function onPlayerStateChange(event) {
+                    if (event.data === window.YT.PlayerState.PLAYING) {
+                      that.eventer('play');
+                    }
+
+                    if (event.data === window.YT.PlayerState.ENDED) {
+                      that.utStop();
+                      player.stopVideo();
+                      player.destroy();
+                      player = null;
+                      that.eventer('finish');
+                    }
+
+                    if (event.data === window.YT.PlayerState.PAUSED) {
+                      that.eventer('pause');
+                      that.setState("pause");
+                    }
+
+                    if (event.data === window.YT.PlayerState.BUFFERING) {
+                      that.eventer('buffering');
+                    }
+                  }
+
+                  var player = new window.YT.Player(container[0], {
+                    height:'100%',
+                    width:'100%',
+                    videoId:param.id,
+                    events:{
+                      'onReady':onPlayerReady,
+                      'onStateChange':onPlayerStateChange
+                    }
+                  });
+
+                  container.off('continueAfterPause pauseVideo').on('continueAfterPause',function () {
+                    player.playVideo();
+                  }).on('pauseVideo', function () {
+                    player.pauseVideo();
+                  });
+                }
+
+                //This code loads the IFrame Player API code asynchronously.
+                if (!window.youtubeApiReady) {
+                  var tag = document.createElement('script');
+                  tag.src = "//www.youtube.com/iframe_api";
+                  var firstScriptTag = document.getElementsByTagName('script')[0];
+                  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+                } else {
+                  initYTPlayer();
+                }
+
+                window.onYouTubeIframeAPIReady = function () {
+                  initYTPlayer();
+                };
+
+              }
+            },
+
+            'vimeo':{
+              urlPart:'vimeo.com',
+              worker:'vimeo',
+              getVideoId:function (url) {
+                if (url.indexOf("#") >= 0){
+                  url = url.substr(0, url.indexOf("#"));
+                }
+                var id = url.split('vimeo.com/')[1].split('/')[0].split('&')[0];
+                return id;
+              },
+              prepareEmbedCode: function(param) {
+                return param;
+              },
+
+              embedVideo: function(param) {
+                var container = that.ui.video.empty();
+                var id = 'iframe_' + that.currents.id;
+                var iframe = $('<iframe id="' + id + '" width="100%" height="100%" frameborder="0"></iframe>').appendTo(container)[0];
+                iframe.src = '//player.vimeo.com/video/' + this.getVideoId(param.url) + (param.autoplay ? '?autoplay=1' : '') + ' &api=1&player_id=' + id;
+                function ready(playerID) {
+
+                  window['Froogaloop'](playerID).addEvent('play', function () {
+                    that.eventer('play');
+                  });
+
+                  window['Froogaloop'](playerID).addEvent('finish', function () {
+                    that.eventer('finish');
+                    that.utStop();
+                  });
+
+                  window['Froogaloop'](playerID).addEvent('pause', function () {  //paleyerId
+                    that.eventer('pause');
+                    that.setState("pause");
+                  });
+
+                  container.off('continueAfterPause pauseVideo').on('continueAfterPause',function () {
+                    window['Froogaloop'](playerID).api('play');
+                  }).on('pauseVideo', function () {
+                    window['Froogaloop'](playerID).api('pause');
+                  });
+                }
+
+                window['Froogaloop'](iframe).addEvent('ready', ready);
+              }
+            },
+
+            'dailymotion':{
+              getVideoId:function (url) {
+                var id;
+                if (url.indexOf("#") >= 0) {
+                  url = url.substr(0, url.indexOf("#"));
+                }
+                if (url.indexOf('request=%2F') !== -1) {
+                  id = url.split('request=%2F')[1].split('video%2F')[1].split('_')[0];
+                } else {
+                  id = url.substr(url.lastIndexOf("/") + 1, url.length).split('_')[0];
+                }
+                return id;
+              },
+              urlPart:'dailymotion.com',
+              worker:'embedly',
+              prepareEmbedCode:function (param) {
+                var id = this.getVideoId(param.url);
+                param.html = '<iframe frameborder="0" width="100%" height="100%" src="//www.dailymotion.com/embed/video/' + id + (param.autoplay ? '?autoPlay=1' : '') + '"></iframe>';
+                return param;
+              },
+              embedVideo:function (param) {
+                var container = that.ui.video.empty();
+                // This code loads the Dailymotion Javascript SDK asynchronously.
+                (function () {
+                  var e = document.createElement('script');
+                  e.async = true;
+                  e.src = document.location.protocol + '//api.dmcdn.net/all.js';
+                  var s = document.getElementsByTagName('script')[0];
+                  s.parentNode.insertBefore(e, s);
+                }());
+                // This function init the player once the SDK is loaded
+                var self = this;
+                var initDM = function () {
+
+                  var id = 'video-ui-'+that.currents.id;
+                  container.prop('id',id);
+                  var player = window.DM.player(id, {video:self.getVideoId(param.url), width:"100%", height:"100%", params:{autoplay:1}});
+
+                  player.addEventListener("apiready", function (e) {
+                    var prevE = e;
+                    that.eventer('play');
+                    e.target.addEventListener("ended", function () {
+                      that.eventer('finish');
+                      that.utStop();
+                    });
+
+                    e.target.addEventListener("pause", function () {
+                      that.eventer('pause');
+                      that.setState("pause");
+                    });
+
+                    container.off('continueAfterPause pauseVideo').on('continueAfterPause',function () {
+                      prevE.target.play();
+                    }).on('pauseVideo', function () {
+                      prevE.target.pause();
+                    });
+                  });
+                };
+
+                window.dmAsyncInit = function () {
+                  initDM();
+                };
+
+              }
+            },
+
+            // 'm4v':{
+            //   urlPart:'.m4v',
+            //   worker:'m4v',
+            //   path:window.location.href.split(window.location.href.split(/[\/]+/).pop())[0]+"expcommon/utVideo/1.0/js",
+            //   jwplayerLoaded:false,
+            //   prepareEmbedCode:function (param) {
+            //     return param;
+            //   },
+            //   embedVideo:function (containerId, param, options) {
+            //     var that = this;
+            //     (function () {
+            //       if (that.jwplayerLoaded) {
+            //         that.initJWPlayer(containerId, param, options);
+            //         return;
+            //       }
+            //       var sc = document.createElement("script");
+            //       sc.async = true;
+            //       sc.src = that.path + "jwplayer/jwplayer.js";
+            //       $("head")[0].appendChild(sc);
+            //       sc.onload = function () {
+            //         that.jwplayerLoaded = true;
+            //         that.initJWPlayer(containerId, param, options);
+            //       };
+            //     })();
+            //   },
+            //   initJWPlayer: function(containerId, param, options) {
+            //     var fileUrl;
+            //     if (param.url.indexOf("#") >= 0) fileUrl = param.url.substr(0, param.url.indexOf("#"));
+            //     else fileUrl = param.url;
+            //     jwplayer(containerId).setup({
+            //       "flashplayer":this.path + "jwplayer/player.swf",
+            //       "id":containerId + "_jwplayer",
+            //       "width":"100%",
+            //       "height":"100%",
+            //       "file":fileUrl,
+            //       "events":{
+            //         onReady:function () {
+            //           var videoCont = $("#" + containerId);
+            //           videoCont.parent().addClass("ut-video-player-state-video");
+            //           jwplayer(containerId).play();
+            //           $('#' + containerId).closest('.ut-video-player-ui').off('continueAfterPause pauseVideo').on('continueAfterPause',function (e) {
+            //             jwplayer(containerId).play();
+            //           }).on('pauseVideo', function (e) {
+            //               jwplayer(containerId).pause();
+            //             });
+            //         },
+            //         onPlay:function () {
+            //           options.onPlay();
+            //         },
+            //         onPause:function () {
+            //           options.onPause();
+            //           $('#' + containerId).trigger('paused');
+            //         },
+            //         onComplete:function () {
+            //           options.onFinish();
+            //           $('#' + containerId).trigger('finished');
+            //         }
+            //       }
+            //     })
+            //   }
+            // },
+
+            // 'facebook':{
+            //   urlPart:'fbcdn.net',
+            //   worker:'m4v',
+            //   path:window.location.href.split(window.location.href.split(/[\/]+/).pop())[0]+"expcommon/utVideo/1.0/js",      jwplayerLoaded:false,
+            //   prepareEmbedCode:function (param) {
+            //     return param;
+            //   },
+            //   embedVideo:function (containerId, param, options) {
+            //     var that = this;
+            //     (function () {
+            //       if (that.jwplayerLoaded) {
+            //         that.initJWPlayer(containerId, param, options);
+            //         return;
+            //       }
+            //       var sc = document.createElement("script");
+            //       sc.async = true;
+            //       sc.src = that.path + "jwplayer/jwplayer.js";
+            //       $("head")[0].appendChild(sc);
+            //       sc.onload = function () {
+            //         that.jwplayerLoaded = true;
+            //         that.initJWPlayer(containerId, param, options);
+            //       }
+            //     })();
+            //   },
+            //   initJWPlayer:function (containerId, param, options) {
+            //     var fileUrl;
+            //     if (param.url.indexOf("#") >= 0) fileUrl = param.url.substr(0, param.url.indexOf("#"));
+            //     else fileUrl = param.url;
+            //     jwplayer(containerId).setup({
+            //       "flashplayer":this.path + "jwplayer/player.swf",
+            //       "id":containerId + "_jwplayer",
+            //       "width":"100%",
+            //       "height":"100%",
+            //       "file":fileUrl,
+            //       "events":{
+            //         onReady:function () {
+            //           var videoCont = $("#" + containerId);
+            //           videoCont.parent().addClass("ut-video-player-state-video");
+            //           jwplayer(containerId).play();
+            //           $('#' + containerId).closest('.ut-video-player-ui').off('continueAfterPause pauseVideo').on('continueAfterPause',function (e) {
+            //             jwplayer(containerId).play();
+            //           }).on('pauseVideo', function (e) {
+            //               jwplayer(containerId).pause();
+            //             });
+            //         },
+            //         onPlay:function () {
+            //           options.onPlay();
+            //         },
+            //         onPause:function () {
+            //           options.onPause();
+            //           $('#' + containerId).trigger('paused');
+            //         },
+            //         onComplete:function () {
+            //           options.onFinish();
+            //           $('#' + containerId).trigger('finished');
+            //         }
+            //       }
+            //     })
+            //   }
+            // },
+
+            'metacafe':{
+              urlPart:'metacafe.com',
+              worker:'embedly',
+              prepareEmbedCode:function (param) {
+                param.html = param.html.replace(/<embed/ig, '<embed flashVars="playerVars=showStats=' + (param.details ? 'yes' : 'no') + '|' + ((param.autoplay) ? 'autoPlay=yes|' : '') + '"');
+                return param;
+              }
+            },
+
+            'myspace':{
+              urlPart:'myspace.com',
+              worker:'embedly',
+              prepareEmbedCode:function (param) {
+                param.html = param.html.replace(/media\/embed.aspx\/(.*?)"/ig, 'media/embed.aspx/$1' + (param.autoplay ? ',ap=1' : '') + '"');
+                return param;
+              }
+            },
+
+            'veoh':{
+              urlPart:'veoh.com',
+              worker:'embedly',
+              prepareEmbedCode:function (param) {
+                param.html = param.html.replace(/videoAutoPlay=(.*?)&/ig, 'videoAutoPlay=' + param.autoplay + '&');
+                return param;
+              }
+            },
+
+            'liveleak':{
+              urlPart:'liveleak.com',
+              worker:'embedly',
+              prepareEmbedCode:function (param) {
+                param.html = param.html.replace(/<embed/ig, '<embed ' + (param.autoplay ? 'flashvars="autostart=true"' : ''));
+                return param;
+              }
+            },
+
+            'viddler':{
+              urlPart:'viddler.com',
+              worker:'embedly',
+              prepareEmbedCode:function (param) {
+                param.html = param.html.replace(/<embed/ig, '<embed ' + (param.autoplay ? 'flashvars="autoplay=t"' : ''));
+                return param;
+              }
+            },
+
+            'blip':{
+              urlPart:'blip.tv',
+              worker:'embedly',
+              prepareEmbedCode:function (param) {
+                param.html = param.html.replace(/src="(.*?)"/ig, 'src="$1?' + (param.autoplay ? 'autostart=true' : '') + '"');
+                return param;
+              }
+            },
+
+            'crackle':{
+              urlPart:'crackle.com',
+              worker:'embedly',
+              prepareEmbedCode:function (param) {
+                param.html = param.html.replace(/<embed/ig, '<embed ' + (param.autoplay ? 'flashvars="autoplay=true"' : ''));
+                return param;
+              }
+            },
+
+            'ustream':{
+              urlPart:'ustream.tv',
+              worker:'ustream',
+              prepareEmbedCode:function (param) {
+                param.html = param.html.replace(/autoplay=(.*?)&/ig, 'autoplay=' + (param.autoplay ? 'true' : 'false') + '&');
+                return param;
+              }
+            },
+
+            'revver':{
+              urlPart:'revver.com',
+              worker:'noworker',
+              prepareEmbedCode:function (param) {
+                var id = this.getVideoId(param.url);
+                param.html = '<embed src="//flash.revver.com/player/1.0/player.swf" flashvars="mediaId=' + id + '" width="100%" height="100%" type="application/x-shockwave-flash" ></embed>';
+                return param;
+              }
+            },
+
+            'google':{
+              urlPart:'video.google.com',
+              worker:'embedly',
+              prepareEmbedCode:function (param) {
+                param.html = param.html.replace(/<embed/ig, '<embed flashvars="playerMode=' + param.gskins + (param.autoplay ? '&autoPlay=true' : '') + (param.loop ? '&loop=true' : ''));
+                param.html = param.html.replace('&hl=en&fs=true', '');
+                return param;
+              }
+            },
+
+            'megavideo':{
+              urlPart:'megavideo.com',
+              worker:'noworker',
+              getVideoId:function (url) {
+                if (url.indexOf("#") >= 0){
+                  url = url.substr(0, url.indexOf("#"));
+                }
+                return url.split('v=')[1].split('/')[0].split('&')[0];
+              },
+              prepareEmbedCode:function (param) {
+                var id = this.getVideoId(param.url);
+                param.html = '<object wmode="transparent" width="100%" height="100%"><param name="movie" value="//www.megavideo.com/v/' + id + '"/><param name="allowFullScreen" value="true"/><param name="wmode" value="transparent"/><embed wmode="transparent" src="//www.megavideo.com/v/' + id + '" type="application/x-shockwave-flash" allowfullscreen="true" width="100%" height="100%"></embed></object>';
+                return param;
+              }
+            },
+
+            'joost':{
+              urlPart:'joost.com',
+              worker:'noworker',
+              getVideoId:function (url) {
+                if (url.indexOf("#") >= 0) {
+                  url = url.substr(0, url.indexOf("#"));
+                }
+                if (url.indexOf('container_info=') !== -1) {
+                  return url.split('container_info=')[1].split('/')[0].split('&')[0];
+                } else if (url.indexOf('joost.com/') !== -1) {
+                  return url.split('joost.com/')[1].split('/')[0].split('&')[0];
+                }
+              },
+              prepareEmbedCode:function (param) {
+                var id = this.getVideoId(param.url);
+                param.html = '<object width="100%" height="100%"><param name="movie" value="//www.joost.com/embed/' + id + (param.autoplay ? '?autoplay=true' : '') + '"></param><param name="allowFullScreen" value="true"/><param name="allowNetworking" value="all"/><param name="allowScriptAccess" value="always"/><embed src="//www.joost.com/embed/' + id + (param.autoplay ? '?autoplay=true' : '') + '" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" allownetworking="all" width="100%" height="100%"></embed></object>';
+                return param;
+              }
+            }
+          },
+
+          _workers:{
+            /**
+             ** Youtube worker
+             */
+            'youtube':function (param, options, callback) {
+              embedProcessor.log(param.worker + ' started with parameters = ', param);
+              var parser = function(data){
+                if (data) {
+                  param.status = true;
+                  param.duration = (data.media$group.yt$duration) ? parseInt(data.media$group.yt$duration.seconds,10) : 0;
+                  param.duration_formatted = embedProcessor._timeConverter(param.duration);
+                  var thumbs = data[ "media$group" ][ "media$thumbnail" ];
+                  var selThumb = null;
+                  if (thumbs && thumbs.length > 0){
+                    for (var qq = 0; qq < thumbs.length; qq++){
+                      if (!selThumb || selThumb.width < thumbs[qq].width){
+                        selThumb = thumbs[qq];
+                      }
+                    }
+                  }
+                  param.thumbnail_url = selThumb ? selThumb.url : false;
+                  param.favicon_url = '//www.youtube.com/favicon.ico';
+                  param.service_name = 'YouTube';
+                  param.provider_url = '//youtube.com';
+                  param.html = false;
+                  param.views = ((data[ "yt$statistics" ] && data[ "yt$statistics" ].viewCount) ? data[ "yt$statistics" ].viewCount : 0);
+                  param.title = data.title ? data.title['$t'] : '';
+                  param = embedProcessor._paramEmbedCodeNormalizer(embedProcessor._sources[param.source].prepareEmbedCode(param));
+                } else {
+                  param.status = false;
+                }
+                embedProcessor.log(param.worker + ' receive parameters = ', param);
+                callback(param);
+              };
+
+              if(param.appData){
+                parser(param.appData);
+              } else {
+                var videoId = embedProcessor._sources[param.source].getVideoId(param.url);
+                var api_url = "//gdata.youtube.com/feeds/api/videos/" + videoId + "?alt=json-in-script&v=2&&callback=?";
+
+                $.getJSON(api_url, function (data) {
+                  parser(data.entry);
+                });
+              }
+            },
+            /**
+             ** Vimeo worker
+             */
+            'vimeo':function (param, options, callback) {
+              embedProcessor.log(param.worker + ' started with parameters = ', param);
+
+              var parser = function(data){
+                if (data) {
+                  param.status = true;
+                  param.duration = data.duration;
+                  param.duration_formatted = embedProcessor._timeConverter(param.duration);
+                  param.thumbnail_url = data.thumbnail_large || ((data.thumbnails && data.thumbnails.thumbnail && data.thumbnails.thumbnail[2])?data.thumbnails.thumbnail[2]._content:'');
+                  param.favicon_url = '//vimeo.com/favicon.ico';
+                  param.service_name = 'Vimeo';
+                  param.provider_url = '//vimeo.com';
+                  param.title = data.title || '';
+                  param.html = false;
+                  param.views = data.stats_number_of_plays;
+                  param = embedProcessor._paramEmbedCodeNormalizer(embedProcessor._sources[param.source].prepareEmbedCode(param));
+                } else {
+                  param.status = false;
+                }
+                embedProcessor.log(param.worker + ' receive parameters = ', param);
+                callback(param);
+              };
+
+              if(param.appData){
+
+                parser(param.appData);
+              } else {
+
+                var videoId = embedProcessor._sources[param.source].getVideoId(param.url);
+                var api_url = '//vimeo.com/api/v2/video/' + videoId + '.json?&callback=?';
+
+                $.getJSON(api_url, function (data) {
+                  parser(data[0]);
+                });
+              }
+
+
+            },
+            /**
+             ** Embed.ly supported sites worker
+             */
+            'embedly':function (param, options, callback) {
+              // dailymotion make call toservice every time einsted of vidmeo and youtube
+              embedProcessor.log(param.worker + ' started with parameters = ', param);
+              var sourceUrl = encodeURIComponent(param.url);
+              var api_url = '//api.embed.ly/1/preview?key=c6544dc839bd11e088ae4040f9f86dcd&url=' + sourceUrl + '&autoplay=1&callback=?';
+              $.getJSON(api_url, function (data) {
+                if (data && data.object && data.object.html) {
+                  param.status = true;
+                  param.duration = false;
+                  param.duration_formatted = false;
+                  param.thumbnail_url = (data.images && data.images[0]) ? data.images[0].url : '';
+                  param.favicon_url = data.favicon_url;
+                  if (param.source === 'dailymotion') {
+                    param.favicon_url = '//favicon.yandex.net/favicon/dailymotion.com';
+                  }
+                  param.service_name = data.service_name;
+                  param.provider_url = data.provider_url;
+                  param.html = data.object.html;
+                  param.title = data.title || '';
+                  param.views = false;
+                  if (embedProcessor._sources[param.source] && embedProcessor._sources[param.source].prepareEmbedCode) {
+                    param = embedProcessor._sources[param.source].prepareEmbedCode(param);
+                  }
+                  param = embedProcessor._paramEmbedCodeNormalizer(param);
+                } else {
+                  param.status = false;
+                }
+                embedProcessor.log(param.worker + ' receive parameters = ', param);
+                callback(param);
+              });
+            },
+            /**
+             ** ustream worker
+             */
+
+            'ustream':function (param, options, callback) {
+              embedProcessor.log(param.worker + ' started with parameters = ', param);
+              if (param.url.match(/\/channel\//) == null) {
+                var video_id = param.url.split('/').pop();
+                var api_url = '//api.ustream.tv/json/video/' + video_id + '/getInfo?key=CA8D42389DA4266B9489912DE63A817F&callback=?';
+                $.getJSON(api_url, function (data) {
+                  if (data) {
+                    param.status = true;
+                    param.duration = data.lengthInSecond;
+                    param.duration_formatted = false;
+                    param.thumbnail_url = data.imageUrl.medium || data.imageUrl.small || '';
+                    param.title = data.title || '';
+                    param.description = data.description || '';
+                    param.rating = data.rating || '';
+                    param.numberOf = data.numberOf || '';
+                    param.html = data.embedTag;
+                    if (embedProcessor._sources[param.source] && embedProcessor._sources[param.source].prepareEmbedCode) {
+                      param = embedProcessor._sources[param.source].prepareEmbedCode(param);
+                    }
+                    param = embedProcessor._paramEmbedCodeNormalizer(param);
+                  } else {
+                    param.status = false;
+                  }
+                  embedProcessor.log(param.worker + ' receive parameters = ', param);
+                  callback(param);
+                });
+              } else {
+                this.embedly(param, options, callback);
+              }
+            },
+
+            /**
+             ** m4v worker
+             */
+            'm4v':function (param, options, callback) {
+              var videoUrl = param.url;
+              var thumbUrl = "m4v";
+              var title = "Video";
+              if (videoUrl.indexOf("#")) {
+                var ii = videoUrl.match(/##webdoc,([^,]*)?,(.*)/ig);
+                if (ii && ii.length > 0) {
+                  ii = ii[0].split(",");
+                  title = decodeURIComponent(ii[1]);
+                  thumbUrl = decodeURIComponent(ii[2]);
+                }
+                videoUrl = videoUrl.substr(videoUrl.indexOf("#"));
+              }
+              embedProcessor.log(param.worker + ' started with parameters = ', param);
+              param.status = true;
+              param.duration = false;
+              param.duration_formatted = false;
+              param.thumbnail_url = thumbUrl;
+              param.favicon_url = '';
+              param.service_name = 'm4v';
+              param.provider_url = 'm4v';
+              param.html = false;
+              param.service_name = '';
+              param.provider_url = videoUrl;
+              param.title = title;
+              param.views = false;
+              if (embedProcessor._sources[param.source] && embedProcessor._sources[param.source].prepareEmbedCode) {
+                param = embedProcessor._sources[param.source].prepareEmbedCode(param);
+              }
+              param = embedProcessor._paramEmbedCodeNormalizer(param);
+              embedProcessor.log(param.worker + ' receive parameters = ', param);
+              callback(param);
+            },
+            /**
+             ** Without any API worker
+             */
+            'noworker':function (param, options, callback) {
+              embedProcessor.log(param.worker + ' started with parameters = ', param);
+              param.status = true;
+              param.duration = false;
+              param.duration_formatted = false;
+              param.thumbnail_url = false;
+              param.favicon_url = '';
+              param.service_name = '';
+              param.provider_url = '';
+              param.html = false;
+              param.views = false;
+              if (embedProcessor._sources[param.source] && embedProcessor._sources[param.source].prepareEmbedCode) {
+                param = embedProcessor._sources[param.source].prepareEmbedCode(param);
+              }
+              param = embedProcessor._paramEmbedCodeNormalizer(param);
+              embedProcessor.log(param.worker + ' receive parameters = ', param);
+              callback(param);
+            }
+          },
+
+          _getSourceNameByUrl:function (url) {
+            for (var currentSource in this._sources) {
+              if (url.indexOf(this._sources[currentSource].urlPart) !== -1) {
+                return currentSource;
+              }
+            }
+            return false;
+          },
+
+          _paramEmbedCodeNormalizer:function (param) {
+            if (param.html) {
+              param.html = param.html
+                .replace(/width="(.*?)"/ig, "width='100%'")
+                .replace(/height="(.*?)"/ig, "height='100%'")
+                .replace(/width=(.*?)px/ig, "width='100%'")
+                .replace(/height=(.*?)px/ig, "height='100%'")
+                .replace('><embed', "><param name='wmode' value='transparent'/><embed ")
+                .replace('<embed', "<embed wmode='transparent'")
+                .replace('<object', "<object wmode='transparent'");
+            }
+            return param;
+          },
+
+          _timeConverter:function (time) {
+            var minutes = 0;
+            var seconds = 0;
+            minutes = Math.floor(time / 60);
+            seconds = Math.floor(time - minutes * 60);
+            time = minutes + ":" + (seconds === 0 ? "00" : (seconds > 9 ? seconds : '0' + seconds));
+            return time;
+          },
+
+          log:function (m1, m2, m3, m4, m5, m6, m7, m8) {
+            if (this.debug) {
+              console.log(' :::::: video.embedProcessor::debug::message --- >', m1 || '', m2 || '', m3 || '', m4 || '', m5 || '', m6 || '', m7 || '', m8 || '');
+            }
+          }
+        };
+
+
+        /************************************************************/
+        /* video.embedProcessor end*/
+        /************************************************************/
+
+
+        that.eventer = function(event,data){
+          $that.trigger(that.eventNS+':'+event,data);
+        };
+
+        that.updatePreViewVideoData = function() {
+          var sed = that.currents.sourceEmbedData || {};
+
+          if(that.ui.artwork){
+            that.ui.artwork
+            .css("backgroundImage", "url(" + sed.thumbnail_url + ")");
+          }
+
+          if(that.ui.play){
+
+            that.ui.play.off("click")
+            .html('<span class="icon_play '+that.uiNS+'-play-icon"></span>')
+            .on("click", function (){
+              that.utPlay();
+            });
+          }
+
+          if(that.ui.title){
+            that.ui.title.html(sed.title || '')
+            .on('click', function (e) {
+              e.stopPropagation();
+            });
+          }
+
+          if(that.ui.source){
+            that.ui.source
+            .prop('href',sed.url)
+            .prop('target','_blank')
+            .prop('title','Watch on '+sed.service_name)
+
+            .on('click', function (e) {
+              e.stopPropagation();
+            });
+
+            if(sed.source === 'youtube' || sed.source === 'vimeo' || sed.source === 'dailymotion'){
+              that.ui.source.html('<span class="icon_'+sed.source+' '+that.uiNS+'-source-icon"></span>');
+            } else {
+              that.ui.source.html(sed.favicon_url ? '<img src="' + sed.favicon_url + '" border=0 />' : '');
+            }
+          }
+
+          /* auto-start */
+          if(that.options.autoPlay) {
+            that.utPlay();
+          }
+
+          that.currents.videoDataRecived = true;
+        };
+
+        that.processEmbedData = function(sourceEmbedData) {
+          that.currents.sourceEmbedData = sourceEmbedData;
+          if(sourceEmbedData.source) {
+            that.updatePreViewVideoData();
+            that.eventer('ready',sourceEmbedData);
+            that.setState('launch');
+          } else {
+            that.eventer('error',false,'sorry: utVideo can not play this source of video');
+            that.setState('error');
+          }
+        };
+
+        that.utDestroy = function() {
+          that.ui.container.remove();
+          that = null;
+        };
+
+        that.utChange = function(data) {
+          that.options.data = data;
+          that.upddate();
+        };
+
+        that.utPlay = function() {
+          if(that.currents.state === 'pause') {
+            that.ui.container.trigger('continueAfterPause');
+          } else {
+            that.setState("video");
+            embedProcessor.embedVideoByParameters(that.currents.sourceEmbedData, that.options);
+          }
+        };
+
+        that.utPause = function() {
+          that.ui.video.trigger('pauseVideo');
+        };
+
+        that.utStop = function() {
+          that.ui.video.find('iframe').prop('src','');
+          that.ui.video.empty();
+          that.eventer('stop');
+          that.setState('launch');
+        };
+
+        that.setState = function(state) {
+          that.currents.state = state;
+          that.ui.container.removeClass().addClass(
+            [
+            that.uiNS,
+            that.stateNS    + '-' + state,
+            that.editableNS + '-' + ((that.options.editable && !that.post.context.player)?'true':'false'),
+            (that.currents.serviceData?(that.serviceNS + '-' + that.currents.serviceData.service_name):''),
+            that.skinNS     + '-' + that.options.skin,
+            that.modeNS     + '-' +(that.post.context.player?'player':'editor'),
+            that.aspectNS   + '-' + that.aspect,
+            that.sizeNS     + '-' + that.size,
+            that.touchNS    + '-' + (that.isTouch?'true':'false')
+            ].join(' ')
+            );
+        };
+
+        that.embedVideoByData = function(data){
+          that.setState("loading");
+          setTimeout(function () {
+            if(!that.currents.videoDataRecived && that.currents.state !== 'error') {
+              that.eventer('error',false,'sorry: utVideo can not embed this video');
+              that.setState('error');
+            }
+          }, 15000);
+          embedProcessor.getVideoPlayerParameters(data.url, data.appData || false, {}, that.processEmbedData);
+        };
+
+
+        that.upddate = function(){
+          that.currents = {
+            id: $that.attr('id'),
+            videoDataRecived: false,
+            sourceEmbedData: null,
+            state: null
+          };
+
+          if(!that.currents.id) {
+            console.error('utVideo: Please specify an id of your video container. Example: "<div id="myPlayer1"></div>"');
+            return;
+          } else if($('[id="'+that.currents.id+'"]').length > 1){
+            console.error('utVideo: Your video container should have unique id. Now, more then one element have id = ',that.currents.id);
+            return;
+          }
+
+          if(!that.post && UT && UT.Expression && UT.Expression.ready){
+            UT.Expression.ready(function(post){
+              that.post = post;
+            });
+          }
+
+          /*hack for firefox flash video*/
+          if (/Firefox[\/\s](\d+\.\d+)/.test(window.navigator.userAgent)){
+            $that.parents().each(function(){
+              if ($(this).css('transform') !== "none" || $(this).css('-moz-transform') !== "none") {
+                $(this).css({
+                  '-moz-transform': 'none',
+                  'transform': 'none'
+                });
+                console.warn('WARNING!!! css property translate for firefox removed in order to avoid problems with FLASH');
+              }
+            });
+          }
+
+          that.ui = {};
+          $that.find('.'+that.uiNS).remove();
+          that.ui.container = $('<div class="'+that.uiNS+'"></div>').appendTo($that);
+          that.ui.video     = $('<div class="'+that.uiNS+'-video"></div>'  ).appendTo(that.ui.container);
+          that.ui.error     = $('<div class="'+that.uiNS+'-error"></div>').append($('<div>')).appendTo( that.ui.container);
+          if(that.options.ui.artwork) {that.ui.artwork = $('<div class="'+that.uiNS+'-artwork">'      ).appendTo(that.ui.container);}
+          if(that.options.ui.loading) {that.ui.loading = $('<div class="'+that.uiNS+'-loading"></div>').append('<div class="icon-spin '+that.uiNS+'-loading-icon"></div>').appendTo(that.ui.container);}
+          if(that.options.ui.play)    {that.ui.play    = $('<div class="'+that.uiNS+'-play">'         ).appendTo(that.ui.container);}
+          if(that.options.ui.title)   {that.ui.title   = $('<h1  class="'+that.uiNS+'-title"></h1>'   ).appendTo(that.ui.container);}
+          if(that.options.ui.source)  {that.ui.source  = $('<a   class="'+that.uiNS+'-source"></a>'   ).appendTo(that.ui.container);}
+          if(that.options.editable){
+            var change = function(){
+              that.post.dialog('video',{inputTypes:['search']},function(data){
+                that.options.data = data;
+                that.upddate();
+                that.eventer('change');
+                that.post.storage[that.storageNS+'_'+that.currents.id] = JSON.stringify(data);
+                that.post.storage.save();
+              });
+            };
+            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_video">Add video</a>').appendTo(that.ui.container).on('click',change);
+            that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>'   ).appendTo(that.ui.container).on('click',change);
+          }
+
+          that.aspect = 'square'; //TODO - make it more clear
+          if($that.width() > $that.height()*1.25) {that.aspect = 'horizontal';}
+          if($that.width()*1.25 < $that.height()) {that.aspect = 'vertical';}
+
+          that.size = 'middle'; //TODO - make it more clear
+          if($that.width() > 300 || $that.height() > 300) {that.size = 'big';}
+          if($that.width() <= 200 || $that.height() <= 200) {that.size = 'small';}
+
+          if(that.post){
+            that.post.on('pause',that.utPause);
+          }
+
+          var storege_data = that.post.storage[that.storageNS+'_'+that.currents.id];
+          if(storege_data && !that.options.data) {that.options.data = JSON.parse(storege_data);}
+
+          if(that.options.data && (that.options.data.appData || that.options.data.url)) {
+            that.embedVideoByData(that.options.data);
+          } else {
+            that.setState("empty");
+          }
+
+        };
+        that.upddate();
+      });
+      return this;
+    },
+
+       play: function() {
+      this.each(function() {
+        if(this.utVideo && this.utVideo.utPlay) {
+          this.utVideo.utPlay.call(this);
+        }
+      });
+      return this;
+    },
+
+    pause: function() {
+      this.each(function() {
+        if(this.utVideo && this.utVideo.utPause) {
+          this.utVideo.utPause.call(this);
+        }
+      });
+      return this;
+    },
+
+    stop: function() {
+      this.each(function() {
+        if(this.utVideo && this.utVideo.utStop){
+          this.utVideo.utStop.call(this);
+        }
+      });
+      return this;
+    },
+
+    change: function(data) {
+      this.each(function() {
+        if(this.utVideo && this.utVideo.utChange){
+          this.utVideo.utChange.call(this,data);
+        }
+      });
+      return this;
+    },
+
+    destroy: function() {
+      this.each(function() {
+        if(this.utVideo && this.utVideo.utDestroy){
+          this.utVideo.utDestroy.call(this);
+        }
+      });
+      return this;
+    }
+  };
+
+  $.fn.utVideo = function (method) {
+    if (methods[method]) {
+      return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+    } else if (typeof method === 'object' || !method) {
+      methods.init.apply(this, arguments);
+    } else {
+      $.error('Method ' + method + ' does not exist on $.utVideo');
+    }
+    return this;
+  };
+
+})(window.$ || window.Zepto || window.jq);
+
+var Froogaloop=function(){function e(a){return new e.fn.init(a)}function h(a,c,b){if(!b.contentWindow.postMessage)return!1;var f=b.getAttribute("src").split("?")[0],a=JSON.stringify({method:a,value:c});"//"===f.substr(0,2)&&(f=window.location.protocol+f);b.contentWindow.postMessage(a,f)}function j(a){var c,b;try{c=JSON.parse(a.data),b=c.event||c.method}catch(f){}"ready"==b&&!i&&(i=!0);if(a.origin!=k)return!1;var a=c.value,e=c.data,g=""===g?null:c.player_id;c=g?d[g][b]:d[b];b=[];if(!c)return!1;void 0!==
+a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call()}function l(a,c,b){b?(d[b]||(d[b]={}),d[b][a]=c):d[a]=c}var d={},i=!1,k="";e.fn=e.prototype={element:null,init:function(a){"string"===typeof a&&(a=document.getElementById(a));this.element=a;a=this.element.getAttribute("src");"//"===a.substr(0,2)&&(a=window.location.protocol+a);for(var a=a.split("/"),c="",b=0,f=a.length;b<f;b++){if(3>b)c+=a[b];else break;2>b&&(c+="/")}k=c;return this},api:function(a,c){if(!this.element||
+!a)return!1;var b=this.element,f=""!==b.id?b.id:null,d=!c||!c.constructor||!c.call||!c.apply?c:null,e=c&&c.constructor&&c.call&&c.apply?c:null;e&&l(a,e,f);h(a,d,b);return this},addEvent:function(a,c){if(!this.element)return!1;var b=this.element,d=""!==b.id?b.id:null;l(a,c,d);"ready"!=a?h("addEventListener",a,b):"ready"==a&&i&&c.call(null,d);return this},removeEvent:function(a){if(!this.element)return!1;var c=this.element,b;a:{if((b=""!==c.id?c.id:null)&&d[b]){if(!d[b][a]){b=!1;break a}d[b][a]=null}else{if(!d[a]){b=
+!1;break a}d[a]=null}b=!0}"ready"!=a&&b&&h("removeEventListener",a,c)}};e.fn.init.prototype=e.fn;window.addEventListener?window.addEventListener("message",j,!1):window.attachEvent("onmessage",j);return window.Froogaloop=window.$f=e}();
+
+/*global UT: true, jQuery: true, navigator: true */
+/*
+ * This source code is licensed under version 3 of the AGPL.
+ *
+ * Copyright (c) 2013 by urturn
+ *
+ * Addendum to the license AGPL-3:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+ * OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+;(function($) {
+  "use strict";
+  /**
+   * Enhace the given domNode to make it an editable text field
+   *
+   * It can be fluid in size, adapt to his container, limit the
+   * number of characters, and be mixed with an ut-image
+   *
+   * Data(the text) will be stored in that object in the collection:
+   * - ut-text_[element.id]
+   */
+
+  function UtText(element, options) {
+    options = $.extend({}, $.fn.utText.defaults, options);
+
+    var el            = element,
+      $el             = $(el),
+      namespace       = 'utText',
+      storageKey      = namespace+el.id,
+      post            = options.post || {},
+      storage         = post.storage,
+      mode            = post.context,
+      maxFontSize     = parseInt(options.maxFontSize,10) || null,
+      minFontSize     = parseInt(options.minFontSize,10) || null,
+      isUtimage       = $el.data('utImage'),
+      isIosApp        = /(urturn)/i.test(navigator.userAgent),
+      $contentDomNode,timer,$countdownDomNode,imageHeight,minFontSizePercent;
+
+    function init() {
+      $contentDomNode = $('<div>').addClass('ut-text-content');
+
+      if (maxFontSize) {
+        $el.css({
+          'font-size':maxFontSize/10+'em',
+          'line-height': 1
+        });
+      }
+
+      if (minFontSize && maxFontSize) {
+        minFontSizePercent = minFontSize*100/maxFontSize;
+      }
+
+      $el
+      .addClass('ut-text')
+      .append($contentDomNode);
+
+      if (!options.fixedSize) {
+        $el.addClass('ut-text-flex');
+
+      } else {
+        $el.addClass('ut-text-fixed');
+      }
+
+      if (options.chars) {
+        $countdownDomNode = $('<div>').addClass('ut-text-countdown action-button small-button button');
+        $el.append($countdownDomNode);
+        updateCharactersCounter();
+      }
+
+      if (mode && mode.editor === true) {
+        $contentDomNode
+        .attr('contentEditable',true)
+        .attr('spellcheck',false);
+        bindEvents();
+      }
+      if (storage && storage[storageKey]) {
+        $contentDomNode.html(storage[storageKey]);
+        $contentDomNode.attr('data-div-placeholder-content', 'true');
+
+        setTimeout(function() {
+          sizeChange();
+        }, 50);
+      }
+
+      if (isUtimage) {
+        imageHeight = $el.height();
+        $el.css({ backgroundSize: 'cover' });
+      }
+
+      if(options.reuse) {
+        reuse();
+      }
+
+
+    }
+
+    function trigger(name, data){
+      $el.trigger(namespace+':'+name, data);
+    }
+
+    /*
+      - Listen to events on the contenteditable field
+      - use native text dialog if we are in the iOS app
+      - handle copy-paste text
+    */
+    function bindEvents() {
+      /* here is the meat and potates */
+      $contentDomNode.attr('data-placeholder',options.placeholder);
+
+      if (isIosApp) {
+        $contentDomNode.on('touchstart',function() {
+          post.dialog('text',{'value':cleanUpData(), 'max':options.chars || null, 'multiline':true}, function(text){
+            $contentDomNode.html(text).trigger('input');
+            if (text.length >= 1) {
+              $contentDomNode.removeAttr('data-div-placeholder-content');
+            }
+            adaptAndSave();
+          });
+        });
+      } else {
+        $contentDomNode.on('paste keypress keydown input',function(e) {
+          if (mode && mode.editor === true) {
+            if ($contentDomNode[0].textContent && $contentDomNode[0].textContent.length >= 1) {
+              $contentDomNode.attr('data-div-placeholder-content', 'true');
+            } else {
+              $contentDomNode.removeAttr('data-div-placeholder-content');
+            }
+          }
+
+          //list of functional/control keys that you want to allow always
+          var keys = [8, 9, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 144, 145];
+
+          if( $.inArray(e.keyCode, keys) === -1) {
+            if (options.chars && $contentDomNode[0].innerHTML.length >= options.chars) {
+              e.preventDefault();
+              e.stopPropagation();
+            }
+          }
+
+          if(timer) {
+            clearTimeout(timer);
+          }
+          timer = setTimeout(adaptAndSave, 100);
+
+        });
+      }
+    }
+
+    /*
+      Either the post, the font, or the ut-image object can adapt the height
+      The font in the case we have a fixed element size
+      The post when the size is free and as more as we type
+      The ut-image when it's present, the image grow as we type
+    */
+    function sizeChange() {
+      if (options.fixedSize) {
+        adaptFontSize();
+      } else {
+        if (isUtimage) {
+          adaptImageHeight();
+        } else {
+          adaptPostHeight();
+        }
+      }
+
+      if (options.chars) {
+        updateCharactersCounter();
+      }
+    }
+
+    function adaptImageHeight() {
+      if ($contentDomNode.outerHeight()+10 > imageHeight) {
+        $el.height($contentDomNode.outerHeight()+10);
+      } else {
+        $el.height(imageHeight);
+      }
+    }
+
+    function adaptPostHeight() {
+      post.size({'height':$('.webdoc_expression_wrapper').outerHeight()});
+    }
+
+    function adaptFontSize() {
+      var max_w = $el.width(),
+      max_y = $el.height(),
+      size = minFontSizePercent;
+
+      $contentDomNode.css({
+        "font-size": size+"%",
+      });
+      while($contentDomNode.width() < max_w && $contentDomNode.height() < max_y){
+        size += 1;
+        $contentDomNode.css({
+          "font-size": size+'%'
+        });
+
+        if(size >= 100) {
+           break;
+         }
+      }
+
+
+    }
+
+    /* Adapt size and save */
+    function adaptAndSave() {
+      sizeChange();
+      saveData();
+    }
+
+    /* Save the text in collection */
+    function saveData() {
+      storage[storageKey] = cleanUpData();
+      post.save();
+
+      trigger('saved',cleanUpData());
+    }
+
+    /* in the case we have a character limitation, display and update the counter */
+    function updateCharactersCounter() {
+      var remaining = options.chars - $contentDomNode[0].innerHTML.length;
+      if (remaining === 0) {
+        $countdownDomNode.addClass('ut-text-countdown-max');
+      } else {
+        $countdownDomNode.removeClass('ut-text-countdown-max');
+      }
+      $countdownDomNode.text(remaining + ' / ' + options.chars);
+    }
+
+    /* Clean up the data that come from copy, paste, etc... before saving */
+    function cleanUpData(){
+      var v = $contentDomNode.html().replace(/<br\s*\/?>/mg,"\n");
+      v = v.replace(/(<([^>]+)>)/ig,'');
+      return $.trim(v.replace(/&nbsp;/ig,''));
+    }
+
+    /* Reuse data from the parent post */
+    function reuse() {
+      if(!storage[storageKey] && post.collection('parent') && post.collection('parent')[storageKey]){
+        $contentDomNode.html(post.collection('parent')[storageKey]);
+        saveData();
+      }
+    }
+
+    function destroy() {
+      $el.each(function() {
+        $el.trigger('destroy');
+        $el
+          .removeData('utText')
+          .removeClass('ut-text ut-text-editable ut-text-placeholder')
+          .remove('.ut-text-content');
+        $contentDomNode.off();
+      });
+    }
+
+    init();
+
+    return {
+      options: options,
+      destroy: destroy
+    };
+  }
+
+  $.fn.utText = function(options) {
+    if (typeof arguments[0] === 'string') {
+      var methodName = arguments[0];
+      var args = Array.prototype.slice.call(arguments, 1);
+      var returnVal;
+      this.each(function() {
+        if ($.data(this, 'utText') && typeof $.data(this, 'utText')[methodName] === 'function') {
+          returnVal = $.data(this, 'utText')[methodName].apply(this, args);
+        } else {
+          throw new Error('Method ' +  methodName + ' does not exist on jQuery.utText');
+        }
+      });
+      if (returnVal !== undefined){
+        return returnVal;
+      } else {
+        return this;
+      }
+    } else if (typeof options === "object" || !options) {
+      return this.each(function() {
+        if (!$.data(this, 'utText')) {
+          if((!options || !options.post) && UT && UT.Expression && UT.Expression.ready){
+            UT.Expression.ready(function(post){
+              if (!options) {
+                options = {};
+              }
+              options.post = post;
+            });
+          }
+          $.data(this, 'utText', new UtText(this, options));
+        }
+      });
+    }
+  };
+
+  $.expr[':'].utText = function(el) {
+    return $(el).hasClass('ut-text');
+  };
+
+  $.fn.utText.defaults = {
+    placeholder: 'Enter some text',
+    fixedSize: false,
+    chars: false,
+    maxFontSize: Number.POSITIVE_INFINITY,
+    minFontSize: Number.NEGATIVE_INFINITY,
+    reuse: false
+  };
+
+})(jQuery);

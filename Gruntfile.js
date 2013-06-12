@@ -156,7 +156,9 @@ module.exports = function(grunt) {
           "jquery",
           "jquery.ut-sticker",
           "jquery.ut-image",
-          "jquery.ut-audio"
+          "jquery.ut-audio",
+          "jquery.ut-video",
+          "jquery.ut-text"
         ]
       }
     }
