@@ -321,14 +321,15 @@ module.exports = function(grunt) {
     function updateInJSFiles(filename, version){
       content = grunt.file.read(filename);
       content = content.replace(/0\.0\.0/g, version);
+      grunt.log.writeln("Updated "+filename+" version to " + version);
       grunt.file.write(filename, content);
     }
     function updateInBower(version){
       var bower = require('bower');
       var bowerInfo = grunt.file.readJSON(bower.config.json);
       if(bowerInfo.version !== version) {
-        grunt.log.writeln("Upload version to " + bowerInfo.version);
         bowerInfo.version = version;
+        grunt.log.writeln("Updated bower version to " + bowerInfo.version);
         grunt.file.write(bower.config.json, JSON.stringify(bowerInfo, null, 2));
       }
     }
