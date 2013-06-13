@@ -11629,7 +11629,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     } else if (typeof method === 'object' || !method) {
       methods.init.apply(this, arguments);
     } else {
-      $.error('Method ' + method + ' does not exist on $.utVideo');
+      $.error('Method ' + method + ' does not exist on $.utSticker');
     }
     return this;
   };
@@ -11656,6 +11656,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       });
       return this;
     },
+    hide: callOnEach('hide'),
+    show: callOnEach('show'),
+    save: callOnEach('save'),
     editable: callOnEach('editable')
   };
 
@@ -11680,7 +11683,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   function Sticker(element, options) {
     this.options = $.extend( {}, this.defaults, options);
     this.options.movableArea = $.extend({}, this.defaults.movableArea, this.options.movableArea);
+    this.options.ui = $.extend({}, this.defaults.ui, this.options.movableArea);
     this.parent = this.options.parent || $(element).parent();
+    this.options.zIndex = this.options.zIndex || maxZ + 1;
     if(this.options.parent){
       $(this.parent).append(element);
     }
@@ -11703,18 +11708,16 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
     // Update CSS
     this._absolutize();
-    this.zIndex(this.options.zIndex);
     this.data = {};
 
-    if (this.options.name) {
-      this.name = this.options.name;
-    } else {
-      this.name = 'ut-sticker-' + this.$element.attr('id');
-    }
+    this.options.id = this.options.id || 'ut-sticker-' + this.$element.attr('id');
 
-    this.moveTo(this.options.left, this.options.top);
-    this.rotateTo(this.options.rotation);
-    this.sizeTo(this.options.width || this.$element.width(), this.options.height || this.$element.height());
+    this.noNotification(function(){
+      this.zIndex(this.options.zIndex);
+      this.moveTo(this.options.left, this.options.top);
+      this.rotateTo(this.options.rotation);
+      this.sizeTo(this.options.width || this.$element.width(), this.options.height || this.$element.height());
+    });
 
     if(this.options.editable !== undefined){
       this.editable(this.options.editable);
@@ -11730,17 +11733,37 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         this.editable(post.context.editor);
       }
 
-      if(this.options.autoSave){
+      if(this.editable() && post.context.editor && this.options.autoSave){
         this.save();
       }
+      console.log(this.data, this.position());
+      this.trigger('ready', this);
     }.bind(this));
   }
 
   Sticker.prototype = {
+    notificationEnabled: true,
+    trigger: function(name, data) {
+      if(this.notificationEnabled){
+        this.$element.trigger('utSticker:'+name, data);
+      }
+    },
+    noNotification: function(block) {
+      this.notificationEnabled = false;
+      try {
+        block.apply(this);
+      } catch(ex){
+        this.notificationEnabled = true;
+      }
+    },
+    enableNotification: function() {
+      this.notificationEnabled = true;
+    },
     destroy: function() {
+      this.$element.trigger('utSticker:remove');
       this.$wrapper.remove();
       if(this.options.autoSave){
-        this.post.storage[this.name] = null;
+        this.post.storage[this.options.id] = null;
         this.post.save();
       }
     },
@@ -11771,9 +11794,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     },
 
     toggleControls: function(enabled) {
-      var value = (enabled ? 'block':'none');
-      $('.ut-sticker-handler', this.wrapper).css('display', value);
-      $('.ut-sticker-delete', this.wrapper).css('display', value);
+      var value = function(key){
+        return (enabled && this.options.ui[key] ? 'block' : 'none');
+      }.bind(this);
+      $('.ut-sticker-handler', this.wrapper).css('display', value('transform'));
+      $('.ut-sticker-delete', this.wrapper).css('display', value('remove'));
     },
 
     /**
@@ -11785,9 +11810,15 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         if(this.options.editable) {
           // Bind events
           this.$wrapper.on('click', discardEvent); // discard click event
-          this.$wrapper.on('mousedown touchstart', this._handleMouseDownEvent);
-          this.$deleteHandler.on('click touchstart', this._handleDeleteHandlerClickEvent);
-          this.$handler.on('mousedown touchstart', this._handleMoveHandlerMouseDownEvent);
+          if(this.options.ui.move) {
+            this.$wrapper.on('mousedown touchstart', this._handleMouseDownEvent);
+          }
+          if(this.options.ui.remove) {
+            this.$deleteHandler.on('click touchstart', this._handleDeleteHandlerClickEvent);
+          }
+          if(this.options.ui.transform) {
+            this.$handler.on('mousedown touchstart', this._handleMoveHandlerMouseDownEvent);
+          }
         } else {
           this.$wrapper.off('click', discardEvent);
           this.$wrapper.off('mousedown touchstart', this._handleMouseDownEvent);
@@ -11796,15 +11827,14 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         }
         return this;
       } else {
-        return enabled;
+        return this.options.enabled;
       }
     },
 
     offset: function() {
-      var $wrapper = $(this.wrapper);
       return {
-        left: parseInt($wrapper.css('left'), 10) || 0,
-        top: parseInt($wrapper.css('top'), 10) || 0
+        left: parseInt(this.$wrapper.css('left'), 10) || 0,
+        top: parseInt(this.$wrapper.css('top'), 10) || 0
       };
     },
 
@@ -11813,16 +11843,19 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
      */
     zIndex: function(z) {
       if(z === undefined){
-        return parseInt($(this.wrapper).css('z-index'), 10);
+        return parseInt($(this.wrapper).css('zIndex'), 10);
       } else {
         if(z < 0){
           z = 0;
         }
-        $(this.wrapper).css('z-index', z);
-        this.options.zIndex = z;
-        // Updates the max values if needed.
-        if(z > maxZ) {
-          maxZ = z;
+        if(z !== this.options.zIndex){
+          this.options.zIndex = z;
+          this.$wrapper.css('z-index', z);
+          // Updates the max values if needed.
+          if(z > maxZ) {
+            maxZ = z;
+          }
+          this.$element.trigger('utSticker:change', {zIndex: z});
         }
         return this;
       }
@@ -11834,14 +11867,14 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     load: function(data) {
       if (data) {
         this.data = data;
-      } else if(this.post.storage[this.name]) {
-        this.data = this.post.storage[this.name];
+      } else if(this.post.storage[this.options.id]) {
+        this.data = this.post.storage[this.options.id];
       }
       this.refresh();
       return this;
     },
     /**
-     * Save the data to this.post.storage[this.name]
+     * Save the data to this.post.storage[this.options.id]
      */
     save: function() {
       var offset = this.offset();
@@ -11850,11 +11883,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         xRatio: offset.left / this.$parent.width(),
         yRatio: offset.top / this.$parent.height(),
         wRatio: this.$element.width() / this.$parent.width(),
-        hRatio: this.$element.height() / this.$parent.height(),
+        hWRatio: this.$element.height() / this.$element.width(),
         rotation: (this.data && this.data.rotation ? this.data.rotation : 0)
       };
-      this.post.storage[this.name] = this.data;
+      this.post.storage[this.options.id] = this.data;
       this.post.save();
+      this.$element.trigger('utSticker:save', this.data);
       return this;
     },
     /**
@@ -11870,7 +11904,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           left: this.data.xRatio * nw,
           top: this.data.yRatio * nh,
           width: this.data.wRatio * nw,
-          height: this.data.hRatio * nh,
+          height: this.data.hWRatio * nw * this.data.wRatio,
           zIndex: this.data.zIndex,
           rotation: this.data.rotation
         };
@@ -11894,6 +11928,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
      */
     sizeTo: function(width, height) {
       this.$element.width(width).height(height);
+      this.$element.trigger('utSticker:change', {width: width, height: height});
       return this;
     },
     /**
@@ -11907,10 +11942,19 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
      * Move the sticker to a specific position.
      */
     moveTo: function(x, y) {
-      $(this.wrapper)
-        .css('top', y+'px')
-        .css('left', x+'px');
+      this.$wrapper
+        .css({
+          top: y,
+          left: x
+        });
+      this.$element.trigger('utSticker:change', {top: y, left: x});
       return this;
+    },
+    hide: function(){
+      this.$wrapper.hide();
+    },
+    show: function(){
+      this.$wrapper.show();
     },
     /**
      * Rotate the sticker given the value specified in radian
@@ -11922,13 +11966,14 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         this.$wrapper.css('transform', "rotate(" + ((radian * RAD2DEG)| 0)  + "deg)");
       }
       this.data.rotation = radian;
+      this.$element.trigger('utSticker:change', {rotation: radian});
     },
     /**
      * Default options
      */
     defaults: {
-      zIndex: 0,      // default z-index attribute
-      autoSave: true, // will save after any modification in this.post.storage[this.name]
+      editable: undefined, // is the sticker editable?
+      autoSave: true, // will save after any modification in this.post.storage[this.options.id]
       name: null,     // component name used as a key for data in storage,
       top: 0,         // distance from parent top
       left: 0,        // distance from parent left
@@ -11940,6 +11985,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         right: 0,
         position: 'absolute',
         zIndex: -9999
+      },
+      ui: {
+        remove: true,
+        transform: true,
+        move: true
       }
     },
     _absolutize: function(){
@@ -11975,13 +12025,28 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   };
 
   var createEventFunction = function attachEvent(sticker) {
+    var ensureValidPosition = function(movableZone, position){
+      if(!intersect(movableZone, position)){
+        sticker.moveTo(0,0);
+        sticker.rotateTo(0);
+        sticker.sizeTo(128, 128);
+      }
+    };
 
-    function initMoveEventHandling(event){
+    var stickerPosition = function(parentOffset, vx, vy){
+      return position(
+        relativeOffset(sticker.$element.offset(), parentOffset),
+        sticker.$element.width() + vx,
+        sticker.$element.height() + vy
+      );
+    };
+
+    var initMoveEventHandling = function(event){
       discardEvent(event);
       fixTouchEvent(event);
       // Validates we still click the mouse
       return (event.which === 1 || event.type !== "mousemove");
-    }
+    };
 
     /**
      * focus the current sticker and register
@@ -12001,7 +12066,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       );
       var doMove = function(event){
         if (!initMoveEventHandling(event)){
-          console.log('end move');
           endMove();
           return;
         }
@@ -12009,11 +12073,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             y = event.clientY,
             vx = x - x0,
             vy = y - y0;
-        if(intersect(movableZone, position(
-            relativeOffset(sticker.$element.offset(), parentOffset),
-            sticker.$element.width() + vx,
-            sticker.$element.height() + vy
-          ))) {
+        if (intersect(movableZone, stickerPosition(parentOffset, vx, vy))) {
           x0 = x;
           y0 = y;
           focusedSticker.move(vx, vy);
@@ -12024,6 +12084,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           .off('mousemove touchmove', doMove)
           .off('mouseup touchend', endMove);
         if (focusedSticker.options.autoSave) {
+          ensureValidPosition(movableZone, stickerPosition(parentOffset, 0,0));
           focusedSticker.save();
         }
       };
@@ -12074,12 +12135,15 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         var left = center.x - width;
         var top = center.y - height;
         if( intersect(movableZone, position({left: left, top: top}, width*2, height*2))) {
-          sticker.sizeTo(width * 2, height * 2);
-          sticker.moveTo(left, top);
+          sticker.noNotification(function() {
+            sticker.sizeTo(width * 2, height * 2);
+            sticker.moveTo(left, top);
 
-          // handle rotation
-          var a = Math.atan2(handleY - center.y, handleX - center.x) - Math.PI/4;
-          sticker.rotateTo(a);
+            // handle rotation
+            var a = Math.atan2(handleY - center.y, handleX - center.x) - Math.PI/4;
+            sticker.rotateTo(a);
+          });
+          sticker.trigger('change', sticker.position());
         }
       };
       var endTransform = function(event){
@@ -12089,6 +12153,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         $(document).off('mousemove touchmove', doTransform);
         $(document).off('mouseup touchend', endTransform);
         if(sticker.options.autoSave){
+          ensureValidPosition(movableZone, stickerPosition(parentOffset, 0,0));
           sticker.save();
         }
       };
@@ -12575,6 +12640,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         var defaults = {
           data: false,
           skin:'default',
+          id:false,
           ui:{
             play:    true,
             progress:true,
@@ -12583,7 +12649,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             source:  true,
             artwork: true
           },
-          editable: true
+          editable: true,
+          i18n:{
+            add:    "add sound",
+            change: "",
+            error:  "Error occurred"
+          }
         };
 
         that.options = $.extend(true, defaults, options);
@@ -12591,8 +12662,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         that.isTouch = (('ontouchstart' in window) || (window.navigator.msMaxTouchPoints > 0));
         that.sckey   = 'T8Yki6U2061gLUkWvLA';
 
-        that.eventNS   = 'utAudio';
-        that.storageNS = 'ut_audio_data';
+        that.eventNS   = 'utAudio:';
+        that.storageNS = 'utAudio_';
         that.stateNS   = "ut-audio-state";
         that.editableNS= "ut-audio-editable";
         that.uiNS      = "ut-audio-ui";
@@ -12603,23 +12674,15 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         that.sizeNS    = "ut-audio-size";
         that.touchNS   = "ut-audio-touch";
 
-        if(that.options.ui === false){
+        if(that.options.ui === false || that.options.ui === true){
+          var v = that.options.ui;
           that.options.ui = {
-            play:    false,
-            progress:false,
-            time:    false,
-            title:   false,
-            source:  false,
-            artwork: false
-          };
-        } else if(that.options.ui === true) {
-          that.options.ui = {
-            play:    true,
-            progress:true,
-            time:    true,
-            title:   true,
-            source:  true,
-            artwork: true
+            play:    v,
+            progress:v,
+            time:    v,
+            title:   v,
+            source:  v,
+            artwork: v
           };
         }
 
@@ -12657,7 +12720,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         };
 
         that.eventer = function(event,data){
-          $that.trigger(that.eventNS+':'+event,data);
+          $that.trigger(that.eventNS+event,data);
         };
 
 
@@ -12679,7 +12742,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             that.ui.progress.find('.'+that.uiNS+'-progress-playing').css("width", ((ms/that.currents.serviceData.duration)*100) + "%");
           }
 
-          that.eventer('timeupdate',Math.round(ms/1000));
+          var timeInSeconds = Math.round(ms/1000);
+          if(ms > 0){
+            that.eventer('timeupdate',timeInSeconds);
+          }
 
           if(that.currents.serviceData && that.currents.serviceData.duration) {
             var ts = '<span class="'+that.uiNS+'-progress-time-current">'+that.formatTime(ms) + '</span><span class="'+that.uiNS+'-progress-time-left">' + that.formatTime(that.currents.serviceData.duration) + '</span>';
@@ -12808,7 +12874,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         that.update = function(){
 
           that.currents = {
-            id: $that.attr('id'),
+            id: that.options.id || $that.attr('id'),
             videoDataRecived: false,
             sourceEmbedData: null,
             state: 'loading'
@@ -12833,9 +12899,15 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           }
 
           that.ui = {};
+          if($that.css('position') !== "relative" && $that.css('position') !== "absolute"){
+            $that.css('position','relative');
+            if(console && console.warn) {
+              console.warn('Your comtainer (id='+that.currents.id+') css position was set as "relative" as requirement of utAudio component. You can set it "absolute" or "relative" in the css to avoid this warning in console');
+            }
+          }
           $that.find('.'+that.uiNS).remove();
           that.ui.container = $('<div class="'+that.uiNS+'"></div>').appendTo($that);
-          that.ui.error     = $('<div class="'+that.uiNS+'-error"></div>').append($('<div>')).appendTo(that.ui.container);
+          that.ui.error     = $('<div class="'+that.uiNS+'-error"></div>').append($('<div>').html(that.options.i18n.error)).appendTo(that.ui.container);
           that.ui.loading   = $('<div class="'+that.uiNS+'-loading"></div>').append('<div class="icon-spin '+that.uiNS+'-error-icon"></div>').appendTo(that.ui.container);
           if(that.options.ui.artwork)  { that.ui.artwork  = $('<div class="'+that.uiNS+'-artwork">'      ).appendTo(that.ui.container);}
           if(that.options.ui.title)    { that.ui.title    = $('<div class="'+that.uiNS+'-title">'        ).appendTo(that.ui.container);}
@@ -12849,12 +12921,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                 that.options.data = data;
                 that.update();
                 that.eventer('change');
-                that.post.storage[that.storageNS+'_'+that.currents.id] = JSON.stringify(data);
+                that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
                 that.post.storage.save();
               });
             };
-            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_sound">Add sound</a>').appendTo(that.ui.container).on('click',changeSound);
-            that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>'   ).appendTo(that.ui.container).on('click',changeSound);
+            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_sound"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',changeSound);
+            that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>').html(that.options.i18n.change).appendTo(that.ui.container).on('click',changeSound);
           }
 
           that.aspect = 'square'; //TODO - make it more clear
@@ -12868,7 +12940,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           if(that.post){
             that.post.on('pause',that.utPause);
           }
-
 
           that.getServiceName = function(){
             if(that.options.data && that.options.data.service){
@@ -12964,9 +13035,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                 that.eventer('seek');
               },
               onSeekEnd: function() {
-                // that.setState('play');
-                // that.eventer('seekEnd');
-                // that.setPlayPos(-1);
+                that.setState('play');
               },
               onTimeUpdate: function(pos) {
                 that.setPlayPos(pos,true);
@@ -12982,19 +13051,24 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
             if($that.utAudioEngine) {
               that.setState('launch');
-              setTimeout(function(){
-                that.eventer('ready',that.currents.serviceData);
-              },10);
               $that.utAudioEngine(that.utAudioEngineOptions);
+              setTimeout(function(){
+                that.eventer('canplay',that.currents.serviceData);
+              },10);
             } else {
               that.setState('error',"Sound Player !!! The library not found.");
             }
           };
 
-          var storege_data = that.post.storage[that.storageNS+'_'+that.currents.id];
+          var storege_data = that.post.storage[that.storageNS+that.currents.id];
           if(storege_data && !that.options.data) {
             that.options.data = JSON.parse(storege_data);
           }
+
+          if(typeof(that.options.data) === 'string'){
+            that.options.data = {url:that.options.data};
+          }
+
           if(that.options.data && (that.options.data.appData || that.options.data.url)) {
             that.setState("loading");
             that.requestServiceData(that.setupServiceDataIntoPlayer);
@@ -13003,9 +13077,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           }
         };
 
-        that.utPlay = function() {
+        that.utPlay = function(v) {
           if($that.utAudioEngine) {
-            $that.utAudioEngine("play");
+            $that.utAudioEngine("play",v);
           }
         };
 
@@ -13022,6 +13096,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           that.setPlayPos(-1);
         };
 
+        that.utVolume = function(v) {
+          if($that.utAudioEngine) {
+            $that.utAudioEngine("volume",v);
+          }
+        };
+
         that.utChange = function(data) {
           that.options.data = data;
           that.update();
@@ -13033,14 +13113,17 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         };
 
         that.update();
+        setTimeout(function(){
+          that.eventer('ready');
+        },0);
       });
       return this;
     },
 
-    play: function() {
+    play: function(v) {
       this.each(function() {
         if(this.utAudio && this.utAudio.utPlay) {
-          this.utAudio.utPlay.call(this);
+          this.utAudio.utPlay.call(this,v);
         }
       });
       return this;
@@ -13059,6 +13142,15 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       this.each(function() {
         if(this.utAudio && this.utAudio.utStop){
           this.utAudio.utStop.call(this);
+        }
+      });
+      return this;
+    },
+
+    volume: function(v) {
+      this.each(function() {
+        if(this.utAudio && this.utAudio.utVolume){
+          this.utAudio.utVolume.call(this,v);
         }
       });
       return this;
@@ -13157,8 +13249,13 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         that.globalUtAudioPauseEvent = "globalUtAudioPauseEvent";
         that.uid = Math.ceil((Math.random()*1000000000)) + new Date().getTime();
 
-        that.path = window.location.href.split(window.location.href.split(/[\/]+/).pop())[0] + that.options.path;
-
+        // var debugEngineIncluded = $('script[src*="jquery.jplayer.min.js"]');
+        // if(debugEngineIncluded.length && window.location.href.indexOf('localhost:')!==-1){
+        //   console.warn('!!!!!!!!!!!!!!! CONNECTING SWF FOR LOCAL DEBUG MODE');
+        //   that.path = debugEngineIncluded[0].src.split("jquery.jplayer.min.js")[0]+ '../'+ that.options.path;
+        // } else {
+          that.path = that.options.path;
+        //}
 
         that.player = $("<div style='opacity: 0;'></div>").appendTo($that);
         /********************************************************************************
@@ -13207,7 +13304,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                   that.doOnCanPlay(); // speciallly for ios
                 }, 100);
               }
-              that.options.onPlay();
+              that.options.onSeekEnd();
             },
             canplaythrough: function() {
               //console.log("jPlayer:canplaythrough");
@@ -13219,11 +13316,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             seeked:function(){
               //console.log("jPlayer:seekEnd");
               that.options.onSeekEnd();
-              if(that.flagPlaying){
-                that.options.onPlay();
-              } else {
-                that.options.onPause();
-              }
             },
             play: function() {
               //console.log("jPlayer:play");
@@ -13260,25 +13352,21 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           that.flagPlayerInited = true;
         };
 
-        that.play = function() {
+        that.play = function(v) {
           if(!that.flagPlayerInited) {
             that.options.onSeekStart();
             that.initPlayer();
           }
-
           if(that.flagPlayerReady){
             if(that.environment.flash){
-              that.player.jPlayer('play');
+              that.player.jPlayer('play',v);
             } else {
               if(that.flagCanPlay){
-                that.player.jPlayer('play');
+                that.player.jPlayer('play',v);
               }
             }
-
           }
-
           that.flagPlaying = true;
-
           $('body').trigger(that.globalUtAudioPauseEvent, that.uid);
         };
 
@@ -13304,6 +13392,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           }
         };
 
+        that.volume = function(v) {
+          that.player.jPlayer('volume',v);
+        };
+
         that.seek = function(pos) {
           var time =that.trackDuration ? (pos * that.trackDuration/1000) : 0;
           setTimeout(function(){ that.player.jPlayer('play',time);}, 100);
@@ -13326,15 +13418,14 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
          * init player
          ********************************************************************************/
 
-        //that.createPlayer();
       });
       return this;
     },
 
-    play: function() {
+    play: function(v) {
       this.each(function() {
         if(this.utAudioEngine && this.utAudioEngine.play) {
-          this.utAudioEngine.play.call(this);
+          this.utAudioEngine.play.call(this,v);
         }
       });
       return this;
@@ -13367,14 +13458,23 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       return this;
     },
 
-    loadTrack: function(url) {
+    volume: function (v) {
       this.each(function () {
-        if(this.utAudioEngine && this.utAudioEngine.loadTrack) {
-          this.utAudioEngine.loadTrack.call(this, url);
+        if(this.utAudioEngine && this.utAudioEngine.volume) {
+          this.utAudioEngine.volume.call(this, v);
         }
       });
       return this;
     },
+
+    // loadTrack: function(url) {
+    //   this.each(function () {
+    //     if(this.utAudioEngine && this.utAudioEngine.loadTrack) {
+    //       this.utAudioEngine.loadTrack.call(this, url);
+    //     }
+    //   });
+    //   return this;
+    // },
 
     killallhumans: function(data) {
       this.each(function () {
@@ -13536,39 +13636,40 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
         var defaults = {
           data: false,
           skin:'default',
+          id: false,
           ui:{
-            artwork: true,
-            loading: true,
-            play:    true,
-            title:   true,
-            source:  true
+            artwork:   true,
+            loading:   true,
+            play:      true,
+            title:     true,
+            source:    true,
+            playing:   true
           },
-          editable: true
+          editable: true,
+          i18n:{
+            add:    "add video",
+            change: "",
+            error:  "Error occurred"
+          }
         };
 
         that.isTouch = (('ontouchstart' in window) || (window.navigator.msMaxTouchPoints > 0));
         that.options = $.extend(true, defaults, opts);
 
-        if(that.options.ui === false){
+        if(that.options.ui === false || that.options.ui === true){
+          var v = that.options.ui;
           that.options.ui = {
-            artwork: false,
-            loading: false,
-            play:    false,
-            title:   false,
-            source:  false
-          };
-        } else if(that.options.ui === true) {
-          that.options.ui = {
-            artwork: true,
-            loading: true,
-            play:    true,
-            title:   true,
-            source:  true
+            artwork:  v,
+            loading:  v,
+            play:     v,
+            title:    v,
+            source:   v,
+            playing:  v
           };
         }
 
-        that.eventNS   = 'utVideo';
-        that.storageNS = 'ut_video_data';
+        that.eventNS   = 'utVideo:';
+        that.storageNS = 'utVideo_';
         that.stateNS   = "ut-video-state";
         that.editableNS= "ut-video-editable";
         that.uiNS      = "ut-video-ui";
@@ -13642,23 +13743,23 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
               },
 
               prepareEmbedCode:function (param) {
-                //var urlParams = 'enablejsapi=1&rel=0&fs=1';
                 param.id = this.getVideoId(param.url);
                 return param;
               },
 
               embedVideo:function (param) {
                 var container = that.ui.video.empty();
-                param.safeID = param.id.replace(/[^a-z0-9]/ig, '');
-                //var videoFrame = $("<div class='videoIframeSrc'></div>").appendTo(container);
+                var id = 'iframe_' + that.currents.id;
+                $('<div id="' + id + '" width="100%" height="100%" frameborder="0"></div>').appendTo(container);
                 function initYTPlayer() {
                   window.youtubeApiReady = true;
 
-                  function onPlayerReady(event) {
+                  that.onPlayerReady = function(event) {
+                    player.addEventListener('onStateChange', that.onPlayerStateChange);
                     event.target.playVideo();
-                  }
+                  };
 
-                  function onPlayerStateChange(event) {
+                  that.onPlayerStateChange = function(event) {
                     if (event.data === window.YT.PlayerState.PLAYING) {
                       that.eventer('play');
                     }
@@ -13676,29 +13777,28 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
                       that.setState("pause");
                     }
 
-                    if (event.data === window.YT.PlayerState.BUFFERING) {
-                      that.eventer('buffering');
-                    }
-                  }
+                    if (event.data === window.YT.PlayerState.BUFFERING) {}
+                  };
 
-                  var player = new window.YT.Player(container[0], {
+
+                  var playerVars = that.options.ui.playing?null:{controls:0,showinfo:0};
+
+                  var player = new window.YT.Player(id, {
                     height:'100%',
                     width:'100%',
-                    videoId:param.id,
-                    events:{
-                      'onReady':onPlayerReady,
-                      'onStateChange':onPlayerStateChange
-                    }
+                    videoId: param.id,
+                    playerVars: playerVars,
+                    events:{'onReady':that.onPlayerReady}
                   });
 
-                  container.off('continueAfterPause pauseVideo').on('continueAfterPause',function () {
+                  container.off('continueAfterPause pauseVideo')
+                  .on('continueAfterPause',function () {
                     player.playVideo();
                   }).on('pauseVideo', function () {
                     player.pauseVideo();
                   });
                 }
 
-                //This code loads the IFrame Player API code asynchronously.
                 if (!window.youtubeApiReady) {
                   var tag = document.createElement('script');
                   tag.src = "//www.youtube.com/iframe_api";
@@ -14340,7 +14440,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
 
 
         that.eventer = function(event,data){
-          $that.trigger(that.eventNS+':'+event,data);
+          $that.trigger(that.eventNS+event,data);
         };
 
         that.updatePreViewVideoData = function() {
@@ -14396,7 +14496,9 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           that.currents.sourceEmbedData = sourceEmbedData;
           if(sourceEmbedData.source) {
             that.updatePreViewVideoData();
-            that.eventer('ready',sourceEmbedData);
+            setTimeout(function(){
+              that.eventer('canplay',sourceEmbedData);
+            },10);
             that.setState('launch');
           } else {
             that.eventer('error',false,'sorry: utVideo can not play this source of video');
@@ -14416,7 +14518,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
 
         that.utPlay = function() {
           if(that.currents.state === 'pause') {
-            that.ui.container.trigger('continueAfterPause');
+            that.ui.video.trigger('continueAfterPause');
           } else {
             that.setState("video");
             embedProcessor.embedVideoByParameters(that.currents.sourceEmbedData, that.options);
@@ -14465,7 +14567,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
 
         that.upddate = function(){
           that.currents = {
-            id: $that.attr('id'),
+            id:that.options.id || $that.attr('id'),
             videoDataRecived: false,
             sourceEmbedData: null,
             state: null
@@ -14493,16 +14595,24 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
                   '-moz-transform': 'none',
                   'transform': 'none'
                 });
-                console.warn('WARNING!!! css property translate for firefox removed in order to avoid problems with FLASH');
+                if(console && console.warn) {
+                  console.warn('WARNING!!! css property translate for firefox removed in order to avoid problems with FLASH');
+                }
               }
             });
           }
 
           that.ui = {};
+          if($that.css('position') !== "relative" && $that.css('position') !== "absolute"){
+            $that.css('position','relative');
+            if(console && console.warn) {
+              console.warn('Your comtainer (id='+that.currents.id+') css position was set as "relative" as requirement of utAudio component. You can set it "absolute" or "relative" in the css to avoid this warning in console');
+            }
+          }
           $that.find('.'+that.uiNS).remove();
           that.ui.container = $('<div class="'+that.uiNS+'"></div>').appendTo($that);
           that.ui.video     = $('<div class="'+that.uiNS+'-video"></div>'  ).appendTo(that.ui.container);
-          that.ui.error     = $('<div class="'+that.uiNS+'-error"></div>').append($('<div>')).appendTo( that.ui.container);
+          that.ui.error     = $('<div class="'+that.uiNS+'-error"></div>').append($('<div>').html(that.options.i18n.error)).appendTo( that.ui.container);
           if(that.options.ui.artwork) {that.ui.artwork = $('<div class="'+that.uiNS+'-artwork">'      ).appendTo(that.ui.container);}
           if(that.options.ui.loading) {that.ui.loading = $('<div class="'+that.uiNS+'-loading"></div>').append('<div class="icon-spin '+that.uiNS+'-loading-icon"></div>').appendTo(that.ui.container);}
           if(that.options.ui.play)    {that.ui.play    = $('<div class="'+that.uiNS+'-play">'         ).appendTo(that.ui.container);}
@@ -14514,12 +14624,12 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
                 that.options.data = data;
                 that.upddate();
                 that.eventer('change');
-                that.post.storage[that.storageNS+'_'+that.currents.id] = JSON.stringify(data);
+                that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
                 that.post.storage.save();
               });
             };
-            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_video">Add video</a>').appendTo(that.ui.container).on('click',change);
-            that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>'   ).appendTo(that.ui.container).on('click',change);
+            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_video"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',change);
+            that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>').html(that.options.i18n.edit).appendTo(that.ui.container).on('click',change);
           }
 
           that.aspect = 'square'; //TODO - make it more clear
@@ -14534,22 +14644,30 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
             that.post.on('pause',that.utPause);
           }
 
-          var storege_data = that.post.storage[that.storageNS+'_'+that.currents.id];
-          if(storege_data && !that.options.data) {that.options.data = JSON.parse(storege_data);}
+          var storege_data = that.post.storage[that.storageNS+that.currents.id];
+          if(storege_data && !that.options.data) {
+            that.options.data = JSON.parse(storege_data);
+          }
+
+          if(typeof(that.options.data) === 'string'){
+            that.options.data = {url:that.options.data};
+          }
 
           if(that.options.data && (that.options.data.appData || that.options.data.url)) {
             that.embedVideoByData(that.options.data);
           } else {
             that.setState("empty");
           }
-
         };
         that.upddate();
+        setTimeout(function(){
+          that.eventer('ready');
+        },0);
       });
       return this;
     },
 
-       play: function() {
+    play: function() {
       this.each(function() {
         if(this.utVideo && this.utVideo.utPlay) {
           this.utVideo.utPlay.call(this);
