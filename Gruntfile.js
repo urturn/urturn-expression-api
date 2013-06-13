@@ -46,7 +46,7 @@ module.exports = function(grunt) {
     options: {
       browser: true
     },
-    build: ['grunt.js'],
+    build: ['Gruntfile.js'],
     lib: ['lib/**/*.js'],
     test: ['test/*.js', 'test/lib/collection-fixtures.js', 'test/lib/dom.js']
   };
@@ -353,7 +353,7 @@ module.exports = function(grunt) {
   grunt.registerTask('addIncludedModule', function(){
     var Component = require('grunt-urturn-component/component');
     var path = require('path');
-    info = grunt.file.readJSON('component.urturn.json');
+    var info = grunt.file.readJSON('component.urturn.json');
     info.basedir = '.';
     var component = Component.fromOptions(info);
     component.eachInclude(function(comp){
