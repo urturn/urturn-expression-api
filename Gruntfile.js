@@ -317,6 +317,13 @@ module.exports = function(grunt) {
     grunt.file.write(expJsonPath,JSON.stringify(content, null, 2));
   });
 
+  grunt.registerTask('patchJQuery202', function(){
+    grunt.file.write('dist/iframe.js',
+      grunt.file.read('dist/iframe.js').replace(
+        'if ( parent && parent.frameElement ) {', // BUG IN IE: SCRIPT5, access denied
+        'if ( parent && parent.attachEvent && parent !== parent.top ) {'));
+  });
+
   grunt.registerTask('updateVersionNumber', function(){
     function updateInJSFiles(filename, version){
       content = grunt.file.read(filename);
@@ -382,7 +389,7 @@ module.exports = function(grunt) {
 
   // Default task.
   grunt.registerTask('default', ['clean', 'jshint', 'build', 'buildTestExpression', 'updateVersionNumber', 'mocha', 'minify', 'copyAssetToDist']);
-  grunt.registerTask('build', ['dependencies', 'addIncludedModule', 'filecheck', "concat", "concat_css"]);
+  grunt.registerTask('build', ['dependencies', 'addIncludedModule', 'filecheck', "concat", "concat_css", 'patchJQuery202']);
   grunt.registerTask('dependencies', ['urturn_component']);
   grunt.registerTask('minify', ['uglify', 'cssmin']);
   grunt.registerTask('publish', ['exec:tag', 'exec:npmpublish']);
