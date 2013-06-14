@@ -816,7 +816,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '0.9.0-beta3';
+    return '0.9.0-beta4';
   };
 
   /**
@@ -12374,6 +12374,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         imgOptions.size.autoCrop = (context === 'add');
       }
 
+      if(context === 'edit'){
+        imgOptions.size.autoCrop = false;
+      }
+
       // Specify an height only if one of autoCrop or flexRatio is false.
       if( ! (imgOptions.size.autoCrop && imgOptions.size.flexRatio) ) {
         imgOptions.size.height = $el.height();
@@ -12381,7 +12385,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
       // In the case where an height is defined, adapt the UI of the camera.
       if(imgOptions.size.height && imgOptions.size.width){
-        imgOptions.adaptUI = true;
+        imgOptions.size.adaptUI = true;
       }
 
       // Apply any predefined filters.
