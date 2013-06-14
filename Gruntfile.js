@@ -143,8 +143,7 @@ module.exports = function(grunt) {
   };
 
   config.urturn_component = {
-    config: {
-      bower: true,
+    createmanifest: {
       manifest: {
         main: ['iframe.min.css', 'iframe.min.js'],
         dependencies: {
@@ -161,6 +160,9 @@ module.exports = function(grunt) {
           "jquery.ut-text"
         ]
       }
+    },
+    config: {
+      bower: true
     }
   };
 
@@ -378,7 +380,6 @@ module.exports = function(grunt) {
       });
       fileToRebind.forEach(function(filepath){
         var content = grunt.file.read(filepath);
-        console.log('WILL REBIND', filepath, 'using', pathMap);
         for(var f in pathMap){
           content = content.replace(new RegExp(f, 'gm'), pathMap[f]);
         }
@@ -388,7 +389,7 @@ module.exports = function(grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', ['clean', 'jshint', 'build', 'buildTestExpression', 'updateVersionNumber', 'mocha', 'minify', 'copyAssetToDist']);
+  grunt.registerTask('default', ['clean', 'jshint', 'build', 'buildTestExpression', 'updateVersionNumber', 'urturn_component:createmanifest', 'mocha', 'minify', 'copyAssetToDist']);
   grunt.registerTask('build', ['dependencies', 'addIncludedModule', 'filecheck', "concat", "concat_css", 'patchJQuery202']);
   grunt.registerTask('dependencies', ['urturn_component']);
   grunt.registerTask('minify', ['uglify', 'cssmin']);

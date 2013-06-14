@@ -816,7 +816,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '0.9.0-beta2';
+    return '0.9.0-beta3';
   };
 
   /**
@@ -11655,12 +11655,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         }
       });
       return this;
-    },
-    hide: callOnEach('hide'),
-    show: callOnEach('show'),
-    save: callOnEach('save'),
-    editable: callOnEach('editable')
+    }
   };
+  $.each(['hide', 'show', 'save', 'editable', 'focus', 'blur', 'remove'], function(){
+    methods[this] = callOnEach(this);
+  });
 
   // Constant to convert Radian to degrees.
   var RAD2DEG = 180/Math.PI;
@@ -11736,7 +11735,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       if(this.editable() && post.context.editor && this.options.autoSave){
         this.save();
       }
-      console.log(this.data, this.position());
       this.trigger('ready', this);
     }.bind(this));
   }
@@ -11759,7 +11757,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     enableNotification: function() {
       this.notificationEnabled = true;
     },
-    destroy: function() {
+    remove: function() {
       this.$element.trigger('utSticker:remove');
       this.$wrapper.remove();
       if(this.options.autoSave){
@@ -11797,8 +11795,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       var value = function(key){
         return (enabled && this.options.ui[key] ? 'block' : 'none');
       }.bind(this);
-      $('.ut-sticker-handler', this.wrapper).css('display', value('transform'));
-      $('.ut-sticker-delete', this.wrapper).css('display', value('remove'));
+      $('.ut-sticker-handler', this.$wrapper).css('display', value('transform'));
+      $('.ut-sticker-delete', this.$wrapper).css('display', value('remove'));
     },
 
     /**
@@ -11833,8 +11831,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
     offset: function() {
       return {
-        left: parseInt(this.$wrapper.css('left'), 10) || 0,
-        top: parseInt(this.$wrapper.css('top'), 10) || 0
+        left: parseInt(this.$wrapper.css('left'), 10) || 0,
+        top: parseInt(this.$wrapper.css('top'), 10) || 0
       };
     },
 
@@ -11848,15 +11846,13 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         if(z < 0){
           z = 0;
         }
-        if(z !== this.options.zIndex){
-          this.options.zIndex = z;
-          this.$wrapper.css('z-index', z);
-          // Updates the max values if needed.
-          if(z > maxZ) {
-            maxZ = z;
-          }
-          this.$element.trigger('utSticker:change', {zIndex: z});
+        this.options.zIndex = z;
+        this.$wrapper.css('z-index', z);
+        // Updates the max values if needed.
+        if(z && z > maxZ) {
+          maxZ = z;
         }
+        this.$element.trigger('utSticker:change', {zIndex: z});
         return this;
       }
     },
@@ -11918,9 +11914,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         this.sizeTo(position.width, position.height);
         this.zIndex(position.zIndex);
       }
-      /*if(this.hasOverflow()){
-        this.sizeTo(this.wrapper.scrollWidth, this.wrapper.scrollHeight);
-      }*/
       return this;
     },
     /**
@@ -11974,7 +11967,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     defaults: {
       editable: undefined, // is the sticker editable?
       autoSave: true, // will save after any modification in this.post.storage[this.options.id]
-      name: null,     // component name used as a key for data in storage,
+      id: null,     // component name used as a key for data in storage,
       top: 0,         // distance from parent top
       left: 0,        // distance from parent left
       rotation: 0,    // rotation in radian (range from 0 to 2π)
@@ -12094,7 +12087,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     };
     sticker._handleDeleteHandlerClickEvent = function(event) {
       discardEvent(event);
-      sticker.destroy();
+      sticker.remove();
     };
     sticker._handleMoveHandlerMouseDownEvent = function(event) {
       discardEvent(event);
@@ -12398,7 +12391,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
       // Add the image data if we do a recrop.
       if (context === 'edit') {
-        imgOptions.image = image;
+        imgOptions.image = options.image;
       }
       return imgOptions;
     }
