@@ -12293,6 +12293,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         } else {
           trigger('change');
         }
+
+        post.on('resize', function(){
+          defineSize();
+          displayImage();
+        });
       });
     }
 
