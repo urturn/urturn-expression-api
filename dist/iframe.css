@@ -939,7 +939,7 @@ input[type="submit"],
   cursor: pointer;
   -webkit-appearance: button; }
 
-.button {
+.button, .edit-button {
   -webkit-background-clip: padding;
   -moz-background-clip: padding;
   background-clip: padding-box;
@@ -966,15 +966,15 @@ input[type="submit"],
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   -webkit-touch-callout: none;
   -webkit-user-select: none; }
-  .button:hover, .button:focus, .button:active {
+  .button:hover, .edit-button:hover, .button:focus, .edit-button:focus, .button:active, .edit-button:active {
     color: #474747;
     cursor: pointer;
     text-decoration: none; }
-  .button:focus {
+  .button:focus, .edit-button:focus {
     outline: none; }
-  .button.loading, .button.disabled {
+  .button.loading, .loading.edit-button, .button.disabled, .disabled.edit-button {
     opacity: 0.6; }
-  .button input {
+  .button input, .edit-button input {
     display: inline;
     margin-right: 0.5em;
     margin-left: 0.5em;
@@ -986,14 +986,14 @@ input[type="submit"],
 
 .button-group {
   white-space: nowrap; }
-  .button-group .button {
+  .button-group .button, .button-group .edit-button {
     border-radius: 0; }
-    .button-group .button ~ .button {
+    .button-group .button ~ .button, .button-group .edit-button ~ .button, .button-group .button ~ .edit-button, .button-group .edit-button ~ .edit-button {
       border-left-width: 0; }
-    .button-group .button:first-of-type, .button-group .button:first-child {
+    .button-group .button:first-of-type, .button-group .edit-button:first-of-type, .button-group .button:first-child, .button-group .edit-button:first-child {
       border-top-left-radius: 3px;
       border-bottom-left-radius: 3px; }
-    .button-group .button:last-of-type, .button-group .button:last-child {
+    .button-group .button:last-of-type, .button-group .edit-button:last-of-type, .button-group .button:last-child, .button-group .edit-button:last-child {
       border-top-right-radius: 3px;
       border-bottom-right-radius: 3px; }
 
@@ -1147,15 +1147,15 @@ input[type="submit"],
     color: #430400;
     text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25); }
 
-.button.red-button {
+.button.red-button, .red-button.edit-button {
   color: #c00f00; }
-  .button.red-button:hover, .button.red-button:focus {
+  .button.red-button:hover, .red-button.edit-button:hover, .button.red-button:focus, .red-button.edit-button:focus {
     border-color: #c00f00;
     background: rgba(193, 39, 45, 0.1);
     color: #c00f00;
     text-decoration: none;
     text-shadow: none; }
-  .button.red-button:focus {
+  .button.red-button:focus, .red-button.edit-button:focus {
     box-shadow: 0 6px #e60f00; }
 
 /* Sizes of the button */
@@ -1177,7 +1177,7 @@ input[type="submit"],
   font-size: 1.8em;
   line-height: 2.2em; }
 
-.large-button {
+.large-button, .edit-button {
   position: relative;
   padding-right: 12px;
   padding-left: 12px;
@@ -1207,21 +1207,18 @@ input[type="submit"],
   display: block;
   width: 100%; }
 
-/* Colors */
-/* Mobile Colors */
-/* Tips */
-.action-button {
+.action-button, .edit-button {
   z-index: 20;
   margin: 0;
   background-color: rgba(0, 0, 0, 0.65);
   color: white; }
-  .action-button:hover, .action-button:active, .action-button:focus, .action-button.active {
+  .action-button:hover, .edit-button:hover, .action-button:active, .edit-button:active, .action-button:focus, .edit-button:focus, .action-button.active, .active.edit-button {
     color: white;
     background-color: black; }
 
-.action-button-wrap .button {
+.action-button-wrap .button, .action-button-wrap .edit-button {
   margin-right: 0.3em; }
-  .action-button-wrap .button:last-child {
+  .action-button-wrap .button:last-child, .action-button-wrap .edit-button:last-child {
     margin-right: 0; }
 
 .item-button {
@@ -1324,6 +1321,54 @@ input[type="submit"],
   .panel-button.nope {
     color: #be1d25; }
 
+.media-placeholder {
+  background-color: #323232;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3) inset; }
+
+.media-button {
+  width: 102px;
+  height: 66px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -33px;
+  margin-left: -51px;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #f0f0f0;
+  border: 1px solid transparent; }
+  .media-button:hover {
+    color: #f0f0f0;
+    background-color: #282828;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    border-bottom: 1px solid #1e1e1e;
+    border-left: 1px solid #1e1e1e;
+    border-top: 1px solid #3c3c3c;
+    border-right: 1px solid #3c3c3c; }
+  .media-button:focus, .media-button:active, .media-button.active {
+    background-color: #282828;
+    color: #141414;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+    border-top: 1px solid #1e1e1e;
+    border-right: 1px solid #1e1e1e;
+    border-bottom: 1px solid #3c3c3c;
+    border-left: 1px solid #3c3c3c; }
+  .media-button::before {
+    display: block;
+    font-size: 24px; }
+  .media-button.small {
+    width: 70px;
+    height: 44px;
+    margin-top: -22px;
+    margin-left: -35px;
+    padding: 4px;
+    font-size: 10px; }
+    .media-button.small::before {
+      font-size: 18px; }
+
 .ut-item {
   position: absolute;
   border: .2em solid transparent;
@@ -1361,15 +1406,6 @@ you can use the generic selector below, but it's slower:
   font-variant: normal;
   text-transform: none;
   line-height: 1;
-  -webkit-font-smoothing: antialiased; }
-
-.icon_zoom_out, .icon_zoom_in, .icon_youtube, .icon_your_turn, .icon_yahoo, .icon_who_to_follow, .icon_webdocs, .icon_volume_3, .icon_volume_2, .icon_volume_1, .icon_volume_0, .icon_vimeo, .icon_video, .icon_video_alt, .icon_user, .icon_urturn, .icon_unrepost, .icon_unlock, .icon_unlisted, .icon_unfollow, .icon_twitter, .icon_tumblr, .icon_trash, .icon_tools, .icon_theme, .icon_text, .icon_text_small, .icon_text_big, .icon_target, .icon_switch, .icon_stop, .icon_star, .icon_star_empty, .icon_spinner, .icon_soundcloud, .icon_sound, .icon_sidebar, .icon_shuffle, .icon_shopping_cart, .icon_share, .icon_settings, .icon_search, .icon_scissors, .icon_rotate, .icon_repost, .icon_reply, .icon_repeat, .icon_refresh, .icon_record, .icon_radio_full, .icon_radio_empty, .icon_quote_open, .icon_quote_close, .icon_previous, .icon_point_up, .icon_point_right, .icon_point_left, .icon_point_down, .icon_playlist_video, .icon_playlist_sound, .icon_play, .icon_play_alt, .icon_pin_vertical, .icon_pin_up, .icon_pin_right, .icon_pin_left, .icon_pin_horizontal, .icon_pin_down, .icon_picture, .icon_picture_alt, .icon_picasa, .icon_people, .icon_pen, .icon_pause, .icon_participated, .icon_notifications, .icon_next, .icon_new_post, .icon_move, .icon_more, .icon_microphone, .icon_medal, .icon_mail, .icon_logo, .icon_lock, .icon_location, .icon_load, .icon_link, .icon_light_up, .icon_light_down, .icon_library, .icon_layout_4, .icon_layout_3, .icon_layout_2, .icon_itunes, .icon_instagram, .icon_info, .icon_infinity, .icon_home, .icon_highlight, .icon_highlight_add, .icon_help, .icon_heart, .icon_heart_break, .icon_hand, .icon_google, .icon_google_plus, .icon_globe, .icon_generating, .icon_fullscreen, .icon_fullscreen_exit, .icon_frame, .icon_following, .icon_following_activities, .icon_follow, .icon_flickr, .icon_flash, .icon_flag, .icon_filters, .icon_featured, .icon_facebook, .icon_eye, .icon_expressions, .icon_eraser, .icon_embed, .icon_edit, .icon_delete, .icon_delete_alt, .icon_dailymotion, .icon_cursor, .icon_copy, .icon_comment, .icon_colorpicker, .icon_cloud, .icon_cloud_upload, .icon_clock, .icon_checkbox_full, .icon_checkbox_empty, .icon_check, .icon_check_alt, .icon_category, .icon_category_alt, .icon_camera, .icon_camera_switch, .icon_calendar, .icon_bucket, .icon_brush, .icon_browse, .icon_blogger, .icon_block, .icon_background, .icon_arrow_up, .icon_arrow_right, .icon_arrow_left, .icon_arrow_down, .icon_arrow_alt_up, .icon_arrow_alt_right, .icon_arrow_alt_left, .icon_arrow_alt_down, .icon_ambassador, .icon_alert, .icon_add, .icon_add_caption, .icon_add_alt, .icon_activity {
-  font-family: 'urturn_icons';
-  speak: none;
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
   -webkit-font-smoothing: antialiased; }
 
 .icon_zoom_out:before {
@@ -1914,25 +1950,30 @@ p {
   min-width: 2em;
 }
 
+.ut-image-img {
+  width: 100%;
+  height: auto;
+}
+
+.ut-image-overlay {
+  top: 0;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+
 .ut-image-placeholder {
   background-color: rgb(70,70,70);
   box-shadow: inset 0 0 .8em rgba(0,0,0,0.3);
 }
 
-.ut-image .button {
-  display:none;
-}
-
-.ut-image-active .edit-button,
-.ut-image-active .remove-button {
+.ut-image-edit-button,
+.ut-image-remove-button {
   display: block;
 }
 
-.ut-image .add-button {
+.ut-image-add-button {
   display: inline-block;
-}
-.ut-image-active .add-button {
-  display: none;
 }
 
 .ut-image .add-button-wrapper {
@@ -1941,6 +1982,10 @@ p {
   left: 50%;
   margin-top: -1.8em;
   margin-left: -6.6em;
+}
+
+.ut-image-hidden {
+  display: none;
 }@font-face {
   font-family: 'RobotoRegular';
   src: url('components/jquery.ut-audio/css/default/Roboto-Regular-webfont.eot');
@@ -3248,8 +3293,9 @@ p {
 
 .ut-text .ut-text-countdown {
   position: absolute;
-  bottom: 1em;
-  right: 1em;
+  bottom: 10px;
+  right: 10px;
+  font-size: 10px;
 }
 
 .ut-text .ut-text-countdown-max {

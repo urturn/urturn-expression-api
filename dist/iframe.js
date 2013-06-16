@@ -1710,7 +1710,7 @@ UT.Image = function(imageDescriptor) {
   *  width : dest Width,
   *  height : dest Height
   * }
-  * 
+  *
   * @param  {Function}   callback   The function called once image has been croped
   * @return {void}                Return nothing
   */
@@ -1730,7 +1730,7 @@ UT.Image = function(imageDescriptor) {
   * @param  {int}       width      desired width of image
   * @param  {int}       height    desired height of image
   * @param  {function}   callback   callback called when image has been croped
-  * @return {void}       
+  * @return {void}
   */
   this.autocrop = function(width, height, callback) {
    UT.Expression._callAPI('medias.crop', [{
@@ -1785,6 +1785,18 @@ UT.Image = function(imageDescriptor) {
   this.marshall = function() {
     this.descriptor._type = 'image';
     return this.descriptor;
+  };
+
+  /**
+   * Instantiate an Image instance
+   * since: 0.9.0
+   */
+  this.node = function(callback) {
+    var img = new Image();
+    img.onload = function(){
+      callback.call(img, img);
+    };
+    img.src = this.url;
   };
 
   // Private methods
@@ -11682,7 +11694,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   function Sticker(element, options) {
     this.options = $.extend( {}, this.defaults, options);
     this.options.movableArea = $.extend({}, this.defaults.movableArea, this.options.movableArea);
-    this.options.ui = $.extend({}, this.defaults.ui, this.options.movableArea);
+    this.options.ui = $.extend({}, this.defaults.ui, this.options.ui);
     this.parent = this.options.parent || $(element).parent();
     this.options.zIndex = this.options.zIndex || maxZ + 1;
     if(this.options.parent){
@@ -11811,11 +11823,18 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           if(this.options.ui.move) {
             this.$wrapper.on('mousedown touchstart', this._handleMouseDownEvent);
           }
+          console.log('ui', this.options.ui);
           if(this.options.ui.remove) {
-            this.$deleteHandler.on('click touchstart', this._handleDeleteHandlerClickEvent);
+            this.$deleteHandler
+              .on('click touchstart', this._handleDeleteHandlerClickEvent);
+          } else {
+            this.$deleteHandler.hide();
           }
           if(this.options.ui.transform) {
-            this.$handler.on('mousedown touchstart', this._handleMoveHandlerMouseDownEvent);
+            this.$handler
+              .on('mousedown touchstart', this._handleMoveHandlerMouseDownEvent);
+          } else {
+            this.$handler.hide();
           }
         } else {
           this.$wrapper.off('click', discardEvent);
@@ -12203,7 +12222,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
-;(function($) {
+;(function($, window, document, undefined) {
   "use strict";
   /**
    * Enhace the given <code>element</code> to make it a placeholder for images.
@@ -12223,23 +12242,24 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
    */
   function UtImage(element, options) {
     options = $.extend({}, $.fn.utImage.defaults, options);
+    options.ui = $.extend({}, $.fn.utImage.defaults.ui, options.ui);
     var el              = element,
         storagePrefix   = 'utImage_',
         namespace       = 'utImage',
         $el             = $(el),
-        storage         = null,
         initialized     = false,
-        ratio,
-        imageStorageKey,
-        ratioStorageKey,
-        post;
+        $overlay,           // the selector that will retrieve an overlay dom node
+        ratio,              // the image ratio h/w
+        imageStorageKey,    // the UT.Image instance storage key
+        ratioStorageKey,    // the ratio storage key
+        image,              // the image element
+        post;               // the post instance
 
     function init() {
       $el.addClass('ut-image ut-image-placeholder');
 
       UT.Expression.ready(function(p){
         post = p;
-        storage = p.storage;
 
         // Default editable value depends on the post context
         if (options.editable === undefined){
@@ -12249,15 +12269,15 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         // options.name will be used to store the data
         options.name = options.name || $el.attr('id') || 'noname';
 
-        imageStorageKey = storagePrefix+name+'_img';
-        ratioStorageKey = storagePrefix+name+'_ratio';
+        imageStorageKey = storagePrefix+options.name+'_img';
+        ratioStorageKey = storagePrefix+options.name+'_ratio';
 
         // Default image came from storage if not in options
-        if (!options.image && storage && storage[imageStorageKey]) {
-          options.image = storage[imageStorageKey];
+        if (!options.data) {
+          options.data = post.storage[imageStorageKey];
         }
 
-        ratio = storage && storage[ratioStorageKey];
+        ratio = post.storage[ratioStorageKey];
         defineSize();
 
         if(options.editable) {
@@ -12277,7 +12297,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     }
 
     function trigger(name, data){
-      $el.trigger(namespace+':'+name, data);
+      setTimeout(function(){
+        $el.trigger(namespace+':'+name, data);
+      }, 0);
     }
 
     function displayEmptyPlaceHolder(enabled){
@@ -12321,27 +12343,36 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       trigger('resized');
     }
 
+    function setVisible(el, value){
+      if(value){
+        el.removeClass('ut-image-hidden');
+      } else {
+        el.addClass('ut-image-hidden');
+      }
+    }
+
     function renderEdit() {
       var actionButtons = '<ul class="tls horizontal index spaced ut-image-action-list">'+
-          '<li><a href="#" class="edit-button action-button icon_camera spaced-right large-button button">Edit</a></li>'+
-          '<li><a href="#" class="remove-button action-button icon_trash large-button button"></a></li>'+
+          '<li><a href="#" class="ut-image-edit-button edit-button action-button icon_camera spaced-right large-button button">Edit</a></li>'+
+          '<li><a href="#" class="ut-image-remove-button remove-button action-button icon_trash large-button button"></a></li>'+
           '</ul>'+
-          '<div class="add-button-wrapper"><a href="#" class="add-button dark-button icon_camera spaced-right large-button button">Add Image</a></div>';
+          '<div class="add-button-wrapper"><a href="#" class="ut-image-add-button add-button dark-button icon_camera spaced-right large-button button">Add Image</a></div>';
 
       $el
         .append(actionButtons)
-        .on('click','.add-button',addImage)
+        .on('click','.add-button', addImage)
         .on('click','.edit-button', recropImage )
         .on('click','.remove-button', removeImage);
 
-      if (!options.image && options.autoAdd === true) {
+      if (!options.data && options.autoAdd === true) {
           addImage();
       }
 
-      if (options.image) {
-        displayImage(options.image);
+      if (options.data) {
+        displayImage(options.data);
         $el.addClass('ut-image-active');
       }
+      displayControls();
     }
 
     function removeEdit() {
@@ -12395,7 +12426,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
       // Add the image data if we do a recrop.
       if (context === 'edit') {
-        imgOptions.image = options.image;
+        imgOptions.image = options.data;
       }
       return imgOptions;
     }
@@ -12418,17 +12449,20 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     function removeImage(e) {
       e.preventDefault();
       $el.removeClass('ut-image-active').addClass('ut-image-placeholder').css('background-image', '');
+      $(image).remove();
+      image = null;
       if (options.autoSave === true) {
-        storage[imageStorageKey] = null;
+        post.storage[imageStorageKey] = null;
         post.save();
       }
 
       $el.removeData('image');
-      options.image = null;
+      options.data = null;
 
       if (options.autoAdd === true) {
         addImage();
       }
+      displayControls();
 
       trigger('removed');
     }
@@ -12447,39 +12481,44 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       });
     }
 
+    function displayControls(){
+      setVisible($el.find('.add-button-wrapper'), options.editable && !image && options.ui.add);
+      setVisible($el.find('.ut-image-edit-button'), options.editable && image && options.ui.edit);
+      setVisible($el.find('.ut-image-remove-button'), options.editable && image && options.ui.remove);
+    }
+
     function loadImage(onload) {
-      if(!options.image){
+      if(!options.data){
         return;
       }
-      var newImage = new Image();
+      $(image).remove();
 
-      newImage.onload = function() {
+      image = new Image();
+      image.onload = function() {
         removeLoader();
         // Compute image ratio
-        if(newImage.width){
-          ratio = newImage.height / newImage.width;
+        if(image.width){
+          ratio = image.height / image.width;
         } else {
           ratio = 0;
         }
         defineSize();
         displayImage();
-        trigger('loaded', options.image);
+        displayControls();
+        trigger('loaded', options.data);
         if(onload){
-          onload(newImage, ratio);
+          onload(image, ratio);
         }
-
         $('.button',$el).removeClass('is-hidden');
       };
-
-      newImage.onerror = function() {
+      image.onerror = function() {
         removeLoader();
       };
-
-      newImage.src = options.image.url;
+      image.src = options.data.url;
     }
 
     function handleImageReceived(data, action) {
-      options.image = data;
+      options.data = data;
 
       if(!data) {
         removeLoader();
@@ -12489,13 +12528,13 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
       loadImage(function(domImage, ratio){
         if (options.autoSave === true) {
-          storage[imageStorageKey] = options.image;
-          storage[ratioStorageKey] = ratio;
+          post.storage[imageStorageKey] = options.data;
+          post.storage[ratioStorageKey] = ratio;
           post.save();
-          trigger('saved', options.image);
+          trigger('saved', options.data);
 
           if(action){
-            trigger(action, options.image);
+            trigger(action, options.data);
           }
         }
       });
@@ -12511,18 +12550,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     }
 
     function displayImage() {
-      if (options.image) {
-        $el.css('background-image', 'url(' + options.image.url + ')')
-          .addClass('ut-image-active');
+      if(image) {
+        overlay().before(image);
+        $(image).addClass('ut-image-img').show();
+        $el.addClass('ut-image-active');
         displayEmptyPlaceHolder(false);
-      }
-    }
-
-    function option (key, val) {
-      if (val) {
-        options[key] = val;
-      } else {
-        return options[key];
       }
     }
 
@@ -12536,13 +12568,18 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       });
     }
 
-    function imageAccessor(val) {
+    function imageDataAccessor(val) {
       if(val !== undefined){
-        options.image = val;
+        options.data = val;
         return $el;
       } else {
-        return options.image;
+        return options.data;
       }
+    }
+
+    // Retrieve the DOM node
+    function imageAccessor() {
+      return image;
     }
 
     function ratioAccessor(val) {
@@ -12554,9 +12591,20 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       }
     }
 
+    function option(key) {
+      return options[key];
+    }
+
     function update(opts) {
       options = $.extend(options, opts);
       init();
+    }
+
+    function overlay() {
+      if(!$overlay){
+        $overlay = $('<div class="ut-image-overlay"></div>').prependTo($el);
+      }
+      return $overlay;
     }
 
     init();
@@ -12564,8 +12612,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     return {
       option: option,
       destroy: destroy,
+      data: imageDataAccessor,
       image: imageAccessor,
       ratio: ratioAccessor,
+      overlay: overlay,
       update: update
     };
   }
@@ -12603,10 +12653,16 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   $.fn.utImage.defaults = {
     autoSave: true,
     flexRatio: true,
-    minSize: 32
+    minSize: 32,
+    editable: undefined, // true in edit mode, false in player mode
+    ui: {
+      edit: true,
+      add: true,
+      remove: true
+    }
   };
 
-})(jQuery);
+})(jQuery, window, document, undefined);
 /*
  * This source code is licensed under version 3 of the AGPL.
  *
@@ -14849,7 +14905,7 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
           post.dialog('text',{'value':cleanUpData(), 'max':options.chars || null, 'multiline':true}, function(text){
             $contentDomNode.html(text).trigger('input');
             if (text.length >= 1) {
-              $contentDomNode.removeAttr('data-div-placeholder-content');
+              $contentDomNode.attr('data-div-placeholder-content', 'true');
             }
             adaptAndSave();
           });
