@@ -816,7 +816,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '0.9.0-beta5';
+    return '0.9.0-beta6';
   };
 
   /**
@@ -12345,9 +12345,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
     function setVisible(el, value){
       if(value){
-        el.removeClass('ut-image-hidden');
+        el.removeClass('is-hidden');
       } else {
-        el.addClass('ut-image-hidden');
+        el.addClass('is-hidden');
       }
     }
 
@@ -12380,7 +12380,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         .off('click','.ut-image-add-button', addImage)
         .off('click','.ut-image-edit-button', recropImage)
         .off('click','.ut-image-remove-button', removeImage);
-      $el.find('.add-button-wrapper').remove();
+      $el.find('.ut-image-add-button').remove();
       $el.find('.ut-image-action-list').remove();
     }
 
@@ -12482,7 +12482,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     }
 
     function displayControls(){
-      setVisible($el.find('.add-button-wrapper'), options.editable && !image && options.ui.add);
+      setVisible($el.find('.ut-image-add-button'), options.editable && !image && options.ui.add);
       setVisible($el.find('.ut-image-edit-button'), options.editable && image && options.ui.edit);
       setVisible($el.find('.ut-image-remove-button'), options.editable && image && options.ui.remove);
     }
@@ -12504,12 +12504,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         }
         defineSize();
         displayImage();
-        displayControls();
         trigger('loaded', options.data);
         if(onload){
           onload(image, ratio);
         }
-        $('.button',$el).removeClass('is-hidden');
+        displayControls();
       };
       image.onerror = function() {
         removeLoader();

@@ -1970,10 +1970,7 @@ p {
 .ut-image-add-button {
   display: inline-block;
 }
-
-.ut-image-hidden {
-  display: none;
-}@font-face {
+@font-face {
   font-family: 'RobotoRegular';
   src: url('components/jquery.ut-audio/css/default/Roboto-Regular-webfont.eot');
   src: url('components/jquery.ut-audio/css/default/Roboto-Regular-webfont.eot?#iefix') format('embedded-opentype'),
