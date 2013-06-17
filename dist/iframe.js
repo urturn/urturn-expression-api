@@ -11669,7 +11669,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       return this;
     }
   };
-  $.each(['hide', 'show', 'save', 'editable', 'focus', 'blur', 'remove'], function(){
+  $.each(['hide', 'show', 'save', 'editable', 'focus', 'blur', 'destroy'], function(){
     methods[this] = callOnEach(this);
   });
 
@@ -11754,9 +11754,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   Sticker.prototype = {
     notificationEnabled: true,
     trigger: function(name, data) {
-      if(this.notificationEnabled){
-        this.$element.trigger('utSticker:'+name, data);
-      }
+      setTimeout(function(){
+        if(this.notificationEnabled){
+          this.$element.trigger('utSticker:'+name, data);
+        }
+      }, 0);
     },
     noNotification: function(block) {
       this.notificationEnabled = false;
@@ -11769,8 +11771,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     enableNotification: function() {
       this.notificationEnabled = true;
     },
-    remove: function() {
-      this.$element.trigger('utSticker:remove');
+    destroy: function() {
+      this.trigger('destroy');
       this.$wrapper.remove();
       if(this.options.autoSave){
         this.post.storage[this.options.id] = null;
@@ -11903,7 +11905,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
       this.post.storage[this.options.id] = this.data;
       this.post.save();
-      this.$element.trigger('utSticker:save', this.data);
+      this.trigger('save', this.data);
       return this;
     },
     /**
@@ -11939,8 +11941,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
      * Resize the given sticker to given width and height.
      */
     sizeTo: function(width, height) {
+      var oldValues = {
+        width: this.$element.width(),
+        height: this.$element.height()
+      };
       this.$element.width(width).height(height);
-      this.$element.trigger('utSticker:change', {width: width, height: height});
+      this.$element.trigger('utSticker:change', {width: width, height: height}, oldValues);
       return this;
     },
     /**
@@ -12106,7 +12112,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     };
     sticker._handleDeleteHandlerClickEvent = function(event) {
       discardEvent(event);
-      sticker.remove();
+      sticker.destroy();
     };
     sticker._handleMoveHandlerMouseDownEvent = function(event) {
       discardEvent(event);
@@ -12273,8 +12279,13 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         ratioStorageKey = storagePrefix+options.id+'_ratio';
 
         // Default image came from storage if not in options
-        if (!options.data) {
+        if (!options.data && !options.reuse) {
           options.data = post.storage[imageStorageKey];
+        }
+
+        // Default image come from the parent post triggered by the "ur" event
+        if (!options.data && options.reuse) {
+          options.data = reuse();
         }
 
         ratio = post.storage[ratioStorageKey];
@@ -12291,14 +12302,16 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           loadImage();
           trigger('ready');
         } else {
-          trigger('change');
+          trigger('change', [options, options /*WRONG*/]);
         }
 
-        post.on('resize', function(){
-          defineSize();
-          displayImage();
-        });
+        post.on('resize', handlePostResize);
       });
+    }
+
+    function handlePostResize () {
+      defineSize();
+      displayImage();
     }
 
     function trigger(name, data){
@@ -12330,18 +12343,30 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
      *    e) css#min-height
      */
     function defineSize() {
+      var oldWidth = $el.width(),
+          oldHeight = $el.height(),
+          newWidth,
+          newHeight;
+
       if(options.width){
+        newWidth = options.width;
         $el.width(options.width).css('min-width', options.minSize);
+      } else {
+        newWidth = oldWidth;
       }
       if(ratio){
-        $el.height(Math.round($el.width()*ratio));
+        newHeight = Math.round($el.width()*ratio);
+        $el.height(newHeight);
       } else if(options.height){
-        $el.height(options.height);
+        newHeight = options.height;
+        $el.height(newHeight);
       }
       if($el.css('min-height') === '0px'){
         $el.css('min-height', options.minSize);
       }
-      trigger('resized');
+      if(newHeight !== oldHeight || newWidth !== oldWidth){
+        trigger('resize', {width: newWidth, height: newHeight});
+      }
     }
 
     function setVisible(el, value){
@@ -12456,8 +12481,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         post.storage[imageStorageKey] = null;
         post.save();
       }
-
-      $el.removeData('image');
+      var oldValue = options.data;
       options.data = null;
 
       if (options.autoAdd === true) {
@@ -12465,7 +12489,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       }
       displayControls();
 
-      trigger('removed');
+      trigger('change', [{data: undefined}, {data: oldValue}]);
+      trigger('remove');
     }
 
     function recropImage(e) {
@@ -12492,7 +12517,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       if(!options.data){
         return;
       }
-      $(image).remove();
 
       image = new Image();
       image.onload = function() {
@@ -12505,7 +12529,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         }
         defineSize();
         displayImage();
-        trigger('loaded', options.data);
+        trigger('load', image);
         if(onload){
           onload(image, ratio);
         }
@@ -12518,7 +12542,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     }
 
     function handleImageReceived(data, action) {
+      var oldData = options.data;
       options.data = data;
+      trigger('change', {data: data}, {data: oldData});
 
       if(!data) {
         removeLoader();
@@ -12531,7 +12557,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           post.storage[imageStorageKey] = options.data;
           post.storage[ratioStorageKey] = ratio;
           post.save();
-          trigger('saved', options.data);
+          trigger('save', options.data);
 
           if(action){
             trigger(action, options.data);
@@ -12551,8 +12577,18 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
     function displayImage() {
       if(image) {
-        $el.css('background-image', 'url('+image.src+')').addClass('ut-image-active');
+        var cssurl = 'url('+image.src+')';
+        if($el.css('background-image') !== cssurl){
+          $el.css('background-image', cssurl).addClass('ut-image-active');
+        }
         displayEmptyPlaceHolder(false);
+      }
+    }
+
+    /* return the data from the parent post */
+    function reuse() {
+      if(!post.storage[imageStorageKey] && post.collection('parent') && post.collection('parent')[imageStorageKey]){
+        return post.collection('parent')[imageStorageKey];
       }
     }
 
@@ -12563,6 +12599,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           .removeData('utImage')
           .removeClass('ut-image ut-image-active media-placeholder')
           .empty();
+        $el.off(handlePostResize);
       });
     }
 
@@ -12650,6 +12687,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
   $.fn.utImage.defaults = {
     autoSave: true,
+    reuse: false,
     flexRatio: true,
     minSize: '100px',
     editable: undefined, // true in edit mode, false in player mode
@@ -12708,6 +12746,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           }
         };
 
+        if(!that.post && UT && UT.Expression && UT.Expression.ready){
+          UT.Expression.ready(function(post){
+            that.post = post;
+          });
+        }
+
         that.options = $.extend(true, defaults, options);
 
         that.isTouch = (('ontouchstart' in window) || (window.navigator.msMaxTouchPoints > 0));
@@ -12736,6 +12780,26 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             artwork: v
           };
         }
+
+        that.getOptionsDifference = function(newOptions, oldOptions){
+          var diff = {newValue:{},oldValue:{}};
+          $.each(newOptions, function(i){
+            if(!(newOptions[i] === oldOptions[i] || (typeof(newOptions[i]) === 'object' && typeof(oldOptions[i]) === 'object' && JSON.stringify(newOptions[i]) === JSON.stringify(oldOptions[i])))){
+              diff.newValue[i] = newOptions[i];
+              diff.oldValue[i] = oldOptions[i];
+            }
+          });
+          return $.isEmptyObject(diff.newValue)?false:diff;
+        };
+
+        that.doOnOptionsChange = function(){
+          var diff = that.getOptionsDifference(that.options, that.oldOptions);
+          if(diff){
+            that.eventer('change', diff.newValue, diff.oldValue);
+          }
+          that.oldOptions = $.extend(true, {}, that.options);
+        };
+
 
         that.requestSoundcloudAboutAppData = function(url,callback) {
           var requestTimeOut = 10000;
@@ -12770,8 +12834,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             );
         };
 
-        that.eventer = function(event,data){
-          $that.trigger(that.eventNS+event,data);
+        that.eventer = function(event,data1,data2,data3){
+          $that.trigger(that.eventNS+event,[data1,data2,data3]);
         };
 
 
@@ -12781,6 +12845,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           if(that.doNotMakeAnimationFlag && animationFlagSencitive) {
             return false;
           }
+
           if(ms < 0 || !that.currents.serviceData) {
             return;
           }
@@ -12794,7 +12859,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           }
 
           var timeInSeconds = Math.round(ms/1000);
-          if(ms > 0){
+          if(ms > 0 || ms === -1){
             that.eventer('timeupdate',timeInSeconds);
           }
 
@@ -12841,7 +12906,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
           if(that.ui.play){
             that.ui.play
-            .html('<span class="icon-spin '+that.uiNS+'-seek-icon"></span><span class="icon_play '+that.uiNS+'-play-icon"></span><span class="icon_pause '+that.uiNS+'-pause-icon"></span>')
+            .html('<span class="icon_spinner '+that.uiNS+'-seek-icon"></span><span class="icon_play '+that.uiNS+'-play-icon"></span><span class="icon_pause '+that.uiNS+'-pause-icon"></span>')
             .on('click',function() {
               if(that.currents.state !== 'launch' && that.currents.state !== 'pause'){
                 that.utPause();
@@ -12918,31 +12983,30 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           if(that.options.autoPlay) {
             that.utPlay();
           }
-
-          that.currents.videoDataRecived = true;
         };
 
         that.update = function(){
-
           that.currents = {
             id: that.options.id || $that.attr('id'),
-            videoDataRecived: false,
             sourceEmbedData: null,
             state: 'loading'
           };
+
+          var storege_data = that.post.storage[that.storageNS+that.currents.id];
+          if(storege_data && !that.options.data) {
+            that.options.data = JSON.parse(storege_data);
+          }
+
+          if(typeof(that.options.data) === 'string'){
+            that.options.data = {url:that.options.data};
+          }
 
           if(!that.currents.id) {
             console.error('utAudio: Please specify an id of your audio container. Example: "<div id="myPlayer1"></div>"');
             return;
           } else if($('[id="'+that.currents.id+'"]').length > 1){
-            console.error('utAudio: Your video container should have unique id. Now, more then one element have id = ',that.currents.id);
+            console.error('utAudio: Your audio container should have unique id. Now, more then one element have id = ',that.currents.id);
             return;
-          }
-
-          if(!that.post && UT && UT.Expression && UT.Expression.ready){
-            UT.Expression.ready(function(post){
-              that.post = post;
-            });
           }
 
           if($that.utAudioEngine){
@@ -12959,7 +13023,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           $that.find('.'+that.uiNS).remove();
           that.ui.container = $('<div class="'+that.uiNS+'"></div>').appendTo($that);
           that.ui.error     = $('<div class="'+that.uiNS+'-error"></div>').append($('<div>').html(that.options.i18n.error)).appendTo(that.ui.container);
-          that.ui.loading   = $('<div class="'+that.uiNS+'-loading"></div>').append('<div class="icon-spin '+that.uiNS+'-error-icon"></div>').appendTo(that.ui.container);
+          that.ui.loading   = $('<div class="'+that.uiNS+'-loading"></div>').append('<div class="icon_spinner '+that.uiNS+'-error-icon"></div>').appendTo(that.ui.container);
           if(that.options.ui.artwork)  { that.ui.artwork  = $('<div class="'+that.uiNS+'-artwork">'      ).appendTo(that.ui.container);}
           if(that.options.ui.title)    { that.ui.title    = $('<div class="'+that.uiNS+'-title">'        ).appendTo(that.ui.container);}
           if(that.options.ui.play)     { that.ui.play     = $('<div class="'+that.uiNS+'-play">'         ).appendTo(that.ui.container);}
@@ -12970,8 +13034,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             var changeSound = function(){
               that.post.dialog('sound',{inputTypes:['search']},function(data){
                 that.options.data = data;
+                that.doOnOptionsChange();
                 that.update();
-                that.eventer('change');
                 that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
                 that.post.storage.save();
               });
@@ -13069,24 +13133,28 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
               onPause: function() {
                 that.setState('pause');
                 that.eventer('pause');
-                that.setPlayPos(-1);
+                // that.setPlayPos(-1);
               },
               onStop: function() {
                 that.setState('launch');
                 that.eventer('stop');
-                that.setPlayPos(-1);
+                that.setPlayPos(0);
               },
               onFinish: function() {
                 that.setState('launch');
                 that.eventer('finish');
-                that.setPlayPos(-1);
+                that.setPlayPos(0);
               },
               onSeekStart: function() {
-                that.setState('seek');
-                that.eventer('seek');
+                if(that.currents.state !== 'launch'){
+                  that.setState('seek');
+                  that.eventer('seek');
+                }
               },
               onSeekEnd: function() {
-                that.setState('play');
+                if(that.currents.state !== 'launch'){
+                  that.setState('play');
+                }
               },
               onTimeUpdate: function(pos) {
                 that.setPlayPos(pos,true);
@@ -13094,7 +13162,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
               onError: function(message){
                 that.eventer('error',message);
                 that.setState('error');
-                that.setPlayPos(-1);
+                //that.setPlayPos(-1);
               }
             };
 
@@ -13111,14 +13179,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             }
           };
 
-          var storege_data = that.post.storage[that.storageNS+that.currents.id];
-          if(storege_data && !that.options.data) {
-            that.options.data = JSON.parse(storege_data);
-          }
 
-          if(typeof(that.options.data) === 'string'){
-            that.options.data = {url:that.options.data};
-          }
 
           if(that.options.data && (that.options.data.appData || that.options.data.url)) {
             that.setState("loading");
@@ -13126,6 +13187,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           } else {
             that.setState("empty");
           }
+
+
+          that.oldOptions = $.extend(true, {}, that.options);
         };
 
         that.utPlay = function(v) {
@@ -13153,14 +13217,13 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           }
         };
 
-        that.utChange = function(data) {
-          that.options.data = data;
-          that.update();
-        };
-
         that.utDestroy = function() {
           that.ui.container.remove();
           that = null;
+        };
+
+        that.utUpdate = function() {
+          that.update();
         };
 
         that.update();
@@ -13207,10 +13270,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       return this;
     },
 
-    change: function(data) {
+    update: function() {
       this.each(function() {
-        if(this.utAudio && this.utAudio.utChange){
-          this.utAudio.utChange.call(this,data);
+        if(this.utAudio && this.utAudio.utUpdate){
+          this.utAudio.utUpdate.call(this);
         }
       });
       return this;
@@ -13238,7 +13301,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     }
     return this;
   };
-  $.utAudio_height = 78;
+ // $.utAudio_height = 78;
 
 })(window.$ || window.Zepto || window.jq);
 
@@ -13363,6 +13426,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             seeking:function(){
               //console.log("jPlayer:seekStart");
               that.options.onSeekStart();
+
             },
             seeked:function(){
               //console.log("jPlayer:seekEnd");
@@ -14866,7 +14930,7 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
         bindEvents();
       }
       if (storage && storage[storageKey]) {
-        $contentDomNode.html(storage[storageKey]);
+        $contentDomNode.text(storage[storageKey]);
         $contentDomNode.attr('data-div-placeholder-content', 'true');
 
         setTimeout(function() {
