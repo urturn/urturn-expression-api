@@ -11772,7 +11772,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       this.notificationEnabled = true;
     },
     destroy: function() {
-      this.trigger('destroy');
+      this.$element.trigger('utSticker:destroy');
       this.$wrapper.remove();
       if(this.options.autoSave){
         this.post.storage[this.options.id] = null;
@@ -12299,10 +12299,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         if(!initialized){
           initialized = true;
           displayEmptyPlaceHolder(true);
-          loadImage();
+          loadImage(function(){
+            trigger('change', {data: options.data}, {data: undefined});
+          });
           trigger('ready');
-        } else {
-          trigger('change', [options, options /*WRONG*/]);
         }
 
         post.on('resize', handlePostResize);
@@ -12349,8 +12349,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           newHeight;
 
       if(options.width){
-        newWidth = options.width;
         $el.width(options.width).css('min-width', options.minSize);
+        newWidth = $el.width();
       } else {
         newWidth = oldWidth;
       }
@@ -12358,8 +12358,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         newHeight = Math.round($el.width()*ratio);
         $el.height(newHeight);
       } else if(options.height){
-        newHeight = options.height;
-        $el.height(newHeight);
+        $el.height(options.height);
+        newHeight = $el.height();
+      } else {
+        newHeight = oldHeight;
       }
       if($el.css('min-height') === '0px'){
         $el.css('min-height', options.minSize);
@@ -12529,7 +12531,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         }
         defineSize();
         displayImage();
-        trigger('load', image);
         if(onload){
           onload(image, ratio);
         }
@@ -12544,7 +12545,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     function handleImageReceived(data, action) {
       var oldData = options.data;
       options.data = data;
-      trigger('change', {data: data}, {data: oldData});
 
       if(!data) {
         removeLoader();
@@ -12556,14 +12556,16 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         if (options.autoSave === true) {
           post.storage[imageStorageKey] = options.data;
           post.storage[ratioStorageKey] = ratio;
-          post.save();
-          trigger('save', options.data);
-
+          trigger('change', [{data: options.data}, {data: oldData}]);
+          if(options.autoSave){
+            post.save();
+            trigger('save', options.data);
+          }
           if(action){
             trigger(action, options.data);
           }
         }
-      });
+      }, oldData);
     }
 
     function addLoader() {
@@ -12727,7 +12729,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         this.utAudio = that;
 
         var defaults = {
-          data: false,
+          data: undefined,
           skin:'default',
           id:false,
           ui:{
@@ -12783,23 +12785,21 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
         that.getOptionsDifference = function(newOptions, oldOptions){
           var diff = {newValue:{},oldValue:{}};
+          var noDiff = {newValue:undefined,oldValue:undefined};
           $.each(newOptions, function(i){
             if(!(newOptions[i] === oldOptions[i] || (typeof(newOptions[i]) === 'object' && typeof(oldOptions[i]) === 'object' && JSON.stringify(newOptions[i]) === JSON.stringify(oldOptions[i])))){
               diff.newValue[i] = newOptions[i];
               diff.oldValue[i] = oldOptions[i];
             }
           });
-          return $.isEmptyObject(diff.newValue)?false:diff;
+          return $.isEmptyObject(diff.newValue)?noDiff:diff;
         };
 
-        that.doOnOptionsChange = function(){
+        that.triggerChangeEvent = function(){
           var diff = that.getOptionsDifference(that.options, that.oldOptions);
-          if(diff){
-            that.eventer('change', diff.newValue, diff.oldValue);
-          }
+          that.eventer('change', diff.newValue, diff.oldValue);
           that.oldOptions = $.extend(true, {}, that.options);
         };
-
 
         that.requestSoundcloudAboutAppData = function(url,callback) {
           var requestTimeOut = 10000;
@@ -13034,7 +13034,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             var changeSound = function(){
               that.post.dialog('sound',{inputTypes:['search']},function(data){
                 that.options.data = data;
-                that.doOnOptionsChange();
                 that.update();
                 that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
                 that.post.storage.save();
@@ -13173,13 +13172,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
               $that.utAudioEngine(that.utAudioEngineOptions);
               setTimeout(function(){
                 that.eventer('canplay',that.currents.serviceData);
+                that.triggerChangeEvent();
               },10);
             } else {
               that.setState('error',"Sound Player !!! The library not found.");
             }
           };
-
-
 
           if(that.options.data && (that.options.data.appData || that.options.data.url)) {
             that.setState("loading");
@@ -13188,8 +13186,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             that.setState("empty");
           }
 
-
-          that.oldOptions = $.extend(true, {}, that.options);
         };
 
         that.utPlay = function(v) {
@@ -13226,6 +13222,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           that.update();
         };
 
+
+        that.oldOptions = $.extend(true, {}, that.options);
         that.update();
         setTimeout(function(){
           that.eventer('ready');
@@ -13749,7 +13747,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
         this.utVideo = that;
 
         var defaults = {
-          data: false,
+          data: undefined,
           skin:'default',
           id: false,
           ui:{
@@ -13768,8 +13766,26 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           }
         };
 
+        if(!that.post && UT && UT.Expression && UT.Expression.ready){
+          UT.Expression.ready(function(post){
+            that.post = post;
+          });
+        }
+
         that.isTouch = (('ontouchstart' in window) || (window.navigator.msMaxTouchPoints > 0));
         that.options = $.extend(true, defaults, opts);
+
+        that.eventNS   = 'utVideo:';
+        that.storageNS = 'utVideo_';
+        that.stateNS   = "ut-video-state";
+        that.editableNS= "ut-video-editable";
+        that.uiNS      = "ut-video-ui";
+        that.modeNS    = "ut-video-mode";
+        that.skinNS    = "ut-video-skin";
+        that.serviceNS = "ut-video-service";
+        that.aspectNS  = "ut-video-aspect";
+        that.sizeNS    = "ut-video-size";
+        that.touchNS   = "ut-video-touch";
 
         if(that.options.ui === false || that.options.ui === true){
           var v = that.options.ui;
@@ -13783,17 +13799,24 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           };
         }
 
-        that.eventNS   = 'utVideo:';
-        that.storageNS = 'utVideo_';
-        that.stateNS   = "ut-video-state";
-        that.editableNS= "ut-video-editable";
-        that.uiNS      = "ut-video-ui";
-        that.modeNS    = "ut-video-mode";
-        that.skinNS    = "ut-video-skin";
-        that.serviceNS = "ut-video-service";
-        that.aspectNS  = "ut-video-aspect";
-        that.sizeNS    = "ut-video-size";
-        that.touchNS   = "ut-video-touch";
+        that.getOptionsDifference = function(newOptions, oldOptions){
+          var diff = {newValue:{},oldValue:{}};
+          var noDiff = {newValue:undefined,oldValue:undefined};
+          $.each(newOptions, function(i){
+            if(!(newOptions[i] === oldOptions[i] || (typeof(newOptions[i]) === 'object' && typeof(oldOptions[i]) === 'object' && JSON.stringify(newOptions[i]) === JSON.stringify(oldOptions[i])))){
+              diff.newValue[i] = newOptions[i];
+              diff.oldValue[i] = oldOptions[i];
+            }
+          });
+          return $.isEmptyObject(diff.newValue)?noDiff:diff;
+        };
+
+        that.triggerChangeEvent = function(){
+          var diff = that.getOptionsDifference(that.options, that.oldOptions);
+          that.eventer('change', diff.newValue, diff.oldValue);
+          that.oldOptions = $.extend(true, {}, that.options);
+        };
+
 
         /************************************************************/
         /* video.embedProcessor start*/
@@ -14554,8 +14577,8 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
         /************************************************************/
 
 
-        that.eventer = function(event,data){
-          $that.trigger(that.eventNS+event,data);
+        that.eventer = function(event,data1,data2,data3){
+          $that.trigger(that.eventNS+event,[data1,data2,data3]);
         };
 
         that.updatePreViewVideoData = function() {
@@ -14612,7 +14635,9 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           if(sourceEmbedData.source) {
             that.updatePreViewVideoData();
             setTimeout(function(){
+              that.canplay = true;
               that.eventer('canplay',sourceEmbedData);
+              that.triggerChangeEvent();
             },10);
             that.setState('launch');
           } else {
@@ -14628,10 +14653,11 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
 
         that.utChange = function(data) {
           that.options.data = data;
-          that.upddate();
+          that.update();
         };
 
         that.utPlay = function() {
+          if(!that.canplay) {return;}
           if(that.currents.state === 'pause') {
             that.ui.video.trigger('continueAfterPause');
           } else {
@@ -14681,7 +14707,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
         };
 
 
-        that.upddate = function(){
+        that.update = function(){
           that.currents = {
             id:that.options.id || $that.attr('id'),
             videoDataRecived: false,
@@ -14689,18 +14715,21 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
             state: null
           };
 
+          var storege_data = that.post.storage[that.storageNS+that.currents.id];
+          if(storege_data && !that.options.data) {
+            that.options.data = JSON.parse(storege_data);
+          }
+
+          if(typeof(that.options.data) === 'string'){
+            that.options.data = {url:that.options.data};
+          }
+
           if(!that.currents.id) {
             console.error('utVideo: Please specify an id of your video container. Example: "<div id="myPlayer1"></div>"');
             return;
           } else if($('[id="'+that.currents.id+'"]').length > 1){
             console.error('utVideo: Your video container should have unique id. Now, more then one element have id = ',that.currents.id);
             return;
-          }
-
-          if(!that.post && UT && UT.Expression && UT.Expression.ready){
-            UT.Expression.ready(function(post){
-              that.post = post;
-            });
           }
 
           /*hack for firefox flash video*/
@@ -14722,7 +14751,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           if($that.css('position') !== "relative" && $that.css('position') !== "absolute"){
             $that.css('position','relative');
             if(console && console.warn) {
-              console.warn('Your comtainer (id='+that.currents.id+') css position was set as "relative" as requirement of utAudio component. You can set it "absolute" or "relative" in the css to avoid this warning in console');
+              console.warn('Your comtainer (id='+that.currents.id+') css position was set as "relative" as requirement of utVideo component. You can set it "absolute" or "relative" in the css to avoid this warning in console');
             }
           }
           $that.find('.'+that.uiNS).remove();
@@ -14738,8 +14767,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
             var change = function(){
               that.post.dialog('video',{inputTypes:['search']},function(data){
                 that.options.data = data;
-                that.upddate();
-                that.eventer('change');
+                that.update();
                 that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
                 that.post.storage.save();
               });
@@ -14760,22 +14788,15 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
             that.post.on('pause',that.utPause);
           }
 
-          var storege_data = that.post.storage[that.storageNS+that.currents.id];
-          if(storege_data && !that.options.data) {
-            that.options.data = JSON.parse(storege_data);
-          }
-
-          if(typeof(that.options.data) === 'string'){
-            that.options.data = {url:that.options.data};
-          }
-
           if(that.options.data && (that.options.data.appData || that.options.data.url)) {
             that.embedVideoByData(that.options.data);
           } else {
             that.setState("empty");
           }
         };
-        that.upddate();
+
+        that.oldOptions = $.extend(true, {}, that.options);
+        that.update();
         setTimeout(function(){
           that.eventer('ready');
         },0);
@@ -14810,10 +14831,10 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
       return this;
     },
 
-    change: function(data) {
+    update: function() {
       this.each(function() {
-        if(this.utVideo && this.utVideo.utChange){
-          this.utVideo.utChange.call(this,data);
+        if(this.utVideo && this.utVideo.utUpdate){
+          this.utVideo.utUpdate.call(this);
         }
       });
       return this;
@@ -14890,6 +14911,7 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
       minFontSize     = parseInt(options.minFontSize,10) || null,
       isUtimage       = $el.data('utImage'),
       isIosApp        = /(urturn)/i.test(navigator.userAgent),
+      isIE            = /(msie)/i.test(navigator.userAgent),
       $contentDomNode,timer,$countdownDomNode,imageHeight,minFontSizePercent;
 
     function init() {
@@ -14947,6 +14969,7 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
         reuse();
       }
 
+      trigger('ready');
 
     }
 
@@ -14960,6 +14983,10 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
       - handle copy-paste text
     */
     function bindEvents() {
+
+      $el.on('click',function() {
+        $contentDomNode.trigger('focus');
+      });
       /* here is the meat and potates */
       $contentDomNode.attr('data-placeholder',options.placeholder);
 
@@ -14981,6 +15008,14 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
             } else {
               $contentDomNode.removeAttr('data-div-placeholder-content');
             }
+          }
+
+          if (e.type === 'paste') {
+            formatPaste();
+          }
+
+          if(e.which === 13 && isIE) {
+            e.preventDefault();
           }
 
           //list of functional/control keys that you want to allow always
@@ -15054,8 +15089,6 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
            break;
          }
       }
-
-
     }
 
     /* Adapt size and save */
@@ -15069,7 +15102,7 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
       storage[storageKey] = cleanUpData();
       post.save();
 
-      trigger('saved',cleanUpData());
+      trigger('save',cleanUpData());
     }
 
     /* in the case we have a character limitation, display and update the counter */
@@ -15090,10 +15123,21 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
       return $.trim(v.replace(/&nbsp;/ig,''));
     }
 
+    function formatPaste() {
+      setTimeout(function() {
+        if(options.chars && $contentDomNode[0].innerHTML.length >= options.chars) {
+          $contentDomNode.text(cleanUpData().substr(0, options.chars));
+        } else {
+          $contentDomNode.text(cleanUpData());
+        }
+      }, 50);
+    }
+
     /* Reuse data from the parent post */
     function reuse() {
       if(!storage[storageKey] && post.collection('parent') && post.collection('parent')[storageKey]){
         $contentDomNode.html(post.collection('parent')[storageKey]);
+        $contentDomNode.attr('data-div-placeholder-content', 'true');
         saveData();
       }
     }

@@ -174,6 +174,9 @@ module.exports = function(grunt) {
   };
 
   config.exec = {
+    clean: {
+      cmd: "bower cache-clean"
+    },
     tag: {
       cmd: "git tag v" + info.version + " && git push --tags"
     },
@@ -389,7 +392,7 @@ module.exports = function(grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', ['clean', 'jshint', 'build', 'buildTestExpression', 'updateVersionNumber', 'urturn_component:createmanifest', 'mocha', 'minify', 'copyAssetToDist']);
+  grunt.registerTask('default', ['clean', 'exec:clean', 'jshint', 'build', 'buildTestExpression', 'updateVersionNumber', 'urturn_component:createmanifest', 'mocha', 'minify', 'copyAssetToDist']);
   grunt.registerTask('build', ['dependencies', 'addIncludedModule', 'filecheck', "concat", "concat_css", 'patchJQuery202']);
   grunt.registerTask('dependencies', ['urturn_component']);
   grunt.registerTask('minify', ['uglify', 'cssmin']);

@@ -3187,6 +3187,7 @@ p {
 .ut-text-content {
   width: auto;
   white-space: pre-line;
+  word-wrap: break-word;
 }
 
 .ut-text-content[data-placeholder]:not([data-div-placeholder-content]):before {
