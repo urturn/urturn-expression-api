@@ -12338,7 +12338,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       } else if(options.height){
         $el.height(options.height);
       }
-      if($el.css('min-height') !== '0px'){
+      if($el.css('min-height') === '0px'){
         $el.css('min-height', options.minSize);
       }
       trigger('resized');
@@ -12551,9 +12551,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
     function displayImage() {
       if(image) {
-        overlay().before(image);
-        $(image).addClass('ut-image-img').show();
-        $el.addClass('ut-image-active');
+        $el.css('background-image', 'url('+image.src+')').addClass('ut-image-active');
         displayEmptyPlaceHolder(false);
       }
     }

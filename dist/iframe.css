@@ -1940,7 +1940,6 @@ p {
   position: relative;
   overflow: hidden;
   margin: 0 auto;
-  display: inline-block;
   text-align: center;
   vertical-align: middle;
   background-position: 50% 50%;
