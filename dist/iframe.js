@@ -12321,29 +12321,25 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
      * The size is computed given the followings rules:
      * 1) the width is by order
      *    a) options.width
-     *    b) element.width()
-     *    c) post.node.width()
+     *    b) 100%
      *    d) css#min-width
      * 2) the height is by order
      *    a) width*ratio
      *    b) options.height
-     *    c) element.height()
-     *    d) post.node.height()
+     *    c) auto
      *    e) css#min-height
      */
     function defineSize() {
-      var postNode = $(post.node);
       if(options.width){
-        $el.width(options.width);
-      } else if($el.width() <= options.minSize && postNode.width()){
-        $el.css('width', postNode.width() + 'px');
+        $el.width(options.width).css('min-width', options.minSize);
       }
       if(ratio){
         $el.height(Math.round($el.width()*ratio));
       } else if(options.height){
         $el.height(options.height);
-      } else if($el.height() <= options.minSize && postNode.height()){
-        $el.css('height', postNode.height() + 'px');
+      }
+      if($el.css('min-height') !== '0px'){
+        $el.css('min-height', options.minSize);
       }
       trigger('resized');
     }
@@ -12657,7 +12653,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   $.fn.utImage.defaults = {
     autoSave: true,
     flexRatio: true,
-    minSize: 32,
+    minSize: '100px',
     editable: undefined, // true in edit mode, false in player mode
     ui: {
       edit: true,
