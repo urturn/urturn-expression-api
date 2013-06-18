@@ -816,7 +816,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '0.9.0-beta9';
+    return '0.9.0-beta10';
   };
 
   /**
@@ -12028,9 +12028,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     },
     _wrap: function(node) {
       return $('<div class="ut-sticker-wrapper"></div>')
-        .append("<a class='ut-sticker-delete item-button tl button icon_delete' title='delete' href='#'></a>")
+        .append("<a class='ut-sticker-delete ut-item-button tl ut-button icon_delete' title='delete' href='#'></a>")
         .append($(node).detach())
-        .append("<a class='ut-sticker-handler item-button br button icon_rotate' title='scale and rotate' href='#'></a>")
+        .append("<a class='ut-sticker-handler ut-item-button br ut-button icon_rotate' title='scale and rotate' href='#'></a>")
         .get(0);
     },
     _findOrCreateMovableArea: function(){
@@ -12262,7 +12262,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         post;               // the post instance
 
     function init() {
-      $el.addClass('ut-image media-placeholder');
+      $el.addClass('ut-image ut-media-placeholder');
 
       UT.Expression.ready(function(p){
         post = p;
@@ -12322,9 +12322,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
     function displayEmptyPlaceHolder(enabled){
       if(enabled) {
-        $el.addClass('media-placeholder');
+        $el.addClass('ut-media-placeholder');
       } else {
-        $el.removeClass('media-placeholder');
+        $el.removeClass('ut-media-placeholder');
       }
     }
 
@@ -12381,10 +12381,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
     function renderEdit() {
       var actionButtons = '<ul class="tls horizontal index spaced ut-image-action-list">'+
-          '<li><a href="#" class="ut-image-edit-button edit-button action-button icon_camera spaced-right large-button button">Edit</a></li>'+
-          '<li><a href="#" class="ut-image-remove-button remove-button action-button icon_trash large-button button"></a></li>'+
+          '<li><a href="#" class="ut-image-edit-button ut-edit-button icon_camera spaced-right">Edit</a></li>'+
+          '<li><a href="#" class="ut-image-remove-button ut-edit-button icon_trash"></a></li>'+
           '</ul>'+
-          '<a href="#" class="ut-image-add-button icon_camera media-button button">Add Image</a></div>';
+          '<a href="#" class="ut-image-add-button icon_camera ut-media-button ut-button">Add Image</a></div>';
 
       $el
         .append(actionButtons)
@@ -12462,7 +12462,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     function addImage(e) {
       if (e) { e.preventDefault(); }
 
-      $('.add-button',$el).addClass('is-hidden');
+      $('.ut-image-add-button',$el).addClass('is-hidden');
 
       post.dialog('image', imageOptions(options, 'add'), function(data, error){
         addLoader();
@@ -12476,7 +12476,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
     function removeImage(e) {
       e.preventDefault();
-      $el.removeClass('ut-image-active').addClass('media-placeholder').css('background-image', '');
+      $el.removeClass('ut-image-active').addClass('ut-media-placeholder').css('background-image', '');
       $(image).remove();
       image = null;
       if (options.autoSave === true) {
@@ -12599,7 +12599,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         trigger('destroy');
         $el
           .removeData('utImage')
-          .removeClass('ut-image ut-image-active media-placeholder')
+          .removeClass('ut-image ut-image-active ut-media-placeholder')
           .empty();
         $el.off(handlePostResize);
       });
@@ -14677,6 +14677,10 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           that.setState('launch');
         };
 
+        that.utUpdate = function() {
+          that.update();
+        };
+
         that.setState = function(state) {
           that.currents.state = state;
           that.ui.container.removeClass().addClass(
@@ -14690,7 +14694,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
             that.aspectNS   + '-' + that.aspect,
             that.sizeNS     + '-' + that.size,
             that.touchNS    + '-' + (that.isTouch?'true':'false'),
-            'media-placeholder'
+            'ut-media-placeholder'
             ].join(' ')
             );
         };
@@ -14759,7 +14763,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           that.ui.video     = $('<div class="'+that.uiNS+'-video"></div>'  ).appendTo(that.ui.container);
           that.ui.error     = $('<div class="'+that.uiNS+'-error"></div>').append($('<div>').html(that.options.i18n.error)).appendTo( that.ui.container);
           if(that.options.ui.artwork) {that.ui.artwork = $('<div class="'+that.uiNS+'-artwork">'      ).appendTo(that.ui.container);}
-          if(that.options.ui.loading) {that.ui.loading = $('<div class="'+that.uiNS+'-loading"></div>').append('<div class="icon-spin '+that.uiNS+'-loading-icon"></div>').appendTo(that.ui.container);}
+          if(that.options.ui.loading) {that.ui.loading = $('<div class="'+that.uiNS+'-loading"></div>').append('<div class="icon_spinner '+that.uiNS+'-loading-icon"></div>').appendTo(that.ui.container);}
           if(that.options.ui.play)    {that.ui.play    = $('<div class="'+that.uiNS+'-play">'         ).appendTo(that.ui.container);}
           if(that.options.ui.title)   {that.ui.title   = $('<h1  class="'+that.uiNS+'-title"></h1>'   ).appendTo(that.ui.container);}
           if(that.options.ui.source)  {that.ui.source  = $('<a   class="'+that.uiNS+'-source"></a>'   ).appendTo(that.ui.container);}
@@ -14772,7 +14776,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
                 that.post.storage.save();
               });
             };
-            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_video media-button button"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',change);
+            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_video ut-media-button ut-button"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',change);
             that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>').html(that.options.i18n.edit).appendTo(that.ui.container).on('click',change);
           }
 
@@ -14940,7 +14944,7 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
       }
 
       if (options.chars) {
-        $countdownDomNode = $('<div>').addClass('ut-text-countdown action-button small-button button');
+        $countdownDomNode = $('<div>').addClass('ut-text-countdown ut-action-button ut-small-button ut-button');
         $el.append($countdownDomNode);
         updateCharactersCounter();
       }
