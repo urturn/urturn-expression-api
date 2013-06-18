@@ -458,7 +458,7 @@ supportGetSet();
             } else if(fd.type == 'boolean'){
               sanitizedItem[fd.name] = !!item[fd.name];
             } else {
-              throw new Error('TypeError', 'Unkown type ' + fd.type);
+              throw new Error('TypeError', 'Unknown type ' + fd.type);
             }
           }
         }

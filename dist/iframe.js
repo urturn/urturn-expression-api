@@ -526,7 +526,7 @@ UT.CollectionStore = function(options) {
             } else if(fd.type == 'boolean'){
               sanitizedItem[fd.name] = !!item[fd.name];
             } else {
-              throw new Error('TypeError', 'Unkown type ' + fd.type);
+              throw new Error('TypeError', 'Unknown type ' + fd.type);
             }
           }
         }
@@ -816,7 +816,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '0.9.0-beta8';
+    return '0.9.0-beta9';
   };
 
   /**
@@ -912,7 +912,7 @@ UT.CollectionStore = function(options) {
         break;
       default:
         if(window.console && console.log){
-          console.log('Unkown event ' + msg.type);
+          // console.log('Unknow event ' + msg.type);
         }
     }
   };
