@@ -816,7 +816,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '0.9.0-beta12';
+    return '0.9.0-beta13';
   };
 
   /**
@@ -1377,8 +1377,20 @@ UT.CollectionStore = function(options) {
         callback = options;
         options = {};
       }
+
+      var _scrollPositionTop = currentScroll.scrollTop;
+      var _scrollPositionBottom = currentScroll.scrollBottom;
+      var _this = this;
+      var _callback = function () {
+        _this.scroll({
+          scrollTop : _scrollPositionTop,
+          scrollBottom : _scrollPositionBottom
+        }, function () {});
+        callback.apply(this, arguments);
+      };
+
       if(dialogHandler[type]){
-        dialogHandler[type](options, callback);
+        dialogHandler[type](options, _callback);
       } else {
         throw new Error('InvalidArgument', 'unknown dialog type ' + type);
       }
@@ -15155,8 +15167,9 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
     init();
 
     return {
-      options: options,
-      destroy: destroy
+      options:    options,
+      destroy:    destroy,
+      sizeChange: sizeChange
     };
   }
 
