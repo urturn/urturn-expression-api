@@ -816,7 +816,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '0.9.0-beta11';
+    return '0.9.0-beta12';
   };
 
   /**
@@ -12461,15 +12461,13 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
     function addImage(e) {
       if (e) { e.preventDefault(); }
-
-      $('.ut-image-add-button',$el).addClass('is-hidden');
-
       post.dialog('image', imageOptions(options, 'add'), function(data, error){
         addLoader();
-        if(error) {
+        if(error || !data) {
           removeLoader();
           return;
         }
+        $('.ut-image-add-button',$el).addClass('is-hidden');
         handleImageReceived(data,'added');
       });
     }
@@ -12701,6 +12699,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   };
 
 })(jQuery, window, document, undefined);
+
 /*
  * This source code is licensed under version 3 of the AGPL.
  *
