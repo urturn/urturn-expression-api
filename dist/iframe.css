@@ -2215,7 +2215,7 @@ p {
 
 .ut-audio-skin-default.ut-audio-size-big .ut-audio-ui-title{
   font-size: 20px;
-  line-height: 24px;
+  line-height: 20px;
 }
 
 .ut-audio-skin-default.ut-audio-size-middle .ut-audio-ui-title{
@@ -2238,7 +2238,7 @@ p {
   height: 40px;
   max-height: 40px;
   padding: 0 10px;
-  line-height: 40px;
+  line-height: 42px;
   white-space: nowrap;
 }
 

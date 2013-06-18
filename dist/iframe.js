@@ -816,7 +816,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '0.9.0-beta10';
+    return '0.9.0-beta11';
   };
 
   /**
@@ -12758,6 +12758,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
         that.isTouch = (('ontouchstart' in window) || (window.navigator.msMaxTouchPoints > 0));
         that.sckey   = 'T8Yki6U2061gLUkWvLA';
+        that.doNotMakeAnimationFlag = false;
 
         that.eventNS   = 'utAudio:';
         that.storageNS = 'utAudio_';
@@ -12802,19 +12803,26 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         };
 
         that.requestSoundcloudAboutAppData = function(url,callback) {
-          var requestTimeOut = 10000;
-          var timeoutId = 0;
           var apiUrl = (document.location.protocol === 'https:' || (/^https/i).test(url) ? 'https' : 'http') + '://api.soundcloud.com/resolve?url=' + url + '&format=json&consumer_key=' + that.sckey + '&callback=?';
           $.getJSON(apiUrl, function(data) {
-            if(timeoutId) {
-              callback.call(this, data);
-              clearTimeout(timeoutId);
-              timeoutId = 0;
+            callback.call(this, data);
+          });
+        };
+
+        that.requestItunesAboutAppData = function(url,callback) {
+          var id = false;
+          var parts = url.split('i=');
+          if(parts[1]){
+            id = parseInt(parts[1].split('&')[0].split('?')[0].split(':')[0],10);
+          }
+          var apiUrl = (document.location.protocol === 'https:' || (/^https/i).test(url) ? 'https' : 'http') + '://itunes.apple.com/lookup?id=' + id + '&callback=?';
+          $.getJSON(apiUrl, function(data) {
+            if(data && data.results && data.results[0]){
+              callback.call(this, data.results[0]);
+            } else {
+              that.setState('error');
             }
           });
-          timeoutId = setTimeout(function() {
-            callback.call(this, {error: 'API error'});
-          }, requestTimeOut);
         };
 
         that.setState = function(state) {
@@ -12837,9 +12845,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         that.eventer = function(event,data1,data2,data3){
           $that.trigger(that.eventNS+event,[data1,data2,data3]);
         };
-
-
-        that.doNotMakeAnimationFlag = false;
 
         that.setPlayPos = function(ms,animationFlagSencitive) {
           if(that.doNotMakeAnimationFlag && animationFlagSencitive) {
@@ -12873,9 +12878,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
               that.ui.time.html("");
             }
           }
+
           that.doNotMakeAnimationFlag = true;
           setTimeout(function(){
-            that.doNotMakeAnimationFlag = false;
+            if(that){
+              that.doNotMakeAnimationFlag = false;
+            }
           },1000);
         };
 
@@ -12970,7 +12978,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
           if(that.ui.source){
             that.ui.source
-            .html('<span class="icon_'+(sed.service_name === "soundcloud"?'soundcloud':'sound') +' '+that.uiNS+'-source-icon"></span>')
+            .html('<span class="icon_'+sed.service_name +' '+that.uiNS+'-source-icon"></span>')
             .prop('target','_blank')
             .prop('title','listen on '+sed.service_name);
           }
@@ -12979,10 +12987,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             that.ui.source.prop('href',sed.source);
           }
 
-          /* auto-start */
-          if(that.options.autoPlay) {
-            that.utPlay();
-          }
+          that.setPlayPos(0);
         };
 
         that.update = function(){
@@ -13061,6 +13066,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             } else {
               if(that.options.data && that.options.data.url && that.options.data.url.toLowerCase().indexOf('soundcloud')!==-1){
                 return 'soundcloud';
+              } else if(that.options.data && that.options.data.url && that.options.data.url.toLowerCase().indexOf('itunes.apple')!==-1){
+                return 'itunes';
               } else {
                 var error = 'Something went wrong with defining service name that you want to play';
                 console.error(error,that.options.data);
@@ -13083,7 +13090,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                 title:       data.artistName + ' - ' + data.trackName,
                 source:      data.trackViewUrl,
                 artwork_url: (data.artworkUrl100?data.artworkUrl100:'').replace("100x100","600x600"),
-                duration:    30000//data.trackTimeMillis
+                duration:    30000
               };
             }
             that.currents.serviceData.service_name = that.getServiceName();
@@ -13102,7 +13109,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
                 callback(data);
               });
             } else if (that.getServiceName() === 'itunes') {
-              console.error('Sorry we can not play track by direct itunes link for now.');
+              that.requestItunesAboutAppData(that.options.data.url, function(data) {
+                callback(data);
+              });
             }
           };
 
@@ -13132,7 +13141,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
               onPause: function() {
                 that.setState('pause');
                 that.eventer('pause');
-                // that.setPlayPos(-1);
               },
               onStop: function() {
                 that.setState('launch');
@@ -13161,7 +13169,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
               onError: function(message){
                 that.eventer('error',message);
                 that.setState('error');
-                //that.setPlayPos(-1);
               }
             };
 
@@ -13214,7 +13221,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         };
 
         that.utDestroy = function() {
-          that.ui.container.remove();
+          $that.empty();
           that = null;
         };
 
@@ -13287,8 +13294,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     }
   };
 
-
-
   $.fn.utAudio = function(method) {
     if (methods[method]) {
       return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
@@ -13299,7 +13304,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     }
     return this;
   };
- // $.utAudio_height = 78;
 
 })(window.$ || window.Zepto || window.jq);
 
@@ -13361,14 +13365,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         that.globalUtAudioPauseEvent = "globalUtAudioPauseEvent";
         that.uid = Math.ceil((Math.random()*1000000000)) + new Date().getTime();
 
-        // var debugEngineIncluded = $('script[src*="jquery.jplayer.min.js"]');
-        // if(debugEngineIncluded.length && window.location.href.indexOf('localhost:')!==-1){
-        //   console.warn('!!!!!!!!!!!!!!! CONNECTING SWF FOR LOCAL DEBUG MODE');
-        //   that.path = debugEngineIncluded[0].src.split("jquery.jplayer.min.js")[0]+ '../'+ that.options.path;
-        // } else {
-          that.path = that.options.path;
-        //}
-
         that.player = $("<div style='opacity: 0;'></div>").appendTo($that);
         /********************************************************************************
          * control functions
@@ -13380,7 +13376,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         that.initPlayer = function() {
           that.player.jPlayer({
             supplied: "mp3,m4a",
-            swfPath: that.path,
+            swfPath: that.options.path,
             errorAlerts: false,
             warningAlerts: false,
             preload: true,//that.options.startBuffering,
