@@ -2,6 +2,12 @@
 
 # Changelogs
 
+## 0.9.2
+- FIX : Nultiples bugs
+
+## 0.9.1
+- FIX : Multiple bugs
+
 ## 0.9.0
 - ADDED : Urturn components
 - FIX : Multiple bugs
