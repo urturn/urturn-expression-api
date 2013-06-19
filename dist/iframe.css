@@ -1873,14 +1873,6 @@ you can use the generic selector below, but it's slower:
 
 .icon_activity:before {
   content: "\e0a4"; }
-body {
-  font-family: Helvetica, arial, serif;
-}
-p {
-  padding: .4em 0;
-  margin: 0;
-}
-
 .ut-sticker-wrapper {
   border: 1px solid rgba(0,0,0,0);
 }
@@ -1891,7 +1883,8 @@ p {
 
 .ut-sticker-parent {
   overflow: hidden;
-}/*
+}
+/*
  * This source code is licensed under version 3 of the AGPL.
  *
  * Copyright (c) 2013 by urturn

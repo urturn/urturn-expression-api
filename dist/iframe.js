@@ -816,7 +816,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '0.9.1';
+    return '0.9.2';
   };
 
   /**
@@ -11720,8 +11720,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     // Store jQuery Selector
     this.$wrapper = $(this.wrapper);
     this.$element = $(this.element);
-    this.$handler = this.$wrapper.find('.ut-sticker-handler');
-    this.$deleteHandler = this.$wrapper.find('.ut-sticker-delete');
+    this.$handler = this.$wrapper.find('.ut-sticker-handler').hide();
+    this.$deleteHandler = this.$wrapper.find('.ut-sticker-delete').hide();
     this.$parent = $(this.parent);
     this.$movableArea = this._findOrCreateMovableArea();
     this.$parent.append(this.wrapper);
@@ -12223,6 +12223,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     return event;
   }
 }(UT, jQuery, window, document, undefined));
+
 /*global UT: true, jQuery: true */
 /*
  * This source code is licensed under version 3 of the AGPL.
