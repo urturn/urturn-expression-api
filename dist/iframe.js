@@ -1,3 +1,20 @@
+/*
+ * This source code is licensed under version 3 of the AGPL.
+ *
+ * Copyright (c) 2013 by urturn
+ *
+ * Addendum to the license AGPL-3:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+ * OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 /**
  * Namespace of the Webdoc public API.
  */
@@ -816,7 +833,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '0.9.3';
+    return '1.0.0';
   };
 
   /**
@@ -14954,7 +14971,7 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
         $el.addClass('ut-text-fixed');
       }
 
-      if (options.chars) {
+      if (options.chars && mode && mode.editor === true) {
         $countdownDomNode = $('<div>').addClass('ut-text-countdown ut-action-button ut-small-button ut-button');
         $el.append($countdownDomNode);
         updateCharactersCounter();
