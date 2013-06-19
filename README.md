@@ -2,6 +2,10 @@
 
 # Changelogs
 
+## 0.9.0
+- ADDED : Urturn components
+- FIX : Multiple bugs
+
 ## 0.8.2
 - FIX: ready event triggered twice if registered after edit.
 
