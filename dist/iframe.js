@@ -816,7 +816,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '0.9.2';
+    return '0.9.3';
   };
 
   /**
@@ -13345,7 +13345,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     init: function(options) {
       this.each(function() {
         var defaults = {
-          path:"components/jquery.ut-audio/swf/Jplayer.swf".split('Jplayer.swf')[0],
+          path:"http://ds4kgpk6gzsw2.cloudfront.net/expression/lib/urturn-expression-api/0.9.2/components/jquery.ut-audio/swf/",
           url: null,
           type: "mp3",
           duration: false,
