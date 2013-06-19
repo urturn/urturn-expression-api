@@ -12600,6 +12600,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     /* return the data from the parent post */
     function reuse() {
       if(!post.storage[imageStorageKey] && post.collection('parent') && post.collection('parent')[imageStorageKey]){
+        post.storage[imageStorageKey] = post.collection('parent')[imageStorageKey];
+        post.save();
         return post.collection('parent')[imageStorageKey];
       }
     }
@@ -12663,7 +12665,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       image: imageAccessor,
       ratio: ratioAccessor,
       overlay: overlay,
-      update: update
+      update: update,
+      dialog : addImage
     };
   }
 
@@ -12711,7 +12714,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   };
 
 })(jQuery, window, document, undefined);
-
 /*
  * This source code is licensed under version 3 of the AGPL.
  *
@@ -13781,6 +13783,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
 
         that.isTouch = (('ontouchstart' in window) || (window.navigator.msMaxTouchPoints > 0));
         that.options = $.extend(true, defaults, opts);
+        that.canplay = false;
 
         that.eventNS   = 'utVideo:';
         that.storageNS = 'utVideo_';
@@ -14817,7 +14820,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
 
     play: function() {
       this.each(function() {
-        if(this.utVideo && this.utVideo.utPlay) {
+        if(this.utVideo && this.utVideo.utPlay && this.utVideo.canplay) {
           this.utVideo.utPlay.call(this);
         }
       });
@@ -14826,7 +14829,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
 
     pause: function() {
       this.each(function() {
-        if(this.utVideo && this.utVideo.utPause) {
+        if(this.utVideo && this.utVideo.utPause && this.utVideo.canplay) {
           this.utVideo.utPause.call(this);
         }
       });
@@ -14835,7 +14838,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
 
     stop: function() {
       this.each(function() {
-        if(this.utVideo && this.utVideo.utStop){
+        if(this.utVideo && this.utVideo.utStop && this.utVideo.canplay){
           this.utVideo.utStop.call(this);
         }
       });
@@ -14997,6 +15000,9 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
 
       $el.on('click',function() {
         $contentDomNode.trigger('focus');
+        if ($contentDomNode[0].textContent.length === 0) {
+          $contentDomNode.html('<br/>');
+        }
       });
       /* here is the meat and potates */
       $contentDomNode.attr('data-placeholder',options.placeholder);
@@ -15042,7 +15048,7 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
           if(timer) {
             clearTimeout(timer);
           }
-          timer = setTimeout(adaptAndSave, 100);
+          timer = setTimeout(adaptAndSave, 50);
 
         });
       }

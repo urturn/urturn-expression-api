@@ -1103,7 +1103,7 @@ input[type="submit"],
   background-image: linear-gradient(to bottom, #323232, #1e1e1e);
   position: absolute;
   z-index: 10000;
-  display: none;
+  display: block;
   padding: 0;
   width: 3.6em;
   height: 3.6em;
@@ -1211,24 +1211,15 @@ input[type="submit"],
   border-radius: 5px;
   font-size: 12px;
   font-weight: bold;
-  color: #f0f0f0;
-  border: 1px solid transparent; }
+  color: #f0f0f0; }
   .ut-media-button:hover {
     color: #f0f0f0;
     background-color: #282828;
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
-    border-bottom: 1px solid #1e1e1e;
-    border-left: 1px solid #1e1e1e;
-    border-top: 1px solid #3c3c3c;
-    border-right: 1px solid #3c3c3c; }
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5); }
   .ut-media-button:focus, .ut-media-button:active, .ut-media-button.active {
     background-color: #282828;
     color: #141414;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
-    border-top: 1px solid #1e1e1e;
-    border-right: 1px solid #1e1e1e;
-    border-bottom: 1px solid #3c3c3c;
-    border-left: 1px solid #3c3c3c; }
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05); }
   .ut-media-button::before {
     display: block;
     font-size: 24px; }
