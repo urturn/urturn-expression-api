@@ -833,7 +833,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '1.0.0';
+    return '1.0.1';
   };
 
   /**
