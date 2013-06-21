@@ -12717,19 +12717,23 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 })(jQuery, window, document, undefined);
 /*
  * This source code is licensed under version 3 of the AGPL.
- *
- * Copyright (c) 2013 by urturn
- *
+ * Copyright (c) 2013 by webdoc SA
  * Addendum to the license AGPL-3:
  *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * Can be used only in the context of urturn service such as creation of Expression,
+ * improving the tools to create Expressions.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
- * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
- * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
- * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
- * OR OTHER DEALINGS IN THE SOFTWARE.
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
  */
 
 "use strict"
@@ -12817,7 +12821,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         };
 
         that.requestSoundcloudAboutAppData = function(url,callback) {
-          var apiUrl = (document.location.protocol === 'https:' || (/^https/i).test(url) ? 'https' : 'http') + '://api.soundcloud.com/resolve?url=' + url + '&format=json&consumer_key=' + that.sckey + '&callback=?';
+          var apiUrl = (document.location.protocol === 'https:' || (/^h ttps/i).test(url) ? 'https' : 'http') + '://api.soundcloud.com/resolve?url=' + url + '&format=json&consumer_key=' + that.sckey + '&callback=?';
           $.getJSON(apiUrl, function(data) {
             callback.call(this, data);
           });
@@ -12829,13 +12833,36 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           if(parts[1]){
             id = parseInt(parts[1].split('&')[0].split('?')[0].split(':')[0],10);
           }
-          var apiUrl = (document.location.protocol === 'https:' || (/^https/i).test(url) ? 'https' : 'http') + '://itunes.apple.com/lookup?id=' + id + '&callback=?';
-          $.getJSON(apiUrl, function(data) {
-            if(data && data.results && data.results[0]){
-              callback.call(this, data.results[0]);
-            } else {
-              that.setState('error');
+
+          var serchInStore = function(id, country, successCallback, errorCallback){
+            var apiUrl = (document.location.protocol === 'https:' || (/^https/i).test(url) ? 'https' : 'http') + '://itunes.apple.com/lookup?media=music&country=' + country + '&id=' + id + '&callback=?';
+            $.getJSON(apiUrl, function(data) {
+              if(data && data.results && data.results[0]){
+                successCallback.call(this, data.results[0]);
+              } else {
+                errorCallback.call(this, country);
+              }
+            });
+          };
+
+          var canNotFind = function(country){
+            that.setState('error');
+            if(console && console.warn){
+              console.warn("utAaudio can't find the url="+url+" with id="+id+" in "+country+" itunes music store");
             }
+          };
+
+          var canFind = function(data){
+            callback.call(this,data);
+          };
+
+          //here we search in UK and US stores
+
+          serchInStore(id,'US',canFind,function(country){
+            canNotFind(country);
+            serchInStore(id,'GB',canFind,function(country){
+              canNotFind(country);
+            });
           });
         };
 
@@ -13321,22 +13348,25 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 })(window.$ || window.Zepto || window.jq);
 
-
 /*
  * This source code is licensed under version 3 of the AGPL.
- *
- * Copyright (c) 2013 by urturn
- *
+ * Copyright (c) 2013 by webdoc SA
  * Addendum to the license AGPL-3:
  *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * Can be used only in the context of urturn service such as creation of Expression,
+ * improving the tools to create Expressions.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
- * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
- * FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
- * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
- * OR OTHER DEALINGS IN THE SOFTWARE.
+ * The above copyright notice and this permission notice shall be included
+ * in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
  */
 
 "use strict"
@@ -13345,7 +13375,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     init: function(options) {
       this.each(function() {
         var defaults = {
-          path:"components/jquery.ut-audio/swf/Jplayer.swf".split('Jplayer.swf')[0],
+          path:"http://ds4kgpk6gzsw2.cloudfront.net/expression/lib/urturn-expression-api/0.9.2/components/jquery.ut-audio/swf/",
           url: null,
           type: "mp3",
           duration: false,
@@ -14954,7 +14984,7 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
         $el.addClass('ut-text-fixed');
       }
 
-      if (options.chars) {
+      if (options.chars && mode && mode.editor === true) {
         $countdownDomNode = $('<div>').addClass('ut-text-countdown ut-action-button ut-small-button ut-button');
         $el.append($countdownDomNode);
         updateCharactersCounter();
