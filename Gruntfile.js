@@ -107,7 +107,9 @@ module.exports = function(grunt) {
     console: {
       src: ['test/console.html'],
       options: {
-        run: true
+        run: true,
+        reporter: 'Spec',
+        log: true
       }
     }
   };
@@ -396,6 +398,7 @@ module.exports = function(grunt) {
   grunt.registerTask('build', ['dependencies', 'addIncludedModule', 'filecheck', "concat", "concat_css", 'patchJQuery202']);
   grunt.registerTask('dependencies', ['urturn_component']);
   grunt.registerTask('minify', ['uglify', 'cssmin']);
+  grunt.registerTask('test', ['jshint', 'filecheck', 'concat', 'patchJQuery202', 'mocha']);
   grunt.registerTask('publish', ['exec:tag', 'exec:npmpublish']);
   grunt.registerTask('deploy', ['compress', 's3deploy']);
   grunt.registerTask('local', ['concat', 'buildTestExpression', 'updateVersionNumber', 'uglify', 'cssmin', 'compress']);

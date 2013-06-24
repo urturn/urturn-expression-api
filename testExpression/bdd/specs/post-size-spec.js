@@ -1,14 +1,30 @@
 UT.Expression.ready(function(post){
   describe('UT.Post.size()', function(){
+    var cbs;
+    beforeEach(function(done){
+      post.size(25, function(){
+        done();
+      });
+      cbs = [];
+    });
+    afterEach(function(){
+      cbs.forEach(function(cb){
+        post.off('resize', cb);
+      });
+    });
 
     it('trigger a resize event', function(done){
       var cb = function(){
         var size = post.size();
-        expect(size.height).to.eql(50);
-        expect(size.width).to.be.greaterThan(0);
-        post.off('resize', cb);
-        done();
+        try {
+          expect(size.height).to.eql(50);
+          expect(size.width).to.be.greaterThan(0);
+          done();
+        } catch(error) {
+          done(error);
+        }
       };
+      cbs.push(cb);
       post.on('resize', cb);
       post.size({height: 50});
     });
@@ -18,9 +34,9 @@ UT.Expression.ready(function(post){
         var w = post.size().width;
         expect(size.height).to.eql(233);
         expect(size.width).to.eql(w);
-        post.off('resize', cb);
         done();
       };
+      cbs.push(cb);
       post.on('resize', cb);
       post.size({height: 233});
     });

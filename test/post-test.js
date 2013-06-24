@@ -169,7 +169,7 @@
     });
 
     describe("dialog/text", function() {
-      it("using option hash", function(done){
+      it("accepts an option hash", function(done){
         setupExpression(this);
         listenToMessage('document.textInput', function(message, callback){
           expect(message.args[0]).to.eql('default');
@@ -187,13 +187,31 @@
           done();
         });
       });
-      it("using a single callback", function(done){
+      it("accept a single callback", function(done){
         setupExpression(this);
         listenToMessage(function(message, callback){
           callback('hello');
         });
         this.post.dialog('text', function(data){
           expect(data).to.eql('hello');
+          done();
+        });
+      });
+    });
+
+    describe("dialog/users", function() {
+      it("takes an option hash", function(done) {
+        var ids = [UT.uuid(), UT.uuid(), UT.uuid(), UT.uuid()];
+        setupExpression(this);
+        listenToMessage('users.list', function(message, callback){
+          expect(message.args[0]).to.eql({
+            users: ids
+          });
+          callback();
+        });
+        this.post.dialog('users', {
+          users: ids
+        }, function() {
           done();
         });
       });
