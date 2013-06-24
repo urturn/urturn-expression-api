@@ -3,7 +3,7 @@
 # Changelogs
 
 ## 0.9.2
-- FIX : Nultiples bugs
+- FIX : Multiples bugs
 
 ## 0.9.1
 - FIX : Multiple bugs
