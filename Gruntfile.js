@@ -394,11 +394,11 @@ module.exports = function(grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', ['clean', 'exec:clean', 'urturn_component', 'jshint', 'build', 'buildTestExpression', 'updateVersionNumber', 'urturn_component:createmanifest', 'mocha', 'minify', 'copyAssetToDist']);
-  grunt.registerTask('build', ['urturn_component:createmanifest', 'addIncludedModule', 'filecheck', "concat", "concat_css", 'patchJQuery202']);
+  grunt.registerTask('default', ['clean', 'exec:clean', 'test', 'urturn_component', 'build', 'buildTestExpression', 'updateVersionNumber', 'urturn_component:createmanifest', 'minify', 'copyAssetToDist']);
+  grunt.registerTask('build', ['urturn_component:createmanifest', 'addIncludedModule', "concat", "concat_css", 'patchJQuery202']);
   grunt.registerTask('dependencies', ['urturn_component']);
   grunt.registerTask('minify', ['uglify', 'cssmin']);
-  grunt.registerTask('test', ['jshint', 'filecheck', 'concat', 'patchJQuery202', 'mocha']);
+  grunt.registerTask('test', ['jshint', 'filecheck', 'mocha']);
   grunt.registerTask('publish', ['exec:tag', 'exec:npmpublish']);
   grunt.registerTask('deploy', ['compress', 's3deploy']);
 };

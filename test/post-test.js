@@ -237,6 +237,11 @@
         });
       });
 
+      it('displays support to be called without a callback', function() {
+        setupExpression(this);
+        this.post.dialog('users', {});
+      });
+
     });
 
     describe("save()", function() {
