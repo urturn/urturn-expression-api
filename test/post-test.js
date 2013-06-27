@@ -556,6 +556,21 @@
         var dummyHtml = 'Loveeee this tuneee <a href="search:#ThrowBack" class="ut-navigate-hashtag">#ThrowBack</a> by <a href="user:sharnlr" class="ut-navigate-mention">@sharnlr</a> on <a href="http://urturn.com" class="ut-navigate-url">http://urturn.com</a>';
         expect(this.post.autoLink(dummyText)).to.eql(dummyHtml);
       });
+      it('grab search link', function(done){
+        this.post.navigate = function(kind, value){
+          try {
+            expect(kind).to.eql('search');
+            expect(value).to.eql('#do');
+            done();
+          } catch (e) {
+            done(e);
+          }
+        };
+        var a = document.createElement('a');
+        a.href = "search:#do";
+        this.post.node.appendChild(a);
+        window.trigger(a, 'click');
+      });
     });
 
     describe("users()", function() {
