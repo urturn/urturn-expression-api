@@ -1620,7 +1620,7 @@ UT.CollectionStore = function(options) {
     };
 
     /**
-     * autolink
+     * autoLink
      * Parse text to convert @mentions and #hashtags
      * to html links
      * 
@@ -1628,12 +1628,12 @@ UT.CollectionStore = function(options) {
      * @return {String} containing html
      */
 
-    var autolink = this.autolink = function (text)  {
+    var autoLink = this.autoLink = function (text)  {
 
       var hashtagsRegex = /(^|\s|<br\/>|\.)#([A-Za-z0-9_\-ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþş]+)/g,
           mentionsRegex = /(^|\s|<br\/>|\.)@([A-Za-z0-9_\-.]+)/g,
           urlsRegex     = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig,
-          linkHashtagsPattern  = '$1<a href="search:$2" class="ut-navigate-hashtag">#$2</a>',
+          linkHashtagsPattern  = '$1<a href="search:#$2" class="ut-navigate-hashtag">#$2</a>',
           linkMentionsPattern  = '$1<a href="user:$2" class="ut-navigate-mention">@$2</a>',
           urlsPattern = '<a href="$1" class="ut-navigate-url">$1</a>';
 

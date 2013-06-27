@@ -534,6 +534,30 @@
         });
       });
     });
+
+    describe("autoLink", function(){
+      beforeEach(function(){
+        setupExpression(this);
+      });
+      it('parse hashtag', function(){
+        expect(this.post.autoLink("#ThrowBack")).to.eql('<a href="search:#ThrowBack" class="ut-navigate-hashtag">#ThrowBack</a>');
+        expect(this.post.autoLink("Some #ThrowBack!")).to.eql('Some <a href="search:#ThrowBack" class="ut-navigate-hashtag">#ThrowBack</a>!');
+      });
+      it('parse mention', function(){
+        expect(this.post.autoLink("@michael")).to.eql('<a href="user:michael" class="ut-navigate-mention">@michael</a>');
+        expect(this.post.autoLink("Never meet @michael234?")).to.eql('Never meet <a href="user:michael234" class="ut-navigate-mention">@michael234</a>?');
+      });
+      it('parse links', function(){
+        expect(this.post.autoLink("http://urturn.com")).to.eql('<a href="http://urturn.com" class="ut-navigate-url">http://urturn.com</a>');
+        expect(this.post.autoLink("Take http://urturn.com")).to.eql('Take <a href="http://urturn.com" class="ut-navigate-url">http://urturn.com</a>');
+      });
+       it('parse complex text', function(){
+        var dummyText = 'Loveeee this tuneee #ThrowBack by @sharnlr on http://urturn.com';
+        var dummyHtml = 'Loveeee this tuneee <a href="search:#ThrowBack" class="ut-navigate-hashtag">#ThrowBack</a> by <a href="user:sharnlr" class="ut-navigate-mention">@sharnlr</a> on <a href="http://urturn.com" class="ut-navigate-url">http://urturn.com</a>';
+        expect(this.post.autoLink(dummyText)).to.eql(dummyHtml);
+      });
+    });
+
     describe("users()", function() {
       beforeEach(function(){
         this.uuid = UT.uuid();
