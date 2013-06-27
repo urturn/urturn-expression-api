@@ -1209,6 +1209,13 @@ UT.CollectionStore = function(options) {
 
     // Send a request to list users with the given ids.
     var userListDialog = function(options, callback) {
+      if(typeof options === 'function') {
+        callback = options;
+        options = {};
+      }
+      if (!options.users || options.users.length === 0 ) {
+        callback.apply(self);
+      }
       UT.Expression._callAPI('users.list', [options], function(){
         if(callback){
           callback.apply(self);

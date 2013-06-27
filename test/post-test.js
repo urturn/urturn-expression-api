@@ -215,6 +215,28 @@
           done();
         });
       });
+
+      it('displays nothing and callback immediately if no options are specified', function(done) {
+        setupExpression(this);
+        this.post.dialog('users', function(){
+          done();
+        });
+      });
+
+      it('displays nothing and callback immediately if users is empty', function(done) {
+        setupExpression(this);
+        this.post.dialog('users', {users: []}, function(){
+          done();
+        });
+      });
+
+      it('displays nothing and callback immediately if users options is not given', function(done) {
+        setupExpression(this);
+        this.post.dialog('users', {}, function(){
+          done();
+        });
+      });
+
     });
 
     describe("save()", function() {
