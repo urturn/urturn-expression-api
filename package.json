@@ -24,7 +24,8 @@
     "grunt-urturn-component": "git://github.com/urturn/grunt-urturn-component.git",
     "grunt-contrib-clean": "~0.4.1",
     "mime": "~1.2.9",
-    "grunt-exec": "~0.4.1"
+    "grunt-exec": "~0.4.1",
+    "trigger-dom-event": "git://github.com/oliamb/trigger-dom-event.git"
   },
   "scripts": {
     "test": "grunt"
