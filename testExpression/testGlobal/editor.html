@@ -1,5 +1,3 @@
-<h1>TEST ALL Functions</h1>
-
 <script type="text/javascript">
   // A GLOBAL
   var post = null;
@@ -13,43 +11,68 @@
     var test = new Test(post);
     test.bindEvents();
 
+    $('.btn-users-empty').on('click', function(){
+      post.dialog('users', {users: []}, function(){
+        console.log('users dialog called without users.');
+      });
+    });
+
+    $('.btn-users-current').on('click', function(){
+      post.users('current', function(user){
+        post.dialog('users', {users: [user.uuid]}, function(){
+          console.log('users dialog called with current user uuid');
+        });
+      });
+    });
+
     post.on('publish', function(){
       console.log('set the final size');
       post.storage.height = post.node.offsetHeight;
       post.save();
     })
+
+    post.size($('.wrapper').height());
   });
 </script>
+<div class="wrapper">
+  <h1>TEST ALL Functions</h1>
+  <fieldset>
+    <legend>Post Life Cycle</legend>
+    <input type='button' value='valid' onclick='post.valid(true)'/>
+    <input type='button' value='invalid' onclick='post.valid(false)'/>
+    <input type='button' value='setPublishFunction'
+      onclick='post.on("publish", function(){alert("User Will Publish");})'/>
+  </fieldset>
 
-<fieldset>
-  <legend>Post Life Cycle</legend>
-  <input type='button' value='valid' onclick='post.valid(true)'/>
-  <input type='button' value='invalid' onclick='post.valid(false)'/>
-  <input type='button' value='setPublishFunction'
-    onclick='post.on("publish", function(){alert("User Will Publish");})'/>
-</fieldset>
+  <fieldset>
+    <legend>Image</legend>
+    <input type='button' value='create Image' onclick='createImage()'/>
+    <input type='button' value='crop Image' onclick='cropImage()'/>
+    <input type='button' value='Filter Image' onclick='filterImage()'/>
+    <input type='button' value='toJSON' onclick='jsonImage()'/>
+    <img id='testImage1' />
+  </fieldset>
 
-<fieldset>
-  <legend>Image</legend>
-  <input type='button' value='create Image' onclick='createImage()'/>
-  <input type='button' value='crop Image' onclick='cropImage()'/>
-  <input type='button' value='Filter Image' onclick='filterImage()'/>
-  <input type='button' value='toJSON' onclick='jsonImage()'/>
-  <img id='testImage1' />
-</fieldset>
+  <fieldset>
+    <legend>Queue Up</legend>
+    <input type='button' value='QueueUp' onclick='queueUp()'/>
+  </fieldset>
 
-<fieldset>
-  <legend>Queue Up</legend>
-  <input type='button' value='QueueUp' onclick='queueUp()'/>
-</fieldset>
+  <fieldset>
+    <legend>Users Dialog</legend>
+    <button class="btn-users-empty">no user, no dialog</button>
+    <button class="btn-users-current">current user</button>
+  </fieldset>
 
-<fieldset>
-  <legend>Resize and Scroll</legend>
-  <input type="text" value="200" id="height"/>
-  <button class="btn-resize">Resize</button>
-  <button class="btn-scroll-top">ScrollTop</button>
-  <button class="btn-scroll-bottom">ScrollTop</button>
-</fieldset>
+  <fieldset>
+    <legend>Resize and Scroll</legend>
+    <input type="text" value="200" id="height"/>
+    <button class="btn-resize">Resize</button>
+    <button class="btn-scroll-top">ScrollTop</button>
+    <button class="btn-scroll-bottom">ScrollTop</button>
+  </fieldset>
+
+</div>
 
 <script>
 	var image = null;
@@ -98,7 +121,7 @@
     var scrollTopBtn = post.node.querySelector('.btn-scroll-top');
     var scrollBottomBtn = post.node.querySelector('.btn-scroll-bottom');
     var field = post.node.querySelector('#height');
-    field.value = post.storage.height || 250;
+    field.value = post.storage.height || $('.wrapper').height();
     resizeBtn.onclick = function(event){
       event.preventDefault(true);
       post.resize({height: field.value});

@@ -203,7 +203,7 @@
       it("takes an option hash", function(done) {
         var ids = [UT.uuid(), UT.uuid(), UT.uuid(), UT.uuid()];
         setupExpression(this);
-        listenToMessage('users.list', function(message, callback){
+        listenToMessage('dialog.users', function(message, callback){
           expect(message.args[0]).to.eql({
             users: ids
           });
