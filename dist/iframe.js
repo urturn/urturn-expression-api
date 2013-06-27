@@ -1632,10 +1632,10 @@ UT.CollectionStore = function(options) {
 
       var hashtagsRegex = /(^|\s|<br\/>|\.)#([A-Za-z0-9_\-ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþş]+)/g,
           mentionsRegex = /(^|\s|<br\/>|\.)@([A-Za-z0-9_\-.]+)/g,
-          urlsRegex     = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig,
+          urlsRegex     = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig,
           linkHashtagsPattern  = '$1<a href="search:$2" class="ut-navigate-hashtag">#$2</a>',
           linkMentionsPattern  = '$1<a href="user:$2" class="ut-navigate-mention">@$2</a>',
-          urlsPattern = '<a href="browse:$1" class="ut-navigate-url">$1</a>';
+          urlsPattern = '<a href="$1" class="ut-navigate-url">$1</a>';
 
       text = text.replace(hashtagsRegex, linkHashtagsPattern);
       text = text.replace(mentionsRegex, linkMentionsPattern);
@@ -1739,9 +1739,17 @@ UT.CollectionStore = function(options) {
     window.addEventListener('click', function(e){
       var url = e.target.href;
 
-      if (url && url.match(/^(search|user|browse)/gi)) {
+      if (url && url.match(/^(search|user|http)/gi)) {
+        var app     = url.split(":")[0],
+            target  = url.substring(url.indexOf(':')+1);
+
+        if (app == 'http' || app == 'https') {
+          app = 'browse';
+          target = url;
+        }
+
         e.preventDefault();
-        self.navigate(url.split(":")[0],url.substring(url.indexOf(':')+1));
+        self.navigate(app,target);
       }
     }, false);
 
