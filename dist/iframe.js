@@ -1216,7 +1216,7 @@ UT.CollectionStore = function(options) {
       if (!options.users || options.users.length === 0 ) {
         callback.apply(self);
       } else {
-        UT.Expression._callAPI('users.list', [options], function(){
+        UT.Expression._callAPI('dialog.users', [options], function(){
           callback.apply(self);
         });
       }
