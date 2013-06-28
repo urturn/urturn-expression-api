@@ -3144,6 +3144,7 @@ you can use the generic selector below, but it's slower:
 
 .ut-text {
   display: inline-block;
+  position: relative;
 }
 
 .ut-font-detect {
@@ -3175,6 +3176,9 @@ you can use the generic selector below, but it's slower:
     font-style: italic;
     font-size: 24px;
     font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+    left: 6px;
+    right: 6px;
+    text-align: inherit;
 }
 
 .ut-text-content[data-placeholder]:not([data-div-placeholder-content]) {
@@ -3222,4 +3226,33 @@ you can use the generic selector below, but it's slower:
 
 .ut-text-content::selection {
   background-color: rgba(90,185,245,0.5);
+}
+
+
+.ut-navigate-hashtag,
+.ut-navigate-mention,
+.ut-navigate-url {
+  color: rgb(120,120,120);
+  text-decoration: none
+}
+
+.ut-navigate-hashtag:hover,
+.ut-navigate-mention:hover,
+.ut-navigate-url:hover {
+  color: rgb(183,15,0);
+  text-decoration: none;
+}
+
+
+.ut-navigate-hashtag:active,
+.ut-navigate-mention:active,
+.ut-navigate-url:active {
+  color: rgb(130,10,0);
+  text-decoration: none;
+}
+
+.ut-navigate-url,
+.ut-navigate-url:hover,
+.ut-navigate-url:active {
+  text-decoration: underline;
 }

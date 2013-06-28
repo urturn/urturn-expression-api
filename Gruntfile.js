@@ -155,6 +155,8 @@ module.exports = function(grunt) {
           "fastclick",
           "urturn-expression-css",
           "jquery",
+          "FontDetect",
+          "jquery-textfill",
           "jquery.ut-sticker",
           "jquery.ut-image",
           "jquery.ut-audio",
