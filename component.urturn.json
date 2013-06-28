@@ -1,6 +1,6 @@
 {
   "name": "urturn-expression-api",
-  "version": "1.0.1",
+  "version": "1.0.2-rc1",
   "dependencies": {
     "jquery": "~2.0.0"
   },
@@ -8,6 +8,8 @@
     "fastclick",
     "urturn-expression-css",
     "jquery",
+    "FontDetect",
+    "jquery-textfill",
     "jquery.ut-sticker",
     "jquery.ut-image",
     "jquery.ut-audio",

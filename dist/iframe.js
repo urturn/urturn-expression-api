@@ -833,7 +833,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '1.0.1';
+    return '1.0.2-rc1';
   };
 
   /**
@@ -1411,10 +1411,15 @@ UT.CollectionStore = function(options) {
         options = {};
       }
 
+      // hide the body to avoid weird effect because of latency on mobile
+      document.body.style.visibility = 'hidden';
+
       var _scrollPositionTop = currentScroll.scrollTop;
       var _scrollPositionBottom = currentScroll.scrollBottom;
       var _this = this;
       var _callback = function () {
+        // readd visibility
+        document.body.style.visibility = 'visible';
         if(callback){
           _this.scroll({
             scrollTop : _scrollPositionTop,
@@ -11680,6 +11685,347 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 })( window );
 
+/**
+ * FontDetect - A simple library to detect if an internal font is present or an external font got loaded.
+ * 
+ * TO USE: 
+ *     Include jQuery. This was developed using jQuery 1.7.
+ *     Include this file. If desired, you can load this file after the BODY.
+ *     Create a new fontdetect().
+ *     After you load the fonts you want to test, call either of these methods:
+ *     
+ *	       fontDetect = new fontdetect();
+ *	       
+ *	       // Checks that the font is loaded now.
+ *	       isLoaded = fontDetect.isFontLoaded(fontname);
+ *     
+ *         // Polls for the font getting loaded and calls a callback when it does.
+ *	       fontDetect.onFontLoaded(fontname, callback [, {onFail: xxx, msInterval: yyy, msTimeout: zzz}]);
+ *     
+ *     Note: For externally loaded fonts, you may have to wait for more than a second to get a reliable 
+ *     answer. Internal browser fonts can be detected immediately.
+ *     
+ *         // Determines which font in the font stack is being used for a given element.
+ *	       sFontname = fontDetect.whichFont(element);
+ *     
+ * @author		Jennifer Simonds
+ * @copyright	2012 Jennifer Simonds
+ * @license	MIT License http://opensource.org/licenses/MIT
+ * 
+ * @version 1.0  2012-04-11	Created.
+ * 
+ * @version 1.0  2012-04-12	Refined the algorithm to use fewer helper elements, more reference fonts,
+ *								and quicker detection of a nonexistent font.
+ * 
+ * @version 2.0  2012-06-01	Added onFontLoaded for a callback to execute as soon as the font is 
+ *								detected or when a timeout has passed without loading. Added whichFont
+ *								to determine which font actually loaded. Changed the license from BSD 
+ *								3-clause to MIT.
+ *								
+ * @version 2.1  2012-08-12	Fixed a bug that caused horizontal scrollbar to show up in FF & IE.
+ *                              (Thanks to Geoff Beaumont for the bug report & fix)
+ */
+fontdetect = function()
+{
+	// The private parts
+	var _isInitialized = false;
+	var _aFallbackFonts = ['serif', 'sans-serif', 'monospace', 'cursive', 'fantasy'];
+	
+	function _init ()
+	{
+		if (_isInitialized)
+		{	return;
+		}
+
+		_isInitialized = true;
+
+		$('body > :first-child').before(
+			'<div id="fontdetectHelper"><span>abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</span></div>'
+		);
+		$('#fontdetectHelper').css({
+			'position': 'absolute',
+			'visibility': 'hidden',
+			'top': '-200px',
+			'left': '-100000px',
+			'width': '100000px',
+			'height': '200px',
+			'font-size': '100px'
+		});
+	}
+
+	
+	// The public interface
+	return	{
+		/**
+		 * Polls 10 times/second until a font gets loaded or until it times out. (Default = 2 secs) It 
+		 * calls a callback on load, & optionally calls another function if it times out without loading.
+		 * 
+		 * NOTE: You must specify at least one callback - for success or failure.
+		 * 
+		 * @param string		The font name to check for.
+		 * @param function		The function to call if it gets loaded within the timeout period.
+		 * @param options		An optional object with named parameters:
+		 *     @param onFail       The function to call if the font doesn't load within the timeout period.
+		 *     @param msInterval   How many milliseconds for the polling interval. Default = 100.
+		 *     @param msTimeout    How many milliseconds until we time out & call onFail. Default = 2000.
+		 */
+		onFontLoaded: function (p_cssFontName, p_onLoad, p_onFail, p_options)
+		{
+			if (!p_cssFontName)
+			{	return;
+			}
+			
+			// Our hashtable of optional params.
+			var msInterval = (p_options && p_options.msInterval) ? p_options.msInterval : 100;
+			var msTimeout  = (p_options && p_options.msTimeout) ? p_options.msTimeout : 2000;
+
+			if (!p_onLoad && !p_onFail)
+			{	// Caller must specify at least one callback.
+				return;
+			}
+			
+			if (!_isInitialized)
+			{	_init ();
+			}
+			
+			if (this.isFontLoaded(p_cssFontName))
+			{	// It's already here, so no need to poll.
+				if (p_onLoad)
+				{	p_onLoad(p_cssFontName);
+				}
+				return;
+			}
+			
+			// At this point we know the font hasn't loaded yet. Add it to the list of fonts to monitor.
+			
+			// Set up an interval using msInterval. The callback calls isFontLoaded(), & if true
+			// it closes the interval & calls p_onLoad, else if the current time has timed out
+			// it closes the interval & calls onFail if there is one.
+			var outerThis = this;
+			var utStart = new Date().getTime();
+			var idInterval = setInterval (
+				function()
+				{
+					if (outerThis.isFontLoaded(p_cssFontName))
+					{	// It's now loaded.
+						clearInterval (idInterval);
+						p_onLoad(p_cssFontName);
+						return;
+					}
+					else
+					{	// Still not loaded.
+						var utNow = new Date().getTime();
+						if ((utNow - utStart) > msTimeout)
+						{
+							clearInterval (idInterval);
+							if (p_onFail)
+							{	p_onFail(p_cssFontName);
+							}
+						}
+					}
+				},
+				msInterval
+			);
+		},
+
+
+		/**
+		 * Determines if a font has gotten loaded.
+		 * 
+		 * @param string		The font name to check for.
+		 * 
+		 * @returns bool		true if it's loaded, else false if the browser had to use a fallback font.
+		 */
+		isFontLoaded: function (p_cssFontName)
+		{
+			var wThisFont = 0;
+			var wPrevFont = 0;
+
+			if (!_isInitialized)
+			{	_init ();
+			}
+			
+			for(var ix = 0; ix < _aFallbackFonts.length; ++ix)
+			{
+				var $helperSpan = $('#fontdetectHelper > SPAN');
+				$helperSpan.css('font-family', p_cssFontName + ',' + _aFallbackFonts[ix]);
+				wThisFont = $helperSpan.width();
+				if (ix > 0 && wThisFont != wPrevFont)
+				{// This iteration's font was different than the previous iteration's font, so it must
+				//  have fallen back on a generic font. So our font must not exist.
+					return false;
+				}
+
+				wPrevFont = wThisFont;
+			}
+
+			// The widths were all the same, therefore the browser must have rendered the text in the same
+			// font every time. So unless all the generic fonts are identical widths (highly unlikely), it 
+			// couldn't have fallen back to a generic font. It's our font.
+			return true;
+		},
+
+
+		/**
+		 * Determines which font is being used for a given element.
+		 * 
+		 * @param string/object		The element to examine. If it's a string, it's a jQuery selector. If it's 
+		 *							an object, it's taken as a DOM element.
+		 * 
+		 * @returns string			The name of the font that's being used - either one of the fonts 
+		 *							listed in the element's font-family css value, or null.
+		 */
+		whichFont: function (p_element)
+		{
+			var sStack = $(p_element).css('font-family');
+			var aStack = sStack.split(',');
+			
+			var sFont = aStack.shift();
+			while (sFont)
+			{
+				sFont = sFont.replace(/^\s*['"]?\s*([^'"]*)\s*['"]?\s*$/, '$1');
+				
+				if (this.isFontLoaded(sFont))
+				{	return sFont;
+				}
+				sFont = aStack.shift();
+			}
+			
+			return null;
+		}
+	};
+}();
+
+/**
+ * @preserve  textfill
+ * @name      jquery.textfill.js
+ * @author    Russ Painter
+ * @author    Yu-Jie Lin
+ * @version   0.3.5
+ * @date      2013-05-08
+ * @copyright (c) 2012-2013 Yu-Jie Lin
+ * @copyright (c) 2009 Russ Painter
+ * @license   MIT License
+ * @homepage  https://github.com/jquery-textfill/jquery-textfill
+ * @example   http://jquery-textfill.github.io/jquery-textfill/index.html
+*/
+; (function($) {
+  /**
+  * Resizes an inner element's font so that the inner element completely fills the outer element.
+  * @param {Object} Options which are maxFontPixels (default=40), innerTag (default='span')
+  * @return All outer elements processed
+  */
+  $.fn.textfill = function(options) {
+    var defaults = {
+      debug: false,
+      maxFontPixels: 40,
+      minFontPixels: 4,
+      innerTag: 'span',
+      widthOnly: false,
+      callback: null,
+      complete: null,
+      explicitWidth: null,
+      explicitHeight: null
+    };
+    var Opts = $.extend(defaults, options);
+
+    function _debug() {
+      if (!Opts.debug
+      ||  typeof console == 'undefined'
+      ||  typeof console.debug == 'undefined') {
+        return;
+      }
+
+      console.debug.apply(console, arguments);
+    }
+
+    function _debug_sizing(prefix, ourText, maxHeight, maxWidth, minFontPixels, maxFontPixels) {
+      function _m(v1, v2) {
+        var marker = ' / ';
+        if (v1 > v2) {
+          marker = ' > ';
+        } else if (v1 == v2) {
+          marker = ' = ';
+        }
+        return marker;
+      }
+
+      _debug(
+        prefix +
+        'font: ' + ourText.css('font-size') +
+        ', H: ' + ourText.height() + _m(ourText.height(), maxHeight) + maxHeight +
+        ', W: ' + ourText.width()  + _m(ourText.width() , maxWidth)  + maxWidth +
+        ', minFontPixels: ' + minFontPixels +
+        ', maxFontPixels: ' + maxFontPixels
+      );
+    }
+
+    function _sizing(prefix, ourText, func, max, maxHeight, maxWidth, minFontPixels, maxFontPixels) {
+      _debug_sizing(prefix + ': ', ourText, maxHeight, maxWidth, minFontPixels, maxFontPixels);
+      while (minFontPixels < maxFontPixels - 1) {
+        var fontSize = Math.floor((minFontPixels + maxFontPixels) / 2)
+        ourText.css('font-size', fontSize);
+        if (func.call(ourText) <= max) {
+          minFontPixels = fontSize;
+          if (func.call(ourText) == max) {
+            break;
+          }
+        } else {
+          maxFontPixels = fontSize;
+        }
+        _debug_sizing(prefix + ': ', ourText, maxHeight, maxWidth, minFontPixels, maxFontPixels);
+      }
+      ourText.css('font-size', maxFontPixels);
+      if (func.call(ourText) <= max) {
+        minFontPixels = maxFontPixels;
+        _debug_sizing(prefix + '* ', ourText, maxHeight, maxWidth, minFontPixels, maxFontPixels);
+      }
+      return minFontPixels;
+    }
+
+    this.each(function() {
+      var ourText = $(Opts.innerTag + ':visible:first', this);
+      // Use explicit dimensions when specified
+      var maxHeight = Opts.explicitHeight || $(this).height();
+      var maxWidth = Opts.explicitWidth || $(this).width();
+      var oldFontSize = ourText.css('font-size');
+      var fontSize;
+
+      _debug('Opts: ', Opts);
+      _debug('Vars:' +
+        ' maxHeight: ' + maxHeight +
+        ', maxWidth: ' + maxWidth
+      );
+
+      var minFontPixels = Opts.minFontPixels;
+      var maxFontPixels = Opts.maxFontPixels <= 0 ? maxHeight : Opts.maxFontPixels;
+      var HfontSize = undefined;
+      if (!Opts.widthOnly) {
+        HfontSize = _sizing('H', ourText, $.fn.height, maxHeight, maxHeight, maxWidth, minFontPixels, maxFontPixels);
+      }
+      var WfontSize = _sizing('W', ourText, $.fn.width, maxWidth, maxHeight, maxWidth, minFontPixels, maxFontPixels);
+
+      if (Opts.widthOnly) {
+        ourText.css('font-size', WfontSize);
+      } else {
+        ourText.css('font-size', Math.min(HfontSize, WfontSize));
+      }
+      _debug('Final: ' + ourText.css('font-size'));
+
+      if (ourText.width() > maxWidth || ourText.height() > maxHeight) {
+        ourText.css('font-size', oldFontSize);
+      }
+      // call callback on each result
+      if (Opts.callback) Opts.callback(this);
+    });
+
+    // call complete when all is complete
+    if (Opts.complete) Opts.complete(this);
+
+    return this;
+  };
+})(window.jQuery);
+
 /* This source code is licensed under version 3 of the AGPL.
  *
  * Copyright (c) 2013 by urturn
@@ -15067,23 +15413,30 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
         $el.addClass('ut-text-fixed');
       }
 
+      if (mode && mode.editor === true) {
+        $contentDomNode
+        .attr('contentEditable',true)
+        .attr('spellcheck',false);
+        if (options.tabIndex) {
+          $contentDomNode.attr('tabIndex',options.tabIndex);
+        }
+        bindEvents();
+      }
+      if (storage && storage[storageKey]) {
+        if (mode && mode.player === true) {
+          $contentDomNode.html(post.autoLink(storage[storageKey]));
+        } else {
+          $contentDomNode.text(storage[storageKey]);
+        }
+        $contentDomNode.attr('data-div-placeholder-content', 'true');
+      }
+
       if (options.chars && mode && mode.editor === true) {
         $countdownDomNode = $('<div>').addClass('ut-text-countdown ut-action-button ut-small-button ut-button');
         $el.append($countdownDomNode);
         updateCharactersCounter();
       }
-
-      if (mode && mode.editor === true) {
-        $contentDomNode
-        .attr('contentEditable',true)
-        .attr('spellcheck',false);
-        bindEvents();
-      }
-      if (storage && storage[storageKey]) {
-        $contentDomNode.text(storage[storageKey]);
-        $contentDomNode.attr('data-div-placeholder-content', 'true');
-      }
-
+      
       if (isUtimage) {
         imageHeight = $el.height();
         $el.css({ backgroundSize: 'cover' });
@@ -15095,10 +15448,13 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
 
       if (options.fixedSize && maxFontSize && minFontSize) {
         adaptFontSize();
-
         post.on('resize', function() {
           adaptFontSize();
         });
+      }
+
+      if (charsCount() === 0) {
+        $contentDomNode.html('<br/>');
       }
 
       trigger('ready');
@@ -15133,13 +15489,6 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
       - handle copy-paste text
     */
     function bindEvents() {
-
-      $el.on('click',function() {
-        $contentDomNode.trigger('focus');
-        if ($contentDomNode[0].textContent.length === 0) {
-          $contentDomNode.html('<br/>');
-        }
-      });
       /* here is the meat and potates */
       $contentDomNode.attr('data-placeholder',options.placeholder);
 
@@ -15157,7 +15506,7 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
       } else {
         $contentDomNode.on('paste keypress keydown input',function(e) {
           if (mode && mode.editor === true) {
-            if ($contentDomNode[0].textContent && $contentDomNode[0].textContent.length >= 1) {
+            if ($contentDomNode[0].textContent && charsCount() >= 1) {
               $contentDomNode.attr('data-div-placeholder-content', 'true');
             } else {
               $contentDomNode.removeAttr('data-div-placeholder-content');
@@ -15176,7 +15525,7 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
           var keys = [8, 9, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 144, 145];
 
           if( $.inArray(e.keyCode, keys) === -1) {
-            if (options.chars && $contentDomNode[0].innerHTML.length >= options.chars) {
+            if (options.chars && charsCount() >= options.chars) {
               e.preventDefault();
               e.stopPropagation();
             }
@@ -15248,9 +15597,13 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
       trigger('save',cleanUpData());
     }
 
+    function charsCount() {
+      return $contentDomNode.html().replace(/<[^>]*>/g, "").length;
+    }
+
     /* in the case we have a character limitation, display and update the counter */
     function updateCharactersCounter() {
-      var remaining = options.chars - $contentDomNode[0].innerHTML.length;
+      var remaining = options.chars - charsCount();
       if (remaining === 0) {
         $countdownDomNode.addClass('ut-text-countdown-max');
       } else {
@@ -15268,7 +15621,7 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
 
     function formatPaste() {
       setTimeout(function() {
-        if(options.chars && $contentDomNode[0].innerHTML.length >= options.chars) {
+        if(options.chars && charsCount() >= options.chars) {
           $contentDomNode.text(cleanUpData().substr(0, options.chars));
         } else {
           $contentDomNode.text(cleanUpData());
@@ -15352,7 +15705,8 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
     chars: false,
     maxFontSize: false,
     minFontSize: false,
-    reuse: false
+    reuse: false,
+    tabIndex: false
   };
 
 })(jQuery);
