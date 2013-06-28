@@ -833,7 +833,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '1.0.2-rc1';
+    return '1.0.2-rc2';
   };
 
   /**
@@ -1750,7 +1750,7 @@ UT.CollectionStore = function(options) {
     * listen to click to navigate
     */
     window.addEventListener('click', function(e){
-      var url = e.target.href;
+      var url = e.target.getAttribute('href');
 
       if (url && url.match(/^(search|user|http)/gi)) {
         var app     = url.split(":")[0],
