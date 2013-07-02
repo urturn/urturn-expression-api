@@ -278,6 +278,26 @@
         this.post.dialog('users', {});
       });
 
+      it('accepts a list of items as well', function(done) {
+        ids = [UT.uuid(), UT.uuid()];
+        setupExpression(this, {mode: 'view'});
+        listenToMessage('dialog.users', function(message, callback){
+          expect(message.args[0]).to.eql({
+            users: ids
+          });
+          done();
+        });
+        this.post.dialog('users', {items: [
+          {
+            _key: ids[0],
+            value: 'Text'
+          },
+          {
+            _key: ids[1],
+            value: 'Text'
+          }
+        ]});
+      });
     });
 
     describe("save()", function() {
