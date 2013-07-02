@@ -833,7 +833,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '1.0.2-rc3';
+    return '1.0.2-rc4';
   };
 
   /**
@@ -987,6 +987,7 @@ UT.CollectionStore = function(options) {
     var currentScroll = {scrollTop: 0, scrollBottom: 0};
     var queuedUpTickets = {};
     var eventTypesBindings = {}; // handle event bindings for each event type
+    var isIOSApp = /(urturn)/i.test(navigator.userAgent);
     var collectionStore = new UT.CollectionStore({
       data: states.collections,
       currentUserId: states.currentUserId,
@@ -1401,6 +1402,16 @@ UT.CollectionStore = function(options) {
       on('imageAdded', callback);
     };
 
+    var showNode = function() {
+      self.node.style.display = 'block';
+    };
+
+    var hideNodeOnDialog = function() {
+      if (isIOSApp) {
+        self.node.style.display = 'none';
+      }
+    };
+
     /**
      * Create the dialog of the given type using an options object and
      * retrieve the dialog output in the callback.
@@ -1412,14 +1423,14 @@ UT.CollectionStore = function(options) {
       }
 
       // hide the body to avoid weird effect because of latency on mobile
-      self.node.style.display = 'none';
+      hideNodeOnDialog();
 
       var _scrollPositionTop = currentScroll.scrollTop;
       var _scrollPositionBottom = currentScroll.scrollBottom;
       var _this = this;
       var _callback = function () {
         // readd visibility
-        self.node.style.display = 'block';
+        showNode();
         if(callback){
           _this.scroll({
             scrollTop : _scrollPositionTop,
@@ -1449,7 +1460,7 @@ UT.CollectionStore = function(options) {
      * - 'auto' automatically resize to the actual content size
      */
     var size = this.size = function(sizeInfo, callback) {
-      self.node.style.display = 'block';
+      showNode(); // In case it was hidden, need to be displayed again to compute size
       if(typeof sizeInfo === 'function'){
         callback = sizeInfo;
         sizeInfo = null;
