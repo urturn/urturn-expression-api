@@ -318,47 +318,6 @@
         this.post.save();
       });
     });
-    describe("DEPRECATED resize()", function() {
-      beforeEach(function(){
-        this.assertHeightMessage = function(expected, done){
-          listenToMessage('container.resizeHeight', function(message){
-            try {
-              if(expected !== null){
-                expect(message.args[0]).to.eql(expected);
-              }
-              done();
-            } catch(e) {
-              done(e);
-            }
-          });
-        };
-        setupExpression(this);
-      });
-      it("with 'auto'", function(done){
-        var div = document.createElement('div');
-        div.style.height = "233px";
-        expect(this.post.node).to.be.ok();
-        this.post.node.appendChild(div);
-        if(TEST_ENV=='unit'){
-          this.assertHeightMessage(233, done);
-        } else {
-          this.assertHeightMessage(null, done);
-        }
-        this.post.resize('auto');
-      });
-      it("with height in pixel", function(done){
-        this.assertHeightMessage(532, done);
-        this.post.resize(532);
-      });
-      it("with height in object", function(done){
-        this.assertHeightMessage(345, done);
-        this.post.resize({height: 345});
-      });
-      it("with a string height in object", function(done){
-        this.assertHeightMessage(123, done);
-        this.post.resize({height: '123px'});
-      });
-    });
 
     describe("scroll()", function() {
       it("retrieve the scroll position", function(){
