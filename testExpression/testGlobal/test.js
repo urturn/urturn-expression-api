@@ -23,3 +23,19 @@ Test.prototype = {
     onEventLog('media');
   }
 };
+
+UT.Expression.ready(function(post){
+  $('.btn-users-empty').on('click', function(){
+    post.dialog('users', {users: []}, function(){
+      console.log('users dialog called without users.');
+    });
+  });
+
+  $('.btn-users-current').on('click', function(){
+    post.users('current', function(user){
+      post.dialog('users', {users: [user.uuid]}, function(){
+        console.log('users dialog called with current user uuid');
+      });
+    });
+  });
+});

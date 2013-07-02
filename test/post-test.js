@@ -42,7 +42,7 @@
       type: 'ready',
       options: {
         expToken: options.expToken || 'aaaa-aaaa-aaaaaa-aaaaaaaaa',
-        mode: options.mode || 'editor',
+        mode: options.mode || 'edit',
         documentURL: options.documentURL || '/posts/bbbb-bbbb-bbbbbbb-bbbbbbbb',
         documentId: options.documentId || 'bbbb-bbbb-bbbbbbb-bbbbbbbb',
         documentPrivacy: options.documentPrivacy || 'public',
@@ -76,6 +76,21 @@
       dropListeners();
       UT.Expression._reset();
     });
+
+    describe("context", function(){
+      it("can be a player", function(){
+        setupExpression(this, {mode: 'view'});
+        expect(this.post.context.player).to.be(true);
+        expect(this.post.context.editor).to.be(false);
+      });
+      it("can be an editor", function(){
+        setupExpression(this, {mode: 'edit'});
+        expect(this.post.context.player).to.be(false);
+        expect(this.post.context.editor).to.be(true);
+      });
+
+    });
+
     describe("collection()", function(){
       it("retrieve a collection given its name", function(){
         setupExpression(this, {
@@ -170,7 +185,7 @@
 
     describe("dialog/text", function() {
       it("accepts an option hash", function(done){
-        setupExpression(this);
+        setupExpression(this, {mode: 'view'});
         listenToMessage('document.textInput', function(message, callback){
           expect(message.args[0]).to.eql('default');
           expect(message.args[1]).to.eql(15);
@@ -188,7 +203,7 @@
         });
       });
       it("accept a single callback", function(done){
-        setupExpression(this);
+        setupExpression(this, {mode: 'view'});
         listenToMessage(function(message, callback){
           callback('hello');
         });
@@ -202,7 +217,7 @@
     describe("dialog/users", function() {
       it("takes an option hash", function(done) {
         var ids = [UT.uuid(), UT.uuid(), UT.uuid(), UT.uuid()];
-        setupExpression(this);
+        setupExpression(this, {mode: 'view'});
         listenToMessage('dialog.users', function(message, callback){
           expect(message.args[0]).to.eql({
             users: ids
@@ -216,29 +231,50 @@
         });
       });
 
-      it('displays nothing and callback immediately if no options are specified', function(done) {
-        setupExpression(this);
+      it('callback immediately if not in player mode', function(done) {
+        setupExpression(this, {mode: 'edit'});
+        var ids = [UT.uuid(), UT.uuid(), UT.uuid(), UT.uuid()];
+        expect(this.post.context.player).to.be(false);
+        listenToMessage('dialog.users', function(){
+          done('Should not send a message');
+        });
+        this.post.dialog('users', {users: ids}, function(){
+          done();
+        });
+      });
+
+      it('callback immediately if no options are specified', function(done) {
+        setupExpression(this, {mode: 'view'});
+        expect(this.post.context.player).to.be(true);
+        listenToMessage('dialog.users', function(){
+          done('Should not send a message');
+        });
         this.post.dialog('users', function(){
           done();
         });
       });
 
       it('displays nothing and callback immediately if users is empty', function(done) {
-        setupExpression(this);
+        setupExpression(this, {mode: 'view'});
+        expect(this.post.context.player).to.be(true);
+        listenToMessage('dialog.users', function(){
+          done('Should not send a message');
+        });
         this.post.dialog('users', {users: []}, function(){
           done();
         });
       });
 
       it('displays nothing and callback immediately if users options is not given', function(done) {
-        setupExpression(this);
+        setupExpression(this, {mode: 'view'});
+        expect(this.post.context.player).to.be(true);
         this.post.dialog('users', {}, function(){
           done();
         });
       });
 
-      it('displays support to be called without a callback', function() {
-        setupExpression(this);
+      it('supports to be called without a callback', function() {
+        setupExpression(this, {mode: 'view'});
         this.post.dialog('users', {});
       });
 

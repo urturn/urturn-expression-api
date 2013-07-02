@@ -11,20 +11,6 @@
     var test = new Test(post);
     test.bindEvents();
 
-    $('.btn-users-empty').on('click', function(){
-      post.dialog('users', {users: []}, function(){
-        console.log('users dialog called without users.');
-      });
-    });
-
-    $('.btn-users-current').on('click', function(){
-      post.users('current', function(user){
-        post.dialog('users', {users: [user.uuid]}, function(){
-          console.log('users dialog called with current user uuid');
-        });
-      });
-    });
-
     post.on('publish', function(){
       console.log('set the final size');
       post.storage.height = post.node.offsetHeight;

@@ -170,6 +170,16 @@ module.exports = function(grunt) {
     }
   };
 
+  config.watch = {
+    scripts: {
+      files: ['lib/**/*.js', 'test/**/*.js'],
+      tasks: ['test'],
+      options: {
+        nospawn: true
+      }
+    }
+  };
+
   config.concat_css = {
     all: {
       src: sourcesCSS,
@@ -195,6 +205,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-mocha');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
+  grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-notify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
