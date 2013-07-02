@@ -1412,14 +1412,14 @@ UT.CollectionStore = function(options) {
       }
 
       // hide the body to avoid weird effect because of latency on mobile
-      document.body.style.visibility = 'hidden';
+      self.node.style.display = 'none';
 
       var _scrollPositionTop = currentScroll.scrollTop;
       var _scrollPositionBottom = currentScroll.scrollBottom;
       var _this = this;
       var _callback = function () {
         // readd visibility
-        document.body.style.visibility = 'visible';
+        self.node.style.display = 'block';
         if(callback){
           _this.scroll({
             scrollTop : _scrollPositionTop,
@@ -1449,6 +1449,7 @@ UT.CollectionStore = function(options) {
      * - 'auto' automatically resize to the actual content size
      */
     var size = this.size = function(sizeInfo, callback) {
+      self.node.style.display = 'block';
       if(typeof sizeInfo === 'function'){
         callback = sizeInfo;
         sizeInfo = null;
@@ -1640,14 +1641,22 @@ UT.CollectionStore = function(options) {
 
       var hashtagsRegex = /(^|\s|<br\/>|\.)#([A-Za-z0-9_\-ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþş]+)/g,
           mentionsRegex = /(^|\s|<br\/>|\.)@([A-Za-z0-9_\-.]+)/g,
-          urlsRegex     = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig,
           linkHashtagsPattern  = '$1<a href="search:#$2" class="ut-navigate-hashtag">#$2</a>',
-          linkMentionsPattern  = '$1<a href="user:$2" class="ut-navigate-mention">@$2</a>',
-          urlsPattern = '<a href="$1" class="ut-navigate-url">$1</a>';
+          linkMentionsPattern  = '$1<a href="user:$2" class="ut-navigate-mention">@$2</a>';
 
       text = text.replace(hashtagsRegex, linkHashtagsPattern);
       text = text.replace(mentionsRegex, linkMentionsPattern);
-      text = text.replace(urlsRegex, urlsPattern);
+
+      text = text.replace(
+        /((https?\:\/\/)|(www\.))(\S+)(\w{2,4})(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/gi,
+        function(url){
+            var full_url = url;
+            if (!full_url.match('^https?:\/\/')) {
+                full_url = 'http://' + full_url;
+            }
+            return '<a href="' + full_url + '" class="ut-navigate-url">' + url + '</a>';
+        }
+      );
 
       return text;
     };
@@ -1704,6 +1713,9 @@ UT.CollectionStore = function(options) {
       }
     };
 
+    /**
+     * true if the user is the post Owner
+     */
     this.isOwner = function(user){
       return user.uuid == states.postUserId;
     };
@@ -15511,7 +15523,7 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
           var keys = [8, 9, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 144, 145];
 
           if( $.inArray(e.keyCode, keys) === -1) {
-            if (options.chars && charsCount() >= options.chars) {
+            if (options.chars && charsCount() >= options.chars && !e.metaKey) {
               e.preventDefault();
               e.stopPropagation();
             }
