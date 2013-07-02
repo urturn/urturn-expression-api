@@ -983,8 +983,6 @@ UT.CollectionStore = function(options) {
     var self = this;
 
     // scoped properties
-
-
     var currentSize = {height: 0, width: 0};
     var currentScroll = {scrollTop: 0, scrollBottom: 0};
     var queuedUpTickets = {};
@@ -1213,7 +1211,14 @@ UT.CollectionStore = function(options) {
         callback = options;
         options = {};
       }
-      if (!options.users || options.users.length === 0 ) {
+      if(options.items) {
+        options.users = options.users || [];
+        for(var i = 0; i < options.items.length ; i++){
+          options.users.push(options.items[i]._key);
+        }
+        delete options.items;
+      }
+      if (!self.context.player || !options.users || options.users.length === 0 ) {
         callback.apply(self);
       } else {
         UT.Expression._callAPI('dialog.users', [options], function(){
@@ -1386,11 +1391,6 @@ UT.CollectionStore = function(options) {
       return states.readyToPost;
     };
 
-    var scrollChanged = this.scollChanged = function(callback) {
-      deprecated('post.scrollChanged', '0.7.0', '1.0.0', 'post.on("scroll", callback)');
-      on('scrollChanged', callback);
-    };
-
     // XXX Test the replacement on('media').
     /**
      * on the callback function to the imageAdded event.
@@ -1434,11 +1434,6 @@ UT.CollectionStore = function(options) {
       } else {
         throw new Error('InvalidArgument', 'unknown dialog type ' + type);
       }
-    };
-
-    var resize = this.resize = function(sizeInfo){
-      deprecated('post.resize()', '0.8.0', '1.0.0', 'post.size(sizeInfo)');
-      size(sizeInfo);
     };
 
     /**
@@ -1636,7 +1631,7 @@ UT.CollectionStore = function(options) {
      * autoLink
      * Parse text to convert @mentions and #hashtags
      * to html links
-     * 
+     *
      * @param {String}
      * @return {String} containing html
      */
@@ -1655,15 +1650,6 @@ UT.CollectionStore = function(options) {
       text = text.replace(urlsRegex, urlsPattern);
 
       return text;
-    };
-
-    /**
-     * DEPRECATED
-     * See post.users()
-     */
-    var getUserData = this.getUserData = function(callback) {
-      deprecated('post.getUserData()', '0.7.4', '1.0.0', 'post.users("current", callback)');
-      users('current', callback);
     };
 
     /**
@@ -15615,6 +15601,7 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
     /* Clean up the data that come from copy, paste, etc... before saving */
     function cleanUpData(){
       var v = $contentDomNode.html().replace(/<br\s*\/?>/mg,"\n");
+      v = v.replace(/<div>/gi,"\n").replace(/<\/div>/gi,'');
       v = v.replace(/(<([^>]+)>)/ig,'');
       return $.trim(v.replace(/&nbsp;/ig,''));
     }
