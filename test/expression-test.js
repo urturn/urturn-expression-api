@@ -3,7 +3,7 @@ describe('UT.Expression', function() {
     this.node = TestHelpers.createExpressionDOM();
   });
   afterEach(function() {
-    UT.Expression._reset();
+    TestHelpers.resetExpressionEnv();
   });
   describe('ready callback', function() {
     it('has a ready event that is called with an instance of expression', function(done){
@@ -14,14 +14,16 @@ describe('UT.Expression', function() {
           expression_instance.off('ready', readyFunc);
           done();
         } catch (e) {
+          if(expression_instance) {
+            expression_instance.off('ready', readyFunc);
+          }
           done(e);
         }
       };
       UT.Expression.ready(readyFunc);
       UT.Expression._dispatch({type: 'ready', options: {collections:[]}});
-      var expression = UT.Expression._postInstance();
-      expect(expression).to.be.ok();
-      expression.fire('ready', expression);
+      var post = UT.Expression._postInstance();
+      expect(post).to.be.ok();
     });
   });
   describe('apiVersion()', function(){

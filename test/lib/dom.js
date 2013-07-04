@@ -2,7 +2,7 @@ if(!window.TestHelpers){
   window.TestHelpers = {};
 }
 
-TestHelpers.createExpressionDOM = function createExpressionDOM(){
+TestHelpers.createExpressionDOM = function(){
   var node = document.querySelector('.webdoc_expression_wrapper');
   if(!node){
     node = document.createElement('div');

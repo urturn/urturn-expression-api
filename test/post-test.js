@@ -1,90 +1,16 @@
 (function(){
-  var messageListeners = [];
-  var dropListeners = function(){
-    messageListeners.forEach(function(func){
-      window.parent.removeEventListener('message', func, false);
-    });
-    messageListeners = [];
-  };
-  var listenToMessage = function(methodName, callback){
-    if(typeof methodName == 'function'){
-      callback = methodName;
-      methodName = null;
-    }
-    var func = function(event){
-      if(callback){
-        var data;
-        data = JSON.parse(event.data);
-        if(data){
-          if(methodName && methodName !== data.methodName){
-            return;
-          }
-          callback(data, function(result){
-            window.postMessage(JSON.stringify({
-              type: 'callback',
-              callbackId: data.callbackId,
-              result: Array.prototype.slice.call(arguments)
-            }), '*');
-          });
-        }
-      } else {
-        throw new Error('no callback specified');
-      }
-    };
-    messageListeners.push(func);
-    window.parent.addEventListener('message', func, false);
-  };
-
-  // options can contain states
-  var setupExpression = function (context, options){
-    options = options || {};
-    UT.Expression._dispatch({
-      type: 'ready',
-      options: {
-        expToken: options.expToken || 'aaaa-aaaa-aaaaaa-aaaaaaaaa',
-        mode: options.mode || 'edit',
-        documentURL: options.documentURL || '/posts/bbbb-bbbb-bbbbbbb-bbbbbbbb',
-        documentId: options.documentId || 'bbbb-bbbb-bbbbbbb-bbbbbbbb',
-        documentPrivacy: options.documentPrivacy || 'public',
-        collections: options.collections || [{
-          name: 'default',
-          items: [],
-          count: 0
-        }],
-        currentUserId: options.currentUserId || 'cccc-cccc-cccccc-cccccccc',
-        host: options.host || 'http://uuuu.com',
-        assetPath: options.assetPath || 'http://assets.aaaaa.com',
-        note : options.note || 'some',
-        scrollValues: options.scrollValues || {},
-        parentData: options.parentData || null,
-        postUserId: options.postUserId || UT.uuid(),
-        expressionUserId: options.expressionUserId || UT.uuid()
-      }
-    });
-
-    context.post = UT.Expression._postInstance();
-  };
-
   describe("Post", function(){
-    beforeEach(function(){
-      this.node = TestHelpers.createExpressionDOM();
-    });
-    afterEach(function(){
-      if(this.node){
-        document.body.removeChild(this.node);
-      }
-      dropListeners();
-      UT.Expression._reset();
-    });
+    beforeEach(TestHelpers.initExpressionEnv);
+    afterEach(TestHelpers.resetExpressionEnv);
 
     describe("context", function(){
       it("can be a player", function(){
-        setupExpression(this, {mode: 'view'});
+        TestHelpers.setupExpression(this, {mode: 'view'});
         expect(this.post.context.player).to.be(true);
         expect(this.post.context.editor).to.be(false);
       });
       it("can be an editor", function(){
-        setupExpression(this, {mode: 'edit'});
+        TestHelpers.setupExpression(this, {mode: 'edit'});
         expect(this.post.context.player).to.be(false);
         expect(this.post.context.editor).to.be(true);
       });
@@ -93,7 +19,7 @@
 
     describe("collection()", function(){
       it("retrieve a collection given its name", function(){
-        setupExpression(this, {
+        TestHelpers.setupExpression(this, {
           collections: [{
             name: 'default',
             items: [],
@@ -111,13 +37,13 @@
 
     describe("valid", function() {
       it("default state is false", function(){
-        setupExpression(this);
+        TestHelpers.setupExpression(this);
         expect(this.post).to.be.ok();
         expect(this.post.valid()).to.be(false);
       });
 
       it("state can be set to true", function(){
-        setupExpression(this);
+        TestHelpers.setupExpression(this);
         expect(this.post).to.be.ok();
         expect(this.post.valid(true)).to.eql(true);
         expect(this.post.valid()).to.eql(true);
@@ -126,7 +52,7 @@
       });
 
       it("state can be set back to false", function(){
-        setupExpression(this);
+        TestHelpers.setupExpression(this);
         expect(this.post).to.be.ok();
         expect(this.post.valid(true)).to.eql(true);
         expect(this.post.valid(false)).to.eql(false);
@@ -136,7 +62,7 @@
 
     describe("parent collection", function() {
       it("retrieve same data as storage", function(){
-        setupExpression(this, {
+        TestHelpers.setupExpression(this, {
           parentData: {
             aString: {
               _type: 'literal',
@@ -178,131 +104,14 @@
         // XXX need to test the image
       });
       it("isNull when no parent data", function(){
-        setupExpression(this, {parentData: null});
+        TestHelpers.setupExpression(this, {parentData: null});
         expect(this.post.collection('parent')).to.be(null);
-      });
-    });
-
-    describe("dialog/text", function() {
-      it("accepts an option hash", function(done){
-        setupExpression(this, {mode: 'view'});
-        listenToMessage('document.textInput', function(message, callback){
-          expect(message.args[0]).to.eql('default');
-          expect(message.args[1]).to.eql(15);
-          expect(message.args[2]).to.eql(true);
-          expect(callback).to.be.ok();
-          callback('hello');
-        });
-        this.post.dialog('text', {
-          value: 'default',
-          max: 15,
-          multiline: true
-        }, function(data){
-          expect(data).to.eql('hello');
-          done();
-        });
-      });
-      it("accept a single callback", function(done){
-        setupExpression(this, {mode: 'view'});
-        listenToMessage(function(message, callback){
-          callback('hello');
-        });
-        this.post.dialog('text', function(data){
-          expect(data).to.eql('hello');
-          done();
-        });
-      });
-    });
-
-    describe("dialog/users", function() {
-      it("takes an option hash", function(done) {
-        var ids = [UT.uuid(), UT.uuid(), UT.uuid(), UT.uuid()];
-        setupExpression(this, {mode: 'view'});
-        listenToMessage('dialog.users', function(message, callback){
-          expect(message.args[0]).to.eql({
-            users: ids
-          });
-          callback();
-        });
-        this.post.dialog('users', {
-          users: ids
-        }, function() {
-          done();
-        });
-      });
-
-      it('callback immediately if not in player mode', function(done) {
-        setupExpression(this, {mode: 'edit'});
-        var ids = [UT.uuid(), UT.uuid(), UT.uuid(), UT.uuid()];
-        expect(this.post.context.player).to.be(false);
-        listenToMessage('dialog.users', function(){
-          done('Should not send a message');
-        });
-        this.post.dialog('users', {users: ids}, function(){
-          done();
-        });
-      });
-
-      it('callback immediately if no options are specified', function(done) {
-        setupExpression(this, {mode: 'view'});
-        expect(this.post.context.player).to.be(true);
-        listenToMessage('dialog.users', function(){
-          done('Should not send a message');
-        });
-        this.post.dialog('users', function(){
-          done();
-        });
-      });
-
-      it('displays nothing and callback immediately if users is empty', function(done) {
-        setupExpression(this, {mode: 'view'});
-        expect(this.post.context.player).to.be(true);
-        listenToMessage('dialog.users', function(){
-          done('Should not send a message');
-        });
-        this.post.dialog('users', {users: []}, function(){
-          done();
-        });
-      });
-
-      it('displays nothing and callback immediately if users options is not given', function(done) {
-        setupExpression(this, {mode: 'view'});
-        expect(this.post.context.player).to.be(true);
-        this.post.dialog('users', {}, function(){
-          done();
-        });
-      });
-
-      it('supports to be called without a callback', function() {
-        setupExpression(this, {mode: 'view'});
-        this.post.dialog('users', {});
-      });
-
-      it('accepts a list of items as well', function(done) {
-        ids = [UT.uuid(), UT.uuid()];
-        setupExpression(this, {mode: 'view'});
-        listenToMessage('dialog.users', function(message, callback){
-          expect(message.args[0]).to.eql({
-            users: ids
-          });
-          done();
-        });
-        this.post.dialog('users', {items: [
-          {
-            _key: ids[0],
-            value: 'Text'
-          },
-          {
-            _key: ids[1],
-            value: 'Text'
-          }
-        ]});
       });
     });
 
     describe("save()", function() {
       it("save all collections", function(done){
-        setupExpression(this, {
+        TestHelpers.setupExpression(this, {
           collections: [{
             name: 'default',
             items: [],
@@ -315,7 +124,7 @@
         });
         this.post.context.editor = true;
         var defaultSaved, testAnotherOneSaved;
-        listenToMessage('collections.save', function(message, callback){
+        TestHelpers.listenToMessage('collections.save', function(message, callback){
           try {
             if(message.args[0] == 'default'){
               defaultSaved = true;
@@ -358,7 +167,7 @@
         });
       });
       it("let you scroll to top", function(done) {
-        listenToMessage('container.scroll', function(message, callback) {
+        TestHelpers.listenToMessage('container.scroll', function(message, callback) {
           expect(message.args[0]).to.be(100);
           expect(message.args[1]).to.eql('top');
           callback({scrollTop:100, scrollBottom:12});
@@ -375,7 +184,7 @@
         });
       });
       it("let you scroll to bottom", function(done) {
-        listenToMessage('container.scroll', function(message, callback) {
+        TestHelpers.listenToMessage('container.scroll', function(message, callback) {
           expect(message.args[0]).to.be(20);
           expect(message.args[1]).to.eql('bottom');
           callback({scrollTop:400, scrollBottom:20});
@@ -396,7 +205,7 @@
     describe("size()", function() {
       beforeEach(function(){
         this.assertHeightMessage = function(expected, done){
-          listenToMessage('container.resizeHeight', function(message){
+          TestHelpers.listenToMessage('container.resizeHeight', function(message){
             try {
               if(expected !== null){
                 expect(message.args[0]).to.eql(expected);
@@ -407,7 +216,7 @@
             }
           });
         };
-        setupExpression(this);
+        TestHelpers.setupExpression(this);
       });
       it("with 'auto'", function(done){
         var div = document.createElement('div');
@@ -439,7 +248,7 @@
           expect(event.width).to.be.greaterThan(0);
           done();
         });
-        listenToMessage(function(message, callback){
+        TestHelpers.listenToMessage(function(message, callback){
           if(message.methodName == 'container.resizeHeight'){
             callback();
           }
@@ -460,8 +269,8 @@
 
     describe("note property", function() {
       it("set to a new string", function(done){
-        setupExpression(this);
-        listenToMessage(function(message){
+        TestHelpers.setupExpression(this);
+        TestHelpers.listenToMessage(function(message){
           if(message.methodName == 'document.setNote'){
             try {
               expect(message.args[0]).to.eql('Hello World');
@@ -474,8 +283,8 @@
         this.post.note = "Hello World";
       });
       it("set to null", function(done){
-        setupExpression(this);
-        listenToMessage(function(message){
+        TestHelpers.setupExpression(this);
+        TestHelpers.listenToMessage(function(message){
           if(message.methodName == 'document.setNote'){
             try {
               expect(message.args[0]).to.eql(null);
@@ -490,10 +299,10 @@
     });
     describe("queueUp()", function() {
       beforeEach(function(){
-        setupExpression(this);
+        TestHelpers.setupExpression(this);
       });
       it('can retrieve the number in the queue', function(done){
-        listenToMessage(function(message, callback){
+        TestHelpers.listenToMessage(function(message, callback){
           if(message.methodName == 'document.queueUp'){
             try {
               expect(message.args[0]).to.eql('XYZ');
@@ -515,7 +324,7 @@
       it('subsequent call will retrieve the same number', function(done){
         var count = 0;
         var post = this.post;
-        listenToMessage(function(message, callback){
+        TestHelpers.listenToMessage(function(message, callback){
           if(message.methodName == 'document.queueUp'){
             try {
               expect(message.args[0]).to.eql('XYZ');
@@ -547,7 +356,7 @@
       it('ask ticket in two different queue', function(done){
         var count = 0;
         var post = this.post;
-        listenToMessage(function(message, callback){
+        TestHelpers.listenToMessage(function(message, callback){
           if(message.methodName == 'document.queueUp'){
             try {
               count ++;
@@ -579,7 +388,7 @@
 
     describe("autoLink", function(){
       beforeEach(function(){
-        setupExpression(this);
+        TestHelpers.setupExpression(this);
       });
       it('parse hashtag', function(){
         expect(this.post.autoLink("#ThrowBack")).to.eql('<a href="search:#ThrowBack" class="ut-navigate-hashtag">#ThrowBack</a>');
@@ -618,7 +427,7 @@
     describe("users()", function() {
       beforeEach(function(){
         this.uuid = UT.uuid();
-        setupExpression(this, {currentUserId: this.uuid});
+        TestHelpers.setupExpression(this, {currentUserId: this.uuid});
         this.currentUserCallback = function(message, callback){
           if(message.methodName == 'document.getUserData'){
             try {
@@ -642,7 +451,7 @@
         };
       });
       it("current", function(done){
-        listenToMessage(this.currentUserCallback);
+        TestHelpers.listenToMessage(this.currentUserCallback);
         this.post.users('current', function(user){
           try {
             expect(user.constructor).to.eql(UT.User);
@@ -654,7 +463,7 @@
       });
       it("with one item", function(done) {
         var item = {_key: this.uuid, value: '22', _type: 'custom'};
-        listenToMessage(this.oneItemCallback);
+        TestHelpers.listenToMessage(this.oneItemCallback);
         this.post.users(item, function(user, theItem){
           try {
             expect(user).to.be.ok();
@@ -670,7 +479,7 @@
       it("many items retrieve many users", function(done) {
         var ids = [UT.uuid(), UT.uuid()];
         var items = [{_key: ids[0]}, {_key: ids[1]}];
-        listenToMessage(function(message, callback){
+        TestHelpers.listenToMessage(function(message, callback){
           if(message.methodName == 'document.users'){
             try {
               expect(message.args.length).to.eql(1);
@@ -702,7 +511,7 @@
       it("isOwner(user) and isCurrentUser(user)", function(){
         var currentUser = new UT.User({uuid: UT.uuid(), username: 'a'});
         var postUser = new UT.User({uuid: UT.uuid(), username: 'a'});
-        setupExpression(this, {currentUserId: currentUser.uuid, postUserId: postUser.uuid});
+        TestHelpers.setupExpression(this, {currentUserId: currentUser.uuid, postUserId: postUser.uuid});
         expect(this.post.isOwner(currentUser)).to.be(false);
         expect(this.post.isCurrentUser(postUser)).to.be(false);
         expect(this.post.isOwner(postUser)).to.be.ok();
@@ -710,7 +519,7 @@
       });
       if(TEST_ENV !== 'integration'){
         it("missing user for one item", function(done){
-          listenToMessage(function(message, callback){
+          TestHelpers.listenToMessage(function(message, callback){
             if(message.methodName == 'document.users'){
               expect(message.args.length).to.eql(1);
               expect(message.args[0].length).to.eql(1);
@@ -728,7 +537,7 @@
         it("many items with missing users", function(done) {
           var ids = [UT.uuid(), UT.uuid()];
           var items = [{_key: ids[0]}, {_key: ids[1]}];
-          listenToMessage(function(message, callback){
+          TestHelpers.listenToMessage(function(message, callback){
             if(message.methodName == 'document.users'){
               try {
                 expect(message.args.length).to.eql(1);
