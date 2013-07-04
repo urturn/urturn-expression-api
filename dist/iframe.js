@@ -834,7 +834,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '1.0.2-rc5';
+    return '1.0.2-rc6';
   };
 
   /**
@@ -893,7 +893,7 @@ UT.CollectionStore = function(options) {
       states.scrollValues = newScrollValues;
     });
     for(var i = 0; i < readyListeners.length; i++){
-      readyListeners[i].apply(postInstance, [postInstance]);
+      readyListeners[i].call(postInstance, postInstance);
     }
     readyListeners = [];
      _callAPI("changeCurrentState", ["initialized"]);
@@ -1215,6 +1215,10 @@ UT.CollectionStore = function(options) {
           options.users.push(options.items[i]._key);
         }
         delete options.items;
+      }
+      if(options.title) {
+        options.label = options.title;
+        delete options.title;
       }
       if (!self.context.player || !options.users || options.users.length === 0 ) {
         callback.apply(self);
