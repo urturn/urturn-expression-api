@@ -834,7 +834,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '1.0.2-rc6';
+    return '1.0.2-rc7';
   };
 
   /**
@@ -12696,8 +12696,7 @@ fontdetect = function()
    * function below).
    */
   function UtImage(element, options) {
-    options = $.extend({}, $.fn.utImage.defaults, options);
-    options.ui = $.extend({}, $.fn.utImage.defaults.ui, options.ui);
+    options = $.extend(true, $.fn.utImage.defaults, options);
     var el              = element,
         storagePrefix   = 'utImage_',
         namespace       = 'utImage',
@@ -12904,6 +12903,10 @@ fontdetect = function()
       // Apply any predefined filters.
       if (options.filter) {
         imgOptions.applyShaders = options.filter;
+      }
+
+      if (options && options.i18n && options.i18n.dialogLabel) {
+        options.label = options.i18n.dialogLabel;
       }
 
       // Add the image data if we do a recrop.
@@ -13154,6 +13157,9 @@ fontdetect = function()
       edit: true,
       add: true,
       remove: true
+    },
+    i18n: {
+      dialogLabel: undefined
     }
   };
 
@@ -13203,9 +13209,10 @@ fontdetect = function()
           },
           editable: true,
           i18n:{
-            add:    "add sound",
-            change: "",
-            error:  "Error occurred"
+            add:         "add sound",
+            change:      "",
+            error:       "Error occurred",
+            dialogLabel: undefined
           }
         };
 
@@ -13321,7 +13328,8 @@ fontdetect = function()
             that.modeNS     + '-' +(that.post.context.player?'player':'editor'),
             that.aspectNS   + '-' + that.aspect,
             that.sizeNS     + '-' + that.size,
-            that.touchNS    + '-' + (that.isTouch?'true':'false')
+            that.touchNS    + '-' + (that.isTouch?'true':'false'),
+            'ut-media-placeholder'
             ].join(' ')
             );
         };
@@ -13521,14 +13529,14 @@ fontdetect = function()
           if(that.options.ui.source)   { that.ui.source   = $('<a class="'+that.uiNS+'-source">'         ).appendTo(that.ui.container);}
           if(that.options.editable){
             var changeSound = function(){
-              that.post.dialog('sound',{inputTypes:['search']},function(data){
+              that.post.dialog('sound',{inputTypes:['search'], label: that.options.i18n.dialogLabel},function(data){
                 that.options.data = data;
                 that.update();
                 that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
                 that.post.storage.save();
               });
             };
-            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_sound"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',changeSound);
+            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_sound ut-media-button ut-button"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',changeSound);
             that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>').html(that.options.i18n.change).appendTo(that.ui.container).on('click',changeSound);
           }
 
@@ -14243,9 +14251,10 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           },
           editable: true,
           i18n:{
-            add:    "add video",
-            change: "",
-            error:  "Error occurred"
+            add:          "add video",
+            change:       "",
+            error:        "Error occurred",
+            dialogLabel:  undefined
           }
         };
 
@@ -15253,7 +15262,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           if(that.options.ui.source)  {that.ui.source  = $('<a   class="'+that.uiNS+'-source"></a>'   ).appendTo(that.ui.container);}
           if(that.options.editable){
             var change = function(){
-              that.post.dialog('video',{inputTypes:['search']},function(data){
+              that.post.dialog('video',{inputTypes:['search'], label: that.options.i18n.dialogLabel},function(data){
                 that.options.data = data;
                 that.update();
                 that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
