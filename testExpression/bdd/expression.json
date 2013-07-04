@@ -1,9 +1,9 @@
 {
-  "title": "bdd-1-0-2-rc4",
+  "title": "bdd-1-0-2-rc5",
   "description": "",
-  "system_name": "bdd-1-0-2-rc4",
+  "system_name": "bdd-1-0-2-rc5",
   "version": "0.1.34",
-  "api_version": "1.0.2-rc4",
+  "api_version": "1.0.2-rc5",
   "dependencies": [
     {
       "path": "lib/mocha.css"

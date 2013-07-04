@@ -799,6 +799,7 @@ UT.CollectionStore = function(options) {
 })(UT, window, document, undefined);
 
 ; (function(UT, window, document, undefined){
+  "use strict";
   // Scoped variables
   var readyListeners = []; // contains the various ready event callbacks
   var apiListeners = {}; // contains the various api callbacks keyed by uuid
@@ -833,7 +834,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '1.0.2-rc4';
+    return '1.0.2-rc5';
   };
 
   /**
@@ -927,10 +928,6 @@ UT.CollectionStore = function(options) {
       case 'media' :
         postInstance.fire('media', msg.eventArgs[0]);
         break;
-      default:
-        if(window.console && console.log){
-          // console.log('Unknow event ' + msg.type);
-        }
     }
   };
 
