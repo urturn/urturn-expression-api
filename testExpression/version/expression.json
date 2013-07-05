@@ -2,8 +2,8 @@
   "title": "version",
   "description": "",
   "system_name": "version",
-  "version": "0.1.0",
-  "api_version": "1.0.2-rc7",
+  "version": "0.1.2",
+  "api_version": "1.0.2-rc8",
   "dependencies": [
     {
       "path": "assets/exp.css"
