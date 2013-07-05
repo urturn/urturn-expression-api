@@ -27,8 +27,22 @@ describe('UT.Expression', function() {
     });
   });
   describe('apiVersion()', function(){
-    it('returns the current API Version', function(){
+    it('returns the static API Version before UT.ready', function() {
       expect(UT.Expression.apiVersion()).to.eql('0.0.0');
+    });
+    it('still return the static API Version after UT.ready', function() {
+      TestHelpers.setupExpression(this, {apiVersion: '1.2.3'});
+      expect(UT.Expression.apiVersion()).to.be('0.0.0');
+    });
+  });
+  describe('version()', function(){
+    it('returns null if expression is not ready', function() {
+      expect(UT.Expression.version()).to.be(null);
+    });
+
+    it('returns the expression version if expression is ready', function() {
+      TestHelpers.setupExpression(this, {version: '1.2.3'});
+      expect(UT.Expression.version()).to.be('1.2.3');
     });
   });
 });

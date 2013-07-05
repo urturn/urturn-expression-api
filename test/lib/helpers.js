@@ -13,6 +13,8 @@ TestHelpers.setupExpression = function (context, options){
         items: [],
         count: 0
       }],
+      apiVersion: options.apiVersion || '1.2.0',
+      version: options.version || '1.0.0',
       currentUserId: options.currentUserId || 'cccc-cccc-cccccc-cccccccc',
       host: options.host || 'http://uuuu.com',
       assetPath: options.assetPath || 'http://assets.aaaaa.com',

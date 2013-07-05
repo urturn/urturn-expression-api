@@ -1,0 +1,17 @@
+.content {
+  background: #CCB399;
+  position: relative;
+  overflow: visible;
+  padding: 4em 0;
+  background-image: url('pix.png');
+  background-position: 16px 16px;
+  background-size: 104px 104px;
+  background-repeat: no-repeat;
+}
+
+h1, h2, p {
+  margin: 0;
+  color: #9C4F4F;
+  text-shadow: 1px 1px rgba(244,244,244,0.5);
+  text-align: center;
+}
