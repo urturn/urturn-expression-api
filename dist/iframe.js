@@ -1,3 +1,243 @@
+var UT_TWEAK = {};
+UT_TWEAK.CustomEventsManager = (function(global, isIframe)
+{
+	//Test if it is an iOS device and that we may swap the implementation
+	if ( ! /(iPad|iPhone|iPod)/g.test(global.navigator.userAgent) || ! Element.prototype.addEventListener)
+	{
+		return null;
+	};
+
+	var nativeAddEventListener = global.Element.prototype.addEventListener,
+		nativeRemoveEventListener = global.Element.prototype.removeEventListener,
+		uuid = 0,
+		eventListeners = {},
+		returnObj,
+		touchEventsEnabled = true,
+		debug = true;
+
+	//Run the tweak
+	swapEventListenerImplementation();
+
+	//Default behaviour
+	enableCapture();
+
+	//Disable logging when in production or not available
+	console.log = (global.console && global.console.log && debug) ? global.console.log : function() {};
+
+	function swapEventListenerImplementation()
+	{
+		var newAddEventListener = function()
+		{
+			var	type = arguments[0],
+        		listener = arguments[1],
+        		shouldAddListener = true;
+
+        	
+
+			if ((type === 'touchstart' || type === 'touchend' || type === 'touchcancel' || type === 'touchmove' || type === 'touchleave') &&
+				typeof listener === 'function') 
+			{
+				if (touchEventsEnabled)
+				{
+					this.__UT__uuid = this.__UT__uuid || getUUID();
+					eventListeners[this.__UT__uuid] = eventListeners[this.__UT__uuid] || {};
+					eventListeners[this.__UT__uuid][type] = {node: this, callback: listener};
+				}
+				else
+				{
+					shouldAddListener = false;
+				}
+			}
+
+			console.log("_");
+        	console.log("->> Called addEventListener, type: " +  type + ", in iframe: " + isIframe + ", will be added: " + shouldAddListener);
+
+			if (shouldAddListener)
+			{
+				nativeAddEventListener.apply(this, arguments);
+			};
+		}
+
+		var newRemoveEventListener = function()
+		{
+			var	type = arguments[0],
+        		listener = arguments[1];
+
+			if ((type === 'touchstart' || type === 'touchend' || type === 'touchcancel' || type === 'touchmove' || type === 'touchleave') &&
+				typeof listener === 'function') 
+			{
+              if (eventListeners[this.__UT__uuid][type])
+              {
+                delete eventListeners[this.__UT__uuid][type];
+              }
+            }
+
+			nativeRemoveEventListener.apply(this, arguments);
+		}
+
+		global.Element.prototype.addEventListener = newAddEventListener;
+		global.Element.prototype.removeEventListener = newRemoveEventListener;
+		global.document.addEventListener = newAddEventListener;
+		global.document.removeEventListener = newRemoveEventListener;
+	}
+
+	//Not public for now
+	function restoreEventListenerImplementation()
+	{
+		global.Element.prototype.addEventListener = nativeAddEventListener;
+		global.Element.prototype.removeEventListener = nativeRemoveEventListener;
+		global.document.addEventListener = nativeAddEventListener;
+		global.document.removeEventListener = nativeRemoveEventListener;
+	}
+
+	function onFocus(event)
+	{
+		if (global.document.activeElement.nodeName == 'TEXTAREA' || 
+			global.document.activeElement.nodeName == 'INPUT' ||
+			global.document.activeElement.getAttribute('contenteditable'))
+		{
+			disableTouchEvents();
+		}
+	}
+
+	function enableTouchEvents()
+	{
+		var obj1, obj2, obj3, obj4, obj5;
+
+		touchEventsEnabled = true;
+		console.log("->> enableTouchEvents");
+
+		if (isIframe)
+		{
+			global.top.postMessage("touchevents:enable", "*");
+		}
+
+		for (var key in eventListeners)
+		{
+			if (eventListeners.hasOwnProperty(key))
+			{
+				obj1 = eventListeners[key].touchstart;
+    			obj2 = eventListeners[key].touchend;
+    			obj3 = eventListeners[key].touchcancel;
+    			obj4 = eventListeners[key].touchmove;
+    			obj5 = eventListeners[key].touchleave;
+    			
+    			if (obj1) {nativeAddEventListener.call(obj1.node, 'touchstart', obj1.callback, false);}
+    			if (obj2) {nativeAddEventListener.call(obj2.node, 'touchend', obj2.callback, false);}
+    			if (obj3) {nativeAddEventListener.call(obj3.node, 'touchcancel', obj3.callback, false);}
+    			if (obj4) {nativeAddEventListener.call(obj4.node, 'touchmove', obj4.callback, false);}
+    			if (obj5) {nativeAddEventListener.call(obj5.node, 'touchleave', obj5.callback, false);}
+			};
+		}
+	}
+
+	function disableTouchEvents()
+	{
+		var obj1, obj2, obj3, obj4, obj5;
+		touchEventsEnabled = false;
+
+		console.log("->> disableTouchEvents");
+
+		if (isIframe)
+		{
+			global.top.postMessage("touchevents:disable", "*");
+		}
+
+		for (var key in eventListeners)
+		{
+			if (eventListeners.hasOwnProperty(key))
+			{
+    			obj1 = eventListeners[key].touchstart;
+    			obj2 = eventListeners[key].touchend;
+    			obj3 = eventListeners[key].touchcancel;
+    			obj4 = eventListeners[key].touchmove;
+    			obj5 = eventListeners[key].touchleave;
+    			
+    			if (obj1) {nativeRemoveEventListener.call(obj1.node, 'touchstart', obj1.callback, false);}
+    			if (obj2) {nativeRemoveEventListener.call(obj2.node, 'touchend', obj2.callback, false);}
+    			if (obj3) {nativeRemoveEventListener.call(obj3.node, 'touchcancel', obj3.callback, false);}
+    			if (obj4) {nativeRemoveEventListener.call(obj4.node, 'touchmove', obj4.callback, false);}
+    			if (obj5) {nativeRemoveEventListener.call(obj5.node, 'touchleave', obj5.callback, false);}
+    		}
+		}
+	}
+
+	function enableCapture()
+	{
+		if (isIframe)
+		{
+			nativeAddEventListener.call(global.document, 'focus', onFocus, true);
+			nativeAddEventListener.call(global.document, 'blur', enableTouchEvents, true)
+		}
+		else
+		{
+			global.addEventListener("message", didReceiveMessage, true);
+		}
+	}
+
+	function disableCapture()
+	{
+		if (isIframe)
+		{
+			nativeRemoveEventListener.call(global.document, 'focus', onFocus, true);
+			nativeRemoveEventListener.call(global.document, 'blur', enableTouchEvents, true);
+		}
+		else
+		{
+			global.removeEventListener("message", didReceiveMessage, true);
+		}
+	}
+
+	function didReceiveMessage (event) 
+	{
+        console.log("didReceiveMessage" + " " + event.data);
+		
+		if (event.data === "touchevents:enable")
+		{
+			enableTouchEvents();
+		}
+		else if (event.data === "touchevents:disable")
+		{
+			disableTouchEvents();
+		}
+	}
+
+	function getUUID()
+	{
+		return parseInt(uuid++);
+	}
+
+    function getEventListenersDescription()
+    {
+    	console.group("EventListeners description:");
+
+    	for (var key in eventListeners)
+		{
+			console.group("%s:", key);
+
+			if (eventListeners.hasOwnProperty(key))
+			{
+    			console.log(eventListeners[key]);
+    		}
+
+    		console.groupEnd();
+		}
+
+		console.groupEnd();
+    }
+    
+    returnObj = 
+    {
+    	enableCapture: enableCapture,
+    	disableCapture: disableCapture,
+    	enableTouchEvents: enableTouchEvents,
+    	disableTouchEvents: disableTouchEvents,
+    	getEventListenersDescription: getEventListenersDescription
+    };
+	
+	return returnObj;
+
+}(window, true));
 /*
  * This source code is licensed under version 3 of the AGPL.
  *
@@ -834,7 +1074,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '1.0.2-rc8';
+    return '0.0.0';
   };
 
   UT.Expression.version = function() {
@@ -2859,7 +3099,7 @@ if (typeof define !== 'undefined' && define.amd) {
 }
 
 /*!
- * jQuery JavaScript Library v2.0.3
+ * jQuery JavaScript Library v2.0.2
  * http://jquery.com/
  *
  * Includes Sizzle.js
@@ -2869,7 +3109,7 @@ if (typeof define !== 'undefined' && define.amd) {
  * Released under the MIT license
  * http://jquery.org/license
  *
- * Date: 2013-07-03T13:30Z
+ * Date: 2013-05-30T21:25Z
  */
 (function( window, undefined ) {
 
@@ -2906,7 +3146,7 @@ var
 	// List of deleted data cache ids, so we can reuse them
 	core_deletedIds = [],
 
-	core_version = "2.0.3",
+	core_version = "2.0.2",
 
 	// Save a reference to some core methods
 	core_concat = core_deletedIds.concat,
@@ -3732,7 +3972,7 @@ rootjQuery = jQuery(document);
  * Released under the MIT license
  * http://jquery.org/license
  *
- * Date: 2013-06-03
+ * Date: 2013-05-27
  */
 (function( window, undefined ) {
 
@@ -3765,13 +4005,7 @@ var i,
 	tokenCache = createCache(),
 	compilerCache = createCache(),
 	hasDuplicate = false,
-	sortOrder = function( a, b ) {
-		if ( a === b ) {
-			hasDuplicate = true;
-			return 0;
-		}
-		return 0;
-	},
+	sortOrder = function() { return 0; },
 
 	// General-purpose constants
 	strundefined = typeof undefined,
@@ -4015,6 +4249,14 @@ function Sizzle( selector, context, results, seed ) {
 }
 
 /**
+ * For feature detection
+ * @param {Function} fn The function to test for native support
+ */
+function isNative( fn ) {
+	return rnative.test( fn + "" );
+}
+
+/**
  * Create key-value caches of limited size
  * @returns {Function(string, Object)} Returns the Object data after storing it on itself with
  *	property name the (space-suffixed) string and (if the cache is larger than Expr.cacheLength)
@@ -4067,14 +4309,58 @@ function assert( fn ) {
 /**
  * Adds the same handler for all of the specified attrs
  * @param {String} attrs Pipe-separated list of attributes
- * @param {Function} handler The method that will be applied
+ * @param {Function} handler The method that will be applied if the test fails
+ * @param {Boolean} test The result of a test. If true, null will be set as the handler in leiu of the specified handler
  */
-function addHandle( attrs, handler ) {
-	var arr = attrs.split("|"),
-		i = attrs.length;
+function addHandle( attrs, handler, test ) {
+	attrs = attrs.split("|");
+	var current,
+		i = attrs.length,
+		setHandle = test ? null : handler;
 
 	while ( i-- ) {
-		Expr.attrHandle[ arr[i] ] = handler;
+		// Don't override a user's handler
+		if ( !(current = Expr.attrHandle[ attrs[i] ]) || current === handler ) {
+			Expr.attrHandle[ attrs[i] ] = setHandle;
+		}
+	}
+}
+
+/**
+ * Fetches boolean attributes by node
+ * @param {Element} elem
+ * @param {String} name
+ */
+function boolHandler( elem, name ) {
+	// XML does not need to be checked as this will not be assigned for XML documents
+	var val = elem.getAttributeNode( name );
+	return val && val.specified ?
+		val.value :
+		elem[ name ] === true ? name.toLowerCase() : null;
+}
+
+/**
+ * Fetches attributes without interpolation
+ * http://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
+ * @param {Element} elem
+ * @param {String} name
+ */
+function interpolationHandler( elem, name ) {
+	// XML does not need to be checked as this will not be assigned for XML documents
+	return elem.getAttribute( name, name.toLowerCase() === "type" ? 1 : 2 );
+}
+
+/**
+ * Uses defaultValue to retrieve value in IE6/7
+ * @param {Element} elem
+ * @param {String} name
+ */
+function valueHandler( elem ) {
+	// Ignore the value *property* on inputs by using defaultValue
+	// Fallback to Sizzle.attr by returning undefined where appropriate
+	// XML does not need to be checked as this will not be assigned for XML documents
+	if ( elem.nodeName.toLowerCase() === "input" ) {
+		return elem.defaultValue;
 	}
 }
 
@@ -4082,7 +4368,7 @@ function addHandle( attrs, handler ) {
  * Checks document order of two siblings
  * @param {Element} a
  * @param {Element} b
- * @returns {Number} Returns less than 0 if a precedes b, greater than 0 if a follows b
+ * @returns Returns -1 if a precedes b, 1 if a follows b
  */
 function siblingCheck( a, b ) {
 	var cur = b && a,
@@ -4172,7 +4458,7 @@ support = Sizzle.support = {};
  */
 setDocument = Sizzle.setDocument = function( node ) {
 	var doc = node ? node.ownerDocument || node : preferredDoc,
-		parent = doc.defaultView;
+		parent = doc.parentWindow;
 
 	// If no document and documentElement is available, return
 	if ( doc === document || doc.nodeType !== 9 || !doc.documentElement ) {
@@ -4189,7 +4475,6 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// Support: IE>8
 	// If iframe document is assigned to "document" variable and if iframe has been reloaded,
 	// IE will throw "permission denied" error when accessing "document" variable, see jQuery #13936
-	// IE6-8 do not support the defaultView property so parent will be undefined
 	if ( parent && parent.attachEvent && parent !== parent.top ) {
 		parent.attachEvent( "onbeforeunload", function() {
 			setDocument();
@@ -4202,9 +4487,31 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// Support: IE<8
 	// Verify that getAttribute really returns attributes and not properties (excepting IE8 booleans)
 	support.attributes = assert(function( div ) {
+
+		// Support: IE<8
+		// Prevent attribute/property "interpolation"
+		div.innerHTML = "<a href='#'></a>";
+		addHandle( "type|href|height|width", interpolationHandler, div.firstChild.getAttribute("href") === "#" );
+
+		// Support: IE<9
+		// Use getAttributeNode to fetch booleans when getAttribute lies
+		addHandle( booleans, boolHandler, div.getAttribute("disabled") == null );
+
 		div.className = "i";
 		return !div.getAttribute("className");
 	});
+
+	// Support: IE<9
+	// Retrieving value should defer to defaultValue
+	support.input = assert(function( div ) {
+		div.innerHTML = "<input>";
+		div.firstChild.setAttribute( "value", "" );
+		return div.firstChild.getAttribute( "value" ) === "";
+	});
+
+	// IE6/7 still return empty string for value,
+	// but are actually retrieving the property
+	addHandle( "value", valueHandler, support.attributes && support.input );
 
 	/* getElement(s)By*
 	---------------------------------------------------------------------- */
@@ -4314,7 +4621,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// See http://bugs.jquery.com/ticket/13378
 	rbuggyQSA = [];
 
-	if ( (support.qsa = rnative.test( doc.querySelectorAll )) ) {
+	if ( (support.qsa = isNative(doc.querySelectorAll)) ) {
 		// Build QSA regex
 		// Regex strategy adopted from Diego Perini
 		assert(function( div ) {
@@ -4366,7 +4673,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 		});
 	}
 
-	if ( (support.matchesSelector = rnative.test( (matches = docElem.webkitMatchesSelector ||
+	if ( (support.matchesSelector = isNative( (matches = docElem.webkitMatchesSelector ||
 		docElem.mozMatchesSelector ||
 		docElem.oMatchesSelector ||
 		docElem.msMatchesSelector) )) ) {
@@ -4392,7 +4699,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// Element contains another
 	// Purposefully does not implement inclusive descendent
 	// As in, an element does not contain itself
-	contains = rnative.test( docElem.contains ) || docElem.compareDocumentPosition ?
+	contains = isNative(docElem.contains) || docElem.compareDocumentPosition ?
 		function( a, b ) {
 			var adown = a.nodeType === 9 ? a.documentElement : a,
 				bup = b && b.parentNode;
@@ -4415,6 +4722,13 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 	/* Sorting
 	---------------------------------------------------------------------- */
+
+	// Support: Webkit<537.32 - Safari 6.0.3/Chrome 25 (fixed in Chrome 27)
+	// Detached nodes confoundingly follow *each other*
+	support.sortDetached = assert(function( div1 ) {
+		// Should return 1, but returns 4 (following)
+		return div1.compareDocumentPosition( doc.createElement("div") ) & 1;
+	});
 
 	// Document order sorting
 	sortOrder = docElem.compareDocumentPosition ?
@@ -4558,9 +4872,9 @@ Sizzle.attr = function( elem, name ) {
 
 	var fn = Expr.attrHandle[ name.toLowerCase() ],
 		// Don't get fooled by Object.prototype properties (jQuery #13807)
-		val = fn && hasOwn.call( Expr.attrHandle, name.toLowerCase() ) ?
+		val = ( fn && hasOwn.call( Expr.attrHandle, name.toLowerCase() ) ?
 			fn( elem, name, !documentIsHTML ) :
-			undefined;
+			undefined );
 
 	return val === undefined ?
 		support.attributes || !documentIsHTML ?
@@ -5105,8 +5419,6 @@ Expr = Sizzle.selectors = {
 	}
 };
 
-Expr.pseudos["nth"] = Expr.pseudos["eq"];
-
 // Add button/input type pseudos
 for ( i in { radio: true, checkbox: true, file: true, password: true, image: true } ) {
 	Expr.pseudos[ i ] = createInputPseudo( i );
@@ -5114,11 +5426,6 @@ for ( i in { radio: true, checkbox: true, file: true, password: true, image: tru
 for ( i in { submit: true, reset: true } ) {
 	Expr.pseudos[ i ] = createButtonPseudo( i );
 }
-
-// Easy API for creating new setFilters
-function setFilters() {}
-setFilters.prototype = Expr.filters = Expr.pseudos;
-Expr.setFilters = new setFilters();
 
 function tokenize( selector, parseOnly ) {
 	var matched, match, tokens, type,
@@ -5631,67 +5938,26 @@ function select( selector, context, results, seed ) {
 	return results;
 }
 
+// Deprecated
+Expr.pseudos["nth"] = Expr.pseudos["eq"];
+
+// Easy API for creating new setFilters
+function setFilters() {}
+setFilters.prototype = Expr.filters = Expr.pseudos;
+Expr.setFilters = new setFilters();
+
 // One-time assignments
 
 // Sort stability
 support.sortStable = expando.split("").sort( sortOrder ).join("") === expando;
 
-// Support: Chrome<14
-// Always assume duplicates if they aren't passed to the comparison function
-support.detectDuplicates = hasDuplicate;
-
 // Initialize against the default document
 setDocument();
 
-// Support: Webkit<537.32 - Safari 6.0.3/Chrome 25 (fixed in Chrome 27)
-// Detached nodes confoundingly follow *each other*
-support.sortDetached = assert(function( div1 ) {
-	// Should return 1, but returns 4 (following)
-	return div1.compareDocumentPosition( document.createElement("div") ) & 1;
-});
-
-// Support: IE<8
-// Prevent attribute/property "interpolation"
-// http://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
-if ( !assert(function( div ) {
-	div.innerHTML = "<a href='#'></a>";
-	return div.firstChild.getAttribute("href") === "#" ;
-}) ) {
-	addHandle( "type|href|height|width", function( elem, name, isXML ) {
-		if ( !isXML ) {
-			return elem.getAttribute( name, name.toLowerCase() === "type" ? 1 : 2 );
-		}
-	});
-}
-
-// Support: IE<9
-// Use defaultValue in place of getAttribute("value")
-if ( !support.attributes || !assert(function( div ) {
-	div.innerHTML = "<input/>";
-	div.firstChild.setAttribute( "value", "" );
-	return div.firstChild.getAttribute( "value" ) === "";
-}) ) {
-	addHandle( "value", function( elem, name, isXML ) {
-		if ( !isXML && elem.nodeName.toLowerCase() === "input" ) {
-			return elem.defaultValue;
-		}
-	});
-}
-
-// Support: IE<9
-// Use getAttributeNode to fetch booleans when getAttribute lies
-if ( !assert(function( div ) {
-	return div.getAttribute("disabled") == null;
-}) ) {
-	addHandle( booleans, function( elem, name, isXML ) {
-		var val;
-		if ( !isXML ) {
-			return (val = elem.getAttributeNode( name )) && val.specified ?
-				val.value :
-				elem[ name ] === true ? name.toLowerCase() : null;
-		}
-	});
-}
+// Support: Chrome<<14
+// Always assume duplicates if they aren't passed to the comparison function
+[0, 0].sort( sortOrder );
+support.detectDuplicates = hasDuplicate;
 
 jQuery.find = Sizzle;
 jQuery.expr = Sizzle.selectors;
@@ -5876,9 +6142,9 @@ jQuery.Callbacks = function( options ) {
 			},
 			// Call all callbacks with the given context and arguments
 			fireWith: function( context, args ) {
+				args = args || [];
+				args = [ context, args.slice ? args.slice() : args ];
 				if ( list && ( !fired || stack ) ) {
-					args = args || [];
-					args = [ context, args.slice ? args.slice() : args ];
 					if ( firing ) {
 						stack.push( args );
 					} else {
@@ -6269,7 +6535,6 @@ Data.prototype = {
 			cache : cache[ key ];
 	},
 	access: function( owner, key, value ) {
-		var stored;
 		// In cases where either:
 		//
 		//   1. No key was specified
@@ -6283,11 +6548,7 @@ Data.prototype = {
 		//
 		if ( key === undefined ||
 				((key && typeof key === "string") && value === undefined) ) {
-
-			stored = this.get( owner, key );
-
-			return stored !== undefined ?
-				stored : this.get( owner, jQuery.camelCase(key) );
+			return this.get( owner, key );
 		}
 
 		// [*]When the key is not a string, or both a key and value
@@ -6759,11 +7020,8 @@ jQuery.fn.extend({
 	},
 
 	toggleClass: function( value, stateVal ) {
-		var type = typeof value;
-
-		if ( typeof stateVal === "boolean" && type === "string" ) {
-			return stateVal ? this.addClass( value ) : this.removeClass( value );
-		}
+		var type = typeof value,
+			isBool = typeof stateVal === "boolean";
 
 		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( i ) {
@@ -6777,15 +7035,13 @@ jQuery.fn.extend({
 				var className,
 					i = 0,
 					self = jQuery( this ),
+					state = stateVal,
 					classNames = value.match( core_rnotwhite ) || [];
 
 				while ( (className = classNames[ i++ ]) ) {
 					// check each className given, space separated list
-					if ( self.hasClass( className ) ) {
-						self.removeClass( className );
-					} else {
-						self.addClass( className );
-					}
+					state = isBool ? state : !self.hasClass( className );
+					self[ state ? "addClass" : "removeClass" ]( className );
 				}
 
 			// Toggle whole class name
@@ -8650,7 +8906,7 @@ jQuery.extend({
 					// Descend through wrappers to the right content
 					j = wrap[ 0 ];
 					while ( j-- ) {
-						tmp = tmp.lastChild;
+						tmp = tmp.firstChild;
 					}
 
 					// Support: QtWebKit
@@ -9054,12 +9310,10 @@ jQuery.fn.extend({
 		return showHide( this );
 	},
 	toggle: function( state ) {
-		if ( typeof state === "boolean" ) {
-			return state ? this.show() : this.hide();
-		}
+		var bool = typeof state === "boolean";
 
 		return this.each(function() {
-			if ( isHidden( this ) ) {
+			if ( bool ? state : isHidden( this ) ) {
 				jQuery( this ).show();
 			} else {
 				jQuery( this ).hide();
@@ -9090,7 +9344,6 @@ jQuery.extend({
 		"fontWeight": true,
 		"lineHeight": true,
 		"opacity": true,
-		"order": true,
 		"orphans": true,
 		"widows": true,
 		"zIndex": true,
@@ -12689,7 +12942,8 @@ fontdetect = function()
    * function below).
    */
   function UtImage(element, options) {
-    options = $.extend(true, $.fn.utImage.defaults, options);
+    options = $.extend({}, $.fn.utImage.defaults, options);
+    options.ui = $.extend({}, $.fn.utImage.defaults.ui, options.ui);
     var el              = element,
         storagePrefix   = 'utImage_',
         namespace       = 'utImage',
@@ -12896,10 +13150,6 @@ fontdetect = function()
       // Apply any predefined filters.
       if (options.filter) {
         imgOptions.applyShaders = options.filter;
-      }
-
-      if (options && options.i18n && options.i18n.dialogLabel) {
-        options.label = options.i18n.dialogLabel;
       }
 
       // Add the image data if we do a recrop.
@@ -13150,9 +13400,6 @@ fontdetect = function()
       edit: true,
       add: true,
       remove: true
-    },
-    i18n: {
-      dialogLabel: undefined
     }
   };
 
@@ -13202,10 +13449,9 @@ fontdetect = function()
           },
           editable: true,
           i18n:{
-            add:         "add sound",
-            change:      "",
-            error:       "Error occurred",
-            dialogLabel: undefined
+            add:    "add sound",
+            change: "",
+            error:  "Error occurred"
           }
         };
 
@@ -13321,8 +13567,7 @@ fontdetect = function()
             that.modeNS     + '-' +(that.post.context.player?'player':'editor'),
             that.aspectNS   + '-' + that.aspect,
             that.sizeNS     + '-' + that.size,
-            that.touchNS    + '-' + (that.isTouch?'true':'false'),
-            'ut-media-placeholder'
+            that.touchNS    + '-' + (that.isTouch?'true':'false')
             ].join(' ')
             );
         };
@@ -13522,14 +13767,14 @@ fontdetect = function()
           if(that.options.ui.source)   { that.ui.source   = $('<a class="'+that.uiNS+'-source">'         ).appendTo(that.ui.container);}
           if(that.options.editable){
             var changeSound = function(){
-              that.post.dialog('sound',{inputTypes:['search'], label: that.options.i18n.dialogLabel},function(data){
+              that.post.dialog('sound',{inputTypes:['search']},function(data){
                 that.options.data = data;
                 that.update();
                 that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
                 that.post.storage.save();
               });
             };
-            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_sound ut-media-button ut-button"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',changeSound);
+            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_sound"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',changeSound);
             that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>').html(that.options.i18n.change).appendTo(that.ui.container).on('click',changeSound);
           }
 
@@ -14244,10 +14489,9 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           },
           editable: true,
           i18n:{
-            add:          "add video",
-            change:       "",
-            error:        "Error occurred",
-            dialogLabel:  undefined
+            add:    "add video",
+            change: "",
+            error:  "Error occurred"
           }
         };
 
@@ -15255,7 +15499,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           if(that.options.ui.source)  {that.ui.source  = $('<a   class="'+that.uiNS+'-source"></a>'   ).appendTo(that.ui.container);}
           if(that.options.editable){
             var change = function(){
-              that.post.dialog('video',{inputTypes:['search'], label: that.options.i18n.dialogLabel},function(data){
+              that.post.dialog('video',{inputTypes:['search']},function(data){
                 that.options.data = data;
                 that.update();
                 that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
