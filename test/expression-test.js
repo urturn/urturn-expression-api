@@ -30,9 +30,9 @@ describe('UT.Expression', function() {
     it('returns the static API Version before UT.ready', function() {
       expect(UT.Expression.apiVersion()).to.eql('0.0.0');
     });
-    it('still return the static API Version after UT.ready', function() {
+    it('returns the expression API Version after UT.ready', function() {
       TestHelpers.setupExpression(this, {apiVersion: '1.2.3'});
-      expect(UT.Expression.apiVersion()).to.be('0.0.0');
+      expect(UT.Expression.apiVersion()).to.be('1.2.3');
     });
   });
   describe('version()', function(){
