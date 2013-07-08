@@ -2,6 +2,21 @@
 
 # Changelogs
 
+## 1.0.2
+- ADDED Post.dialog('users'...) to display a list of users (who voted what?)
+- ADDED Post.dialog('image', {preferredFormat:'jpeg'}) try to make jpeg from your png image in order to reduce the size
+- ADDED dialog('XX', {label: "Search cats video!"}) -> display a custom placeholder in the chooser search field
+-- ADDED ut-image, ut-audio and ut-video component support this through options.i18n.dialogLabel
+- ADDED @mention in post send mention notifications if fields are indexed
+- ADDED UT.Expression.apiVersion() and UT.Expression.version() added.
+- FIX tons of improvement in the text-widgets
+- FIX minor fixes
+
+## 1.0.0
+- ADDED components
+- ADDED http://developers.urturn.com
+- ADDED showcases
+
 ## 0.9.2
 - FIX : Multiples bugs
 
