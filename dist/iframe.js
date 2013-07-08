@@ -799,6 +799,7 @@ UT.CollectionStore = function(options) {
 })(UT, window, document, undefined);
 
 ; (function(UT, window, document, undefined){
+  "use strict";
   // Scoped variables
   var readyListeners = []; // contains the various ready event callbacks
   var apiListeners = {}; // contains the various api callbacks keyed by uuid
@@ -833,8 +834,13 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return '1.0.2-rc3';
+    return states && states.apiVersion || '1.1.0-alpha';
   };
+
+  UT.Expression.version = function() {
+    return states && states.version || null;
+  };
+
 
   /**
    * Call the server API using post message
@@ -892,7 +898,7 @@ UT.CollectionStore = function(options) {
       states.scrollValues = newScrollValues;
     });
     for(var i = 0; i < readyListeners.length; i++){
-      readyListeners[i].apply(postInstance, [postInstance]);
+      readyListeners[i].call(postInstance, postInstance);
     }
     readyListeners = [];
      _callAPI("changeCurrentState", ["initialized"]);
@@ -927,10 +933,6 @@ UT.CollectionStore = function(options) {
       case 'media' :
         postInstance.fire('media', msg.eventArgs[0]);
         break;
-      default:
-        if(window.console && console.log){
-          // console.log('Unknow event ' + msg.type);
-        }
     }
   };
 
@@ -943,6 +945,7 @@ UT.CollectionStore = function(options) {
     apiListeners = [];
     postInstance = null;
     isReady = false;
+    states = null;
   };
 
   /**
@@ -987,6 +990,7 @@ UT.CollectionStore = function(options) {
     var currentScroll = {scrollTop: 0, scrollBottom: 0};
     var queuedUpTickets = {};
     var eventTypesBindings = {}; // handle event bindings for each event type
+    var isIOSApp = /(urturn)/i.test(navigator.userAgent);
     var collectionStore = new UT.CollectionStore({
       data: states.collections,
       currentUserId: states.currentUserId,
@@ -1218,6 +1222,10 @@ UT.CollectionStore = function(options) {
         }
         delete options.items;
       }
+      if(options.title) {
+        options.label = options.title;
+        delete options.title;
+      }
       if (!self.context.player || !options.users || options.users.length === 0 ) {
         callback.apply(self);
       } else {
@@ -1401,6 +1409,16 @@ UT.CollectionStore = function(options) {
       on('imageAdded', callback);
     };
 
+    var showNode = function() {
+      self.node.style.display = 'block';
+    };
+
+    var hideNodeOnDialog = function() {
+      if (isIOSApp) {
+        self.node.style.display = 'none';
+      }
+    };
+
     /**
      * Create the dialog of the given type using an options object and
      * retrieve the dialog output in the callback.
@@ -1412,14 +1430,14 @@ UT.CollectionStore = function(options) {
       }
 
       // hide the body to avoid weird effect because of latency on mobile
-      document.body.style.visibility = 'hidden';
+      hideNodeOnDialog();
 
       var _scrollPositionTop = currentScroll.scrollTop;
       var _scrollPositionBottom = currentScroll.scrollBottom;
       var _this = this;
       var _callback = function () {
         // readd visibility
-        document.body.style.visibility = 'visible';
+        showNode();
         if(callback){
           _this.scroll({
             scrollTop : _scrollPositionTop,
@@ -1449,6 +1467,7 @@ UT.CollectionStore = function(options) {
      * - 'auto' automatically resize to the actual content size
      */
     var size = this.size = function(sizeInfo, callback) {
+      showNode(); // In case it was hidden, need to be displayed again to compute size
       if(typeof sizeInfo === 'function'){
         callback = sizeInfo;
         sizeInfo = null;
@@ -1640,14 +1659,22 @@ UT.CollectionStore = function(options) {
 
       var hashtagsRegex = /(^|\s|<br\/>|\.)#([A-Za-z0-9_\-ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþş]+)/g,
           mentionsRegex = /(^|\s|<br\/>|\.)@([A-Za-z0-9_\-.]+)/g,
-          urlsRegex     = /(\b(https?):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig,
           linkHashtagsPattern  = '$1<a href="search:#$2" class="ut-navigate-hashtag">#$2</a>',
-          linkMentionsPattern  = '$1<a href="user:$2" class="ut-navigate-mention">@$2</a>',
-          urlsPattern = '<a href="$1" class="ut-navigate-url">$1</a>';
+          linkMentionsPattern  = '$1<a href="user:$2" class="ut-navigate-mention">@$2</a>';
 
       text = text.replace(hashtagsRegex, linkHashtagsPattern);
       text = text.replace(mentionsRegex, linkMentionsPattern);
-      text = text.replace(urlsRegex, urlsPattern);
+
+      text = text.replace(
+        /((https?\:\/\/)|(www\.))(\S+)(\w{2,4})(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/gi,
+        function(url){
+            var full_url = url;
+            if (!full_url.match('^https?:\/\/')) {
+                full_url = 'http://' + full_url;
+            }
+            return '<a href="' + full_url + '" class="ut-navigate-url">' + url + '</a>';
+        }
+      );
 
       return text;
     };
@@ -1704,6 +1731,9 @@ UT.CollectionStore = function(options) {
       }
     };
 
+    /**
+     * true if the user is the post Owner
+     */
     this.isOwner = function(user){
       return user.uuid == states.postUserId;
     };
@@ -2829,7 +2859,7 @@ if (typeof define !== 'undefined' && define.amd) {
 }
 
 /*!
- * jQuery JavaScript Library v2.0.2
+ * jQuery JavaScript Library v2.0.3
  * http://jquery.com/
  *
  * Includes Sizzle.js
@@ -2839,7 +2869,7 @@ if (typeof define !== 'undefined' && define.amd) {
  * Released under the MIT license
  * http://jquery.org/license
  *
- * Date: 2013-05-30T21:25Z
+ * Date: 2013-07-03T13:30Z
  */
 (function( window, undefined ) {
 
@@ -2876,7 +2906,7 @@ var
 	// List of deleted data cache ids, so we can reuse them
 	core_deletedIds = [],
 
-	core_version = "2.0.2",
+	core_version = "2.0.3",
 
 	// Save a reference to some core methods
 	core_concat = core_deletedIds.concat,
@@ -3702,7 +3732,7 @@ rootjQuery = jQuery(document);
  * Released under the MIT license
  * http://jquery.org/license
  *
- * Date: 2013-05-27
+ * Date: 2013-06-03
  */
 (function( window, undefined ) {
 
@@ -3735,7 +3765,13 @@ var i,
 	tokenCache = createCache(),
 	compilerCache = createCache(),
 	hasDuplicate = false,
-	sortOrder = function() { return 0; },
+	sortOrder = function( a, b ) {
+		if ( a === b ) {
+			hasDuplicate = true;
+			return 0;
+		}
+		return 0;
+	},
 
 	// General-purpose constants
 	strundefined = typeof undefined,
@@ -3979,14 +4015,6 @@ function Sizzle( selector, context, results, seed ) {
 }
 
 /**
- * For feature detection
- * @param {Function} fn The function to test for native support
- */
-function isNative( fn ) {
-	return rnative.test( fn + "" );
-}
-
-/**
  * Create key-value caches of limited size
  * @returns {Function(string, Object)} Returns the Object data after storing it on itself with
  *	property name the (space-suffixed) string and (if the cache is larger than Expr.cacheLength)
@@ -4039,58 +4067,14 @@ function assert( fn ) {
 /**
  * Adds the same handler for all of the specified attrs
  * @param {String} attrs Pipe-separated list of attributes
- * @param {Function} handler The method that will be applied if the test fails
- * @param {Boolean} test The result of a test. If true, null will be set as the handler in leiu of the specified handler
+ * @param {Function} handler The method that will be applied
  */
-function addHandle( attrs, handler, test ) {
-	attrs = attrs.split("|");
-	var current,
-		i = attrs.length,
-		setHandle = test ? null : handler;
+function addHandle( attrs, handler ) {
+	var arr = attrs.split("|"),
+		i = attrs.length;
 
 	while ( i-- ) {
-		// Don't override a user's handler
-		if ( !(current = Expr.attrHandle[ attrs[i] ]) || current === handler ) {
-			Expr.attrHandle[ attrs[i] ] = setHandle;
-		}
-	}
-}
-
-/**
- * Fetches boolean attributes by node
- * @param {Element} elem
- * @param {String} name
- */
-function boolHandler( elem, name ) {
-	// XML does not need to be checked as this will not be assigned for XML documents
-	var val = elem.getAttributeNode( name );
-	return val && val.specified ?
-		val.value :
-		elem[ name ] === true ? name.toLowerCase() : null;
-}
-
-/**
- * Fetches attributes without interpolation
- * http://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
- * @param {Element} elem
- * @param {String} name
- */
-function interpolationHandler( elem, name ) {
-	// XML does not need to be checked as this will not be assigned for XML documents
-	return elem.getAttribute( name, name.toLowerCase() === "type" ? 1 : 2 );
-}
-
-/**
- * Uses defaultValue to retrieve value in IE6/7
- * @param {Element} elem
- * @param {String} name
- */
-function valueHandler( elem ) {
-	// Ignore the value *property* on inputs by using defaultValue
-	// Fallback to Sizzle.attr by returning undefined where appropriate
-	// XML does not need to be checked as this will not be assigned for XML documents
-	if ( elem.nodeName.toLowerCase() === "input" ) {
-		return elem.defaultValue;
+		Expr.attrHandle[ arr[i] ] = handler;
 	}
 }
 
@@ -4098,7 +4082,7 @@ function valueHandler( elem ) {
  * Checks document order of two siblings
  * @param {Element} a
  * @param {Element} b
- * @returns Returns -1 if a precedes b, 1 if a follows b
+ * @returns {Number} Returns less than 0 if a precedes b, greater than 0 if a follows b
  */
 function siblingCheck( a, b ) {
 	var cur = b && a,
@@ -4188,7 +4172,7 @@ support = Sizzle.support = {};
  */
 setDocument = Sizzle.setDocument = function( node ) {
 	var doc = node ? node.ownerDocument || node : preferredDoc,
-		parent = doc.parentWindow;
+		parent = doc.defaultView;
 
 	// If no document and documentElement is available, return
 	if ( doc === document || doc.nodeType !== 9 || !doc.documentElement ) {
@@ -4205,6 +4189,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// Support: IE>8
 	// If iframe document is assigned to "document" variable and if iframe has been reloaded,
 	// IE will throw "permission denied" error when accessing "document" variable, see jQuery #13936
+	// IE6-8 do not support the defaultView property so parent will be undefined
 	if ( parent && parent.attachEvent && parent !== parent.top ) {
 		parent.attachEvent( "onbeforeunload", function() {
 			setDocument();
@@ -4217,31 +4202,9 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// Support: IE<8
 	// Verify that getAttribute really returns attributes and not properties (excepting IE8 booleans)
 	support.attributes = assert(function( div ) {
-
-		// Support: IE<8
-		// Prevent attribute/property "interpolation"
-		div.innerHTML = "<a href='#'></a>";
-		addHandle( "type|href|height|width", interpolationHandler, div.firstChild.getAttribute("href") === "#" );
-
-		// Support: IE<9
-		// Use getAttributeNode to fetch booleans when getAttribute lies
-		addHandle( booleans, boolHandler, div.getAttribute("disabled") == null );
-
 		div.className = "i";
 		return !div.getAttribute("className");
 	});
-
-	// Support: IE<9
-	// Retrieving value should defer to defaultValue
-	support.input = assert(function( div ) {
-		div.innerHTML = "<input>";
-		div.firstChild.setAttribute( "value", "" );
-		return div.firstChild.getAttribute( "value" ) === "";
-	});
-
-	// IE6/7 still return empty string for value,
-	// but are actually retrieving the property
-	addHandle( "value", valueHandler, support.attributes && support.input );
 
 	/* getElement(s)By*
 	---------------------------------------------------------------------- */
@@ -4351,7 +4314,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// See http://bugs.jquery.com/ticket/13378
 	rbuggyQSA = [];
 
-	if ( (support.qsa = isNative(doc.querySelectorAll)) ) {
+	if ( (support.qsa = rnative.test( doc.querySelectorAll )) ) {
 		// Build QSA regex
 		// Regex strategy adopted from Diego Perini
 		assert(function( div ) {
@@ -4403,7 +4366,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 		});
 	}
 
-	if ( (support.matchesSelector = isNative( (matches = docElem.webkitMatchesSelector ||
+	if ( (support.matchesSelector = rnative.test( (matches = docElem.webkitMatchesSelector ||
 		docElem.mozMatchesSelector ||
 		docElem.oMatchesSelector ||
 		docElem.msMatchesSelector) )) ) {
@@ -4429,7 +4392,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// Element contains another
 	// Purposefully does not implement inclusive descendent
 	// As in, an element does not contain itself
-	contains = isNative(docElem.contains) || docElem.compareDocumentPosition ?
+	contains = rnative.test( docElem.contains ) || docElem.compareDocumentPosition ?
 		function( a, b ) {
 			var adown = a.nodeType === 9 ? a.documentElement : a,
 				bup = b && b.parentNode;
@@ -4452,13 +4415,6 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 	/* Sorting
 	---------------------------------------------------------------------- */
-
-	// Support: Webkit<537.32 - Safari 6.0.3/Chrome 25 (fixed in Chrome 27)
-	// Detached nodes confoundingly follow *each other*
-	support.sortDetached = assert(function( div1 ) {
-		// Should return 1, but returns 4 (following)
-		return div1.compareDocumentPosition( doc.createElement("div") ) & 1;
-	});
 
 	// Document order sorting
 	sortOrder = docElem.compareDocumentPosition ?
@@ -4602,9 +4558,9 @@ Sizzle.attr = function( elem, name ) {
 
 	var fn = Expr.attrHandle[ name.toLowerCase() ],
 		// Don't get fooled by Object.prototype properties (jQuery #13807)
-		val = ( fn && hasOwn.call( Expr.attrHandle, name.toLowerCase() ) ?
+		val = fn && hasOwn.call( Expr.attrHandle, name.toLowerCase() ) ?
 			fn( elem, name, !documentIsHTML ) :
-			undefined );
+			undefined;
 
 	return val === undefined ?
 		support.attributes || !documentIsHTML ?
@@ -5149,6 +5105,8 @@ Expr = Sizzle.selectors = {
 	}
 };
 
+Expr.pseudos["nth"] = Expr.pseudos["eq"];
+
 // Add button/input type pseudos
 for ( i in { radio: true, checkbox: true, file: true, password: true, image: true } ) {
 	Expr.pseudos[ i ] = createInputPseudo( i );
@@ -5156,6 +5114,11 @@ for ( i in { radio: true, checkbox: true, file: true, password: true, image: tru
 for ( i in { submit: true, reset: true } ) {
 	Expr.pseudos[ i ] = createButtonPseudo( i );
 }
+
+// Easy API for creating new setFilters
+function setFilters() {}
+setFilters.prototype = Expr.filters = Expr.pseudos;
+Expr.setFilters = new setFilters();
 
 function tokenize( selector, parseOnly ) {
 	var matched, match, tokens, type,
@@ -5668,26 +5631,67 @@ function select( selector, context, results, seed ) {
 	return results;
 }
 
-// Deprecated
-Expr.pseudos["nth"] = Expr.pseudos["eq"];
-
-// Easy API for creating new setFilters
-function setFilters() {}
-setFilters.prototype = Expr.filters = Expr.pseudos;
-Expr.setFilters = new setFilters();
-
 // One-time assignments
 
 // Sort stability
 support.sortStable = expando.split("").sort( sortOrder ).join("") === expando;
 
+// Support: Chrome<14
+// Always assume duplicates if they aren't passed to the comparison function
+support.detectDuplicates = hasDuplicate;
+
 // Initialize against the default document
 setDocument();
 
-// Support: Chrome<<14
-// Always assume duplicates if they aren't passed to the comparison function
-[0, 0].sort( sortOrder );
-support.detectDuplicates = hasDuplicate;
+// Support: Webkit<537.32 - Safari 6.0.3/Chrome 25 (fixed in Chrome 27)
+// Detached nodes confoundingly follow *each other*
+support.sortDetached = assert(function( div1 ) {
+	// Should return 1, but returns 4 (following)
+	return div1.compareDocumentPosition( document.createElement("div") ) & 1;
+});
+
+// Support: IE<8
+// Prevent attribute/property "interpolation"
+// http://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
+if ( !assert(function( div ) {
+	div.innerHTML = "<a href='#'></a>";
+	return div.firstChild.getAttribute("href") === "#" ;
+}) ) {
+	addHandle( "type|href|height|width", function( elem, name, isXML ) {
+		if ( !isXML ) {
+			return elem.getAttribute( name, name.toLowerCase() === "type" ? 1 : 2 );
+		}
+	});
+}
+
+// Support: IE<9
+// Use defaultValue in place of getAttribute("value")
+if ( !support.attributes || !assert(function( div ) {
+	div.innerHTML = "<input/>";
+	div.firstChild.setAttribute( "value", "" );
+	return div.firstChild.getAttribute( "value" ) === "";
+}) ) {
+	addHandle( "value", function( elem, name, isXML ) {
+		if ( !isXML && elem.nodeName.toLowerCase() === "input" ) {
+			return elem.defaultValue;
+		}
+	});
+}
+
+// Support: IE<9
+// Use getAttributeNode to fetch booleans when getAttribute lies
+if ( !assert(function( div ) {
+	return div.getAttribute("disabled") == null;
+}) ) {
+	addHandle( booleans, function( elem, name, isXML ) {
+		var val;
+		if ( !isXML ) {
+			return (val = elem.getAttributeNode( name )) && val.specified ?
+				val.value :
+				elem[ name ] === true ? name.toLowerCase() : null;
+		}
+	});
+}
 
 jQuery.find = Sizzle;
 jQuery.expr = Sizzle.selectors;
@@ -5872,9 +5876,9 @@ jQuery.Callbacks = function( options ) {
 			},
 			// Call all callbacks with the given context and arguments
 			fireWith: function( context, args ) {
-				args = args || [];
-				args = [ context, args.slice ? args.slice() : args ];
 				if ( list && ( !fired || stack ) ) {
+					args = args || [];
+					args = [ context, args.slice ? args.slice() : args ];
 					if ( firing ) {
 						stack.push( args );
 					} else {
@@ -6265,6 +6269,7 @@ Data.prototype = {
 			cache : cache[ key ];
 	},
 	access: function( owner, key, value ) {
+		var stored;
 		// In cases where either:
 		//
 		//   1. No key was specified
@@ -6278,7 +6283,11 @@ Data.prototype = {
 		//
 		if ( key === undefined ||
 				((key && typeof key === "string") && value === undefined) ) {
-			return this.get( owner, key );
+
+			stored = this.get( owner, key );
+
+			return stored !== undefined ?
+				stored : this.get( owner, jQuery.camelCase(key) );
 		}
 
 		// [*]When the key is not a string, or both a key and value
@@ -6750,8 +6759,11 @@ jQuery.fn.extend({
 	},
 
 	toggleClass: function( value, stateVal ) {
-		var type = typeof value,
-			isBool = typeof stateVal === "boolean";
+		var type = typeof value;
+
+		if ( typeof stateVal === "boolean" && type === "string" ) {
+			return stateVal ? this.addClass( value ) : this.removeClass( value );
+		}
 
 		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( i ) {
@@ -6765,13 +6777,15 @@ jQuery.fn.extend({
 				var className,
 					i = 0,
 					self = jQuery( this ),
-					state = stateVal,
 					classNames = value.match( core_rnotwhite ) || [];
 
 				while ( (className = classNames[ i++ ]) ) {
 					// check each className given, space separated list
-					state = isBool ? state : !self.hasClass( className );
-					self[ state ? "addClass" : "removeClass" ]( className );
+					if ( self.hasClass( className ) ) {
+						self.removeClass( className );
+					} else {
+						self.addClass( className );
+					}
 				}
 
 			// Toggle whole class name
@@ -8636,7 +8650,7 @@ jQuery.extend({
 					// Descend through wrappers to the right content
 					j = wrap[ 0 ];
 					while ( j-- ) {
-						tmp = tmp.firstChild;
+						tmp = tmp.lastChild;
 					}
 
 					// Support: QtWebKit
@@ -9040,10 +9054,12 @@ jQuery.fn.extend({
 		return showHide( this );
 	},
 	toggle: function( state ) {
-		var bool = typeof state === "boolean";
+		if ( typeof state === "boolean" ) {
+			return state ? this.show() : this.hide();
+		}
 
 		return this.each(function() {
-			if ( bool ? state : isHidden( this ) ) {
+			if ( isHidden( this ) ) {
 				jQuery( this ).show();
 			} else {
 				jQuery( this ).hide();
@@ -9074,6 +9090,7 @@ jQuery.extend({
 		"fontWeight": true,
 		"lineHeight": true,
 		"opacity": true,
+		"order": true,
 		"orphans": true,
 		"widows": true,
 		"zIndex": true,
@@ -12672,8 +12689,7 @@ fontdetect = function()
    * function below).
    */
   function UtImage(element, options) {
-    options = $.extend({}, $.fn.utImage.defaults, options);
-    options.ui = $.extend({}, $.fn.utImage.defaults.ui, options.ui);
+    options = $.extend(true, $.fn.utImage.defaults, options);
     var el              = element,
         storagePrefix   = 'utImage_',
         namespace       = 'utImage',
@@ -12880,6 +12896,10 @@ fontdetect = function()
       // Apply any predefined filters.
       if (options.filter) {
         imgOptions.applyShaders = options.filter;
+      }
+
+      if (options && options.i18n && options.i18n.dialogLabel) {
+        options.label = options.i18n.dialogLabel;
       }
 
       // Add the image data if we do a recrop.
@@ -13130,6 +13150,9 @@ fontdetect = function()
       edit: true,
       add: true,
       remove: true
+    },
+    i18n: {
+      dialogLabel: undefined
     }
   };
 
@@ -13179,9 +13202,10 @@ fontdetect = function()
           },
           editable: true,
           i18n:{
-            add:    "add sound",
-            change: "",
-            error:  "Error occurred"
+            add:         "add sound",
+            change:      "",
+            error:       "Error occurred",
+            dialogLabel: undefined
           }
         };
 
@@ -13297,7 +13321,8 @@ fontdetect = function()
             that.modeNS     + '-' +(that.post.context.player?'player':'editor'),
             that.aspectNS   + '-' + that.aspect,
             that.sizeNS     + '-' + that.size,
-            that.touchNS    + '-' + (that.isTouch?'true':'false')
+            that.touchNS    + '-' + (that.isTouch?'true':'false'),
+            'ut-media-placeholder'
             ].join(' ')
             );
         };
@@ -13497,14 +13522,14 @@ fontdetect = function()
           if(that.options.ui.source)   { that.ui.source   = $('<a class="'+that.uiNS+'-source">'         ).appendTo(that.ui.container);}
           if(that.options.editable){
             var changeSound = function(){
-              that.post.dialog('sound',{inputTypes:['search']},function(data){
+              that.post.dialog('sound',{inputTypes:['search'], label: that.options.i18n.dialogLabel},function(data){
                 that.options.data = data;
                 that.update();
                 that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
                 that.post.storage.save();
               });
             };
-            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_sound"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',changeSound);
+            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_sound ut-media-button ut-button"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',changeSound);
             that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>').html(that.options.i18n.change).appendTo(that.ui.container).on('click',changeSound);
           }
 
@@ -14219,9 +14244,10 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           },
           editable: true,
           i18n:{
-            add:    "add video",
-            change: "",
-            error:  "Error occurred"
+            add:          "add video",
+            change:       "",
+            error:        "Error occurred",
+            dialogLabel:  undefined
           }
         };
 
@@ -15229,7 +15255,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           if(that.options.ui.source)  {that.ui.source  = $('<a   class="'+that.uiNS+'-source"></a>'   ).appendTo(that.ui.container);}
           if(that.options.editable){
             var change = function(){
-              that.post.dialog('video',{inputTypes:['search']},function(data){
+              that.post.dialog('video',{inputTypes:['search'], label: that.options.i18n.dialogLabel},function(data){
                 that.options.data = data;
                 that.update();
                 that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
@@ -15511,7 +15537,7 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
           var keys = [8, 9, 16, 17, 18, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 46, 144, 145];
 
           if( $.inArray(e.keyCode, keys) === -1) {
-            if (options.chars && charsCount() >= options.chars) {
+            if (options.chars && charsCount() >= options.chars && !e.metaKey) {
               e.preventDefault();
               e.stopPropagation();
             }
