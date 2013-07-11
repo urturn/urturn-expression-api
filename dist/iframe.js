@@ -834,7 +834,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.0.3-alpha1';
+    return states && states.apiVersion || '1.0.3-alpha2';
   };
 
   UT.Expression.version = function() {
@@ -1645,7 +1645,7 @@ UT.CollectionStore = function(options) {
      * Enable or diable the rotation of screen on mobile devices
      * @param  {boolean} enable If true rotation is enable, if false rotatin is disable
      */
-    var enableRotation = function(enable) {
+    var enableRotation = this.enableRotation = function(enable) {
       UT.Expression._callAPI('container.enableRotation', [enable], function(){});
     };
 
