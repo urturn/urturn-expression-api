@@ -834,7 +834,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.1.0-alpha';
+    return states && states.apiVersion || '1.0.3-alpha1';
   };
 
   UT.Expression.version = function() {
@@ -1235,6 +1235,12 @@ UT.CollectionStore = function(options) {
       }
     };
 
+    var suggestRotationDialog = function(options, callback) {
+      UT.Expression._callAPI('dialog.suggestRotation', [options], function(){
+          callback.apply(self);
+        });
+    };
+
     // Handler for the various dialog type
     var dialogHandler = {
       text: textDialog,
@@ -1242,7 +1248,8 @@ UT.CollectionStore = function(options) {
       sound: soundDialog,
       video: videoDialog,
       crop: cropDialog,
-      users: userListDialog
+      users: userListDialog,
+      suggestRotation : suggestRotationDialog
     };
 
 
@@ -1633,6 +1640,15 @@ UT.CollectionStore = function(options) {
       });
     };
 
+
+    /**
+     * Enable or diable the rotation of screen on mobile devices
+     * @param  {boolean} enable If true rotation is enable, if false rotatin is disable
+     */
+    var enableRotation = function(enable) {
+      UT.Expression._callAPI('container.enableRotation', [enable], function(){});
+    };
+
     /**
      * urturn
      * Make a urturn on this post
@@ -1922,7 +1938,7 @@ UT.Image = function(imageDescriptor) {
       this.descriptor.url = imageDescriptor;
       this.descriptor._type = 'image';
     }
-    else {
+    else if (imageDescriptor && imageDescriptor.url) {
       this.url = imageDescriptor.url;
       this.descriptor = imageDescriptor;
       this.info = imageDescriptor.info;
