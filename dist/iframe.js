@@ -834,7 +834,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.0.3-alpha2';
+    return states && states.apiVersion || '1.0.3-alpha3';
   };
 
   UT.Expression.version = function() {
@@ -12705,7 +12705,7 @@ fontdetect = function()
    * function below).
    */
   function UtImage(element, options) {
-    options = $.extend(true, $.fn.utImage.defaults, options);
+    options = $.extend({},$.fn.utImage.defaults,options);
     var el              = element,
         storagePrefix   = 'utImage_',
         namespace       = 'utImage',
@@ -12853,7 +12853,7 @@ fontdetect = function()
       if (options.data && options.reuse && reusePost) {
         $('.ut-image-action-list li',$el).eq(0).addClass('is-hidden');
       }
-      
+
       if (!options.data && options.autoAdd === true) {
           addImage();
       }
@@ -13537,16 +13537,8 @@ fontdetect = function()
           if(that.options.ui.time)     { that.ui.time     = $('<div class="'+that.uiNS+'-time">'         ).appendTo(that.ui.container);}
           if(that.options.ui.source)   { that.ui.source   = $('<a class="'+that.uiNS+'-source">'         ).appendTo(that.ui.container);}
           if(that.options.editable){
-            var changeSound = function(){
-              that.post.dialog('sound',{inputTypes:['search'], label: that.options.i18n.dialogLabel},function(data){
-                that.options.data = data;
-                that.update();
-                that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
-                that.post.storage.save();
-              });
-            };
-            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_sound ut-media-button ut-button"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',changeSound);
-            that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>').html(that.options.i18n.change).appendTo(that.ui.container).on('click',changeSound);
+            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_sound ut-media-button ut-button"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',function(){that.utDialog({});});
+            that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>').html(that.options.i18n.change).appendTo(that.ui.container).on('click',function(){that.utDialog({});});
           }
 
           that.aspect = 'square'; //TODO - make it more clear
@@ -13730,6 +13722,26 @@ fontdetect = function()
           that.update();
         };
 
+        that.utDialog = function(opt) {
+          var options = {
+            inputTypes:['search'],
+            label: that.options.i18n.dialogLabel
+          };
+          if(!$.isEmptyObject(opt)) {
+            options = $.extend(true, options, opt);
+          }
+
+          that.post.dialog('sound',options,function(data){
+            if(!data){
+              that.eventer('dialogclose');
+            } else {
+              that.options.data = data;
+              that.update();
+              that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
+              that.post.storage.save();      
+            }
+          });
+        };
 
         that.oldOptions = $.extend(true, {}, that.options);
         that.update();
@@ -13789,6 +13801,15 @@ fontdetect = function()
       this.each(function() {
         if(this.utAudio && this.utAudio.utDestroy){
           this.utAudio.utDestroy.call(this);
+        }
+      });
+      return this;
+    },
+
+    dialog: function(options) {
+      this.each(function() {
+        if(this.utAudio && this.utAudio.utDialog){
+          this.utAudio.utDialog.call(this,options);
         }
       });
       return this;
@@ -15074,6 +15095,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
         };
 
 
+
         /************************************************************/
         /* video.embedProcessor end*/
         /************************************************************/
@@ -15183,6 +15205,27 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           that.update();
         };
 
+        that.utDialog = function(opt) {
+          var options = {
+            inputTypes:['search'],
+            label: that.options.i18n.dialogLabel
+          };
+          if(!$.isEmptyObject(opt)) {
+            options = $.extend(true, options, opt);
+          }
+
+          that.post.dialog('video',options,function(data){
+            if(!data){
+              that.eventer('dialogclose');
+            } else {
+              that.options.data = data;
+              that.update();
+              that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
+              that.post.storage.save();      
+            }
+          });
+        };
+
         that.setState = function(state) {
           that.currents.state = state;
           that.ui.container.removeClass().addClass(
@@ -15270,16 +15313,8 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           if(that.options.ui.title)   {that.ui.title   = $('<h1  class="'+that.uiNS+'-title"></h1>'   ).appendTo(that.ui.container);}
           if(that.options.ui.source)  {that.ui.source  = $('<a   class="'+that.uiNS+'-source"></a>'   ).appendTo(that.ui.container);}
           if(that.options.editable){
-            var change = function(){
-              that.post.dialog('video',{inputTypes:['search'], label: that.options.i18n.dialogLabel},function(data){
-                that.options.data = data;
-                that.update();
-                that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
-                that.post.storage.save();
-              });
-            };
-            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_video ut-media-button ut-button"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',change);
-            that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>').html(that.options.i18n.edit).appendTo(that.ui.container).on('click',change);
+            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_video ut-media-button ut-button"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',function(){that.utDialog({});});
+            that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>').html(that.options.i18n.edit).appendTo(that.ui.container).on('click',function(){that.utDialog({});});
           }
 
           that.aspect = 'square'; //TODO - make it more clear
@@ -15350,6 +15385,15 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
       this.each(function() {
         if(this.utVideo && this.utVideo.utDestroy){
           this.utVideo.utDestroy.call(this);
+        }
+      });
+      return this;
+    },
+
+    dialog: function(options) {
+      this.each(function() {
+        if(this.utVideo && this.utVideo.utDialog){
+          this.utVideo.utDialog.call(this,options);
         }
       });
       return this;
