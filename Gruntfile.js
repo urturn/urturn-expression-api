@@ -19,7 +19,6 @@ module.exports = function(grunt) {
 
   // List all source files that might be include.
   var sources = [
-    'lib/expression-api/tweak_iframe.js',
     'lib/expression-api/namespace.js',
     'lib/expression-api/uuid.js',
     'lib/expression-api/compat.js',

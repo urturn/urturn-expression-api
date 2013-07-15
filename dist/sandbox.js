@@ -74,7 +74,7 @@ UT.UUID = UT.uuid;
 /**
  * Fix touch events with text input on iOS
  */
-(function (global, isIframe) {
+UT.Expression.touchEventFix = (function (global, isIframe) {
   "use strict";
   //Test if it is an iOS device and that we may swap the implementation
   if (!/(iPad|iPhone|iPod)/g.test(global.navigator.userAgent) || !Element.prototype.addEventListener) {
