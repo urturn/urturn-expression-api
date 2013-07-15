@@ -834,7 +834,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.0.3-alpha4';
+    return states && states.apiVersion || '1.0.3-alpha5';
   };
 
   UT.Expression.version = function() {
@@ -12998,10 +12998,10 @@ fontdetect = function()
 
         that._getCurrentData = function() {
           return {
-            width: that.data.pos.width,
-            height: that.data.pos.width/that.data.pos.ratio,
-            rotation: that.data.pos.rotation * 180 / Math.PI,
-            zIndex: that.data.pos.zIndex
+            width: that.pos.width,
+            height: that.pos.width/that.pos.ratio,
+            rotation: that.pos.rotation * 180 / Math.PI,
+            zIndex: that.pos.zIndex
           };
         };
 
