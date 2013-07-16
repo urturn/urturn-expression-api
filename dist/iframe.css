@@ -1890,128 +1890,16 @@ you can use the generic selector below, but it's slower:
 
 .icon_activity:before {
   content: "\e0a4"; }
-.ut-sticker {
-  /*padding: 2px;*/
-  background-clip: content-box;
+.ut-sticker-wrapper {
+  border: 1px solid rgba(0,0,0,0);
 }
 
-.ut-sticker.ut-sticker-edit {
-  cursor: url('components/jquery.ut-sticker/d3ivn4i0pje4wg.cloudfront.net/assets/cursors/openhand-34aecee1db450dfe016944444707f790.cur'), move;
+.ut-sticker-focus {
+  border-color: #EFEFEF;
 }
 
-.ut-sticker.ut-sticker-edit.ut-sticker-focus {
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.6);
-  background-color: rgba(0,0,0,0.15);
-}
-
-/********************************************************************************
- * buttons
- ********************************************************************************/
-.ut-sticker .ut-sticker-button {
-  position: absolute;
-  display: none;
-  z-index: 10000;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
-}
-
-.ut-sticker .ut-sticker-content {
-  width: 100%;
-  height: 100%;
-}
-
-.ut-sticker .ut-sticker-content.ut-sticker-flip {
-  -webkit-transform: rotate(180deg);
-  -moz-transform: rotate(180deg);
-  -ms-transform: rotate(180deg);
-  -o-transform: rotate(180deg);
-  transform: rotate(180deg);
-}
-
-.ut-sticker.ut-sticker-edit.ut-sticker-focus > .ut-sticker-button {
-  display: block;
-}
-
-.ut-sticker.ut-sticker-moving > .ut-sticker-button {
-  visibility: hidden !important;
-}
-
-.ut-sticker > .ut-sticker-button {
-  width: 30px;
-  height: 30px;
-  line-height: 30px;
-  border-radius: 50%;
-  text-align: center;
-  color: rgb(240,240,240);
-  background: rgb(49,50,49);
-  background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgdmlld0JveD0iMCAwIDEgMSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ibm9uZSI+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkLXVjZ2ctZ2VuZXJhdGVkIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgeDE9IjAlIiB5MT0iMCUiIHgyPSIwJSIgeTI9IjEwMCUiPgogICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iIzMxMzIzMSIgc3RvcC1vcGFjaXR5PSIxIi8+CiAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiMyMDIwMjAiIHN0b3Atb3BhY2l0eT0iMSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CiAgPHJlY3QgeD0iMCIgeT0iMCIgd2lkdGg9IjEiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
-  background: -moz-linear-gradient(top,  rgba(49,50,49,1) 0%, rgba(32,32,32,1) 100%);
-  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(49,50,49,1)), color-stop(100%,rgba(32,32,32,1)));
-  background: -webkit-linear-gradient(top,  rgba(49,50,49,1) 0%,rgba(32,32,32,1) 100%);
-  background: -o-linear-gradient(top,  rgba(49,50,49,1) 0%,rgba(32,32,32,1) 100%);
-  background: -ms-linear-gradient(top,  rgba(49,50,49,1) 0%,rgba(32,32,32,1) 100%);
-  background: linear-gradient(to bottom,  rgba(49,50,49,1) 0%,rgba(32,32,32,1) 100%);
-}
-
-/* rotate */
-.ut-sticker > .ut-sticker-button-rotate {
-  right: -2px;
-  bottom: -2px;
-  cursor: move;
-}
-
-.ut-sticker > .ut-sticker-button-rotate:before {
-  font-size: 19px;
-}
-
-/* resize */
-.ut-sticker > .ut-sticker-button-resize {
-  right: -22px;
-  bottom: -22px;
-  cursor: move;
-}
-
-.ut-sticker > .ut-sticker-button-resize:before {
-  font-size: 17px;
-}
-
-.ut-sticker.ut-sticker-one-scale-size-button > .ut-sticker-button-resize,
-.ut-sticker.ut-sticker-one-scale-size-button > .ut-sticker-button-rotate {
-  right: -20px;
-  bottom: -20px;
-}
-
-/* remove */
-.ut-sticker > .ut-sticker-button-remove {
-  left: -20px;
-  top: -20px;
-  right: auto;
-  bottom: auto;
-  cursor: pointer;
-}
-
-.ut-sticker > .ut-sticker-button-remove:before {
-  font-size: 19px;
-}
-
-/* edit */
-.ut-sticker > .ut-sticker-button-edit {
-  right: -20px;
-  top: -20px;
-  bottom: auto;
-  cursor: pointer;
-}
-
-.ut-sticker > .ut-sticker-button-edit:before {
-  font-size: 19px;
-}
-
-.ut-sticker > .ut-sticker-button:hover,
-.ut-sticker > .ut-sticker-button:active {
-  text-decoration: none;
+.ut-sticker-parent {
+  overflow: hidden;
 }
 /*
  * This source code is licensed under version 3 of the AGPL.
@@ -2074,9 +1962,15 @@ you can use the generic selector below, but it's slower:
 	width: 100%;
 	height: 100%;
 	position: absolute;
+	background-color: rgb(0,0,0,1);
+	background-image: -webkit-linear-gradient(rgb(77, 77, 77), rgb(51, 51, 51));
+	background-image:    -moz-linear-gradient(rgb(77, 77, 77), rgb(51, 51, 51));
+	background-image:      -o-linear-gradient(rgb(77, 77, 77), rgb(51, 51, 51));
+	background-image:         linear-gradient(rgb(77, 77, 77), rgb(51, 51, 51));
 	font-family: 'RobotoRegular', helvetica, arial, sans-serif;
 	z-index: 0;
 	overflow: hidden;
+	box-shadow: 0 5px 10px 0 rgba(0,0,0,0.4) inset;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -2134,7 +2028,40 @@ you can use the generic selector below, but it's slower:
 .ut-audio-skin-default.ut-audio-mode-editor.ut-audio-state-empty .ut-audio-ui-add,
 .ut-audio-skin-default.ut-audio-mode-editor.ut-audio-state-error .ut-audio-ui-add {
 	display: block;
-  	font-family: 'Helvetica Neue', helvetica, arial, sans-serif;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+  width: 103px;
+  height: auto;
+  padding: 10px;
+  background: rgba(0,0,0,0.6);
+  border-radius: 5px;
+  margin-top: -40px;
+  margin-left: -50px;
+  font-size: 13px;
+  color: rgba(240,240,240,1);
+  line-height: 20px;
+  font-weight: bold;
+  text-shadow: 0 0 0 transparent;
+  font-family: 'Helvetica Neue', helvetica, arial, sans-serif;
+}
+
+.ut-audio-skin-default .ut-audio-ui-add:hover {
+  background: rgba(40,40,40,1);
+  text-shadow: 0 1px 1px rgba(0,0,0,0.5);
+  box-shadow: -1px 1px 0 0 rgba(30,30,30,1), 1px -1px 0 0 rgba(60,60,60,1);
+}
+
+.ut-audio-skin-default .ut-audio-ui-add:active {
+  color: rgba(20,20,20,1);
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.05);
+  box-shadow: 1px -1px 0 0 rgba(30,30,30,1), -1px 1px 0 0 rgba(60,60,60,1);
+}
+
+.ut-audio-skin-default .ut-audio-ui-add[class*="icon_"]:before{
+  font-size: 28px;
+  display: block;
+  padding: 15px 0 5px 0;
 }
 
 /*----------------------  PREVIEW  PANEL  -----------------------------------*/

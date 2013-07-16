@@ -112,8 +112,6 @@ UT.Expression.touchEventFix = (function (global, isIframe) {
         listener = arguments[1],
         shouldAddListener = true;
 
-
-
       if ((type === 'touchstart' || type === 'touchend' || type === 'touchcancel' || type === 'touchmove' || type === 'touchleave') &&
         typeof listener === 'function') {
         if (touchEventsEnabled) {
@@ -142,7 +140,7 @@ UT.Expression.touchEventFix = (function (global, isIframe) {
 
       if ((type === 'touchstart' || type === 'touchend' || type === 'touchcancel' || type === 'touchmove' || type === 'touchleave') &&
         typeof listener === 'function') {
-        if (eventListeners[this.__UT__uuid][type]) {
+        if (eventListeners[this.__UT__uuid] && eventListeners[this.__UT__uuid][type]) {
           delete eventListeners[this.__UT__uuid][type];
         }
       }
