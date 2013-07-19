@@ -1956,6 +1956,10 @@ you can use the generic selector below, but it's slower:
   background: linear-gradient(to bottom,  rgba(49,50,49,1) 0%,rgba(32,32,32,1) 100%);
 }
 
+.ut-sticker > .ut-sticker-button:before {
+  vertical-align: top;
+}
+
 /* rotate */
 .ut-sticker > .ut-sticker-button-rotate {
   right: -2px;

@@ -2,30 +2,37 @@
 
 # Changelogs
 
+## 1.1.0
+- REFACTOR: the jquery.ut-sticker components and API
+- REFACTOR: the jquery.ut-sound components and API
+- REFACTOR: the jquery.ut-video components and API
+- FIX: dialog('XX', {label: "Search cats video!"}) who was broken in 1.0.2
+- FIX: minor fixes
+
 ## 1.0.2
-- ADDED Post.dialog('users'...) to display a list of users (who voted what?)
-- ADDED Post.dialog('image', {preferredFormat:'jpeg'}) try to make jpeg from your png image in order to reduce the size
-- ADDED dialog('XX', {label: "Search cats video!"}) -> display a custom placeholder in the chooser search field
--- ADDED ut-image, ut-audio and ut-video component support this through options.i18n.dialogLabel
-- ADDED @mention in post send mention notifications if fields are indexed
-- ADDED UT.Expression.apiVersion() and UT.Expression.version() added.
-- FIX tons of improvement in the text-widgets
-- FIX minor fixes
+- ADDED: Post.dialog('users'...) to display a list of users (who voted what?)
+- ADDED: Post.dialog('image', {preferredFormat:'jpeg'}) try to make jpeg from your png image in order to reduce the size
+- ADDED: dialog('XX', {label: "Search cats video!"}) -> display a custom placeholder in the chooser search field
+-- ADDED: ut-image, ut-audio and ut-video component support this through options.i18n.dialogLabel
+- ADDED: @mention in post send mention notifications if fields are indexed
+- ADDED: UT.Expression.apiVersion() and UT.Expression.version() added.
+- FIX: tons of improvement in the text-widgets
+- FIX: minor fixes
 
 ## 1.0.0
-- ADDED components
-- ADDED http://developers.urturn.com
-- ADDED showcases
+- ADDED: components
+- ADDED: http://developers.urturn.com
+- ADDED: showcases
 
 ## 0.9.2
-- FIX : Multiples bugs
+- FIX: Multiples bugs
 
 ## 0.9.1
-- FIX : Multiple bugs
+- FIX: Multiple bugs
 
 ## 0.9.0
-- ADDED : Urturn components
-- FIX : Multiple bugs
+- ADDED: Urturn components
+- FIX: Multiple bugs
 
 ## 0.8.2
 - FIX: ready event triggered twice if registered after edit.

@@ -2382,7 +2382,7 @@ window.addEventListener("message", function (e) {
 /**
  * @preserve FastClick: polyfill to remove click delays on browsers with touch UIs.
  *
- * @version 0.6.7
+ * @version 0.6.8
  * @codingstandard ftlabs-jsv2
  * @copyright The Financial Times Limited [All Rights Reserved]
  * @license MIT License (see LICENSE.txt)
@@ -2449,6 +2449,14 @@ function FastClick(layer) {
 	 * @type number
 	 */
 	this.lastTouchIdentifier = 0;
+
+
+	/**
+	 * Touchmove boundary, beyond which a click will be cancelled.
+	 *
+	 * @type number
+	 */
+	this.touchBoundary = 10;
 
 
 	/**
@@ -2799,9 +2807,9 @@ FastClick.prototype.onTouchStart = function(event) {
  */
 FastClick.prototype.touchHasMoved = function(event) {
 	'use strict';
-	var touch = event.changedTouches[0];
+	var touch = event.changedTouches[0], boundary = this.touchBoundary;
 
-	if (Math.abs(touch.pageX - this.touchStartX) > 10 || Math.abs(touch.pageY - this.touchStartY) > 10) {
+	if (Math.abs(touch.pageX - this.touchStartX) > boundary || Math.abs(touch.pageY - this.touchStartY) > boundary) {
 		return true;
 	}
 
@@ -2872,7 +2880,10 @@ FastClick.prototype.onTouchEnd = function(event) {
 	// See issue #57; also filed as rdar://13048589 .
 	if (this.deviceIsIOSWithBadTarget) {
 		touch = event.changedTouches[0];
-		targetElement = document.elementFromPoint(touch.pageX - window.pageXOffset, touch.pageY - window.pageYOffset);
+
+		// In certain cases arguments of elementFromPoint can be negative, so prevent setting targetElement to null
+		targetElement = document.elementFromPoint(touch.pageX - window.pageXOffset, touch.pageY - window.pageYOffset) || targetElement;
+		targetElement.fastClickScrollParent = this.targetElement.fastClickScrollParent;
 	}
 
 	targetTagName = targetElement.tagName.toLowerCase();
@@ -12300,13 +12311,13 @@ fontdetect = function()
 
   var methods = {
     init: function(options) {
-      this.each(function(){
+      this.each(function() {
         if(this.utSticker) {
           if(typeof(options) === "object") {
             this.utSticker.options = $.extend(true, this.utSticker.options, options);
           }
           if(this.utSticker.update) {
-            this.utSticker.update.call(this);
+            this.utSticker.update.call(this, options && options.styles && options.styles.pos ? options.styles.pos : null);
           }
           return this;
         }
@@ -12317,7 +12328,8 @@ fontdetect = function()
           resize: "utSticker:resize",
           move: "utSticker:move",
           buttonClick: "utSticker:buttonClick",
-          destroy: "utSticker:destroy"
+          destroy: "utSticker:destroy",
+          click: "utSticker:click"
         };
 
         var defaults = {
@@ -12444,7 +12456,9 @@ fontdetect = function()
           that.isEditMode = p.context.editor;
           that.options.editable = that.isEditMode ? that.options.editable : false;
           if(that.initialized) {
-            $content.trigger(events.ready, that.options.id);
+            setTimeout(function(){
+              $content.trigger(events.ready, [that.options.id, that._getCurrentData()]);
+            },0);
           }
         });
 
@@ -12452,72 +12466,92 @@ fontdetect = function()
           if($parent.css("position") === "static") {
             $parent.css("position", "relative");
           }
+          var isChanged = false;
           var ww = $parent.width();
           var hh = $parent.height();
-          if(ww && ww > 0) {
+          if(ww && ww > 0 && ww !== that.data.parentWidth) {
             that.data.parentWidth = ww;
+            isChanged = true;
           }
-          if(hh && hh > 0) {
+          if(hh && hh > 0 && hh !== that.data.parentHeight) {
             that.data.parentHeight = hh;
+            isChanged = true;
           }
-//          console.log("utSticker - detect parent size - ", that.data.parentWidth, "x", that.data.parentHeight);
+          if(hh && hh > 0 && hh !== that.data.parentHeight) {
+            that.data.parentHeight = hh;
+            isChanged = true;
+          }
+          if(ww === 0 || hh === 0) {
+            console.warn("utSticker :: parent size has zero value");
+          }
+          return isChanged;
         };
 
         that.catchEvents = function(obj, callback) {
           var mStart = {};
           var mLast = {};
           var onDown = function(e) {
-            mStart = { x:e.pageX, y: e.pageY };
-            mLast = { x:e.pageX, y: e.pageY };
+            var mx = e.pageX ? e.pageX : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageX : 0);
+            var my = e.pageY ? e.pageY : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageY : 0);
+            mStart = { x:mx, y:my };
+            mLast = { x:mx, y:my };
             $("body").on("mousemove touchmove", onMove);
             $("body").on("mouseup touchend touchcancel mouseleave", onUp);
             if(callback) {
-              if(callback.call(obj, "down", {x:e.pageX, y:e.pageY, offStart:{x:0, y:0}, offLast:{x:0, y:0}}) === false) {
+              if(callback.call(obj, "down", {x:mx, y:my, offStart:{x:0, y:0}, offLast:{x:0, y:0}}) === false) {
                 e.stopPropagation();
-                e.preventDefault();
+                if(!that.isTouch) {
+                  e.preventDefault();
+                }
               }
             }
           };
           var onUp = function(e) {
+            var mx = e.pageX ? e.pageX : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageX : 0);
+            var my = e.pageY ? e.pageY : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageY : 0);
             if(callback) {
               if(callback.call(obj, "up", {
-                x: e.pageX,
-                y: e.pageY,
+                x: mx,
+                y: my,
                 offStart: {
-                  x: e.pageX-mStart.x,
-                  y: e.pageY-mStart.y
+                  x: mx - mStart.x,
+                  y: my - mStart.y
                 },
                 offLast:{
-                  x: e.pageX-mLast.x,
-                  y: e.pageY-mLast.y
+                  x: mx - mLast.x,
+                  y: my - mLast.y
                 }
               }) === false) {
                 e.stopPropagation();
-                e.preventDefault();
+                if(!that.isTouch) {
+                  e.preventDefault();
+                }
               }
             }
-            mLast = { x:e.pageX, y: e.pageY };
+            mLast = { x:mx, y:my };
             $("body").off("mousemove touchmove", onMove);
             $("body").off("mouseup touchend touchcancel mouseleave", onUp);
           };
           var onMove = function(e) {
+            var mx = e.pageX ? e.pageX : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageX : 0);
+            var my = e.pageY ? e.pageY : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageY : 0);
             if(callback) {
               if(callback.call(obj, "move", {
-                x: e.pageX,
-                y: e.pageY,
+                x: mx,
+                y: my,
                 offStart: {
-                  x: e.pageX-mStart.x,
-                  y: e.pageY-mStart.y
+                  x: mx-mStart.x,
+                  y: my-mStart.y
                 },
                 offLast:{
-                  x: e.pageX-mLast.x,
-                  y: e.pageY-mLast.y
+                  x: mx-mLast.x,
+                  y: my-mLast.y
                 }
               }) === false) {
                 e.stopPropagation();
               }
             }
-            mLast = { x:e.pageX, y: e.pageY };
+            mLast = { x:mx, y:my };
           };
           obj.on("mousedown touchstart", onDown);
         };
@@ -12603,7 +12637,7 @@ fontdetect = function()
             var className = that.options.ui[qq];
             var tmp = $("<a>").addClass("ut-sticker-button ut-sticker-button-custom " + className);
             if(that.options.i18n[qq]) {
-              tmp.attr("title", that.options.i18n.remove);
+              tmp.attr("title", that.options.i18n[qq]);
             }
             tmp.appendTo($that);
             tmp.attr("data-bkey", qq);
@@ -12625,12 +12659,15 @@ fontdetect = function()
           e.stopPropagation();
         };
 
-        that.onButtonClick = function() {
+        that.onButtonClick = function(e) {
           var id = $(this).attr("data-bkey");
           if(id === "remove" && !that.options.preventAutoRemove) {
             that.removeElement();
           } else {
             $content.trigger(events.buttonClick, id);
+          }
+          if(!that.isTouch) {
+            e.stopPropagation();
           }
         };
 
@@ -12659,6 +12696,7 @@ fontdetect = function()
 
           // attach events for move sticker and blur
           that.catchEvents($that, that.onElementMouse);
+          $that.on("click", that.onElementClick);
           $("body").on("mousedown touchstart", that.onBodyClick);
         };
 
@@ -12770,13 +12808,81 @@ fontdetect = function()
           }
         };
 
+        that.applyNewPosition = function(pos) {
+          var width, height, isChanged = false;
+          if(typeof(pos.width) !== "undefined" && pos.width !== null && pos.width !== false && pos.width !== "auto") {
+            width = that.parseSizeValue(pos.width, that.data.parentWidth, 0.3 * that.data.parentWidth);
+            that.pos.width = width / that.data.parentWidth;
+            isChanged = true;
+          } else {
+            width = that.pos.width * that.data.parentWidth;
+          }
+
+          if(typeof(pos.ratio) !== "undefined" && pos.ratio !== null && pos.ratio !== false && pos.ratio !== "auto") {
+            that.pos.ratio = parseFloat(pos.ratio);
+            height = width / that.pos.ratio;
+            isChanged = true;
+          } else if(typeof(pos.height) !== "undefined" && pos.height !== null && pos.height !== false && pos.height !== "auto") {
+            height = that.parseSizeValue(pos.height, that.data.parentHeight, 0.3 * that.data.parentHeight);
+            that.pos.ratio = width / height;
+            isChanged = true;
+          } else {
+            height = width * that.data.parentWidth;
+          }
+
+          if(typeof(pos.cx) !== "undefined" && pos.cx !== null && pos.cx !== false) {
+            that.pos.left = that.parseSizeValue(pos.cx, that.data.parentWidth, 0.5 * that.data.parentWidth);
+            that.pos.left = that.pos.left / that.data.parentWidth;
+            isChanged = true;
+          } else if(typeof(pos.left) !== "undefined" && pos.left !== null && pos.left !== false) {
+            that.pos.left = that.parseSizeValue(pos.left, that.data.parentWidth, 0.5 * that.data.parentWidth);
+            that.pos.left += width / 2;
+            that.pos.left = that.pos.left / that.data.parentWidth;
+            isChanged = true;
+          } else if(typeof(pos.right) !== "undefined" && pos.right !== null && pos.right !== false) {
+            that.pos.left = that.data.parentWidth - that.parseSizeValue(pos.right, that.data.parentWidth, 0.5 * that.data.parentWidth);
+            that.pos.left -= width / 2;
+            that.pos.left = that.pos.left / that.data.parentWidth;
+            isChanged = true;
+          }
+
+          if(typeof(pos.cy) !== "undefined" && pos.cy !== null && pos.cy !== false) {
+            that.pos.top = that.parseSizeValue(pos.cy, that.data.parentHeight, 0.5 * that.data.parentHeight);
+            that.pos.top = that.pos.top / that.data.parentHeight;
+            isChanged = true;
+          } else if(typeof(pos.top) !== "undefined" && pos.top !== null && pos.top !== false) {
+            that.pos.top = that.parseSizeValue(pos.top, that.data.parentHeight, 0.5 * that.data.parentHeight);
+            that.pos.top += height / 2;
+            that.pos.top = that.pos.top / that.data.parentHeight;
+            isChanged = true;
+          } else if(typeof(pos.bottom) !== "undefined" && pos.bottom !== null && pos.bottom !== false) {
+            that.pos.top = that.data.parentHeight - that.parseSizeValue(pos.bottom, that.data.parentHeight, 0.5 * that.data.parentHeight);
+            that.pos.top -= height / 2;
+            that.pos.top = that.pos.top / that.data.parentHeight;
+            isChanged = true;
+          }
+
+          // check angle
+          if(typeof(pos.rotation) !== "undefined" && pos.rotation !== null && pos.rotation !== false) {
+            that.pos.angle = parseFloat(pos.rotation) / 180 * Math.PI;
+            isChanged = true;
+          }
+
+          // check zIndex
+          if(typeof(pos.zIndex) !== "undefined" && pos.zIndex !== null && pos.zIndex !== false) {
+            that.pos.zIndex = parseInt(pos.zIndex, 10);
+            isChanged = true;
+          }
+          return isChanged;
+        };
+
         that.removeElement = function() {
+          $content.trigger(events.destroy, that.options.id);
           $that.remove();
           if(that.post) {
             that.post.storage["utSticker_" + that.options.id + "_pos"] = null;
             that.post.save();
           }
-          $content.trigger(events.destroy, that.options.id);
         };
 
         /********************************************************************************
@@ -12946,12 +13052,31 @@ fontdetect = function()
           that.data.curBounds = that.getBounds($that, false, $parent);
         };
 
+        /********************************************************************************
+         * validate object size by bounds rect
+         * @return
+         *  true -- is position updated
+         *  false -- if position not changed
+         ********************************************************************************/
+        that.validateSizeInBounds = function(allowUpdate) {
+          var asc = Math.min(that.data.parentWidth/that.data.curBounds.width, that.data.parentHeight/that.data.curBounds.height);
+          if(asc < 1) {
+            if(allowUpdate !== false) {
+              that.pos.width *= asc;
+            }
+            return true;
+          }
+          return false;
+        };
+
         /**
          * check element size for min and max
          * using info from that.pos
          * @returns {boolean} -- true if size was changed
          */
         that.validateSize = function() {
+          that.validateSizeInBounds();
+
           // size in px
           var ww = that.pos.width * that.data.parentWidth;
           var hh = ww / that.pos.ratio;
@@ -13067,7 +13192,6 @@ fontdetect = function()
               if(amax > Math.PI) {
                 amax = 2*Math.PI - amax;
               }
-              console.log("min-max:", amin, amax);
               if(amin < amax) {
                 that.pos.angle = that.data.minAngle;
                 res = true;
@@ -13087,7 +13211,6 @@ fontdetect = function()
               if(amax > Math.PI) {
                 amax = 2*Math.PI - amax;
               }
-              console.log("min-max:", amin, amax);
               if(amin < amax) {
                 that.pos.angle = that.data.minAngle;
                 res = true;
@@ -13105,11 +13228,15 @@ fontdetect = function()
          * @param prm {Object} -- changes for that.options
          */
         that.updateParams = function() {
-          that._updateParentSize();
+          var isChanged = false;
+          if(that._updateParentSize()) {
+            isChanged = true;
+          }
           that._updateEditableState();
           that._updateRotationLimits();
           that._updateSizeLimits();
           that._updateParentIndent();
+          return isChanged;
         };
 
         that._updateEditableState = function() {
@@ -13233,9 +13360,9 @@ fontdetect = function()
 
         that._getCurrentData = function() {
           return {
-            width: that.pos.width,
-            height: that.pos.width/that.pos.ratio,
-            rotation: that.pos.rotation * 180 / Math.PI,
+            width: that.pos.width * that.data.parentWidth,
+            height: that.pos.width/that.pos.ratio * that.data.parentWidth,
+            rotation: that.pos.angle * 180 / Math.PI,
             zIndex: that.pos.zIndex
           };
         };
@@ -13243,12 +13370,24 @@ fontdetect = function()
         /********************************************************************************
          * mouse and touch events
          ********************************************************************************/
+        var itemWasMoved = false;
+        that.onElementClick = function(e) {
+          if(!that.isEditMode || !that.data.editable || !itemWasMoved) {
+            $content.trigger(events.click);
+          }
+          if(!that.isTouch) {
+            e.stopPropagation();
+            e.preventDefault();
+          }
+        };
+
         that.onElementMouse = function(type, data) {
           if(!that.isEditMode || !that.data.editable) {
             return;
           }
           if(type === "down") {
             that.focus();
+            itemWasMoved = false;
           } else if(type === "move" && that.data.movable) {
             $that.addClass("ut-sticker-moving");
             that.pos.left += data.offLast.x / that.data.parentWidth;
@@ -13264,6 +13403,7 @@ fontdetect = function()
               that.updateBoundsInfo();
             }
             $content.trigger(events.move, that._getCurrentData());
+            itemWasMoved = true;
           } else if(type === "up" && that.data.movable) {
             $that.removeClass("ut-sticker-moving");
             that._savePosition();
@@ -13353,16 +13493,30 @@ fontdetect = function()
             that.validateAngle();
 
             // change element position
+            var isSizeChanged = false;
             that.updateAngle();
             if(that.options.styles.useBounds) {
               that.updateBoundsInfo();
               that._updateSelfOutdent();
             }
+            if(that.validateSizeInBounds(false) === true) {
+              isSizeChanged = true;
+              that.validateSize();
+              that.updateSize();
+              if(that.options.styles.useBounds) {
+                that.updateBoundsInfo();
+                that._updateSelfOutdent();
+              }
+            }
             if(that.validatePosition() === true) {
               that.updatePosition();
               that.updateBoundsInfo();
             }
-            $content.trigger(events.rotate, that._getCurrentData());
+            var curData = that._getCurrentData();
+            if(isSizeChanged) {
+              $content.trigger(events.resize, curData);
+            }
+            $content.trigger(events.rotate, curData);
             return false;
           } else if(type === "up" && that.data.rotatable) {
             that._savePosition();
@@ -13412,8 +13566,9 @@ fontdetect = function()
               that.updatePosition();
               that.updateBoundsInfo();
             }
-            $content.trigger(events.resize, that._getCurrentData());
-            $content.trigger(events.rotate, that._getCurrentData());
+            var curData = that._getCurrentData();
+            $content.trigger(events.resize, curData);
+            $content.trigger(events.rotate, curData);
             return false;
           } else if(type === "up") {
             that._savePosition();
@@ -13433,10 +13588,12 @@ fontdetect = function()
          ********************************************************************************/
         that.hide = function() {
           $that.css("display", "none");
+          $content.css("display", "none");
         };
 
         that.show = function() {
           $that.css("display", "");
+          $content.css("display", "");
         };
 
         that.focus = function() {
@@ -13459,9 +13616,15 @@ fontdetect = function()
         /**
          * update sticker size and position (need to call when parent size changed)
          */
-        that.update = function() {
-          that.updateParams();
+        that.update = function(pos) {
+          var isPosChanged = false;
+          if(that.updateParams()) {
+            isPosChanged = true;
+          }
           that.createButtons();
+          if(pos && that.applyNewPosition(pos)) {
+            isPosChanged = true;
+          }
           that.updateSize();
           that.updatePosition();
           if(!that.options.autoflip) {
@@ -13473,16 +13636,21 @@ fontdetect = function()
           that._updateSelfOutdent();
           if(that.data.resizable) {
             if(that.validateSize() === true) {
+              isPosChanged = true;
               that.updateSize();
             }
           }
           if(that.data.movable) {
             if(that.validatePosition() === true) {
+              isPosChanged = true;
               that.updatePosition();
             }
           }
           that.updateBoundsInfo();
           that._updateSelfOutdent();
+          if(isPosChanged) {
+            $content.trigger(events.change, that._getCurrentData());
+          }
         };
 
         /**
@@ -13490,7 +13658,6 @@ fontdetect = function()
          * @param data {boolean|object} -- turn on/off posibility for editable sticker. Can be object with {movable,rotatable,resizable}
          */
         that.editable = function(data) {
-          console.log("editable", data);
           if(typeof(data) === "object") {
             that.options.editable = $.extend(true, {}, data);
           } else {
@@ -13502,6 +13669,7 @@ fontdetect = function()
         /********************************************************************************
          * init element
          ********************************************************************************/
+        var isPosChanged = false;
         that.updateParams();
         that.prepareElement();
         that.createButtons();
@@ -13514,18 +13682,25 @@ fontdetect = function()
         if(that.data.resizable) {
           if(that.validateSize() === true) {
             that.updateSize();
+            isPosChanged = true;
           }
         }
         if(that.data.movable) {
           if(that.validatePosition() === true) {
             that.updatePosition();
+            isPosChanged = true;
           }
         }
         that.updateBoundsInfo();
         that._updateSelfOutdent();
         that.initialized = true;
         if(that.post) {
-          $content.trigger(events.ready, that.options.id);
+          setTimeout(function(){
+            $content.trigger(events.ready, [that.options.id, that._getCurrentData()]);
+          },0);
+        }
+        if(isPosChanged) {
+          $content.trigger(events.change, that._getCurrentData());
         }
       });
       return this;
