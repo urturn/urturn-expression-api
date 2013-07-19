@@ -74,7 +74,7 @@ UT.UUID = UT.uuid;
 /**
  * Fix touch events with text input on iOS
  */
-UT.Expression.touchEventFix = (function (global, isIframe) {
+UT.touchEventFix = (function (global, isIframe) {
   "use strict";
   //Test if it is an iOS device and that we may swap the implementation
   if (!/(iPad|iPhone|iPod)/g.test(global.navigator.userAgent) || !Element.prototype.addEventListener) {
@@ -112,8 +112,6 @@ UT.Expression.touchEventFix = (function (global, isIframe) {
         listener = arguments[1],
         shouldAddListener = true;
 
-
-
       if ((type === 'touchstart' || type === 'touchend' || type === 'touchcancel' || type === 'touchmove' || type === 'touchleave') &&
         typeof listener === 'function') {
         if (touchEventsEnabled) {
@@ -142,7 +140,7 @@ UT.Expression.touchEventFix = (function (global, isIframe) {
 
       if ((type === 'touchstart' || type === 'touchend' || type === 'touchcancel' || type === 'touchmove' || type === 'touchleave') &&
         typeof listener === 'function') {
-        if (eventListeners[this.__UT__uuid][type]) {
+        if (eventListeners[this.__UT__uuid] && eventListeners[this.__UT__uuid][type]) {
           delete eventListeners[this.__UT__uuid][type];
         }
       }
@@ -1069,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.0.3-alpha5';
+    return states && states.apiVersion || '0.0.0';
   };
 
   UT.Expression.version = function() {
@@ -2382,7 +2380,7 @@ window.addEventListener("message", function (e) {
 /**
  * @preserve FastClick: polyfill to remove click delays on browsers with touch UIs.
  *
- * @version 0.6.8
+ * @version 0.6.7
  * @codingstandard ftlabs-jsv2
  * @copyright The Financial Times Limited [All Rights Reserved]
  * @license MIT License (see LICENSE.txt)
@@ -2449,14 +2447,6 @@ function FastClick(layer) {
 	 * @type number
 	 */
 	this.lastTouchIdentifier = 0;
-
-
-	/**
-	 * Touchmove boundary, beyond which a click will be cancelled.
-	 *
-	 * @type number
-	 */
-	this.touchBoundary = 10;
 
 
 	/**
@@ -2807,9 +2797,9 @@ FastClick.prototype.onTouchStart = function(event) {
  */
 FastClick.prototype.touchHasMoved = function(event) {
 	'use strict';
-	var touch = event.changedTouches[0], boundary = this.touchBoundary;
+	var touch = event.changedTouches[0];
 
-	if (Math.abs(touch.pageX - this.touchStartX) > boundary || Math.abs(touch.pageY - this.touchStartY) > boundary) {
+	if (Math.abs(touch.pageX - this.touchStartX) > 10 || Math.abs(touch.pageY - this.touchStartY) > 10) {
 		return true;
 	}
 
@@ -2880,10 +2870,7 @@ FastClick.prototype.onTouchEnd = function(event) {
 	// See issue #57; also filed as rdar://13048589 .
 	if (this.deviceIsIOSWithBadTarget) {
 		touch = event.changedTouches[0];
-
-		// In certain cases arguments of elementFromPoint can be negative, so prevent setting targetElement to null
-		targetElement = document.elementFromPoint(touch.pageX - window.pageXOffset, touch.pageY - window.pageYOffset) || targetElement;
-		targetElement.fastClickScrollParent = this.targetElement.fastClickScrollParent;
+		targetElement = document.elementFromPoint(touch.pageX - window.pageXOffset, touch.pageY - window.pageYOffset);
 	}
 
 	targetTagName = targetElement.tagName.toLowerCase();
@@ -3121,7 +3108,7 @@ if (typeof define !== 'undefined' && define.amd) {
 }
 
 /*!
- * jQuery JavaScript Library v2.0.3
+ * jQuery JavaScript Library v2.0.2
  * http://jquery.com/
  *
  * Includes Sizzle.js
@@ -3131,7 +3118,7 @@ if (typeof define !== 'undefined' && define.amd) {
  * Released under the MIT license
  * http://jquery.org/license
  *
- * Date: 2013-07-03T13:30Z
+ * Date: 2013-05-30T21:25Z
  */
 (function( window, undefined ) {
 
@@ -3168,7 +3155,7 @@ var
 	// List of deleted data cache ids, so we can reuse them
 	core_deletedIds = [],
 
-	core_version = "2.0.3",
+	core_version = "2.0.2",
 
 	// Save a reference to some core methods
 	core_concat = core_deletedIds.concat,
@@ -3994,7 +3981,7 @@ rootjQuery = jQuery(document);
  * Released under the MIT license
  * http://jquery.org/license
  *
- * Date: 2013-06-03
+ * Date: 2013-05-27
  */
 (function( window, undefined ) {
 
@@ -4027,13 +4014,7 @@ var i,
 	tokenCache = createCache(),
 	compilerCache = createCache(),
 	hasDuplicate = false,
-	sortOrder = function( a, b ) {
-		if ( a === b ) {
-			hasDuplicate = true;
-			return 0;
-		}
-		return 0;
-	},
+	sortOrder = function() { return 0; },
 
 	// General-purpose constants
 	strundefined = typeof undefined,
@@ -4277,6 +4258,14 @@ function Sizzle( selector, context, results, seed ) {
 }
 
 /**
+ * For feature detection
+ * @param {Function} fn The function to test for native support
+ */
+function isNative( fn ) {
+	return rnative.test( fn + "" );
+}
+
+/**
  * Create key-value caches of limited size
  * @returns {Function(string, Object)} Returns the Object data after storing it on itself with
  *	property name the (space-suffixed) string and (if the cache is larger than Expr.cacheLength)
@@ -4329,14 +4318,58 @@ function assert( fn ) {
 /**
  * Adds the same handler for all of the specified attrs
  * @param {String} attrs Pipe-separated list of attributes
- * @param {Function} handler The method that will be applied
+ * @param {Function} handler The method that will be applied if the test fails
+ * @param {Boolean} test The result of a test. If true, null will be set as the handler in leiu of the specified handler
  */
-function addHandle( attrs, handler ) {
-	var arr = attrs.split("|"),
-		i = attrs.length;
+function addHandle( attrs, handler, test ) {
+	attrs = attrs.split("|");
+	var current,
+		i = attrs.length,
+		setHandle = test ? null : handler;
 
 	while ( i-- ) {
-		Expr.attrHandle[ arr[i] ] = handler;
+		// Don't override a user's handler
+		if ( !(current = Expr.attrHandle[ attrs[i] ]) || current === handler ) {
+			Expr.attrHandle[ attrs[i] ] = setHandle;
+		}
+	}
+}
+
+/**
+ * Fetches boolean attributes by node
+ * @param {Element} elem
+ * @param {String} name
+ */
+function boolHandler( elem, name ) {
+	// XML does not need to be checked as this will not be assigned for XML documents
+	var val = elem.getAttributeNode( name );
+	return val && val.specified ?
+		val.value :
+		elem[ name ] === true ? name.toLowerCase() : null;
+}
+
+/**
+ * Fetches attributes without interpolation
+ * http://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
+ * @param {Element} elem
+ * @param {String} name
+ */
+function interpolationHandler( elem, name ) {
+	// XML does not need to be checked as this will not be assigned for XML documents
+	return elem.getAttribute( name, name.toLowerCase() === "type" ? 1 : 2 );
+}
+
+/**
+ * Uses defaultValue to retrieve value in IE6/7
+ * @param {Element} elem
+ * @param {String} name
+ */
+function valueHandler( elem ) {
+	// Ignore the value *property* on inputs by using defaultValue
+	// Fallback to Sizzle.attr by returning undefined where appropriate
+	// XML does not need to be checked as this will not be assigned for XML documents
+	if ( elem.nodeName.toLowerCase() === "input" ) {
+		return elem.defaultValue;
 	}
 }
 
@@ -4344,7 +4377,7 @@ function addHandle( attrs, handler ) {
  * Checks document order of two siblings
  * @param {Element} a
  * @param {Element} b
- * @returns {Number} Returns less than 0 if a precedes b, greater than 0 if a follows b
+ * @returns Returns -1 if a precedes b, 1 if a follows b
  */
 function siblingCheck( a, b ) {
 	var cur = b && a,
@@ -4434,7 +4467,7 @@ support = Sizzle.support = {};
  */
 setDocument = Sizzle.setDocument = function( node ) {
 	var doc = node ? node.ownerDocument || node : preferredDoc,
-		parent = doc.defaultView;
+		parent = doc.parentWindow;
 
 	// If no document and documentElement is available, return
 	if ( doc === document || doc.nodeType !== 9 || !doc.documentElement ) {
@@ -4451,7 +4484,6 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// Support: IE>8
 	// If iframe document is assigned to "document" variable and if iframe has been reloaded,
 	// IE will throw "permission denied" error when accessing "document" variable, see jQuery #13936
-	// IE6-8 do not support the defaultView property so parent will be undefined
 	if ( parent && parent.attachEvent && parent !== parent.top ) {
 		parent.attachEvent( "onbeforeunload", function() {
 			setDocument();
@@ -4464,9 +4496,31 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// Support: IE<8
 	// Verify that getAttribute really returns attributes and not properties (excepting IE8 booleans)
 	support.attributes = assert(function( div ) {
+
+		// Support: IE<8
+		// Prevent attribute/property "interpolation"
+		div.innerHTML = "<a href='#'></a>";
+		addHandle( "type|href|height|width", interpolationHandler, div.firstChild.getAttribute("href") === "#" );
+
+		// Support: IE<9
+		// Use getAttributeNode to fetch booleans when getAttribute lies
+		addHandle( booleans, boolHandler, div.getAttribute("disabled") == null );
+
 		div.className = "i";
 		return !div.getAttribute("className");
 	});
+
+	// Support: IE<9
+	// Retrieving value should defer to defaultValue
+	support.input = assert(function( div ) {
+		div.innerHTML = "<input>";
+		div.firstChild.setAttribute( "value", "" );
+		return div.firstChild.getAttribute( "value" ) === "";
+	});
+
+	// IE6/7 still return empty string for value,
+	// but are actually retrieving the property
+	addHandle( "value", valueHandler, support.attributes && support.input );
 
 	/* getElement(s)By*
 	---------------------------------------------------------------------- */
@@ -4576,7 +4630,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// See http://bugs.jquery.com/ticket/13378
 	rbuggyQSA = [];
 
-	if ( (support.qsa = rnative.test( doc.querySelectorAll )) ) {
+	if ( (support.qsa = isNative(doc.querySelectorAll)) ) {
 		// Build QSA regex
 		// Regex strategy adopted from Diego Perini
 		assert(function( div ) {
@@ -4628,7 +4682,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 		});
 	}
 
-	if ( (support.matchesSelector = rnative.test( (matches = docElem.webkitMatchesSelector ||
+	if ( (support.matchesSelector = isNative( (matches = docElem.webkitMatchesSelector ||
 		docElem.mozMatchesSelector ||
 		docElem.oMatchesSelector ||
 		docElem.msMatchesSelector) )) ) {
@@ -4654,7 +4708,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 	// Element contains another
 	// Purposefully does not implement inclusive descendent
 	// As in, an element does not contain itself
-	contains = rnative.test( docElem.contains ) || docElem.compareDocumentPosition ?
+	contains = isNative(docElem.contains) || docElem.compareDocumentPosition ?
 		function( a, b ) {
 			var adown = a.nodeType === 9 ? a.documentElement : a,
 				bup = b && b.parentNode;
@@ -4677,6 +4731,13 @@ setDocument = Sizzle.setDocument = function( node ) {
 
 	/* Sorting
 	---------------------------------------------------------------------- */
+
+	// Support: Webkit<537.32 - Safari 6.0.3/Chrome 25 (fixed in Chrome 27)
+	// Detached nodes confoundingly follow *each other*
+	support.sortDetached = assert(function( div1 ) {
+		// Should return 1, but returns 4 (following)
+		return div1.compareDocumentPosition( doc.createElement("div") ) & 1;
+	});
 
 	// Document order sorting
 	sortOrder = docElem.compareDocumentPosition ?
@@ -4820,9 +4881,9 @@ Sizzle.attr = function( elem, name ) {
 
 	var fn = Expr.attrHandle[ name.toLowerCase() ],
 		// Don't get fooled by Object.prototype properties (jQuery #13807)
-		val = fn && hasOwn.call( Expr.attrHandle, name.toLowerCase() ) ?
+		val = ( fn && hasOwn.call( Expr.attrHandle, name.toLowerCase() ) ?
 			fn( elem, name, !documentIsHTML ) :
-			undefined;
+			undefined );
 
 	return val === undefined ?
 		support.attributes || !documentIsHTML ?
@@ -5367,8 +5428,6 @@ Expr = Sizzle.selectors = {
 	}
 };
 
-Expr.pseudos["nth"] = Expr.pseudos["eq"];
-
 // Add button/input type pseudos
 for ( i in { radio: true, checkbox: true, file: true, password: true, image: true } ) {
 	Expr.pseudos[ i ] = createInputPseudo( i );
@@ -5376,11 +5435,6 @@ for ( i in { radio: true, checkbox: true, file: true, password: true, image: tru
 for ( i in { submit: true, reset: true } ) {
 	Expr.pseudos[ i ] = createButtonPseudo( i );
 }
-
-// Easy API for creating new setFilters
-function setFilters() {}
-setFilters.prototype = Expr.filters = Expr.pseudos;
-Expr.setFilters = new setFilters();
 
 function tokenize( selector, parseOnly ) {
 	var matched, match, tokens, type,
@@ -5893,67 +5947,26 @@ function select( selector, context, results, seed ) {
 	return results;
 }
 
+// Deprecated
+Expr.pseudos["nth"] = Expr.pseudos["eq"];
+
+// Easy API for creating new setFilters
+function setFilters() {}
+setFilters.prototype = Expr.filters = Expr.pseudos;
+Expr.setFilters = new setFilters();
+
 // One-time assignments
 
 // Sort stability
 support.sortStable = expando.split("").sort( sortOrder ).join("") === expando;
 
-// Support: Chrome<14
-// Always assume duplicates if they aren't passed to the comparison function
-support.detectDuplicates = hasDuplicate;
-
 // Initialize against the default document
 setDocument();
 
-// Support: Webkit<537.32 - Safari 6.0.3/Chrome 25 (fixed in Chrome 27)
-// Detached nodes confoundingly follow *each other*
-support.sortDetached = assert(function( div1 ) {
-	// Should return 1, but returns 4 (following)
-	return div1.compareDocumentPosition( document.createElement("div") ) & 1;
-});
-
-// Support: IE<8
-// Prevent attribute/property "interpolation"
-// http://msdn.microsoft.com/en-us/library/ms536429%28VS.85%29.aspx
-if ( !assert(function( div ) {
-	div.innerHTML = "<a href='#'></a>";
-	return div.firstChild.getAttribute("href") === "#" ;
-}) ) {
-	addHandle( "type|href|height|width", function( elem, name, isXML ) {
-		if ( !isXML ) {
-			return elem.getAttribute( name, name.toLowerCase() === "type" ? 1 : 2 );
-		}
-	});
-}
-
-// Support: IE<9
-// Use defaultValue in place of getAttribute("value")
-if ( !support.attributes || !assert(function( div ) {
-	div.innerHTML = "<input/>";
-	div.firstChild.setAttribute( "value", "" );
-	return div.firstChild.getAttribute( "value" ) === "";
-}) ) {
-	addHandle( "value", function( elem, name, isXML ) {
-		if ( !isXML && elem.nodeName.toLowerCase() === "input" ) {
-			return elem.defaultValue;
-		}
-	});
-}
-
-// Support: IE<9
-// Use getAttributeNode to fetch booleans when getAttribute lies
-if ( !assert(function( div ) {
-	return div.getAttribute("disabled") == null;
-}) ) {
-	addHandle( booleans, function( elem, name, isXML ) {
-		var val;
-		if ( !isXML ) {
-			return (val = elem.getAttributeNode( name )) && val.specified ?
-				val.value :
-				elem[ name ] === true ? name.toLowerCase() : null;
-		}
-	});
-}
+// Support: Chrome<<14
+// Always assume duplicates if they aren't passed to the comparison function
+[0, 0].sort( sortOrder );
+support.detectDuplicates = hasDuplicate;
 
 jQuery.find = Sizzle;
 jQuery.expr = Sizzle.selectors;
@@ -6138,9 +6151,9 @@ jQuery.Callbacks = function( options ) {
 			},
 			// Call all callbacks with the given context and arguments
 			fireWith: function( context, args ) {
+				args = args || [];
+				args = [ context, args.slice ? args.slice() : args ];
 				if ( list && ( !fired || stack ) ) {
-					args = args || [];
-					args = [ context, args.slice ? args.slice() : args ];
 					if ( firing ) {
 						stack.push( args );
 					} else {
@@ -6531,7 +6544,6 @@ Data.prototype = {
 			cache : cache[ key ];
 	},
 	access: function( owner, key, value ) {
-		var stored;
 		// In cases where either:
 		//
 		//   1. No key was specified
@@ -6545,11 +6557,7 @@ Data.prototype = {
 		//
 		if ( key === undefined ||
 				((key && typeof key === "string") && value === undefined) ) {
-
-			stored = this.get( owner, key );
-
-			return stored !== undefined ?
-				stored : this.get( owner, jQuery.camelCase(key) );
+			return this.get( owner, key );
 		}
 
 		// [*]When the key is not a string, or both a key and value
@@ -7021,11 +7029,8 @@ jQuery.fn.extend({
 	},
 
 	toggleClass: function( value, stateVal ) {
-		var type = typeof value;
-
-		if ( typeof stateVal === "boolean" && type === "string" ) {
-			return stateVal ? this.addClass( value ) : this.removeClass( value );
-		}
+		var type = typeof value,
+			isBool = typeof stateVal === "boolean";
 
 		if ( jQuery.isFunction( value ) ) {
 			return this.each(function( i ) {
@@ -7039,15 +7044,13 @@ jQuery.fn.extend({
 				var className,
 					i = 0,
 					self = jQuery( this ),
+					state = stateVal,
 					classNames = value.match( core_rnotwhite ) || [];
 
 				while ( (className = classNames[ i++ ]) ) {
 					// check each className given, space separated list
-					if ( self.hasClass( className ) ) {
-						self.removeClass( className );
-					} else {
-						self.addClass( className );
-					}
+					state = isBool ? state : !self.hasClass( className );
+					self[ state ? "addClass" : "removeClass" ]( className );
 				}
 
 			// Toggle whole class name
@@ -8912,7 +8915,7 @@ jQuery.extend({
 					// Descend through wrappers to the right content
 					j = wrap[ 0 ];
 					while ( j-- ) {
-						tmp = tmp.lastChild;
+						tmp = tmp.firstChild;
 					}
 
 					// Support: QtWebKit
@@ -9316,12 +9319,10 @@ jQuery.fn.extend({
 		return showHide( this );
 	},
 	toggle: function( state ) {
-		if ( typeof state === "boolean" ) {
-			return state ? this.show() : this.hide();
-		}
+		var bool = typeof state === "boolean";
 
 		return this.each(function() {
-			if ( isHidden( this ) ) {
+			if ( bool ? state : isHidden( this ) ) {
 				jQuery( this ).show();
 			} else {
 				jQuery( this ).hide();
@@ -9352,7 +9353,6 @@ jQuery.extend({
 		"fontWeight": true,
 		"lineHeight": true,
 		"opacity": true,
-		"order": true,
 		"orphans": true,
 		"widows": true,
 		"zIndex": true,
@@ -12306,1485 +12306,615 @@ fontdetect = function()
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
+
 ; (function( UT, $, window, document, undefined ) {
   "use strict";
-
-  var methods = {
-    init: function(options) {
-      this.each(function() {
-        if(this.utSticker) {
-          if(typeof(options) === "object") {
-            this.utSticker.options = $.extend(true, this.utSticker.options, options);
-          }
-          if(this.utSticker.update) {
-            this.utSticker.update.call(this, options && options.styles && options.styles.pos ? options.styles.pos : null);
-          }
-          return this;
-        }
-        var events = {
-          ready: "utSticker:ready",
-          change: "utSticker:change",
-          rotate: "utSticker:rotate",
-          resize: "utSticker:resize",
-          move: "utSticker:move",
-          buttonClick: "utSticker:buttonClick",
-          destroy: "utSticker:destroy",
-          click: "utSticker:click"
-        };
-
-        var defaults = {
-          id: "",
-          editable: true,
-          ui: {
-            edit: false,
-            resize: null,
-            rotate: null,
-            remove: true
-            //custom: "class1"
-          },
-          styles: {
-            proportional: true,
-            autoflip: true,
-            useBounds: true,
-            pos: {
-              width: undefined, //'30%',
-              ratio: undefined, //1,
-              height: undefined,
-              cx: undefined, //'50%', // x-pos from center
-              cy: undefined, //'50%', // y-pos from center
-              left: undefined,
-              right: undefined,
-              top: undefined,
-              bottom: undefined,
-              rotation: 0,
-              zIndex: 0
-            },
-            parentIndent: {
-              top: null,
-              left: null,
-              bottom: null,
-              right: null
-            },
-            selfOutdent: {
-              top: '0%',
-              left: '0%',
-              bottom: '0%',
-              right: '0%'
-            },
-            sizeLimits: {
-              minWidth: '10%',
-              minHeight: '10%',
-              maxWidth: '90%',
-              maxHeight: '90%'
-            },
-            rotationLimits: {
-              min: '-180',
-              max: '180'
-            },
-            rotationSnap: {
-              base: 90,
-              precision: 3
-            },
-            topOnFocus: true,
-            preventAutoRemove: false
-          },
-          i18n:{
-            edit: "edit",
-            resize: "resize",
-            rotate: "rotate",
-            remove: "remove"
-          }
-        };
-
-        var that = {};
-        this.utSticker = that;
-        that.initialized = false;
-
-        var defWidth = $(this).width();
-        var defHeight = $(this).height();
-        var $parent = $(this).parent();
-        var $content = $(this);
-        var $that = $("<div>").appendTo($parent);
-        $content.detach();
-        $that.append($content);
-        $that[0].utSticker = this.utSticker;
-
-        if(options && options.style && !options.styles) {
-          console.warn("utSticker :: The 'styles' parameter not found, but 'style' present.");
-        }
-
-        that.options = $.extend(true, defaults, options);
-
-        that.isTouch = (('ontouchstart' in window) || (window.navigator.msMaxTouchPoints > 0));
-        that.isMSIE = false;
-        that.data = {
-          editable: true,
-          // (updated width parent size)
-          parentWidth: 0,
-          parentHeight: 0,
-          // (updated every time when sticker change size or position)
-          curBounds: {},
-          movable: false,
-          rotatable: false,
-          resizable: false,
-          // rotation regions
-          minAngle: -Math.PI,
-          maxAngle: Math.PI,
-          // (updated width parent size, px)
-          parentIndent: {},
-          // min and max sizes (updated width parent size, px)
-          minWidth: 0,
-          minHeight: 0,
-          maxWidth: 10000,
-          maxHeight: 10000,
-          // (updated with sticker size, based on size or bounds, px)
-          selfOutdent: {}
-        };
-        that.view = {};
-        that.pos = {};
-        that.post = null;
-        that.isEditMode = false;
-        if(typeof(window.utStickerLastZIndex) === "undefined") {
-          window.utStickerLastZIndex = 0;
-        }
-
-        /********************************************************************************
-         * common
-         ********************************************************************************/
-        UT.Expression.ready(function(p) {
-          that.post = p;
-          that.isEditMode = p.context.editor;
-          that.options.editable = that.isEditMode ? that.options.editable : false;
-          if(that.initialized) {
-            setTimeout(function(){
-              $content.trigger(events.ready, [that.options.id, that._getCurrentData()]);
-            },0);
-          }
-        });
-
-        that._updateParentSize = function() {
-          if($parent.css("position") === "static") {
-            $parent.css("position", "relative");
-          }
-          var isChanged = false;
-          var ww = $parent.width();
-          var hh = $parent.height();
-          if(ww && ww > 0 && ww !== that.data.parentWidth) {
-            that.data.parentWidth = ww;
-            isChanged = true;
-          }
-          if(hh && hh > 0 && hh !== that.data.parentHeight) {
-            that.data.parentHeight = hh;
-            isChanged = true;
-          }
-          if(hh && hh > 0 && hh !== that.data.parentHeight) {
-            that.data.parentHeight = hh;
-            isChanged = true;
-          }
-          if(ww === 0 || hh === 0) {
-            console.warn("utSticker :: parent size has zero value");
-          }
-          return isChanged;
-        };
-
-        that.catchEvents = function(obj, callback) {
-          var mStart = {};
-          var mLast = {};
-          var onDown = function(e) {
-            var mx = e.pageX ? e.pageX : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageX : 0);
-            var my = e.pageY ? e.pageY : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageY : 0);
-            mStart = { x:mx, y:my };
-            mLast = { x:mx, y:my };
-            $("body").on("mousemove touchmove", onMove);
-            $("body").on("mouseup touchend touchcancel mouseleave", onUp);
-            if(callback) {
-              if(callback.call(obj, "down", {x:mx, y:my, offStart:{x:0, y:0}, offLast:{x:0, y:0}}) === false) {
-                e.stopPropagation();
-                if(!that.isTouch) {
-                  e.preventDefault();
-                }
-              }
-            }
-          };
-          var onUp = function(e) {
-            var mx = e.pageX ? e.pageX : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageX : 0);
-            var my = e.pageY ? e.pageY : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageY : 0);
-            if(callback) {
-              if(callback.call(obj, "up", {
-                x: mx,
-                y: my,
-                offStart: {
-                  x: mx - mStart.x,
-                  y: my - mStart.y
-                },
-                offLast:{
-                  x: mx - mLast.x,
-                  y: my - mLast.y
-                }
-              }) === false) {
-                e.stopPropagation();
-                if(!that.isTouch) {
-                  e.preventDefault();
-                }
-              }
-            }
-            mLast = { x:mx, y:my };
-            $("body").off("mousemove touchmove", onMove);
-            $("body").off("mouseup touchend touchcancel mouseleave", onUp);
-          };
-          var onMove = function(e) {
-            var mx = e.pageX ? e.pageX : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageX : 0);
-            var my = e.pageY ? e.pageY : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageY : 0);
-            if(callback) {
-              if(callback.call(obj, "move", {
-                x: mx,
-                y: my,
-                offStart: {
-                  x: mx-mStart.x,
-                  y: my-mStart.y
-                },
-                offLast:{
-                  x: mx-mLast.x,
-                  y: my-mLast.y
-                }
-              }) === false) {
-                e.stopPropagation();
-              }
-            }
-            mLast = { x:mx, y:my };
-          };
-          obj.on("mousedown touchstart", onDown);
-        };
-
-        /********************************************************************************
-         * sticker buttons
-         ********************************************************************************/
-        that.createButtons = function() {
-          // get or create remove button
-          $that.find(".ut-sticker-button").remove();
-          that.view.remove = null;
-          that.view.edit = null;
-          that.view.rotate = null;
-          that.view.resize = null;
-
-          if(that.options.ui.remove) {
-            that.view.remove = $("<a>")
-              .addClass("ut-sticker-button ut-sticker-button-remove icon_delete")
-              .attr("data-bkey", "remove")
-              .attr("title", that.options.i18n.remove)
-              .appendTo($that);
-            that.view.remove.on("mousedown touchstart", that.onButtonDown);
-            that.view.remove.on("mouseup touchend", that.onButtonUp);
-            that.view.remove.on("click", that.onButtonClick);
-          }
-
-          if(that.options.ui.edit) {
-            that.view.edit = $("<a>")
-              .addClass("ut-sticker-button ut-sticker-button-edit icon_edit")
-              .attr("data-bkey", "edit")
-              .attr("title", that.options.i18n.edit).appendTo($that);
-            that.view.edit.on("mousedown touchstart", that.onButtonDown);
-            that.view.edit.on("mouseup touchend", that.onButtonUp);
-            that.view.edit.on("click", that.onButtonClick);
-          }
-
-          that.options.ui.rotate = that.data.rotatable ? that.options.ui.rotate : false;
-          that.options.ui.resize = that.data.resizable ? that.options.ui.resize : false;
-
-          if(that.options.ui.rotate === null) {
-            if(that.options.styles.proportional) {
-              that.options.ui.rotate = !that.options.ui.resize;
-            } else {
-              that.options.ui.rotate = true;
-            }
-          }
-          if(that.options.ui.resize === null) {
-            if(that.options.styles.proportional) {
-              that.options.ui.resize = !that.options.ui.rotate;
-            } else {
-              that.options.ui.resize = true;
-            }
-          }
-
-          // get or create rotate button
-          if(that.options.ui.rotate) {
-            that.view.rotate = $("<a>")
-              .addClass("ut-sticker-button ut-sticker-button-rotate icon_rotate")
-              .attr("title", that.options.i18n.rotate)
-              .appendTo($that);
-            that.catchEvents(that.view.rotate, that.onElementRotate);
-          }
-
-          // get or create remove button
-          if(that.options.ui.resize) {
-            that.view.resize = $("<a>")
-              .addClass("ut-sticker-button ut-sticker-button-resize icon_fullscreen")
-              .attr("title", that.options.i18n.resize)
-              .appendTo($that);
-            that.catchEvents(that.view.resize, that.onElementResize);
-          }
-
-          if((that.view.rotate && !that.view.resize) || (!that.view.rotate && that.view.resize)) {
-            $that.addClass("ut-sticker-one-scale-size-button");
-          } else {
-            $that.removeClass("ut-sticker-one-scale-size-button");
-          }
-
-          for(var qq in that.options.ui) {
-            if(qq === "edit" || qq === "resize" || qq === "rotate" || qq === "remove") {
-              continue;
-            }
-            var className = that.options.ui[qq];
-            var tmp = $("<a>").addClass("ut-sticker-button ut-sticker-button-custom " + className);
-            if(that.options.i18n[qq]) {
-              tmp.attr("title", that.options.i18n[qq]);
-            }
-            tmp.appendTo($that);
-            tmp.attr("data-bkey", qq);
-            tmp.on("mousedown touchstart", that.onButtonDown);
-            tmp.on("mouseup touchend", that.onButtonUp);
-            tmp.on("click", that.onButtonClick);
-          }
-        };
-
-        that.onButtonDown = function(e) {
-          that.preventButtonEvents = $(this).attr("data-bkey");
-          e.stopPropagation();
-        };
-
-        that.onButtonUp = function(e) {
-          if(that.preventButtonEvents !== $(this).attr("data-bkey")) {
-            return;
-          }
-          e.stopPropagation();
-        };
-
-        that.onButtonClick = function(e) {
-          var id = $(this).attr("data-bkey");
-          if(id === "remove" && !that.options.preventAutoRemove) {
-            that.removeElement();
-          } else {
-            $content.trigger(events.buttonClick, id);
-          }
-          if(!that.isTouch) {
-            e.stopPropagation();
-          }
-        };
-
-        /********************************************************************************
-         * prepare element
-         ********************************************************************************/
-        that.prepareElement = function() {
-          $that.addClass("ut-sticker");
-          $that.css("position", "absolute");
-          $content.addClass("ut-sticker-content");
-          if($content.attr("id") === "" && that.options.id) {
-            that.options.id = "sticker-" + UT.uuid();
-            console.warn("utSticker :: element ID not found, generating new:", that.options.id);
-          }
-          if(that.options.id !== "") {
-            $content.attr("id", that.options.id);
-          } else {
-            that.options.id = $content.attr("id");
-          }
-
-          $content.css({"width":"100%","height":"100%"});
-
-          if(that.isEditMode) {
-            $that.addClass("ut-sticker-edit");
-          }
-
-          // attach events for move sticker and blur
-          that.catchEvents($that, that.onElementMouse);
-          $that.on("click", that.onElementClick);
-          $("body").on("mousedown touchstart", that.onBodyClick);
-        };
-
-        that.parseSizeValue = function(sss, size, def) {
-          var tmp;
-          tmp = sss.toString().match(/([+\-]?[0-9]*(\.[0-9]+)?)(px|%)?/i);
-          if(tmp && (typeof(tmp[3]) === "undefined" || tmp[3] === null || tmp[3] === "px")) {
-            return parseFloat(tmp[1]);
-          } else if(tmp && tmp[3] === "%") {
-            return parseFloat(tmp[1]) / 100 * size;
-          }
-          return (typeof(def) !== "undefined" ? def : null);
-        };
-
-        that.preparePosition = function() {
-          that.pos = that.post.storage["utSticker_" + that.options.id + "_pos"] || {};
-          var width = 0;
-          var height = 0;
-
-          if(typeof(that.pos.width) === "undefined" &&
-            typeof(that.pos.ratio) === "undefined" &&
-            (typeof(that.options.styles.pos.width) === "undefined" || that.options.styles.pos.width === null || that.options.styles.pos.width === false || that.options.styles.pos.width === "auto") &&
-            (typeof(that.options.styles.pos.ratio) === "undefined" || that.options.styles.pos.ratio === null || that.options.styles.pos.ratio === false || that.options.styles.pos.ratio === "auto") &&
-            (typeof(that.options.styles.pos.height) === "undefined" || that.options.styles.pos.height === null || that.options.styles.pos.height === false || that.options.styles.pos.height === "auto") &&
-            defWidth && defHeight) {
-            width = defWidth;
-            height = defHeight;
-            that.pos.width = width / that.data.parentWidth;
-            that.pos.ratio = width / height;
-          } else {
-            // check width
-            if(typeof(that.pos.width) === "undefined") {
-              width = that.parseSizeValue(that.options.styles.pos.width, that.data.parentWidth, 0.3 * that.data.parentWidth);
-              that.pos.width = width / that.data.parentWidth;
-            } else {
-              width = that.pos.width * that.data.parentWidth;
-            }
-
-            // check height
-            if(typeof(that.pos.ratio) === "undefined") {
-              if(that.options.styles.pos.ratio === "auto" || that.options.styles.pos.height === "auto") {
-                that.pos.ratio = defWidth / defHeight;
-              } else {
-                if(typeof(that.options.styles.pos.ratio) !== "undefined" && that.options.styles.pos.ratio !== null && that.options.styles.pos.ratio !== false && that.options.styles.pos.ratio !== "auto") {
-                  that.pos.ratio = parseFloat(that.options.styles.pos.ratio);
-                  height = width / that.pos.ratio;
-                } else if(typeof(that.options.styles.pos.height) !== "undefined" && that.options.styles.pos.height !== null && that.options.styles.pos.height !== false && that.options.styles.pos.height !== "auto") {
-                  height = that.parseSizeValue(that.options.styles.pos.height, that.data.parentHeight, 0.3 * that.data.parentHeight);
-                  that.pos.ratio = width / height;
-                } else {
-                  height = width;
-                  that.pos.ratio = width / height;
-                }
-              }
-            }
-          }
-
-          // check left
-          if(typeof(that.pos.left) === "undefined") {
-            if(typeof(that.options.styles.pos.cx) !== "undefined" && that.options.styles.pos.cx !== null && that.options.styles.pos.cx !== false) {
-              that.pos.left = that.parseSizeValue(that.options.styles.pos.cx, that.data.parentWidth, 0.5 * that.data.parentWidth);
-            } else if(typeof(that.options.styles.pos.left) !== "undefined" && that.options.styles.pos.left !== null && that.options.styles.pos.left !== false) {
-              that.pos.left = that.parseSizeValue(that.options.styles.pos.left, that.data.parentWidth, 0.5 * that.data.parentWidth);
-              that.pos.left += width / 2;
-            } else if(typeof(that.options.styles.pos.right) !== "undefined" && that.options.styles.pos.right !== null && that.options.styles.pos.right !== false) {
-              that.pos.left = that.data.parentWidth - that.parseSizeValue(that.options.styles.pos.right, that.data.parentWidth, 0.5 * that.data.parentWidth);
-              that.pos.left -= width / 2;
-            } else {
-              that.pos.left = 0.5 * that.data.parentWidth;
-            }
-            that.pos.left = that.pos.left / that.data.parentWidth;
-          }
-
-          // check top
-          if(typeof(that.pos.top) === "undefined") {
-            if(typeof(that.options.styles.pos.cy) !== "undefined" && that.options.styles.pos.cy !== null && that.options.styles.pos.cy !== false) {
-              that.pos.top = that.parseSizeValue(that.options.styles.pos.cy, that.data.parentHeight, 0.5 * that.data.parentHeight);
-            } else if(typeof(that.options.styles.pos.top) !== "undefined" && that.options.styles.pos.top !== null && that.options.styles.pos.top !== false) {
-              that.pos.top = that.parseSizeValue(that.options.styles.pos.top, that.data.parentHeight, 0.5 * that.data.parentHeight);
-              that.pos.top += height / 2;
-            } else if(typeof(that.options.styles.pos.bottom) !== "undefined" && that.options.styles.pos.bottom !== null && that.options.styles.pos.bottom !== false) {
-              that.pos.top = that.data.parentHeight - that.parseSizeValue(that.options.styles.pos.bottom, that.data.parentHeight, 0.5 * that.data.parentHeight);
-              that.pos.top -= height / 2;
-            } else {
-              that.pos.top = 0.5 * that.data.parentHeight;
-            }
-            that.pos.top = that.pos.top / that.data.parentHeight;
-          }
-
-          // check angle
-          if(typeof(that.pos.angle) === "undefined") {
-            if(typeof(that.options.styles.pos.rotation) === "undefined") {
-              that.pos.angle = 0;
-            } else {
-              that.pos.angle = parseFloat(that.options.styles.pos.rotation) / 180 * Math.PI;
-            }
-          }
-
-          // check zIndex
-          if(typeof(that.pos.zIndex) === "undefined") {
-            if(typeof(that.options.styles.pos.zIndex) === "undefined") {
-              that.pos.zIndex = window.utStickerLastZIndex++;
-            } else {
-              that.pos.zIndex = parseInt(that.options.styles.pos.zIndex, 10);
-            }
-          }
-          if(window.utStickerLastZIndex <= that.pos.zIndex) {
-            window.utStickerLastZIndex = that.pos.zIndex + 1;
-          }
-        };
-
-        that.applyNewPosition = function(pos) {
-          var width, height, isChanged = false;
-          if(typeof(pos.width) !== "undefined" && pos.width !== null && pos.width !== false && pos.width !== "auto") {
-            width = that.parseSizeValue(pos.width, that.data.parentWidth, 0.3 * that.data.parentWidth);
-            that.pos.width = width / that.data.parentWidth;
-            isChanged = true;
-          } else {
-            width = that.pos.width * that.data.parentWidth;
-          }
-
-          if(typeof(pos.ratio) !== "undefined" && pos.ratio !== null && pos.ratio !== false && pos.ratio !== "auto") {
-            that.pos.ratio = parseFloat(pos.ratio);
-            height = width / that.pos.ratio;
-            isChanged = true;
-          } else if(typeof(pos.height) !== "undefined" && pos.height !== null && pos.height !== false && pos.height !== "auto") {
-            height = that.parseSizeValue(pos.height, that.data.parentHeight, 0.3 * that.data.parentHeight);
-            that.pos.ratio = width / height;
-            isChanged = true;
-          } else {
-            height = width * that.data.parentWidth;
-          }
-
-          if(typeof(pos.cx) !== "undefined" && pos.cx !== null && pos.cx !== false) {
-            that.pos.left = that.parseSizeValue(pos.cx, that.data.parentWidth, 0.5 * that.data.parentWidth);
-            that.pos.left = that.pos.left / that.data.parentWidth;
-            isChanged = true;
-          } else if(typeof(pos.left) !== "undefined" && pos.left !== null && pos.left !== false) {
-            that.pos.left = that.parseSizeValue(pos.left, that.data.parentWidth, 0.5 * that.data.parentWidth);
-            that.pos.left += width / 2;
-            that.pos.left = that.pos.left / that.data.parentWidth;
-            isChanged = true;
-          } else if(typeof(pos.right) !== "undefined" && pos.right !== null && pos.right !== false) {
-            that.pos.left = that.data.parentWidth - that.parseSizeValue(pos.right, that.data.parentWidth, 0.5 * that.data.parentWidth);
-            that.pos.left -= width / 2;
-            that.pos.left = that.pos.left / that.data.parentWidth;
-            isChanged = true;
-          }
-
-          if(typeof(pos.cy) !== "undefined" && pos.cy !== null && pos.cy !== false) {
-            that.pos.top = that.parseSizeValue(pos.cy, that.data.parentHeight, 0.5 * that.data.parentHeight);
-            that.pos.top = that.pos.top / that.data.parentHeight;
-            isChanged = true;
-          } else if(typeof(pos.top) !== "undefined" && pos.top !== null && pos.top !== false) {
-            that.pos.top = that.parseSizeValue(pos.top, that.data.parentHeight, 0.5 * that.data.parentHeight);
-            that.pos.top += height / 2;
-            that.pos.top = that.pos.top / that.data.parentHeight;
-            isChanged = true;
-          } else if(typeof(pos.bottom) !== "undefined" && pos.bottom !== null && pos.bottom !== false) {
-            that.pos.top = that.data.parentHeight - that.parseSizeValue(pos.bottom, that.data.parentHeight, 0.5 * that.data.parentHeight);
-            that.pos.top -= height / 2;
-            that.pos.top = that.pos.top / that.data.parentHeight;
-            isChanged = true;
-          }
-
-          // check angle
-          if(typeof(pos.rotation) !== "undefined" && pos.rotation !== null && pos.rotation !== false) {
-            that.pos.angle = parseFloat(pos.rotation) / 180 * Math.PI;
-            isChanged = true;
-          }
-
-          // check zIndex
-          if(typeof(pos.zIndex) !== "undefined" && pos.zIndex !== null && pos.zIndex !== false) {
-            that.pos.zIndex = parseInt(pos.zIndex, 10);
-            isChanged = true;
-          }
-          return isChanged;
-        };
-
-        that.removeElement = function() {
-          $content.trigger(events.destroy, that.options.id);
-          $that.remove();
-          if(that.post) {
-            that.post.storage["utSticker_" + that.options.id + "_pos"] = null;
-            that.post.save();
-          }
-        };
-
-        /********************************************************************************
-         * update element position, size, e.t.c.
-         ********************************************************************************/
-        that.updateAngleForSnap = function(ang) {
-          var bb = parseFloat(that.options.styles.rotationSnap.base) / 180 * Math.PI;
-          var pr = parseFloat(that.options.styles.rotationSnap.precision) / 180 * Math.PI;
-          var da = that.pos.angle - Math.round(that.pos.angle/bb) * bb;
-          if(Math.abs(da) < pr) {
-            return Math.round(that.pos.angle/bb) * bb;
-          }
-          return ang;
-        };
-
-        that.updateAngle = function() {
-          // update only rotation by css-transform
-          var viewAngle = that.updateAngleForSnap(that.pos.angle);
-          var tmpVal = "rotateZ("+viewAngle+"rad) rotateX(0)";
-          if(that.isMSIE) {
-            tmpVal = "rotate("+viewAngle+"rad)";
-          }
-          $that.css("WebkitTransform", tmpVal);
-          $that.css("MozTransform", tmpVal);
-          $that.css("msTransform", tmpVal);
-          $that.css("OTransform", tmpVal);
-          $that.css("transform", tmpVal);
-
-          that.updateButtonsAngle();
-          if(that.options.styles.autoflip) {
-            that.updateContentAngle();
-          }
-        };
-
-        that.updateContentAngle = function() {
-          var aa = that.updateAngleForSnap(that.pos.angle);
-          aa=(aa/(2*Math.PI)-Math.floor(aa/(2*Math.PI)))*(2*Math.PI);
-          if(Math.abs(aa) > Math.PI/2 && Math.abs(aa) < 3*Math.PI/2) {
-            $content.addClass("ut-sticker-flip");
-          } else {
-            $content.removeClass("ut-sticker-flip");
-          }
-        };
-
-        that.updateButtonsAngle = function() {
-          var viewAngle = that.updateAngleForSnap(that.pos.angle);
-          viewAngle *= -1;
-          var tmp = $that.find(".ut-sticker-button");
-          if(tmp && tmp.length > 0) {
-            var tmpVal = "rotateZ("+viewAngle+"rad) rotateX(0)";
-            if(that.isMSIE) {
-              tmpVal = "rotate("+viewAngle+"rad)";
-            }
-
-            tmp.css("WebkitTransform", tmpVal)
-              .css("MozTransform", tmpVal)
-              .css("msTransform", tmpVal)
-              .css("OTransform", tmpVal)
-              .css("transform", tmpVal);
-          }
-        };
-
-        that.updateSize = function() {
-          $that.css({
-            "width": Math.round(that.pos.width * that.data.parentWidth) + "px",
-            "height": Math.round(that.pos.width / that.pos.ratio * that.data.parentWidth) + "px",
-            "margin-left": -Math.round(that.pos.width * that.data.parentWidth / 2) + "px",
-            "margin-top": -Math.round(that.pos.width / that.pos.ratio * that.data.parentWidth / 2) + "px"
-          });
-        };
-
-        that.updatePosition = function() {
-          $that.css({
-            "left": Math.round(that.pos.left * that.data.parentWidth) + "px",
-            "top": Math.round(that.pos.top * that.data.parentHeight) + "px"
-          });
-        };
-
-        that.getBounds = function(obj, transformObject, refObject) {
-          var $obj = $(obj);
-          var bounds = {
-            left: Number.POSITIVE_INFINITY,
-            top: Number.POSITIVE_INFINITY,
-            right: Number.NEGATIVE_INFINITY,
-            bottom: Number.NEGATIVE_INFINITY,
-            width: Number.NaN,
-            height: Number.NaN
-          };
-          if($obj.length <= 0) {
-            return { left:0,top:0,right:0,bottom:0,width:0,height:0 };
-          }
-          if(typeof(transformObject) === "undefined" || transformObject === null || transformObject === false) {
-            transformObject = $obj;
-          }
-
-          var dx = 0;
-          var dy = 0;
-          var wdt,hgt,trData;
-
-          var off = $obj.offset();
-          off.left += dx;
-          off.top += dy;
-          var ww = $obj.width();
-          var hh = $obj.height();
-          if($obj.css("boxSizing") === "border-box" || $obj.css("WebkitBoxSizing") === "border-box" || $obj.css("OBoxSizing") === "border-box" || $obj.css("msBoxSizing") === "border-box" || $obj.css("MozBoxSizing") === "border-box") {
-            ww += parseInt($obj.css("borderLeftWidth"), 10) + parseInt($obj.css("borderRightWidth"), 10) + parseInt($obj.css("paddingLeft"), 10) + parseInt($obj.css("paddingRight"), 10);
-            hh += parseInt($obj.css("borderTopWidth"), 10) + parseInt($obj.css("borderBottomWidth"), 10) + parseInt($obj.css("paddingTop"), 10) + parseInt($obj.css("paddingBottom"), 10);
-          }
-
-          var dd = $(transformObject).css("transform");
-          /* 'none' -- opera fix */
-          if(!dd || dd === "" || dd === "none") { dd = $(transformObject).css("OTtransform"); }
-          if(!dd || dd === "" || dd === "none") { dd = $(transformObject).css("msTransform"); }
-          if(!dd || dd === "" || dd === "none") { dd = $(transformObject).css("MozTransform"); }
-          if(!dd || dd === "" || dd === "none") { dd = $(transformObject).css("WebkitTransform"); }
-          if(dd && dd !== "none") {
-            trData = dd.match(/matrix\([0-9e\.\,\s\+\-]+\)/);
-          }
-          if(trData) {
-            if(trData[0]) { trData = trData[0]; }
-            if(trData) { trData = trData.substr(7,dd.length - 8); }
-            if(trData) { trData = trData.split(","); }
-            if(trData) {
-              wdt = Math.abs(ww*parseFloat(trData[0])) + Math.abs(hh*parseFloat(trData[1]));
-              hgt = Math.abs(ww*parseFloat(trData[2])) + Math.abs(hh*parseFloat(trData[3]));
-            } else {
-              wdt = ww;
-              hgt = hh;
-            }
-          } else {
-            //rotateZ(0.706688234676948rad)
-            trData = dd.match(/rotateZ\(([0-9\.\+\-]+)rad\)/);
-            if(trData && trData[1]) {
-              wdt = Math.abs(ww*Math.cos(parseFloat(trData[1]))) + Math.abs(hh*Math.sin(parseFloat(trData[1])));
-              hgt = Math.abs(ww*Math.sin(parseFloat(trData[1]))) + Math.abs(hh*Math.cos(parseFloat(trData[1])));
-            } else {
-              wdt = ww;
-              hgt = hh;
-            }
-          }
-
-          // calculate object with full width and height
-          off.right = off.left + wdt;
-          off.bottom = off.top + hgt;
-          if(bounds.left > off.left)     { bounds.left = off.left; }
-          if(bounds.top > off.top)       { bounds.top = off.top; }
-          if(bounds.right < off.right)   { bounds.right = off.right; }
-          if(bounds.bottom < off.bottom) { bounds.bottom = off.bottom; }
-
-          bounds.width = bounds.right - bounds.left;
-          bounds.height = bounds.bottom - bounds.top;
-          if(refObject) {
-            var rooff = $(refObject).offset();
-            bounds.left -= rooff.left;
-            bounds.right -= rooff.left;
-            bounds.top -= rooff.top;
-            bounds.bottom -= rooff.top;
-          }
-          return bounds;
-        };
-
-        /* update item's bounds data */
-        that.updateBoundsInfo = function() {
-          if(!that.options.styles.useBounds) {
-            return;
-          }
-          that.data.curBounds = that.getBounds($that, false, $parent);
-        };
-
-        /********************************************************************************
-         * validate object size by bounds rect
-         * @return
-         *  true -- is position updated
-         *  false -- if position not changed
-         ********************************************************************************/
-        that.validateSizeInBounds = function(allowUpdate) {
-          var asc = Math.min(that.data.parentWidth/that.data.curBounds.width, that.data.parentHeight/that.data.curBounds.height);
-          if(asc < 1) {
-            if(allowUpdate !== false) {
-              that.pos.width *= asc;
-            }
-            return true;
-          }
-          return false;
-        };
-
-        /**
-         * check element size for min and max
-         * using info from that.pos
-         * @returns {boolean} -- true if size was changed
-         */
-        that.validateSize = function() {
-          that.validateSizeInBounds();
-
-          // size in px
-          var ww = that.pos.width * that.data.parentWidth;
-          var hh = ww / that.pos.ratio;
-
-          var nww = Math.min(Math.max(that.data.minWidth, ww), that.data.maxWidth);
-          var nhh = Math.min(Math.max(that.data.minHeight, hh), that.data.maxHeight);
-
-          if(nww === ww && nhh === hh) {
-            return false;
-          }
-
-          if(that.options.styles.proportional) {
-            if((nww / that.pos.ratio) > nhh) {
-              nww = nhh * that.pos.ratio;
-            }
-            that.pos.width = nww / that.data.parentWidth;
-          } else {
-            that.pos.ratio = nww / nhh;
-            that.pos.width = nww / that.data.parentWidth;
-          }
-          return true;
-        };
-
-        /**
-         * check element position by parentIndent and selfOutdent
-         * using info from that.pos or that.data.curBounds
-         * @returns {boolean} -- true if position was changed
-         */
-        that.validatePosition = function() {
-          var updatePos = false;
-
-          // without using bounds
-          if(!that.options.styles.useBounds) {
-            var ww = that.pos.width * that.data.parentWidth;
-            var hh = ww / that.pos.ratio;
-            var ll = that.pos.left * that.data.parentWidth;
-            var tt = that.pos.top * that.data.parentHeight;
-
-            if(that.data.parentIndent.left !== null) {
-              if((ll - ww / 2) < that.data.parentIndent.left - that.data.selfOutdent.left) {
-                ll = that.data.parentIndent.left - that.data.selfOutdent.left + ww / 2;
-                updatePos = true;
-              }
-            }
-            if(that.data.parentIndent.top !== null) {
-              if((tt - hh / 2) < that.data.parentIndent.top - that.data.selfOutdent.top) {
-                tt = that.data.parentIndent.top - that.data.selfOutdent.top + hh / 2;
-                updatePos = true;
-              }
-            }
-            if(that.data.parentIndent.right !== null) {
-              if((ll + ww / 2) > (that.data.parentWidth - that.data.parentIndent.right + that.data.selfOutdent.right)) {
-                ll = (that.data.parentWidth - that.data.parentIndent.right + that.data.selfOutdent.right) - ww / 2;
-                updatePos = true;
-              }
-            }
-            if(that.data.parentIndent.bottom !== null) {
-              if((tt + hh / 2) > (that.data.parentHeight - that.data.parentIndent.bottom + that.data.selfOutdent.bottom)) {
-                tt = (that.data.parentHeight - that.data.parentIndent.bottom + that.data.selfOutdent.bottom) - hh / 2;
-                updatePos = true;
-              }
-            }
-
-            if(updatePos) {
-              that.pos.left = ll / that.data.parentWidth;
-              that.pos.top = tt / that.data.parentHeight;
-            }
-            return updatePos;
-          }
-
-          // check position
-          if(that.data.parentIndent.left !== null) {
-            if(that.data.curBounds.left < that.data.parentIndent.left - that.data.selfOutdent.left) {
-              that.pos.left += (that.data.parentIndent.left - that.data.selfOutdent.left - that.data.curBounds.left) / that.data.parentWidth;
-              updatePos = true;
-            }
-          }
-          if(that.data.parentIndent.top !== null) {
-            if(that.data.curBounds.top < that.data.parentIndent.top - that.data.selfOutdent.top) {
-              that.pos.top += (that.data.parentIndent.top - that.data.selfOutdent.top - that.data.curBounds.top) / that.data.parentHeight;
-              updatePos = true;
-            }
-          }
-          if(that.data.parentIndent.right !== null) {
-            if(that.data.curBounds.right > (that.data.parentWidth - that.data.parentIndent.right + that.data.selfOutdent.right)) {
-              that.pos.left -= (that.data.curBounds.right - (that.data.parentWidth - that.data.parentIndent.right + that.data.selfOutdent.right)) / that.data.parentWidth;
-              updatePos = true;
-            }
-          }
-          if(that.data.parentIndent.bottom !== null) {
-            if(that.data.curBounds.bottom > (that.data.parentHeight - that.data.parentIndent.bottom + that.data.selfOutdent.bottom)) {
-              that.pos.top -= (that.data.curBounds.bottom - (that.data.parentHeight - that.data.parentIndent.bottom + that.data.selfOutdent.bottom)) / that.data.parentHeight;
-              updatePos = true;
-            }
-          }
-          return updatePos;
-        };
-
-        /**
-         * check element angle
-         */
-        that.validateAngle = function() {
-          var res = false;
-          var amin, amax;
-          if(that.data.minAngle < that.data.maxAngle) {
-            // check range
-            if(that.pos.angle < that.data.minAngle || that.pos.angle > that.data.maxAngle) {
-              amin = Math.abs(that.data.minAngle - that.pos.angle);
-              if(amin > Math.PI) {
-                amin = 2*Math.PI - amin;
-              }
-              amax = Math.abs(that.data.maxAngle - that.pos.angle);
-              if(amax > Math.PI) {
-                amax = 2*Math.PI - amax;
-              }
-              if(amin < amax) {
-                that.pos.angle = that.data.minAngle;
-                res = true;
-              } else {
-                that.pos.angle = that.data.maxAngle;
-                res = true;
-              }
-            }
-          } else {
-            // check range
-            if(that.pos.angle < that.data.minAngle && that.pos.angle > that.data.maxAngle) {
-              amin = Math.abs(that.data.minAngle - that.pos.angle);
-              if(amin > Math.PI) {
-                amin = 2*Math.PI - amin;
-              }
-              amax = Math.abs(that.data.maxAngle - that.pos.angle);
-              if(amax > Math.PI) {
-                amax = 2*Math.PI - amax;
-              }
-              if(amin < amax) {
-                that.pos.angle = that.data.minAngle;
-                res = true;
-              } else {
-                that.pos.angle = that.data.maxAngle;
-                res = true;
-              }
-            }
-          }
-          return res;
-        };
-
-        /**
-         * update worked params from that.options structure
-         * @param prm {Object} -- changes for that.options
-         */
-        that.updateParams = function() {
-          var isChanged = false;
-          if(that._updateParentSize()) {
-            isChanged = true;
-          }
-          that._updateEditableState();
-          that._updateRotationLimits();
-          that._updateSizeLimits();
-          that._updateParentIndent();
-          return isChanged;
-        };
-
-        that._updateEditableState = function() {
-          // prevent editable to view mode
-          if(!that.isEditMode) {
-            that.options.editable = false;
-          }
-          // prepare worked parameters
-          if(that.options.editable === true || that.options.editable === false) {
-            that.data.editable = that.data.movable = that.data.rotatable = that.data.resizable = (that.options.editable === true);
-          } else if(typeof(that.options.editable) === "object") {
-            that.data.movable = !!that.options.editable.movable;
-            that.data.rotatable = !!that.options.editable.rotatable;
-            that.data.resizable = !!that.options.editable.resizable;
-            that.data.editable = that.data.movable || that.data.rotatable || that.data.resizable;
-          }
-          // drop focus
-          if(that.data.editable === false && $that.hasClass("ut-sticker-focus")) {
-            that.blur();
-          }
-        };
-
-        that._updateRotationLimits = function() {
-          if(that.options.styles.rotationLimits.min > 180) {
-            that.options.styles.rotationLimits.min = 360 - that.options.styles.rotationLimits.min;
-          }
-          if(that.options.styles.rotationLimits.min < -180) {
-            that.options.styles.rotationLimits.min = 360 + that.options.styles.rotationLimits.min;
-          }
-          if(that.options.styles.rotationLimits.max > 180) {
-            that.options.styles.rotationLimits.max = 360 - that.options.styles.rotationLimits.max;
-          }
-          if(that.options.styles.rotationLimits.max < -180) {
-            that.options.styles.rotationLimits.max = 360 + that.options.styles.rotationLimits.max;
-          }
-          that.data.minAngle = parseFloat(that.options.styles.rotationLimits.min) / 180 * Math.PI;
-          that.data.maxAngle = parseFloat(that.options.styles.rotationLimits.max) / 180 * Math.PI;
-        };
-
-        that._updateSizeLimits = function() {
-          that.data.minWidth = that.parseSizeValue(that.options.styles.sizeLimits.minWidth, that.data.parentWidth);
-          if(that.data.minWidth === null) {
-            that.data.minWidth = 0;
-          }
-          that.data.minHeight = that.parseSizeValue(that.options.styles.sizeLimits.minHeight, that.data.parentHeight);
-          if(that.data.minHeight === null) {
-            that.data.minHeight = 0;
-          }
-          that.data.maxWidth = that.parseSizeValue(that.options.styles.sizeLimits.maxWidth, that.data.parentWidth);
-          if(that.data.maxWidth === null) {
-            that.data.maxWidth = 0;
-          }
-          that.data.maxHeight = that.parseSizeValue(that.options.styles.sizeLimits.maxHeight, that.data.parentHeight);
-          if(that.data.maxHeight === null) {
-            that.data.maxHeight = 0;
-          }
-        };
-
-        that._updateParentIndent = function() {
-          if(typeof(that.options.styles.parentIndent) === "undefined" || that.options.styles.parentIndent === null || that.options.styles.parentIndent === false) {
-            return;
-          }
-
-          if(typeof(that.options.styles.parentIndent) !== "object") {
-            var tmp = that.parseSizeValue(that.options.styles.parentIndent, that.data.parentWidth, 0);
-            that.data.parentIndent.left = that.data.parentIndent.right = tmp;
-
-            tmp = that.parseSizeValue(that.options.styles.parentIndent, that.data.parentHeight, 0);
-            that.data.parentIndent.top = that.data.parentIndent.bottom = tmp;
-            return;
-          }
-
-          if(that.options.styles.parentIndent.left !== null) {
-            that.data.parentIndent.left = that.parseSizeValue(that.options.styles.parentIndent.left, that.data.parentWidth, 0);
-          } else {
-            that.data.parentIndent.left = null;
-          }
-
-          if(that.options.styles.parentIndent.top !== null) {
-            that.data.parentIndent.top = that.parseSizeValue(that.options.styles.parentIndent.top, that.data.parentHeight, 0);
-          } else {
-            that.data.parentIndent.top = null;
-          }
-
-          if(that.options.styles.parentIndent.right !== null) {
-            that.data.parentIndent.right = that.parseSizeValue(that.options.styles.parentIndent.right, that.data.parentWidth, 0);
-          } else {
-            that.data.parentIndent.right = null;
-          }
-
-          if(that.options.styles.parentIndent.bottom !== null) {
-            that.data.parentIndent.bottom = that.parseSizeValue(that.options.styles.parentIndent.bottom, that.data.parentHeight, 0);
-          } else {
-            that.data.parentIndent.bottom = null;
-          }
-        };
-
-        that._updateSelfOutdent = function() {
-          if(typeof(that.options.styles.selfOutdent) === "undefined" || that.options.styles.selfOutdent === null || that.options.styles.selfOutdent === false) {
-            return;
-          }
-
-          if(typeof(that.options.styles.selfOutdent) !== "object") {
-            var tmp = that.parseSizeValue(that.options.styles.selfOutdent, $that.width(), 0);
-            that.data.selfOutdent.left = that.data.selfOutdent.right = tmp;
-
-            tmp = that.parseSizeValue(that.options.styles.selfOutdent, $that.height(), 0);
-            that.data.selfOutdent.top = that.data.selfOutdent.bottom = tmp;
-          } else {
-            that.data.selfOutdent.left = that.parseSizeValue(that.options.styles.selfOutdent.left, $that.width(), 0);
-            that.data.selfOutdent.top = that.parseSizeValue(that.options.styles.selfOutdent.top, $that.height(), 0);
-            that.data.selfOutdent.right = that.parseSizeValue(that.options.styles.selfOutdent.right, $that.width(), 0);
-            that.data.selfOutdent.bottom = that.parseSizeValue(that.options.styles.selfOutdent.bottom, $that.height(), 0);
-          }
-        };
-
-        that._savePosition = function() {
-          that.post.storage["utSticker_" + that.options.id + "_pos"] = that.pos;
-          that.post.save();
-        };
-
-        that._getCurrentData = function() {
-          return {
-            width: that.pos.width * that.data.parentWidth,
-            height: that.pos.width/that.pos.ratio * that.data.parentWidth,
-            rotation: that.pos.angle * 180 / Math.PI,
-            zIndex: that.pos.zIndex
-          };
-        };
-
-        /********************************************************************************
-         * mouse and touch events
-         ********************************************************************************/
-        var itemWasMoved = false;
-        that.onElementClick = function(e) {
-          if(!that.isEditMode || !that.data.editable || !itemWasMoved) {
-            $content.trigger(events.click);
-          }
-          if(!that.isTouch) {
-            e.stopPropagation();
-            e.preventDefault();
-          }
-        };
-
-        that.onElementMouse = function(type, data) {
-          if(!that.isEditMode || !that.data.editable) {
-            return;
-          }
-          if(type === "down") {
-            that.focus();
-            itemWasMoved = false;
-          } else if(type === "move" && that.data.movable) {
-            $that.addClass("ut-sticker-moving");
-            that.pos.left += data.offLast.x / that.data.parentWidth;
-            that.pos.top += data.offLast.y / that.data.parentHeight;
-
-            // change element position
-            if(that.options.styles.useBounds) {
-              that.updatePosition();
-              that.updateBoundsInfo();
-            }
-            if(that.validatePosition() === true || !that.options.styles.useBounds) {
-              that.updatePosition();
-              that.updateBoundsInfo();
-            }
-            $content.trigger(events.move, that._getCurrentData());
-            itemWasMoved = true;
-          } else if(type === "up" && that.data.movable) {
-            $that.removeClass("ut-sticker-moving");
-            that._savePosition();
-            $content.trigger(events.change, that._getCurrentData());
-          }
-          return false;
-        };
-
-        that.onElementResize = function(type, data) {
-          if(!that.isEditMode) {
-            return;
-          }
-
-          if(that.data.rotatable && that.data.resizable && that.options.styles.proportional && !that.view.rotate) {
-            return that.onElementRotateAndResize(type, data);
-          }
-
-          if(type === "down" && that.data.resizable) {
-            that.focus();
-            return false;
-          } else if(type === "move" && that.data.resizable) {
-            var tx = data.offLast.x * Math.cos(that.pos.angle) + data.offLast.y * Math.sin(that.pos.angle);
-            var ty = -data.offLast.x * Math.sin(that.pos.angle) + data.offLast.y * Math.cos(that.pos.angle);
-            // multiple to 2 cause scale was center
-            var sx = tx * 2;
-            var sy = ty * 2;
-            var ow = that.pos.width * that.data.parentWidth;
-            var oh = ow / that.pos.ratio;
-            ow += sx;
-            oh += sy;
-            if(that.options.styles.proportional) {
-              that.pos.width = ow / that.data.parentWidth;
-            } else {
-              that.pos.width = ow / that.data.parentWidth;
-              that.pos.ratio = ow / oh;
-            }
-
-            // change element position
-            that.validateSize();
-            that.updateSize();
-            if(that.options.styles.useBounds) {
-              that.updateBoundsInfo();
-            }
-            that._updateSelfOutdent();
-            if(that.validatePosition() === true) {
-              that.updatePosition();
-              that.updateBoundsInfo();
-            }
-            $content.trigger(events.resize, that._getCurrentData());
-            return false;
-          } else if(type === "up" && that.data.resizable) {
-            that._savePosition();
-            $content.trigger(events.change, that._getCurrentData());
-            return false;
-          }
-        };
-
-        that.onElementRotate = function(type, data) {
-          if(!that.isEditMode) {
-            return;
-          }
-
-          if(that.data.rotatable && that.data.resizable && that.options.styles.proportional && !that.view.resize) {
-            return that.onElementRotateAndResize(type, data);
-          }
-
-          if(type === "down" && that.data.rotatable) {
-            that.focus();
-            return false;
-          } else if(type === "move" && that.data.rotatable) {
-            var ox = parseInt($parent.offset().left, 10) + parseInt($that.css("left"), 10);
-            var oy = parseInt($parent.offset().top, 10) + parseInt($that.css("top"), 10);
-            var cx = data.x - ox;
-            var cy = data.y - oy;
-
-            var ang = Math.atan2(cy, cx);
-            var tmpAng = Math.atan2(that.pos.width/that.pos.ratio, that.pos.width);
-
-            that.pos.angle = ang - tmpAng;
-            if(that.pos.angle > Math.PI) {
-              that.pos.angle = that.pos.angle - 2 * Math.PI;
-            }
-            if(that.pos.angle < -Math.PI) {
-              that.pos.angle = that.pos.angle + 2 * Math.PI;
-            }
-
-            that.validateAngle();
-
-            // change element position
-            var isSizeChanged = false;
-            that.updateAngle();
-            if(that.options.styles.useBounds) {
-              that.updateBoundsInfo();
-              that._updateSelfOutdent();
-            }
-            if(that.validateSizeInBounds(false) === true) {
-              isSizeChanged = true;
-              that.validateSize();
-              that.updateSize();
-              if(that.options.styles.useBounds) {
-                that.updateBoundsInfo();
-                that._updateSelfOutdent();
-              }
-            }
-            if(that.validatePosition() === true) {
-              that.updatePosition();
-              that.updateBoundsInfo();
-            }
-            var curData = that._getCurrentData();
-            if(isSizeChanged) {
-              $content.trigger(events.resize, curData);
-            }
-            $content.trigger(events.rotate, curData);
-            return false;
-          } else if(type === "up" && that.data.rotatable) {
-            that._savePosition();
-            $content.trigger(events.change, that._getCurrentData());
-            return false;
-          }
-        };
-
-        that.onElementRotateAndResize = function(type, data) {
-          if(type === "down") {
-            that.focus();
-            return false;
-          } else if(type === "move") {
-            // calc mouse offset by element center
-            var ox = parseInt($parent.offset().left, 10) + parseInt($that.css("left"), 10);
-            var oy = parseInt($parent.offset().top, 10) + parseInt($that.css("top"), 10);
-            var cx = data.x - ox;
-            var cy = data.y - oy;
-
-            var cl = Math.sqrt((cx - data.offLast.x)*(cx - data.offLast.x) + (cy - data.offLast.y)*(cy - data.offLast.y)) * 2;
-            var nl = Math.sqrt(cx*cx + cy*cy) * 2;
-            that.pos.width *= nl/cl;
-
-            /* rotate element */
-            var ang = Math.atan2(cy, cx);
-            var tmpAng = Math.atan2(that.pos.width/that.pos.ratio, that.pos.width);
-
-            that.pos.angle = ang - tmpAng;
-            if(that.pos.angle > Math.PI) {
-              that.pos.angle = that.pos.angle - 2 * Math.PI;
-            }
-            if(that.pos.angle < -Math.PI) {
-              that.pos.angle = that.pos.angle + 2 * Math.PI;
-            }
-
-            that.validateAngle();
-
-            /* change element position */
-            that.updateAngle();
-            that.validateSize();
-            that.updateSize();
-            if(that.options.styles.useBounds) {
-              that.updateBoundsInfo();
-              that._updateSelfOutdent();
-            }
-            if(that.validatePosition() === true) {
-              that.updatePosition();
-              that.updateBoundsInfo();
-            }
-            var curData = that._getCurrentData();
-            $content.trigger(events.resize, curData);
-            $content.trigger(events.rotate, curData);
-            return false;
-          } else if(type === "up") {
-            that._savePosition();
-            $content.trigger(events.change, that._getCurrentData());
-            return false;
-          }
-        };
-
-        that.onBodyClick = function() {
-          if($that.hasClass("ut-sticker-focus") && $(this).closest(".ut-sticker").length <= 0) {
-            that.blur();
-          }
-        };
-
-        /********************************************************************************
-         * commands
-         ********************************************************************************/
-        that.hide = function() {
-          $that.css("display", "none");
-          $content.css("display", "none");
-        };
-
-        that.show = function() {
-          $that.css("display", "");
-          $content.css("display", "");
-        };
-
-        that.focus = function() {
-          if(!that.data.editable) {
-            return;
-          }
-          $parent.find(".ut-sticker").utSticker("blur");
-          $that.addClass("ut-sticker-focus");
-          if(that.options.styles.topOnFocus) {
-            that.pos.zIndex = window.utStickerLastZIndex++;
-            $that.css("z-index", that.pos.zIndex);
-            $content.trigger(events.change, that._getCurrentData());
-          }
-        };
-
-        that.blur = function() {
-          $that.removeClass("ut-sticker-focus");
-        };
-
-        /**
-         * update sticker size and position (need to call when parent size changed)
-         */
-        that.update = function(pos) {
-          var isPosChanged = false;
-          if(that.updateParams()) {
-            isPosChanged = true;
-          }
-          that.createButtons();
-          if(pos && that.applyNewPosition(pos)) {
-            isPosChanged = true;
-          }
-          that.updateSize();
-          that.updatePosition();
-          if(!that.options.autoflip) {
-            $content.removeClass("ut-sticker-flip");
-          }
-          that.validateAngle();
-          that.updateAngle();
-          that.updateBoundsInfo();
-          that._updateSelfOutdent();
-          if(that.data.resizable) {
-            if(that.validateSize() === true) {
-              isPosChanged = true;
-              that.updateSize();
-            }
-          }
-          if(that.data.movable) {
-            if(that.validatePosition() === true) {
-              isPosChanged = true;
-              that.updatePosition();
-            }
-          }
-          that.updateBoundsInfo();
-          that._updateSelfOutdent();
-          if(isPosChanged) {
-            $content.trigger(events.change, that._getCurrentData());
-          }
-        };
-
-        /**
-         * change editable state
-         * @param data {boolean|object} -- turn on/off posibility for editable sticker. Can be object with {movable,rotatable,resizable}
-         */
-        that.editable = function(data) {
-          if(typeof(data) === "object") {
-            that.options.editable = $.extend(true, {}, data);
-          } else {
-            that.options.editable = data;
-          }
-          that._updateEditableState();
-        };
-
-        /********************************************************************************
-         * init element
-         ********************************************************************************/
-        var isPosChanged = false;
-        that.updateParams();
-        that.prepareElement();
-        that.createButtons();
-        that.preparePosition();
-        that.updateSize();
-        that.updatePosition();
-        that.updateAngle();
-        that.updateBoundsInfo();
-        that._updateSelfOutdent();
-        if(that.data.resizable) {
-          if(that.validateSize() === true) {
-            that.updateSize();
-            isPosChanged = true;
-          }
-        }
-        if(that.data.movable) {
-          if(that.validatePosition() === true) {
-            that.updatePosition();
-            isPosChanged = true;
-          }
-        }
-        that.updateBoundsInfo();
-        that._updateSelfOutdent();
-        that.initialized = true;
-        if(that.post) {
-          setTimeout(function(){
-            $content.trigger(events.ready, [that.options.id, that._getCurrentData()]);
-          },0);
-        }
-        if(isPosChanged) {
-          $content.trigger(events.change, that._getCurrentData());
-        }
-      });
-      return this;
-    },
-
-    hide: function() {
-      this.each(function() {
-        if(this.utSticker && this.utSticker.hide){
-          this.utSticker.hide.call(this);
-        }
-      });
-      return this;
-    },
-
-    show: function() {
-      this.each(function() {
-        if(this.utSticker && this.utSticker.show){
-          this.utSticker.show.call(this);
-        }
-      });
-      return this;
-    },
-
-    focus: function() {
-      this.each(function() {
-        if(this.utSticker && this.utSticker.focus){
-          this.utSticker.focus.call(this);
-        }
-      });
-      return this;
-    },
-
-    blur: function() {
-      this.each(function() {
-        if(this.utSticker && this.utSticker.blur){
-          this.utSticker.blur.call(this);
-        }
-      });
-      return this;
-    },
-
-    update: function() {
-      this.each(function() {
-        if(this.utSticker && this.utSticker.update){
-          this.utSticker.update.call(this);
-        }
-      });
-      return this;
-    },
-
-    editable: function(data) {
-      this.each(function() {
-        if(this.utSticker && this.utSticker.editable){
-          this.utSticker.editable.call(this, data);
-        }
-      });
-      return this;
-    },
-
-    remove: function() {
-      this.each(function() {
-        if(this.utSticker && this.utSticker.removeElement){
-          this.utSticker.removeElement.call(this);
-        }
-      });
-      return this;
-    },
-
-    destroy: function() {
-      return this.remove();
-    }
-  };
-
+  /**
+   * This plug-in let you instantiate and manage resizable floating DOM objects.
+   *
+   * @provide $.fn.utSticker()
+   *
+   * ## Constructor
+   *
+   * ### $(sel).utSticker(options)
+   *
+   * @param  options :
+   * {
+   *   @param {String|Number} height The height of the sticker as a number or a valid css value
+   *   @param {String|Number} width The width of the sticker as a number or a valid css value
+   *   @param {String|Number} top The distance from the parent element as a number or a valid css value
+   *   @param {String|Number} left The distance from the parent element as a number or a valid css value
+   *   @param {Number} zIndex The initial z-index of the element, default to the 0
+   *   @param {Number} rotation The Sticker angle in radian
+   *   @param {boolean} editable True if sticker is editable, default to post.context.editor
+   *   @param {boolean} autoSave False if the component should not save its own data
+   * }
+   * @return $
+   *
+   * ## Commands
+   *
+   * ### $(sel).utSticker('editable', true)
+   *
+   *
+   */
   $.fn.utSticker = function(method) {
-    if(typeof method === 'object' || !method) {
-      methods.init.apply(this, arguments);
-    } else if(methods[method]) {
+    if (methods[method]) {
       return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+    } else if (typeof method === 'object' || !method) {
+      methods.init.apply(this, arguments);
     } else {
       $.error('Method ' + method + ' does not exist on $.utSticker');
     }
     return this;
   };
+
+  function callOnEach(method){
+    return function(){
+      var args = arguments;
+      this.each(function(){
+        var sticker = $(this).data('utSticker');
+        if(sticker){
+          sticker[method].apply(sticker, args);
+        }
+      });
+      return this;
+    };
+  }
+
+  var methods = {
+    init: function(options){
+      this.each(function(){
+        if( ! $.data(this, 'utSticker')){
+          $.data(this, 'utSticker', new Sticker(this, options));
+        }
+      });
+      return this;
+    }
+  };
+  $.each(['hide', 'show', 'save', 'editable', 'focus', 'blur', 'destroy'], function(){
+    methods[this] = callOnEach(this);
+  });
+
+  // Constant to convert Radian to degrees.
+  var RAD2DEG = 180/Math.PI;
+  var focusedSticker = null;
+  var maxZ = 0;
+
+  $(document).on('click', function(){
+    if(focusedSticker){
+      focusedSticker.blur();
+    }
+  });
+
+  /**
+   * A Sticker Delegate that will handle a sticker element and
+   * its various behaviour.
+   *
+   * @param element Sticker DOM Element
+   * @param options see $.fn.utSticker
+   */
+  function Sticker(element, options) {
+    this.options = $.extend( {}, this.defaults, options);
+    this.options.movableArea = $.extend({}, this.defaults.movableArea, this.options.movableArea);
+    this.options.ui = $.extend({}, this.defaults.ui, this.options.ui);
+    this.parent = this.options.parent || $(element).parent();
+    this.options.zIndex = this.options.zIndex || maxZ + 1;
+    if(this.options.parent){
+      $(this.parent).append(element);
+    }
+    this.wrapper = this._wrap(element);
+    this.element = element;
+
+    createEventFunction(this);
+
+    // Store jQuery Selector
+    this.$wrapper = $(this.wrapper);
+    this.$element = $(this.element);
+    this.$handler = this.$wrapper.find('.ut-sticker-handler').hide();
+    this.$deleteHandler = this.$wrapper.find('.ut-sticker-delete').hide();
+    this.$parent = $(this.parent);
+    this.$movableArea = this._findOrCreateMovableArea();
+    this.$parent.append(this.wrapper);
+    this.$element.addClass('ut-sticker');
+
+    this.$movableArea.css(this.options.movableArea);
+
+    // Update CSS
+    this._absolutize();
+    this.data = {};
+
+    this.options.id = this.options.id || 'ut-sticker-' + this.$element.attr('id');
+
+    this.noNotification(function(){
+      this.zIndex(this.options.zIndex);
+      this.moveTo(this.options.left, this.options.top);
+      this.rotateTo(this.options.rotation);
+      this.sizeTo(this.options.width || this.$element.width(), this.options.height || this.$element.height());
+    });
+
+    if(this.options.editable !== undefined){
+      this.editable(this.options.editable);
+    }
+
+    // Bind to post instance events
+    // and save the initial data if needed.
+    UT.Expression.ready(function(post){
+      this.post = post;
+      post.on('resize', this.refresh.bind(this));
+      this.load();
+      if(this.options.editable === undefined){
+        this.editable(post.context.editor);
+      }
+
+      if(this.editable() && post.context.editor && this.options.autoSave){
+        this.save();
+      }
+      this.trigger('ready', this);
+    }.bind(this));
+  }
+
+  Sticker.prototype = {
+    notificationEnabled: true,
+    trigger: function(name, data) {
+      setTimeout(function(){
+        if(this.notificationEnabled){
+          this.$element.trigger('utSticker:'+name, data);
+        }
+      }, 0);
+    },
+    noNotification: function(block) {
+      this.notificationEnabled = false;
+      try {
+        block.apply(this);
+      } catch(ex){
+        this.notificationEnabled = true;
+      }
+    },
+    enableNotification: function() {
+      this.notificationEnabled = true;
+    },
+    destroy: function() {
+      this.$element.trigger('utSticker:destroy');
+      this.$wrapper.remove();
+      if(this.options.autoSave){
+        this.post.storage[this.options.id] = null;
+        this.post.save();
+      }
+    },
+    /**
+     * Focus the current sticker.
+     */
+    focus: function() {
+      if(focusedSticker && focusedSticker === this){
+        return;
+      }
+      if(focusedSticker){
+        focusedSticker.blur();
+      }
+      $(this.wrapper).addClass('ut-sticker-focus');
+      this.zIndex(parseInt(maxZ, 10) + 1);
+      focusedSticker = this;
+      this.toggleControls(true);
+    },
+    /**
+     * Blur current sticker focus.
+     */
+    blur: function() {
+      if(focusedSticker === this){
+        this.toggleControls(false);
+        $(this.wrapper).removeClass('ut-sticker-focus');
+        focusedSticker = null;
+      }
+    },
+
+    toggleControls: function(enabled) {
+      var value = function(key){
+        return (enabled && this.options.ui[key] ? 'block' : 'none');
+      }.bind(this);
+      $('.ut-sticker-handler', this.$wrapper).css('display', value('transform'));
+      $('.ut-sticker-delete', this.$wrapper).css('display', value('remove'));
+    },
+
+    /**
+     * Define whether a sticker can be edited or not.
+     */
+    editable: function(enabled) {
+      if(enabled !== undefined){
+        this.options.editable = enabled;
+        if(this.options.editable) {
+          // Bind events
+          this.$wrapper.on('click', discardEvent); // discard click event
+          if(this.options.ui.move) {
+            this.$wrapper.on('mousedown touchstart', this._handleMouseDownEvent);
+          }
+          console.log('ui', this.options.ui);
+          if(this.options.ui.remove) {
+            this.$deleteHandler
+              .on('click touchstart', this._handleDeleteHandlerClickEvent);
+          } else {
+            this.$deleteHandler.hide();
+          }
+          if(this.options.ui.transform) {
+            this.$handler
+              .on('mousedown touchstart', this._handleMoveHandlerMouseDownEvent);
+          } else {
+            this.$handler.hide();
+          }
+        } else {
+          this.$wrapper.off('click', discardEvent);
+          this.$wrapper.off('mousedown touchstart', this._handleMouseDownEvent);
+          this.$deleteHandler.off('click touchstart', this._handleDeleteHandlerClickEvent);
+          this.$handler.off('mousedown touchstart', this._handleMoveHandlerMouseDownEvent);
+        }
+        return this;
+      } else {
+        return this.options.enabled;
+      }
+    },
+
+    offset: function() {
+      return {
+        left: parseInt(this.$wrapper.css('left'), 10) || 0,
+        top: parseInt(this.$wrapper.css('top'), 10) || 0
+      };
+    },
+
+    /**
+     * Getter/Setter for the z-index.
+     */
+    zIndex: function(z) {
+      if(z === undefined){
+        return parseInt($(this.wrapper).css('zIndex'), 10);
+      } else {
+        if(z < 0){
+          z = 0;
+        }
+        this.options.zIndex = z;
+        this.$wrapper.css('z-index', z);
+        // Updates the max values if needed.
+        if(z && z > maxZ) {
+          maxZ = z;
+        }
+        this.$element.trigger('utSticker:change', {zIndex: z});
+        return this;
+      }
+    },
+    /**
+     * Load the current data either from post.storage or from the given
+     * parameter.
+     */
+    load: function(data) {
+      if (data) {
+        this.data = data;
+      } else if(this.post.storage[this.options.id]) {
+        this.data = this.post.storage[this.options.id];
+      }
+      this.refresh();
+      return this;
+    },
+    /**
+     * Save the data to this.post.storage[this.options.id]
+     */
+    save: function() {
+      var offset = this.offset();
+      this.data = {
+        zIndex: this.zIndex(),
+        xRatio: offset.left / this.$parent.width(),
+        yRatio: offset.top / this.$parent.height(),
+        wRatio: this.$element.width() / this.$parent.width(),
+        hWRatio: this.$element.height() / this.$element.width(),
+        rotation: (this.data && this.data.rotation ? this.data.rotation : 0)
+      };
+      this.post.storage[this.options.id] = this.data;
+      this.post.save();
+      this.trigger('save', this.data);
+      return this;
+    },
+    /**
+     * Retrieve the current position for the sticker
+     * using the defined data.
+     */
+    position: function() {
+      if(this.data){
+        var $parent = $(this.parent);
+        var nw = $parent.width();
+        var nh = $parent.height();
+        return {
+          left: this.data.xRatio * nw,
+          top: this.data.yRatio * nh,
+          width: this.data.wRatio * nw,
+          height: this.data.hWRatio * nw * this.data.wRatio,
+          zIndex: this.data.zIndex,
+          rotation: this.data.rotation
+        };
+      }
+    },
+    refresh: function() {
+      var position = this.position();
+      if(position) {
+        this.rotateTo(position.rotation);
+        this.moveTo(position.left, position.top);
+        this.sizeTo(position.width, position.height);
+        this.zIndex(position.zIndex);
+      }
+      return this;
+    },
+    /**
+     * Resize the given sticker to given width and height.
+     */
+    sizeTo: function(width, height) {
+      var oldValues = {
+        width: this.$element.width(),
+        height: this.$element.height()
+      };
+      this.$element.width(width).height(height);
+      this.$element.trigger('utSticker:change', {width: width, height: height}, oldValues);
+      return this;
+    },
+    /**
+     * Move the sticker by +x, +y from the current position.
+     */
+    move: function(x, y) {
+      var offsets = this.offset();
+      this.moveTo( offsets.left + x, offsets.top + y );
+    },
+    /**
+     * Move the sticker to a specific position.
+     */
+    moveTo: function(x, y) {
+      this.$wrapper
+        .css({
+          top: y,
+          left: x
+        });
+      this.$element.trigger('utSticker:change', {top: y, left: x});
+      return this;
+    },
+    hide: function(){
+      this.$wrapper.hide();
+    },
+    show: function(){
+      this.$wrapper.show();
+    },
+    /**
+     * Rotate the sticker given the value specified in radian
+     */
+    rotateTo: function(radian) {
+      if(radian === 0){
+        this.$wrapper.css('transform', '');
+      } else {
+        this.$wrapper.css('transform', "rotate(" + ((radian * RAD2DEG)| 0)  + "deg)");
+      }
+      this.data.rotation = radian;
+      this.$element.trigger('utSticker:change', {rotation: radian});
+    },
+    /**
+     * Default options
+     */
+    defaults: {
+      editable: undefined, // is the sticker editable?
+      autoSave: true, // will save after any modification in this.post.storage[this.options.id]
+      id: null,     // component name used as a key for data in storage,
+      top: 0,         // distance from parent top
+      left: 0,        // distance from parent left
+      rotation: 0,    // rotation in radian (range from 0 to 2π)
+      movableArea: {  // default css style that define the movable area zone.
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+        position: 'absolute',
+        zIndex: -9999
+      },
+      ui: {
+        remove: true,
+        transform: true,
+        move: true
+      }
+    },
+    _absolutize: function(){
+      if(this.$parent.css('position') === 'static'){
+        this.$parent.css('position', 'relative');
+      }
+      this.$parent.addClass('ut-sticker-parent');
+      var offset = this.offset();
+      this.$wrapper.css({
+        position: 'absolute',
+        top: offset.top,
+        left: offset.left,
+        display: 'table-cell',
+        'vertical-align': 'center',
+        align: 'center'
+      });
+      this.$element.css('overflow', 'visible');
+    },
+    _wrap: function(node) {
+      return $('<div class="ut-sticker-wrapper"></div>')
+        .append("<a class='ut-sticker-delete ut-item-button tl ut-button icon_delete' title='delete' href='#'></a>")
+        .append($(node).detach())
+        .append("<a class='ut-sticker-handler ut-item-button br ut-button icon_rotate' title='scale and rotate' href='#'></a>")
+        .get(0);
+    },
+    _findOrCreateMovableArea: function(){
+      var area = this.$parent.find('.ut-sticker-movable-area');
+      if( area.length === 0 ){
+        area = $('<div class="ut-sticker-movable-area"/>').appendTo(this.$parent);
+      }
+      return area;
+    }
+  };
+
+  var createEventFunction = function attachEvent(sticker) {
+    var ensureValidPosition = function(movableZone, position){
+      if(!intersect(movableZone, position)){
+        sticker.moveTo(0,0);
+        sticker.rotateTo(0);
+        sticker.sizeTo(128, 128);
+      }
+    };
+
+    var stickerPosition = function(parentOffset, vx, vy){
+      return position(
+        relativeOffset(sticker.$element.offset(), parentOffset),
+        sticker.$element.width() + vx,
+        sticker.$element.height() + vy
+      );
+    };
+
+    var initMoveEventHandling = function(event){
+      discardEvent(event);
+      fixTouchEvent(event);
+      // Validates we still click the mouse
+      return (event.which === 1 || event.type !== "mousemove");
+    };
+
+    /**
+     * focus the current sticker and register
+     * the global move tracking event.
+     */
+    sticker._handleMouseDownEvent = function(event) {
+      discardEvent(event);
+      fixTouchEvent(event);
+      sticker.focus();
+      var x0 = event.clientX;
+      var y0 = event.clientY;
+      var parentOffset = sticker.$parent.offset();
+      var movableZone = position(
+        relativeOffset(sticker.$movableArea.offset(), parentOffset),
+        sticker.$movableArea.width(),
+        sticker.$movableArea.height()
+      );
+      var doMove = function(event){
+        if (!initMoveEventHandling(event)){
+          endMove();
+          return;
+        }
+        var x = event.clientX,
+            y = event.clientY,
+            vx = x - x0,
+            vy = y - y0;
+        if (intersect(movableZone, stickerPosition(parentOffset, vx, vy))) {
+          x0 = x;
+          y0 = y;
+          focusedSticker.move(vx, vy);
+        }
+      };
+      var endMove = function(){
+        $(document)
+          .off('mousemove touchmove', doMove)
+          .off('mouseup touchend', endMove);
+        if (focusedSticker.options.autoSave) {
+          ensureValidPosition(movableZone, stickerPosition(parentOffset, 0,0));
+          focusedSticker.save();
+        }
+      };
+      $(document)
+        .on('mousemove touchmove', doMove)
+        .on('mouseup touchend', endMove);
+    };
+    sticker._handleDeleteHandlerClickEvent = function(event) {
+      discardEvent(event);
+      sticker.destroy();
+    };
+    sticker._handleMoveHandlerMouseDownEvent = function(event) {
+      discardEvent(event);
+      fixTouchEvent(event);
+      var pos = sticker.position();
+      var parentOffset = sticker.$parent.offset();
+      var movableZone = position(
+        relativeOffset(sticker.$movableArea.offset(), parentOffset),
+        sticker.$movableArea.width(),
+        sticker.$movableArea.height()
+      );
+      var center = {
+        handleX: event.clientX - parentOffset.left,
+        handleY: event.clientY - parentOffset.top,
+        x: pos.left + pos.width/2,
+        y: pos.top + pos.height/2,
+        w: pos.width / 2,
+        h: pos.height / 2
+      };
+      center.r = Math.sqrt(Math.pow(center.w, 2) + Math.pow(center.h, 2));
+
+      var doTransform = function(event){
+        if (!initMoveEventHandling(event)){
+          endTransform();
+          return;
+        }
+        var handleX = event.clientX - parentOffset.left;
+        var handleY = event.clientY - parentOffset.top;
+
+        // handle resize
+        var r = Math.sqrt(
+            Math.pow(handleX - center.x, 2) +
+            Math.pow(handleY - center.y, 2)
+          );
+        var ratio = (r / center.r);
+        var width = ratio * center.w;
+        var height = ratio * center.h;
+        var left = center.x - width;
+        var top = center.y - height;
+        if( intersect(movableZone, position({left: left, top: top}, width*2, height*2))) {
+          sticker.noNotification(function() {
+            sticker.sizeTo(width * 2, height * 2);
+            sticker.moveTo(left, top);
+
+            // handle rotation
+            var a = Math.atan2(handleY - center.y, handleX - center.x) - Math.PI/4;
+            sticker.rotateTo(a);
+          });
+          sticker.trigger('change', sticker.position());
+        }
+      };
+      var endTransform = function(event){
+        if(event){
+          discardEvent(event);
+        }
+        $(document).off('mousemove touchmove', doTransform);
+        $(document).off('mouseup touchend', endTransform);
+        if(sticker.options.autoSave){
+          ensureValidPosition(movableZone, stickerPosition(parentOffset, 0,0));
+          sticker.save();
+        }
+      };
+      $(document)
+        .on('mousemove touchmove', doTransform)
+        .on('mouseup touchend', endTransform);
+    };
+  };
+
+  function relativeOffset(offset, parentOffset) {
+    return {
+      left: offset.left - parentOffset.left,
+      top: offset.top -parentOffset.top
+    };
+  }
+  function position(offset, width, height) {
+    return {
+      x: offset.left,
+      x1: offset.left + width,
+      y: offset.top,
+      y1: offset.top + height
+    };
+  }
+  function intersect(p1, p2) {
+    return (p1.x <= p2.x1 && p1.x1 >= p2.x) && (p1.y <= p2.y1 && p1.y1 >= p2.y);
+  }
+  function discardEvent(event) {
+    event.stopPropagation(true);
+    event.preventDefault(true);
+    return event;
+  }
+  function fixTouchEvent(event) {
+    if (event.originalEvent && event.originalEvent.touches && event.originalEvent.touches.length) {
+      event.clientX = event.originalEvent.touches[0].clientX;
+      event.clientY = event.originalEvent.touches[0].clientY;
+    }
+    return event;
+  }
 }(UT, jQuery, window, document, undefined));
+
 /*global UT: true, jQuery: true */
 /*
  * This source code is licensed under version 3 of the AGPL.
@@ -13821,7 +12951,8 @@ fontdetect = function()
    * function below).
    */
   function UtImage(element, options) {
-    options = $.extend({},$.fn.utImage.defaults,options);
+    options = $.extend({}, $.fn.utImage.defaults, options);
+    options.ui = $.extend({}, $.fn.utImage.defaults.ui, options.ui);
     var el              = element,
         storagePrefix   = 'utImage_',
         namespace       = 'utImage',
@@ -13969,7 +13100,7 @@ fontdetect = function()
       if (options.data && options.reuse && reusePost) {
         $('.ut-image-action-list li',$el).eq(0).addClass('is-hidden');
       }
-
+      
       if (!options.data && options.autoAdd === true) {
           addImage();
       }
@@ -14028,10 +13159,6 @@ fontdetect = function()
       // Apply any predefined filters.
       if (options.filter) {
         imgOptions.applyShaders = options.filter;
-      }
-
-      if (options && options.i18n && options.i18n.dialogLabel) {
-        options.label = options.i18n.dialogLabel;
       }
 
       // Add the image data if we do a recrop.
@@ -14282,9 +13409,6 @@ fontdetect = function()
       edit: true,
       add: true,
       remove: true
-    },
-    i18n: {
-      dialogLabel: undefined
     }
   };
 
@@ -14334,10 +13458,9 @@ fontdetect = function()
           },
           editable: true,
           i18n:{
-            add:         "add sound",
-            change:      "",
-            error:       "Error occurred",
-            dialogLabel: undefined
+            add:    "add sound",
+            change: "",
+            error:  "Error occurred"
           }
         };
 
@@ -14453,8 +13576,7 @@ fontdetect = function()
             that.modeNS     + '-' +(that.post.context.player?'player':'editor'),
             that.aspectNS   + '-' + that.aspect,
             that.sizeNS     + '-' + that.size,
-            that.touchNS    + '-' + (that.isTouch?'true':'false'),
-            'ut-media-placeholder'
+            that.touchNS    + '-' + (that.isTouch?'true':'false')
             ].join(' ')
             );
         };
@@ -14653,8 +13775,16 @@ fontdetect = function()
           if(that.options.ui.time)     { that.ui.time     = $('<div class="'+that.uiNS+'-time">'         ).appendTo(that.ui.container);}
           if(that.options.ui.source)   { that.ui.source   = $('<a class="'+that.uiNS+'-source">'         ).appendTo(that.ui.container);}
           if(that.options.editable){
-            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_sound ut-media-button ut-button"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',function(){that.utDialog({});});
-            that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>').html(that.options.i18n.change).appendTo(that.ui.container).on('click',function(){that.utDialog({});});
+            var changeSound = function(){
+              that.post.dialog('sound',{inputTypes:['search']},function(data){
+                that.options.data = data;
+                that.update();
+                that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
+                that.post.storage.save();
+              });
+            };
+            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_sound"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',changeSound);
+            that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>').html(that.options.i18n.change).appendTo(that.ui.container).on('click',changeSound);
           }
 
           that.aspect = 'square'; //TODO - make it more clear
@@ -14838,26 +13968,6 @@ fontdetect = function()
           that.update();
         };
 
-        that.utDialog = function(opt) {
-          var options = {
-            inputTypes:['search'],
-            label: that.options.i18n.dialogLabel
-          };
-          if(!$.isEmptyObject(opt)) {
-            options = $.extend(true, options, opt);
-          }
-
-          that.post.dialog('sound',options,function(data){
-            if(!data){
-              that.eventer('dialogclose');
-            } else {
-              that.options.data = data;
-              that.update();
-              that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
-              that.post.storage.save();      
-            }
-          });
-        };
 
         that.oldOptions = $.extend(true, {}, that.options);
         that.update();
@@ -14917,15 +14027,6 @@ fontdetect = function()
       this.each(function() {
         if(this.utAudio && this.utAudio.utDestroy){
           this.utAudio.utDestroy.call(this);
-        }
-      });
-      return this;
-    },
-
-    dialog: function(options) {
-      this.each(function() {
-        if(this.utAudio && this.utAudio.utDialog){
-          this.utAudio.utDialog.call(this,options);
         }
       });
       return this;
@@ -15397,10 +14498,9 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           },
           editable: true,
           i18n:{
-            add:          "add video",
-            change:       "",
-            error:        "Error occurred",
-            dialogLabel:  undefined
+            add:    "add video",
+            change: "",
+            error:  "Error occurred"
           }
         };
 
@@ -16211,7 +15311,6 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
         };
 
 
-
         /************************************************************/
         /* video.embedProcessor end*/
         /************************************************************/
@@ -16321,27 +15420,6 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           that.update();
         };
 
-        that.utDialog = function(opt) {
-          var options = {
-            inputTypes:['search'],
-            label: that.options.i18n.dialogLabel
-          };
-          if(!$.isEmptyObject(opt)) {
-            options = $.extend(true, options, opt);
-          }
-
-          that.post.dialog('video',options,function(data){
-            if(!data){
-              that.eventer('dialogclose');
-            } else {
-              that.options.data = data;
-              that.update();
-              that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
-              that.post.storage.save();      
-            }
-          });
-        };
-
         that.setState = function(state) {
           that.currents.state = state;
           that.ui.container.removeClass().addClass(
@@ -16429,8 +15507,16 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           if(that.options.ui.title)   {that.ui.title   = $('<h1  class="'+that.uiNS+'-title"></h1>'   ).appendTo(that.ui.container);}
           if(that.options.ui.source)  {that.ui.source  = $('<a   class="'+that.uiNS+'-source"></a>'   ).appendTo(that.ui.container);}
           if(that.options.editable){
-            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_video ut-media-button ut-button"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',function(){that.utDialog({});});
-            that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>').html(that.options.i18n.edit).appendTo(that.ui.container).on('click',function(){that.utDialog({});});
+            var change = function(){
+              that.post.dialog('video',{inputTypes:['search']},function(data){
+                that.options.data = data;
+                that.update();
+                that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
+                that.post.storage.save();
+              });
+            };
+            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_video ut-media-button ut-button"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',change);
+            that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>').html(that.options.i18n.edit).appendTo(that.ui.container).on('click',change);
           }
 
           that.aspect = 'square'; //TODO - make it more clear
@@ -16501,15 +15587,6 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
       this.each(function() {
         if(this.utVideo && this.utVideo.utDestroy){
           this.utVideo.utDestroy.call(this);
-        }
-      });
-      return this;
-    },
-
-    dialog: function(options) {
-      this.each(function() {
-        if(this.utVideo && this.utVideo.utDialog){
-          this.utVideo.utDialog.call(this,options);
         }
       });
       return this;
