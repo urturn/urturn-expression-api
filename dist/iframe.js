@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.1.0';
+    return states && states.apiVersion || '1.1.1-alpha1';
   };
 
   UT.Expression.version = function() {
@@ -1362,7 +1362,7 @@ UT.CollectionStore = function(options) {
      *
      * XXX: Need to be supported on desktop as well
      */
-    var textDialog = function(options, callback){
+    var textDialog = function(options, callback, errorCallback){
       if(typeof options == 'function'){
         callback = options;
         options = {};
@@ -1374,7 +1374,7 @@ UT.CollectionStore = function(options) {
       );
     };
 
-    var imageDialog = function(options, callback) {
+    var imageDialog = function(options, callback, errorCallback) {
       if (!callback) {
         return;
       }
@@ -1382,8 +1382,28 @@ UT.CollectionStore = function(options) {
         'medias.openImageChooser',
         [options],
         function(imageDescriptor) {
+          if (imageDescriptor === null && arguments.length === 2 && arguments[1] === 'cameraNotFound') {
+            if (errorCallback) {
+              errorCallback({
+                type : 'cameraNotFound',
+                message : 'User camera can not be found.'
+              });
+            }
+            else {
+              callback(null);
+            } 
+            return;
+          }
           if (imageDescriptor === null) {
-            callback(null);
+            if (errorCallback) {
+              errorCallback({
+                type : 'userQuitDialog',
+                message : 'User quit the dialog without selecting a media.'
+              });
+            }
+            else {
+              callback(null);
+            } 
             return;
           }
           var image = new UT.Image();
@@ -1401,7 +1421,15 @@ UT.CollectionStore = function(options) {
         [options],
         function(soundDecriptor) {
            if (soundDecriptor === null) {
-            callback(null);
+            if (errorCallback) {
+              errorCallback({
+                type : 'userQuitDialog',
+                message : 'User quit the dialog without selecting a media.'
+              });
+            }
+            else {
+              callback(null);
+            } 
             return;
           }
           var sound = new UT.Sound(soundDecriptor);
@@ -1415,7 +1443,15 @@ UT.CollectionStore = function(options) {
         [options],
         function(videoDescriptor) {
           if (videoDescriptor === null) {
-            callback(null);
+            if (errorCallback) {
+              errorCallback({
+                type : 'userQuitDialog',
+                message : 'User quit the dialog without selecting a media.'
+              });
+            }
+            else {
+              callback(null);
+            } 
             return;
           }
           var video = new UT.Video(videoDescriptor);
@@ -1429,6 +1465,18 @@ UT.CollectionStore = function(options) {
       }
       UT.Expression._callAPI('medias.crop', [options],
         function(imageDescriptor) {
+          if (imageDescriptor === null) {
+            if (errorCallback) {
+              errorCallback({
+                type : 'userQuitDialog',
+                message : 'User quit the dialog without selecting a media.'
+              });
+            }
+            else {
+              callback(null);
+            } 
+            return;
+          }
           var image = null;
           if (options.image.init) {
             options.image.init(imageDescriptor);
@@ -1669,12 +1717,18 @@ UT.CollectionStore = function(options) {
         options = {};
       }
 
+      var errorCallback = null;
+      if (arguments.length == 4 && typeof(arguments[3]) === 'function') {
+        errorCallback = arguments[3];
+      } 
+
       // hide the body to avoid weird effect because of latency on mobile
       hideNodeOnDialog();
 
       var _scrollPositionTop = currentScroll.scrollTop;
       var _scrollPositionBottom = currentScroll.scrollBottom;
       var _this = this;
+
       var _callback = function () {
         // readd visibility
         showNode();
@@ -1687,8 +1741,22 @@ UT.CollectionStore = function(options) {
         }
       };
 
+      var _errorCallback = null;
+      if (errorCallback) {
+        _errorCallback = function () {
+          // readd visibility
+          showNode();
+          if(errorCallback){
+            _this.scroll({
+              scrollTop : _scrollPositionTop,
+              scrollBottom : _scrollPositionBottom
+            }, function () {});
+            errorCallback.apply(this, arguments);
+          }
+        };
+      }
       if(dialogHandler[type]){
-        dialogHandler[type](options, _callback);
+        dialogHandler[type](options, _callback, _errorCallback);
       } else {
         throw new Error('InvalidArgument', 'unknown dialog type ' + type);
       }
