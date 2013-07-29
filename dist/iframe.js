@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.1.1-alpha1';
+    return states && states.apiVersion || '1.1.1-alpha3';
   };
 
   UT.Expression.version = function() {
@@ -1516,11 +1516,6 @@ UT.CollectionStore = function(options) {
       }
     };
 
-    var suggestRotationDialog = function(options, callback) {
-      UT.Expression._callAPI('dialog.suggestRotation', [options], function(){
-          callback.apply(self);
-        });
-    };
 
     // Handler for the various dialog type
     var dialogHandler = {
@@ -1529,8 +1524,27 @@ UT.CollectionStore = function(options) {
       sound: soundDialog,
       video: videoDialog,
       crop: cropDialog,
-      users: userListDialog,
-      suggestRotation : suggestRotationDialog
+      users: userListDialog
+    };
+
+
+   
+    var suggestRotationInfo = function(options) {
+      UT.Expression._callAPI('dialog.suggestRotation', [options], function(){});
+    };
+
+    
+    var notificationHandler = {
+      suggestRotation : suggestRotationInfo
+    };
+    
+
+    var notification = this.notification = function(type, options) {
+      if(notificationHandler[type]){
+        notificationHandler[type](options);
+      } else {
+        throw new Error('InvalidArgument', 'unknown notification type ' + type);
+      }
     };
 
 
@@ -1961,6 +1975,13 @@ UT.CollectionStore = function(options) {
      */
     var urturn = this.urturn = function (params, callback)  {
       UT.Expression._callAPI('document.urturn', [params], function(){});
+    };
+
+    /**
+     * Post a post
+     */
+    var post = this.post = function(params) {
+      UT.Expression._callAPI('document.post', [params], function(){});
     };
 
     /**
