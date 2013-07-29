@@ -19,7 +19,7 @@
     "package.json"
   ],
   "dependencies": {
-    "fastclick": "~0.6.2",
+    "fastclick": "0.6.8",
     "urturn-expression-css": "git://github.com/urturn/urturn-expression-css.git",
     "jquery.ut-image": "git://github.com/urturn/jquery.ut-image.git",
     "jquery.ut-sticker": "git://github.com/urturn/jquery.ut-sticker.git",

@@ -3222,6 +3222,12 @@ you can use the generic selector below, but it's slower:
 .ut-text {
   display: inline-block;
   position: relative;
+
+  color: rgb(70,70,70);
+  text-align: left;
+  font-size: 24px;
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+  background-color: rgba(247,247,247,0);
 }
 
 .ut-font-detect {
@@ -3251,7 +3257,7 @@ you can use the generic selector below, but it's slower:
     content: attr(data-placeholder);
 
     font-style: italic;
-    font-size: 24px;
+    font-size: inherit;
     font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
     left: 6px;
     right: 6px;
@@ -3265,15 +3271,15 @@ you can use the generic selector below, but it's slower:
 .ut-text-content {
   padding: 10px;
   outline: none;
-  background-color: rgba(247,247,247,0);
-  color: rgb(70,70,70);
-  text-align: left;
-  font-size: 24px;
+  background-color: inherit;
+  color: inherit;
+  text-align: inherit;
+  font-size: inherit;
   line-height: 1;
   display: inline-block;
   width: 100%;
 
-  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+  font-family: inherit;
 }
 
 .ut-text-fixed .ut-text-content {

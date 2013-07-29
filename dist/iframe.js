@@ -12327,7 +12327,9 @@ fontdetect = function()
           move: "utSticker:move",
           buttonClick: "utSticker:buttonClick",
           destroy: "utSticker:destroy",
-          click: "utSticker:click"
+          click: "utSticker:click",
+          focus: "utSticker:focus",
+          blur: "utSticker:blur"
         };
 
         var defaults = {
@@ -12355,7 +12357,7 @@ fontdetect = function()
               top: undefined,
               bottom: undefined,
               rotation: 0,
-              zIndex: 0
+              zIndex: undefined
             },
             parentIndent: {
               top: null,
@@ -12414,7 +12416,7 @@ fontdetect = function()
         that.options = $.extend(true, defaults, options);
 
         that.isTouch = (('ontouchstart' in window) || (window.navigator.msMaxTouchPoints > 0));
-        that.isMSIE = false;
+        that.isMSIE = window.navigator.userAgent.indexOf("MSIE") !== -1;
         that.data = {
           editable: true,
           // (updated width parent size)
@@ -12488,13 +12490,14 @@ fontdetect = function()
         that.catchEvents = function(obj, callback) {
           var mStart = {};
           var mLast = {};
+          var $body = $("body");
           var onDown = function(e) {
             var mx = e.pageX ? e.pageX : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageX : 0);
             var my = e.pageY ? e.pageY : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageY : 0);
             mStart = { x:mx, y:my };
             mLast = { x:mx, y:my };
-            $("body").on("mousemove touchmove", onMove);
-            $("body").on("mouseup touchend touchcancel mouseleave", onUp);
+            $body.on("mousemove touchmove", onMove);
+            $body.on("mouseup touchend touchcancel mouseleave", onUp);
             if(callback) {
               if(callback.call(obj, "down", {x:mx, y:my, offStart:{x:0, y:0}, offLast:{x:0, y:0}}) === false) {
                 e.stopPropagation();
@@ -12527,8 +12530,8 @@ fontdetect = function()
               }
             }
             mLast = { x:mx, y:my };
-            $("body").off("mousemove touchmove", onMove);
-            $("body").off("mouseup touchend touchcancel mouseleave", onUp);
+            $body.off("mousemove touchmove", onMove);
+            $body.off("mouseup touchend touchcancel mouseleave", onUp);
           };
           var onMove = function(e) {
             var mx = e.pageX ? e.pageX : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageX : 0);
@@ -12547,6 +12550,7 @@ fontdetect = function()
                 }
               }) === false) {
                 e.stopPropagation();
+                e.preventDefault();
               }
             }
             mLast = { x:mx, y:my };
@@ -12905,7 +12909,7 @@ fontdetect = function()
           }
           $that.css("WebkitTransform", tmpVal);
           $that.css("MozTransform", tmpVal);
-          $that.css("msTransform", tmpVal);
+          $that.css("MsTransform", tmpVal);
           $that.css("OTransform", tmpVal);
           $that.css("transform", tmpVal);
 
@@ -12955,13 +12959,14 @@ fontdetect = function()
         that.updatePosition = function() {
           $that.css({
             "left": Math.round(that.pos.left * that.data.parentWidth) + "px",
-            "top": Math.round(that.pos.top * that.data.parentHeight) + "px"
+            "top": Math.round(that.pos.top * that.data.parentHeight) + "px",
+            "z-index": that.pos.zIndex
           });
         };
 
         that.getBounds = function(obj, transformObject, refObject) {
           var $obj = $(obj);
-          var bounds = {
+            var bounds = {
             left: Number.POSITIVE_INFINITY,
             top: Number.POSITIVE_INFINITY,
             right: Number.NEGATIVE_INFINITY,
@@ -12970,7 +12975,7 @@ fontdetect = function()
             height: Number.NaN
           };
           if($obj.length <= 0) {
-            return { left:0,top:0,right:0,bottom:0,width:0,height:0 };
+            return { left:0, top:0, right:0, bottom:0, width:0, height:0 };
           }
           if(typeof(transformObject) === "undefined" || transformObject === null || transformObject === false) {
             transformObject = $obj;
@@ -12990,6 +12995,7 @@ fontdetect = function()
             hh += parseInt($obj.css("borderTopWidth"), 10) + parseInt($obj.css("borderBottomWidth"), 10) + parseInt($obj.css("paddingTop"), 10) + parseInt($obj.css("paddingBottom"), 10);
           }
 
+          var matrix = [];
           var dd = $(transformObject).css("transform");
           /* 'none' -- opera fix */
           if(!dd || dd === "" || dd === "none") { dd = $(transformObject).css("OTtransform"); }
@@ -12997,25 +13003,29 @@ fontdetect = function()
           if(!dd || dd === "" || dd === "none") { dd = $(transformObject).css("MozTransform"); }
           if(!dd || dd === "" || dd === "none") { dd = $(transformObject).css("WebkitTransform"); }
           if(dd && dd !== "none") {
-            trData = dd.match(/matrix\([0-9e\.\,\s\+\-]+\)/);
+            trData = dd.match(/(matrix|matrix3d)\(([0-9e\.\,\s\+\-]+)\)/);
+            if(trData && trData.length > 2) {
+              matrix = trData[2].split(",");
+            }
           }
-          if(trData) {
-            if(trData[0]) { trData = trData[0]; }
-            if(trData) { trData = trData.substr(7,dd.length - 8); }
-            if(trData) { trData = trData.split(","); }
-            if(trData) {
-              wdt = Math.abs(ww*parseFloat(trData[0])) + Math.abs(hh*parseFloat(trData[1]));
-              hgt = Math.abs(ww*parseFloat(trData[2])) + Math.abs(hh*parseFloat(trData[3]));
-            } else {
-              wdt = ww;
-              hgt = hh;
+          if(matrix && matrix.length > 0) {
+            if(matrix.length === 16) {
+              wdt = Math.abs(ww * parseFloat(matrix[0])) + Math.abs(hh * parseFloat(matrix[1]));
+              hgt = Math.abs(ww * parseFloat(matrix[4])) + Math.abs(hh * parseFloat(matrix[5]));
+            } else if(matrix.length === 6) {
+              wdt = Math.abs(ww * parseFloat(matrix[0])) + Math.abs(hh * parseFloat(matrix[1]));
+              hgt = Math.abs(ww * parseFloat(matrix[2])) + Math.abs(hh * parseFloat(matrix[3]));
             }
           } else {
-            //rotateZ(0.706688234676948rad)
-            trData = dd.match(/rotateZ\(([0-9\.\+\-]+)rad\)/);
-            if(trData && trData[1]) {
-              wdt = Math.abs(ww*Math.cos(parseFloat(trData[1]))) + Math.abs(hh*Math.sin(parseFloat(trData[1])));
-              hgt = Math.abs(ww*Math.sin(parseFloat(trData[1]))) + Math.abs(hh*Math.cos(parseFloat(trData[1])));
+            if(dd) {
+              trData = dd.match(/(rotate|rotateZ)\(([0-9\.\+\-]+)rad\)/);
+              if(trData && trData.length < 2) {
+                trData = null;
+              }
+            }
+            if(trData && trData[2]) {
+              wdt = Math.abs(ww*Math.cos(parseFloat(trData[2]))) + Math.abs(hh*Math.sin(parseFloat(trData[2])));
+              hgt = Math.abs(ww*Math.sin(parseFloat(trData[2]))) + Math.abs(hh*Math.cos(parseFloat(trData[2])));
             } else {
               wdt = ww;
               hgt = hh;
@@ -13073,7 +13083,7 @@ fontdetect = function()
          * @returns {boolean} -- true if size was changed
          */
         that.validateSize = function() {
-          that.validateSizeInBounds();
+          var res = that.validateSizeInBounds();
 
           // size in px
           var ww = that.pos.width * that.data.parentWidth;
@@ -13083,7 +13093,7 @@ fontdetect = function()
           var nhh = Math.min(Math.max(that.data.minHeight, hh), that.data.maxHeight);
 
           if(nww === ww && nhh === hh) {
-            return false;
+            return res || false;
           }
 
           if(that.options.styles.proportional) {
@@ -13352,8 +13362,10 @@ fontdetect = function()
         };
 
         that._savePosition = function() {
-          that.post.storage["utSticker_" + that.options.id + "_pos"] = that.pos;
-          that.post.save();
+          if(that.isEditMode && that.data.editable) {
+            that.post.storage["utSticker_" + that.options.id + "_pos"] = that.pos;
+            that.post.save();
+          }
         };
 
         that._getCurrentData = function() {
@@ -13384,7 +13396,7 @@ fontdetect = function()
             return;
           }
           if(type === "down") {
-            that.focus();
+            that.focus(true);
             itemWasMoved = false;
           } else if(type === "move" && that.data.movable) {
             $that.addClass("ut-sticker-moving");
@@ -13420,7 +13432,7 @@ fontdetect = function()
           }
 
           if(type === "down" && that.data.resizable) {
-            that.focus();
+            that.focus(true);
             return false;
           } else if(type === "move" && that.data.resizable) {
             var tx = data.offLast.x * Math.cos(that.pos.angle) + data.offLast.y * Math.sin(that.pos.angle);
@@ -13469,7 +13481,7 @@ fontdetect = function()
           }
 
           if(type === "down" && that.data.rotatable) {
-            that.focus();
+            that.focus(true);
             return false;
           } else if(type === "move" && that.data.rotatable) {
             var ox = parseInt($parent.offset().left, 10) + parseInt($that.css("left"), 10);
@@ -13525,7 +13537,7 @@ fontdetect = function()
 
         that.onElementRotateAndResize = function(type, data) {
           if(type === "down") {
-            that.focus();
+            that.focus(true);
             return false;
           } else if(type === "move") {
             // calc mouse offset by element center
@@ -13594,13 +13606,14 @@ fontdetect = function()
           $content.css("display", "");
         };
 
-        that.focus = function() {
-          if(!that.data.editable) {
+        that.focus = function(isChangeZIndex) {
+          if(!that.data.editable || $that.hasClass("ut-sticker-focus")) {
             return;
           }
           $parent.find(".ut-sticker").utSticker("blur");
           $that.addClass("ut-sticker-focus");
-          if(that.options.styles.topOnFocus) {
+          $that.trigger(events.focus, that.options.id);
+          if(that.options.styles.topOnFocus && isChangeZIndex) {
             that.pos.zIndex = window.utStickerLastZIndex++;
             $that.css("z-index", that.pos.zIndex);
             $content.trigger(events.change, that._getCurrentData());
@@ -13608,7 +13621,11 @@ fontdetect = function()
         };
 
         that.blur = function() {
+          if(!$that.hasClass("ut-sticker-focus")) {
+            return;
+          }
           $that.removeClass("ut-sticker-focus");
+          $that.trigger(events.blur, that.options.id);
         };
 
         /**
@@ -13648,6 +13665,7 @@ fontdetect = function()
           that._updateSelfOutdent();
           if(isPosChanged) {
             $content.trigger(events.change, that._getCurrentData());
+            that._savePosition();
           }
         };
 
@@ -13698,7 +13716,10 @@ fontdetect = function()
           },0);
         }
         if(isPosChanged) {
-          $content.trigger(events.change, that._getCurrentData());
+          setTimeout(function(){
+            $content.trigger(events.change, that._getCurrentData());
+          },0);
+          that._savePosition();
         }
       });
       return this;
@@ -14148,12 +14169,12 @@ fontdetect = function()
     }
 
     function addLoader() {
-      var domnode = '<div class="loading_dots absolute centered"><span></span><span></span><span></span><span></span><span></span></div>';
+      var domnode = '<div class="ut-loading_dots absolute centered"><span></span><span></span><span></span><span></span><span></span></div>';
       $el.append(domnode);
     }
 
     function removeLoader() {
-      $el.find('.loading_dots').remove();
+      $el.find('.ut-loading_dots').remove();
     }
 
     function displayImage() {
@@ -16784,7 +16805,7 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
     }
 
     function charsCount() {
-      return $contentDomNode.html().replace(/<[^>]*>/g, "").length;
+      return $contentDomNode.text().replace(/<[^>]*>/g, "").length;
     }
 
     /* in the case we have a character limitation, display and update the counter */
