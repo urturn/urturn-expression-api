@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.1.1-alpha3';
+    return states && states.apiVersion || '1.1.1-alpha4';
   };
 
   UT.Expression.version = function() {
@@ -1982,6 +1982,13 @@ UT.CollectionStore = function(options) {
      */
     var post = this.post = function(params) {
       UT.Expression._callAPI('document.post', [params], function(){});
+    };
+
+
+    var geoLocation = this.geoLocation = function(callback) {
+      UT.Expression._callAPI('document.geoLocation', [], function(longitude, latitude) {
+        callback(longitude, latitude);
+      });
     };
 
     /**
@@ -13893,7 +13900,6 @@ fontdetect = function()
     return this;
   };
 }(UT, jQuery, window, document, undefined));
-/*global UT: true, jQuery: true */
 /*
  * This source code is licensed under version 3 of the AGPL.
  *
@@ -13912,491 +13918,981 @@ fontdetect = function()
  */
 ;(function($, window, document, undefined) {
   "use strict";
-  /**
-   * Enhace the given <code>element</code> to make it a placeholder for images.
-   *
-   * It will displays a add button if none image has been selected and an
-   * edit and delete button if an image has been choosen. This component
-   * will manage its data automatically, making it saved and initialized
-   * given post#storage content.
-   *
-   * Data(the image) will be stored in two different keys:
-   * - utImage_[element.id]_img contains an UT.Image instance
-   * - utImage_[element.id]_ratio contains the selected image ratio
-   *
-   * The element size will be defined by the element size, or will take
-   * the full post height or width if they are 0 (see <code>defineSize()</code>
-   * function below).
-   */
-  function UtImage(element, options) {
-    options = $.extend({},$.fn.utImage.defaults,options);
-    var el              = element,
-        storagePrefix   = 'utImage_',
-        namespace       = 'utImage',
-        $el             = $(el),
-        initialized     = false,
-        reusePost       = false,
-        $overlay,           // the selector that will retrieve an overlay dom node
-        ratio,              // the image ratio h/w
-        imageStorageKey,    // the UT.Image instance storage key
-        ratioStorageKey,    // the ratio storage key
-        image,              // the image element
-        post;               // the post instance
 
-    function init() {
-      $el.addClass('ut-image ut-media-placeholder');
-
-      UT.Expression.ready(function(p){
-        post = p;
-
-        // Default editable value depends on the post context
-        if (options.editable === undefined){
-          options.editable = p.context.editor;
-        }
-
-        // options.id will be used to store the data
-        options.id = options.id || $el.attr('id') || 'noname';
-
-        imageStorageKey = storagePrefix+options.id+'_img';
-        ratioStorageKey = storagePrefix+options.id+'_ratio';
-
-        // Default image came from storage if not in options
-        if (!options.data) {
-          options.data = post.storage[imageStorageKey];
-        }
-
-        // Default image come from the parent post triggered by the "ur" event
-        if (!options.data && options.reuse) {
-          options.data = reuse();
-        }
-
-        ratio = post.storage[ratioStorageKey];
-        defineSize();
-
-        if(options.editable) {
-          renderEdit();
-        } else {
-          removeEdit();
-        }
-        if(!initialized){
-          initialized = true;
-          displayEmptyPlaceHolder(true);
-          loadImage(function(){
-            trigger('change', {data: options.data}, {data: undefined});
-          });
-          trigger('ready');
-        }
-
-        post.on('resize', handlePostResize);
-      });
-    }
-
-    function handlePostResize () {
-      defineSize();
-      displayImage();
-    }
-
-    function trigger(name, data){
-      setTimeout(function(){
-        $el.trigger(namespace+':'+name, data);
-      }, 0);
-    }
-
-    function displayEmptyPlaceHolder(enabled){
-      if(enabled) {
-        $el.addClass('ut-media-placeholder');
-      } else {
-        $el.removeClass('ut-media-placeholder');
-      }
-    }
-
-    /**
-     * Compute the placeholder size depending of the current node, parent node, ratio and so on
-     *
-     * The size is computed given the followings rules:
-     * 1) the width is by order
-     *    a) options.width
-     *    b) 100%
-     *    d) css#min-width
-     * 2) the height is by order
-     *    a) width*ratio
-     *    b) options.height
-     *    c) auto
-     *    e) css#min-height
-     */
-    function defineSize() {
-      var oldWidth = $el.width(),
-          oldHeight = $el.height(),
-          newWidth,
-          newHeight;
-
-      if(options.width){
-        $el.width(options.width).css('min-width', options.minSize);
-        newWidth = $el.width();
-      } else {
-        newWidth = oldWidth;
-      }
-      if(ratio){
-        newHeight = Math.round($el.width()*ratio);
-        $el.height(newHeight);
-      } else if(options.height){
-        $el.height(options.height);
-        newHeight = $el.height();
-      } else {
-        newHeight = oldHeight;
-      }
-      if($el.css('min-height') === '0px'){
-        $el.css('min-height', options.minSize);
-      }
-      if(newHeight !== oldHeight || newWidth !== oldWidth){
-        trigger('resize', {width: newWidth, height: newHeight});
-      }
-    }
-
-    function setVisible(el, value){
-      if(value){
-        el.removeClass('is-hidden');
-      } else {
-        el.addClass('is-hidden');
-      }
-    }
-
-    function renderEdit() {
-      var actionButtons = '<ul class="tls horizontal index spaced ut-image-action-list">'+
-          '<li><a href="#" class="ut-image-edit-button ut-edit-button icon_camera spaced-right">Edit</a></li>'+
-          '<li><a href="#" class="ut-image-remove-button ut-edit-button icon_trash"></a></li>'+
-          '</ul>'+
-          '<a href="#" class="ut-image-add-button icon_camera ut-media-button ut-button">Add Image</a></div>';
-
-      $el
-        .append(actionButtons)
-        .on('click','.ut-image-add-button', addImage)
-        .on('click','.ut-image-edit-button', recropImage )
-        .on('click','.ut-image-remove-button', removeImage);
-
-      if (options.data && options.reuse && reusePost) {
-        $('.ut-image-action-list li',$el).eq(0).addClass('is-hidden');
-      }
-
-      if (!options.data && options.autoAdd === true) {
-          addImage();
-      }
-
-      if (options.data) {
-        displayImage(options.data);
-        $el.addClass('ut-image-active');
-      }
-      displayControls();
-    }
-
-    function removeEdit() {
-      $el
-        .off('click','.ut-image-add-button', addImage)
-        .off('click','.ut-image-edit-button', recropImage)
-        .off('click','.ut-image-remove-button', removeImage);
-      $el.find('.ut-image-add-button').remove();
-      $el.find('.ut-image-action-list').remove();
-    }
-
-
-    /**
-     * Retrieve proper image dialog options given the passed options object.
-     */
-    function imageOptions(options, context){
-      var imgOptions = {};
-
-      // At least a width and flex ratio is true by default.
-      imgOptions.size = {
-        width: $el.width(),
-        flexRatio : options.flexRatio
-      };
-
-      // If autocrop is not specified, it will auto crop
-      // on edition but not on insertion (add image).
-      if( options.autoCrop !== undefined ) {
-        imgOptions.size.autoCrop = options.autoCrop;
-      } else {
-        imgOptions.size.autoCrop = (context === 'add');
-      }
-
-      if(context === 'edit'){
-        imgOptions.size.autoCrop = false;
-      }
-
-      // Specify an height only if one of autoCrop or flexRatio is false.
-      if( ! (imgOptions.size.autoCrop && imgOptions.size.flexRatio) ) {
-        imgOptions.size.height = $el.height();
-      }
-
-      // In the case where an height is defined, adapt the UI of the camera.
-      if(imgOptions.size.height && imgOptions.size.width){
-        imgOptions.size.adaptUI = true;
-      }
-
-      // Apply any predefined filters.
-      if (options.filter) {
-        imgOptions.applyShaders = options.filter;
-      }
-
-      if (options && options.i18n && options.i18n.dialogLabel) {
-        options.label = options.i18n.dialogLabel;
-      }
-
-      // Add the image data if we do a recrop.
-      if (context === 'edit') {
-        imgOptions.image = options.data;
-      }
-      return imgOptions;
-    }
-
-    function addImage(e) {
-      if (e) { e.preventDefault(); }
-      post.dialog('image', imageOptions(options, 'add'), function(data, error){
-        addLoader();
-        if(error || !data) {
-          removeLoader();
-          return;
-        }
-        $('.ut-image-add-button',$el).addClass('is-hidden');
-        handleImageReceived(data,'added');
-      });
-    }
-
-    function removeImage(e) {
-      e.preventDefault();
-      $el.removeClass('ut-image-active').addClass('ut-media-placeholder').css('background-image', '');
-      $('.ut-image-action-list li',$el).eq('0').removeClass('is-hidden');
-      $(image).remove();
-      image = null;
-      if (options.autoSave === true) {
-        post.storage[imageStorageKey] = null;
-        post.save();
-      }
-      var oldValue = options.data;
-      options.data = null;
-
-      if (options.autoAdd === true) {
-        addImage();
-      }
-      displayControls();
-
-      trigger('change', [{data: undefined}, {data: oldValue}]);
-      trigger('remove');
-    }
-
-    function recropImage(e) {
-      e.preventDefault();
-
-      post.dialog('crop', imageOptions(options,'edit'), function(data,error){
-        if(error) {
-          removeLoader();
-          return;
-        }
-        $el.css('background-image', '');
-
-        handleImageReceived(data,'recroped');
-      });
-    }
-
-    function displayControls(){
-      setVisible($el.find('.ut-image-add-button'), options.editable && !image && options.ui.add);
-      setVisible($el.find('.ut-image-edit-button'), options.editable && image && options.ui.edit);
-      setVisible($el.find('.ut-image-remove-button'), options.editable && image && options.ui.remove);
-    }
-
-    function loadImage(onload) {
-      if(!options.data){
-        return;
-      }
-
-      image = new Image();
-      image.onload = function() {
-        removeLoader();
-        // Compute image ratio
-        if(image.width){
-          ratio = image.height / image.width;
-        } else {
-          ratio = 0;
-        }
-        defineSize();
-        displayImage();
-        if(onload){
-          onload(image, ratio);
-        }
-        displayControls();
-      };
-      image.onerror = function() {
-        removeLoader();
-      };
-      image.src = options.data.url;
-    }
-
-    function handleImageReceived(data, action) {
-      var oldData = options.data;
-      options.data = data;
-
-      if(!data) {
-        removeLoader();
-        $('.button',$el).removeClass('is-hidden');
-        return false;
-      }
-
-      loadImage(function(domImage, ratio){
-        if (options.autoSave === true) {
-          post.storage[imageStorageKey] = options.data;
-          post.storage[ratioStorageKey] = ratio;
-          trigger('change', [{data: options.data}, {data: oldData}]);
-          if(options.autoSave){
-            post.save();
-            trigger('save', options.data);
-          }
-          if(action){
-            trigger(action, options.data);
-          }
-        }
-      }, oldData);
-    }
-
-    function addLoader() {
-      var domnode = '<div class="ut-loading_dots absolute centered"><span></span><span></span><span></span><span></span><span></span></div>';
-      $el.append(domnode);
-    }
-
-    function removeLoader() {
-      $el.find('.ut-loading_dots').remove();
-    }
-
-    function displayImage() {
-      if(image) {
-        var cssurl = 'url('+image.src+')';
-        if($el.css('background-image') !== cssurl){
-          $el.css('background-image', cssurl).addClass('ut-image-active');
-        }
-        displayEmptyPlaceHolder(false);
-      }
-    }
-
-    /* return the data from the parent post */
-    function reuse() {
-      if(!post.storage[imageStorageKey] && post.collection('parent') && post.collection('parent')[imageStorageKey]){
-        post.storage[imageStorageKey] = post.collection('parent')[imageStorageKey];
-        post.save();
-        reusePost = true;
-        return post.collection('parent')[imageStorageKey];
-      }
-    }
-
-    function destroy() {
-      $el.each(function() {
-        trigger('destroy');
-        $el
-          .removeData('utImage')
-          .removeClass('ut-image ut-image-active ut-media-placeholder')
-          .empty();
-        $el.off(handlePostResize);
-      });
-    }
-
-    function imageDataAccessor(val) {
-      if(val !== undefined){
-        options.data = val;
-        return $el;
-      } else {
-        return options.data;
-      }
-    }
-
-    // Retrieve the DOM node
-    function imageAccessor() {
-      return image;
-    }
-
-    function ratioAccessor(val) {
-      if(val !== undefined){
-        ratio = val;
-        return $el;
-      } else {
-        return ratio;
-      }
-    }
-
-    function option(key) {
-      return options[key];
-    }
-
-    function update(opts) {
-      options = $.extend(options, opts);
-      init();
-    }
-
-    function overlay() {
-      if(!$overlay){
-        $overlay = $('<div class="ut-image-overlay"></div>').prependTo($el);
-      }
-      return $overlay;
-    }
-
-    init();
-
-    return {
-      option: option,
-      destroy: destroy,
-      data: imageDataAccessor,
-      image: imageAccessor,
-      ratio: ratioAccessor,
-      overlay: overlay,
-      update: update,
-      dialog : addImage
-    };
-  }
-
-  $.fn.utImage = function(options) {
-    if (typeof arguments[0] === 'string') {
-      var methodName = arguments[0];
-      var args = Array.prototype.slice.call(arguments, 1);
-      var returnVal;
+  var methods = {
+    nextPanelToAddImage: -1,
+    init: function(options) {
       this.each(function() {
-        if ($.data(this, 'utImage') && typeof $.data(this, 'utImage')[methodName] === 'function') {
-          returnVal = $.data(this, 'utImage')[methodName].apply(this, args);
-        } else {
-          throw new Error('Method ' +  methodName + ' does not exist on jQuery.utImage');
+        if(this.utImage) {
+          if(typeof(options) === "object") {
+            this.utImage.options = $.extend(true, this.utImage.options, options);
+          }
+          this.utImage.createElements();
+          this.utImage.resizeContainer();
+          return;
+        }
+
+        var events = {
+          ready: "utImage:ready",
+          addClick: "utImage:addClick",
+          editClick: "utImage:editClick",
+          removeClick: "utImage:removeClick",
+          mediaAdd: "utImage:mediaAdd",
+          mediaCrop: "utImage:mediaCrop",
+          mediaRemove: "utImage:mediaRemove",
+          mediaReady: "utImage:mediaReady",
+          focus: "utImage:focus",
+          blur: "utImage:blur",
+          destroy: "utImage:destroy",
+          dialogOpen: "utImage:dialogOpen",
+          dialogCancel: "utImage:dialogCancel",
+          resize: "utImage:resize"
+        };
+
+        var defaults = {
+          id: "",
+          editable: true,
+          ui: {
+            add:true,
+            edit:true,
+            remove:true,
+            source:true
+          },
+          data: null,
+          autoSave: true,
+          styles: {
+            width: "auto",
+            height: false,
+            minHeight: undefined,
+            maxHeight: undefined,
+            flexRatio: true,
+            autoCrop: true,
+            reuse: false,
+            linkPosition: {}, // def: left:0, bottom:0;
+            menuPosition: {}, // def: left:15, top:15
+            filters: [],
+            groupMode: false,
+            autoResize: true
+          },
+          i18n: {
+            addButtonText: "Add image",
+            dialogLabel: ""
+          },
+          dialog: {
+            preferedFormat: false
+          }
+        };
+
+        var that = {};
+        this.utImage = that;
+        that.initialized = false;
+
+        var $that = $(this);
+        that.options = $.extend(true, defaults, options);
+        that.isTouch = (('ontouchstart' in window) || (window.navigator.msMaxTouchPoints > 0));
+        that.isEditMode = false;
+        that.data = {
+          pictureData: null,
+          imageWidth: 0,
+          imageHeight: 0,
+          scrollTop: 0,
+          scrollBottom: 0
+        };
+        that.view = {
+          addButton: null,
+          ctrlPanel: null,
+          editButton: null,
+          removeButton: null
+        };
+
+        /********************************************************************************
+         * common
+         ********************************************************************************/
+        UT.Expression.ready(function(p) {
+          that.post = p;
+          that.isEditMode = p.context.editor;
+          that.options.editable = that.isEditMode ? that.options.editable : false;
+          if(that.initialized) {
+            setTimeout(function() {
+              $that.trigger(events.ready, { id:that.options.id, data:that.post.storage["utImage_" + that.options.id + "_img"] });
+              if(that.options.styles.autoResize && that.post.storage["utImage_" + that.options.id + "_ratio"]) {
+                var sz = {
+                  width: $that.width(),
+                  height: Math.round(that.width() / that.post.storage["utImage_" + that.options.id + "_ratio"]),
+                  ratio: that.post.storage["utImage_" + that.options.id + "_ratio"]
+                };
+                if(sz.height !== $that.height()) {
+                  $that.height(sz.height);
+                  $that.trigger(events.resize, sz);
+                }
+              }
+            }, 0);
+            that.addMediaListener();
+          }
+          setTimeout(function(){
+            that.post.on("scroll", that.onPostScroll);
+          }, 0);
+        });
+
+        that.prepareElement = function(){
+          $that.addClass("ut-image");
+          if(that.options.styles.groupMode) {
+            $that.addClass("ut-image-in-group");
+          }
+
+          if($that.attr("id") === "" && that.options.id) {
+            that.options.id = "image-" + UT.uuid();
+//            console.warn("utImage :: element ID not found, generating new:", that.options.id);
+          }
+          if(that.options.id !== "") {
+            $that.attr("id", that.options.id);
+          } else {
+            that.options.id = $that.attr("id");
+          }
+
+          $that.on("click", function() {
+            if(!$that.hasClass("ut-image-focus")) {
+              that.focus();
+            }
+          });
+        };
+
+        that.createElements = function() {
+          if(that.view.addButton) {
+            that.view.addButton.remove();
+            that.view.addButton = null;
+          }
+          if(that.view.ctrlPanel) {
+            that.view.ctrlPanel.remove();
+            that.view.ctrlPanel = null;
+          }
+
+          that.updateSourceLink();
+          if(!that.options.editable) {
+            $that.removeClass("ut-image-edit");
+            return;
+          }
+          $that.addClass("ut-image-edit");
+
+          if(that.options.ui.add) {
+            that.view.addButton = $("<div>", {"class":"ut-image-button-add ut-button ut-media-button icon_camera"}).appendTo($that).html(that.options.i18n.addButtonText);
+            that.view.addButton.on("click",that.onAddButtonClick);
+          }
+          if(that.options.ui.edit || that.options.ui.remove) {
+            that.view.ctrlPanel = $("<div>", {"class":"ut-image-control-panel"}).appendTo($that);
+            if(that.options.ui.edit) {
+              that.view.editButton = $("<div>", {"class":"ut-image-button-edit"}).appendTo(that.view.ctrlPanel);
+              $("<span>").appendTo(that.view.editButton).html('<span class="icon_camera">&nbsp;</span>Edit');
+              that.view.editButton.on("click", that.onEditButtonClick);
+            }
+            if(that.options.ui.remove) {
+              that.view.removeButton = $("<div>", {"class":"ut-image-button-remove"}).appendTo(that.view.ctrlPanel);
+              $("<span>").appendTo(that.view.removeButton).html('<span class="icon_trash"></span>');
+              that.view.removeButton.on("click", that.onRemoveButtonClick);
+            }
+            if(typeof(that.options.styles.menuPosition.left) !== "undefined") {
+              that.view.ctrlPanel.css({ "left":parseInt(that.options.styles.menuPosition.left ,10) + "px", "right":"auto" });
+            } else if(typeof(that.options.styles.menuPosition.right) !== "undefined") {
+              that.view.ctrlPanel.css({ "right":parseInt(that.options.styles.menuPosition.right ,10) + "px", "left":"auto" });
+            } else {
+              that.view.ctrlPanel.css({ "left":"15px", "right":"auto" });
+            }
+          }
+          that.updateButtonsPosition();
+        };
+
+
+        that._onLinkTouch = function(event) {
+          event.stopPropagation();
+          if(that.data.srcLink.hasClass("showText")) {
+            window.open(that.data.srcLink.attr("data-href"), "_blank");
+          }
+        };
+
+        that._onImageTouch = function() {
+          if(!that.data.srcLink.hasClass('show')) {
+            $('.sourceLink').not(that.data.srcLink).removeClass('show').removeClass('showText');
+            that.data.srcLink.addClass('show');
+          } else {
+            that.data.srcLink.removeClass('show').removeClass('showText');
+          }
+        };
+
+        that._onIconTouch = function(event) {
+          if(that.data.srcLink.hasClass('show')) {
+            that.data.srcLink.addClass('showText');
+            event.stopPropagation();
+          }
+        };
+
+        that._onImageMouseEnter = function() {
+          if(!that.data.srcLink.hasClass('show')) {
+            that.data.srcLink.addClass('show');
+          }
+        };
+
+        that._onImageMouseLeave = function() {
+          that.data.srcLink.removeClass('show').removeClass('showText');
+        };
+
+        that._onLinkMouseEnter = function() {
+          if(that.data.srcLink.hasClass('show')) {
+            that.data.srcLink.addClass('showText');
+          }
+        };
+
+        that._onLinkMouseLeave = function() {
+          that.data.srcLink.removeClass('showText');
+        };
+
+        that._onLinkMouseClick = function(event) {
+          if(that.data.srcLink.hasClass('showText')) {
+            window.open(that.data.srcLink.attr('data-href'), '_blank');
+          }
+          event.stopPropagation();
+          event.preventDefault();
+        };
+
+        that.updateSourceLink = function() {
+          var removeLink = function() {
+            if(that.data.srcLink) {
+              if(that.isTouch) {
+                that.data.srcLink.off('click', that._onLinkTouch);
+                $that.find(".ut-image-source-link-icon").off('click', that._onIconTouch);
+              } else {
+                that.data.srcLink.off('mouseenter', that._onLinkMouseEnter).off('mouseleave', that._onLinkMouseLeave);
+                that.data.srcLink.off('click', that._onLinkMouseClick);
+              }
+              that.data.srcLink.remove();
+              that.data.srcLink = null;
+            }
+            if(that.isTouch) {
+              $that.off('click', that._onImageTouch);
+            } else {
+              $that.off('mouseenter', that._onImageMouseEnter).off('mouseleave', that._onImageMouseLeave);
+            }
+          };
+          removeLink();
+
+          if(that.options.editable || !that.options.ui.source) {
+            return;
+          }
+          if(!that.data.pictureData || !that.data.pictureData.info || !that.data.pictureData.info.source) {
+            return;
+          }
+
+          var tmp = that.data.pictureData.info.source.match(/\/\/([^\/]+)\//i);
+          if(!tmp || !tmp[0]) {
+            tmp = that.data.pictureData.info.source.replace(/^http(s)?\:/i, "").match(/^([^\/]+)\//i);
+            if(!tmp || !tmp[0]) {
+              removeLink();
+              return;
+            }
+          }
+
+          var imgDomainName = (tmp[1] ? tmp[1] : tmp[0]).replace(/(^(\/\/)?www\.|\/)/g, "");
+          if(imgDomainName.length <= 0 || imgDomainName.indexOf('urturn.com') !== -1) {
+            removeLink();
+            return;
+          }
+
+          var cLink = that.data.pictureData.info.source;
+          if(!cLink.match(/^http\:\/\/|^https\:\/\/|^\/\//i)) {
+            cLink = "//" + cLink;
+          }
+
+          if(!that.options.styles.linkPosition.direction) {
+            if(
+              (typeof(that.options.styles.linkPosition.left) !== "undefined" && parseInt(that.options.styles.linkPosition.left, 10) > ($that.width() / 2)) ||
+              (typeof(that.options.styles.linkPosition.right) !== "undefined" && parseInt(that.options.styles.linkPosition.right, 10) < ($that.width() / 2))
+                ) {
+              that.options.styles.linkPosition.direction = "left";
+            }
+          }
+
+          that.data.srcLink = $("<a>", {"class":"ut-image-source-link", "data-href":cLink}).appendTo($that);
+          if(that.options.styles.linkPosition && that.options.styles.linkPosition.direction === "left") {
+            that.data.srcLink.html('<span class="ut-image-source-link-text"><span><span>' + imgDomainName + '</span></span></span><span class="ut-image-source-link-icon icon_link"></span>');
+            that.data.srcLink.addClass("left");
+          } else {
+            that.data.srcLink.html('<span class="ut-image-source-link-icon icon_link"></span><span class="ut-image-source-link-text"><span><span>' + imgDomainName + '</span></span></span>');
+          }
+
+          if(typeof(that.options.styles.linkPosition.top) !== "undefined") {
+            that.data.srcLink.css("top", that.options.styles.linkPosition.top);
+          } else if(typeof(that.options.styles.linkPosition.bottom) !== "undefined") {
+            that.data.srcLink.css("bottom", that.options.styles.linkPosition.bottom);
+          } else {
+            that.data.srcLink.css("bottom", "0");
+          }
+          if(typeof(that.options.styles.linkPosition.left) !== "undefined") {
+            that.data.srcLink.css("left", that.options.styles.linkPosition.left);
+          } else if(typeof(that.options.styles.linkPosition.right) !== "undefined") {
+            that.data.srcLink.css("right", that.options.styles.linkPosition.right);
+          } else {
+            that.data.srcLink.css("left", "0");
+          }
+
+          if(that.isTouch) {
+            that.data.srcLink.on('click', that._onLinkTouch);
+            $that.on('click', that._onImageTouch);
+            $that.find(".ut-image-source-link-icon").on('click', that._onIconTouch);
+          } else {
+            $that.on('mouseenter', that._onImageMouseEnter).on('mouseleave', that._onImageMouseLeave);
+            that.data.srcLink.on('mouseenter', that._onLinkMouseEnter).on('mouseleave', that._onLinkMouseLeave);
+            that.data.srcLink.on('click', that._onLinkMouseClick);
+          }
+
+//          var checkSize =  function() {
+//            var obj = $that.find('.ut-image-source-link-text');
+//            if (obj.height() > 40) {
+//              var text = obj.html();
+//              text = text.substring(0, text.length - 1);
+//              obj.html(text);
+//              checkSize();
+//            } else {
+//              if (imgDomainName !== obj.html()) {
+//                var tmp = obj.html();
+//                tmp = tmp.substring(0, tmp.length - 3) + '...';
+//                obj.html(tmp);
+//              }
+//            }
+//          };
+//          checkSize();
+        };
+
+        /**
+         * retrieve size object for dialog
+         * @returns {}
+         */
+        that.getSize = function(workData) {
+          var options = {};
+          if(typeof(workData.styles.width) === "undefined" || workData.styles.width === "auto") {
+            options.width = $that.width();
+            if(options.width <= 0 && that.post) {
+              options.width = $(that.post.node).width();
+            }
+          } else if(workData.styles.width !== false) {
+            options.width = parseInt(workData.styles.width, 10);
+          }
+          if(typeof(workData.styles.height) === "undefined" || workData.styles.height === "auto" || (workData.styles.height === false && workData.styles.flexRatio !== true)) {
+            options.height = $that.height();
+            if(options.height <= 0 && that.post) {
+              options.height = $(that.post.node).height();
+            }
+          } else if(workData.styles.height !== false) {
+            options.height = parseInt(workData.styles.height, 10);
+          }
+
+          if(typeof(workData.styles.minHeight) !== "undefined") {
+            options.minHeight = parseInt(workData.styles.minHeight, 10);
+          }
+          if(typeof(workData.styles.maxHeight) !== "undefined") {
+            options.maxHeight = parseInt(workData.styles.maxHeight, 10);
+          }
+          options.autoCrop = !!workData.styles.autoCrop;
+          options.adaptUI = true; //!!workData.adaptUI;
+          options.flexRatio = !!workData.styles.flexRatio;
+          return options;
+        };
+
+        /**
+         * processing click on "add" button
+         * @param event
+         */
+        that.onAddButtonClick = function(event) {
+          that.focus();
+          var ev = $.Event(events.addClick);
+          $that.trigger(ev);
+          if(!ev.isDefaultPrevented()) {
+            that.queryImage();
+            event.stopPropagation();
+            event.preventDefault();
+          }
+        };
+
+        /**
+         * processing click on "edit" button
+         * @param event
+         */
+        that.onEditButtonClick = function(event) {
+          var ev = $.Event(events.editClick);
+          $that.trigger(ev);
+          if(!ev.isDefaultPrevented()) {
+            that.focus();
+            that.recropImage({autoCrop:false});
+            event.stopPropagation();
+            event.preventDefault();
+          }
+        };
+
+        /**
+         * processing click on "remove" button
+         */
+        that.onRemoveButtonClick = function() {
+          var ev = $.Event(events.removeClick);
+          $that.trigger(ev);
+          if(!ev.isDefaultPrevented()) {
+            that.removeImage();
+          }
+        };
+
+        /**
+         * prepare data and call API.dialog
+         */
+        that.queryImage = function(additionalData) {
+          var options = {};
+          var curData = $.extend(true, {}, that.options);
+          curData = additionalData ? $.extend(true, curData, additionalData) : curData;
+          options.size = that.getSize(curData);
+
+          // add other parameters
+          if(curData.styles.filters && curData.styles.filters.length > 0) {
+            options.applyShaders = $.extend(true, {}, curData.styles.filters);
+          }
+
+          options = $.extend(true, options, curData.dialog);
+
+          if(curData.i18n.dialogLabel) {
+            options.dialogLabel = curData.i18n.dialogLabel;
+          }
+          $that.trigger(events.dialogOpen);
+          that.post.dialog('image', options, function(data, error){
+            if(error) {
+              return;
+            }
+            if($.isEmptyObject(data) || !data.url) {
+              $that.trigger(events.dialogCancel);
+              return;
+            }
+            that.onImageAdded(data, false);
+          }, function() {
+            // error callback
+            $that.trigger(events.dialogCancel, arguments);
+          });
+        };
+
+        /**
+         * show overlay with spin over image
+         */
+        that.showLoader = function() {
+          var spin = $that.find(".ut-image-loading");
+          if(spin && spin.length > 0) {
+            return;
+          }
+          spin = $('<div class="ut-image-loading"></div>').appendTo($that);
+          spin.utSpin().utSpin("show");
+          $that.addClass("loading");
+        };
+
+        /**
+         * hide overlay with spin over image
+         */
+        that.hideLoader = function() {
+          var spin = $that.find(".ut-image-loading");
+          if(spin && spin.length > 0) {
+            spin.remove();
+          }
+          $that.removeClass("loading");
+        };
+
+        /**
+         * build structure with sizes
+         * @param imgSize - image size
+         * @param contSize - container size
+         * @returns {}
+         */
+        that.getImageSizeData = function(imgSize, contSize){
+          return {
+            width: imgSize.width,
+            height: imgSize.height,
+            containerWidth: contSize.width,
+            containerHeight: contSize.height,
+            desiredContainerWidth: Math.floor(imgSize.width*(contSize.height/imgSize.height)),
+            desiredContainerHeight: Math.floor(imgSize.height*(contSize.width/imgSize.width))
+          };
+        };
+
+        /**
+         * the image was added
+         * @param data
+         * @param isAfterRecrop
+         */
+        that.onImageAdded = function(data, isAfterRecrop) {
+          if(data) {
+            if(!isAfterRecrop) {
+              that.showLoader();
+            }
+
+            // loading and apply image
+            var tmpImg = new Image();
+            tmpImg.onload = function() {
+              that.data.pictureData = data;
+              that.data.imageWidth = tmpImg.width;
+              that.data.imageHeight = tmpImg.height;
+              that.saveData();
+
+              var tmp = $that[0].getAttribute("style") || "";
+              tmp = tmp.replace(/background\-image\:([^\(;]+\([^\)]+\)+|[^;]*);?/ig, "");
+              $that[0].setAttribute("style", tmp + 'background-image:url("' + data.url + '")');
+              $that.addClass("ut-image-full");
+
+              // inform about new image size
+              that.hideLoader();
+              that.updateSourceLink();
+              var size = that.getImageSizeData({width:that.data.imageWidth, height:that.data.imageHeight}, {width:$that.width(), height:$that.height()});
+              size.data = that.data.pictureData;
+              if(isAfterRecrop === true || isAfterRecrop === false) {
+                $that.trigger(isAfterRecrop ? events.mediaCrop : events.mediaAdd, size);
+              }
+              if(that.options.styles.autoResize) {
+                that.resizeContainer();
+              }
+              $that.trigger(events.mediaReady, size);
+            };
+            tmpImg.onerror = function() {
+              that.hideLoader();
+            };
+            tmpImg.src = data.url;
+          }
+        };
+
+        that.resizeContainer = function() {
+          if(!that.options.styles.autoResize || !that.data.imageWidth || !that.data.imageHeight) {
+            return;
+          }
+
+          // calculate new size
+          var sz = {
+            width: Math.round($that.width()),
+            height: Math.round($that.width() * that.data.imageHeight / that.data.imageWidth),
+            ratio: that.data.imageWidth / that.data.imageHeight
+          };
+
+          // resize object and dispatch event
+          if(sz.width !== $that.width() || sz.height !== $that.height()) {
+            $that.height(sz.height);
+            $that.trigger(events.resize, sz);
+          }
+        };
+
+        /**
+         * call recrop function for image
+         * @param params
+         */
+        that.recropImage = function(params) {
+          if(!that.data.pictureData) {
+            return;
+          }
+
+          var options = {};
+          options.width = ((typeof(that.options.styles.width) === "undefined" || that.options.styles.width === "auto" || that.options.styles.width === false) ? ($that.width() > 0 || !that.post ? $that.width() : $(that.post.node).width()) : parseInt(that.options.styles.width, 10));
+          options.height = ((typeof(that.options.styles.height) === "undefined" || that.options.styles.height === "auto" || that.options.styles.height === false) ? ($that.height() > 0 || !that.post ? $that.height() : $(that.post.node).height()) : parseInt(that.options.styles.height, 10));
+          if(typeof(that.options.styles.minHeight) !== "undefined") {
+            options.minHeight = parseInt(that.options.styles.minHeight, 10);
+          }
+          if(typeof(that.options.styles.maxHeight) !== "undefined") {
+            options.maxHeight = parseInt(that.options.styles.maxHeight, 10);
+          }
+          options.autoCrop = !!that.options.styles.autoCrop;
+          options.adaptUI = true; //!!tmpPrm.adaptUI;
+          options.flexRatio = !!that.options.styles.flexRatio;
+
+          options = $.extend(true, options, that.options.dialog);
+          options = $.extend(true, options, params);
+
+          if(options.autoCrop !== true) {
+            $that.trigger(events.dialogOpen);
+          }
+          that.post.dialog('crop',{'image':that.data.pictureData, 'size' : options}, function(data/*, error*/) {
+            if($.isEmptyObject(data) || !data.url) {
+              if(options.autoCrop !== true) {
+                $that.trigger(events.dialogCancel);
+              }
+              return;
+            }
+            that.onImageAdded(data, true);
+          });
+        };
+
+        that.removeImage = function() {
+          var tmp = $that[0].getAttribute("style") || "";
+          tmp = tmp.replace(/background\-image\:([^\(;]+\([^\)]+\)+|[^;]*);?/ig, "");
+          $that[0].setAttribute("style", tmp);
+          $that.removeClass("ut-image-full");
+          that.data.pictureData = null;
+          that.data.imageWidth = null;
+          that.data.imageHeight = null;
+          that.saveData();
+          $that.trigger(events.mediaRemove);
+        };
+
+        /**
+         * save image data to storage
+         */
+        that.saveData = function() {
+          if(that.options.editable && that.options.autoSave) {
+            that.post.storage["utImage_" + that.options.id + "_img"] = that.data.pictureData;
+            that.post.storage["utImage_" + that.options.id + "_ratio"] = (that.data.pictureData && that.data.imageHeight ? that.data.imageWidth / that.data.imageHeight : null);
+            that.post.save();
+          }
+        };
+
+        /**
+         * load image while component initializing
+         */
+        that.firstTimeImageLoad = function() {
+          if(that.options.data) {
+            if(typeof(that.options.data) === "string") {
+              that.onImageAdded({ url:that.options.data }, false);
+            } else {
+              that.onImageAdded(that.options.data, false);
+            }
+          } else {
+            var tmp = that.post.storage["utImage_" + that.options.id + "_img"];
+            if(tmp && tmp.url) {
+              that.onImageAdded(tmp);
+            }
+          }
+        };
+
+        /**
+         * the post was scrolled
+         * @param v {Object} - data with scroll paddings
+         */
+        that.onPostScroll = function(v) {
+          that.data.scrollTop = parseInt(v.scrollTop, 10);
+          that.data.scrollBottom = parseInt(v.scrollBottom, 10);
+          that.updateButtonsPosition();
+        };
+
+        /**
+         * update "add" and "edit" button position
+         */
+        that.updateButtonsPosition = function() {
+          var fullHeight = $(that.post.node).height();
+          var pos = $that.offset();
+          pos.height = $that.height();
+          pos.bottom = pos.top + pos.height;
+          var tmp1 = Math.max(pos.top, that.data.scrollTop) - pos.top;
+          var tmp2 = Math.max(fullHeight - pos.bottom, that.data.scrollBottom) - (fullHeight - pos.bottom);
+          // to center
+          if(that.view.addButton) {
+            that.view.addButton.css("top", (tmp1 + (pos.height-tmp1-tmp2)/2) + "px");
+          }
+          if(that.view.ctrlPanel) {
+            var topPos = 0;
+            if(typeof(that.options.styles.menuPosition.top) !== "undefined") {
+              topPos = (tmp1 + parseInt(that.options.styles.menuPosition.top, 10));
+            } else if(typeof(that.options.styles.menuPosition.bottom) !== "undefined") {
+              topPos = (pos.height - tmp2 - parseInt(that.options.styles.menuPosition.bottom, 10) - that.view.ctrlPanel.height());
+            } else {
+              topPos = (tmp1 + 15);
+            }
+            if(that.view.editButton) {
+              if((topPos + that.view.editButton.height() / 2) > (tmp1 + $that.height() - tmp2) / 2) {
+                that.view.editButton.addClass("top");
+              } else {
+                that.view.editButton.removeClass("top");
+              }
+            }
+            that.view.ctrlPanel.css({"top": topPos + "px", "bottom":"auto"});
+          }
+        };
+
+        that.update = function() {
+          that.createElements();
+          if(!that.options.styles.groupMode) {
+            that.focus();
+          }
+          that.firstTimeImageLoad();
+        };
+
+        that.addMediaListener = function() {
+          if(methods.nextPanelToAddImage < 0) {
+            that.post.on('media',function(data) {
+              var obj = $(that.post.node);
+              var allPanels = obj.find(".ut-image");
+              var tmp = null;
+              for(var qq = 0; qq < allPanels.length; qq++) {
+                var ww = (qq + methods.nextPanelToAddImage) % (allPanels.length);
+                if(allPanels[ww] && allPanels[ww].utImage && !allPanels[ww].utImage.data.pictureData.url) {
+                  tmp = allPanels[ww];
+                  break;
+                }
+              }
+              if(!tmp) {
+                tmp = allPanels[(methods.nextPanelToAddImage++) % (allPanels.length)];
+              }
+              if(tmp) {
+                tmp.utImage.onImageAdded.call(tmp, data, false);
+              }
+            });
+            methods.nextPanelToAddImage = 0;
+          }
+        };
+
+        /********************************************************************************
+         * commands
+         ********************************************************************************/
+        that.hide = function() {
+          $that.css("display", "none");
+        };
+
+        that.show = function() {
+          $that.css("display", "");
+        };
+
+        that.focus = function() {
+          if(!that.options.editable || $that.hasClass("ut-image-focus")) {
+            return;
+          }
+          if(that.options.styles.groupMode) {
+            $("body").find(".ut-image.ut-image-in-group").utImage("blur");
+          }
+          $that.addClass("ut-image-focus");
+          $that.trigger(events.focus, that.options.id);
+        };
+
+        that.blur = function() {
+          if(!$that.hasClass("ut-image-focus")) {
+            return;
+          }
+          $that.removeClass("ut-image-focus");
+          if(!that.options.editable) {
+            return;
+          }
+          $that.trigger(events.blur, that.options.id);
+        };
+
+        that.destroy = function(){
+          $that.trigger(events.destroy, that.options.id);
+          if(that.options.editable && that.options.autoSave) {
+            that.post.storage["utImage_" + that.options.id + "_img"] = null;
+            that.post.storage["utImage_" + that.options.id + "_ratio"] = null;
+            that.post.save();
+          }
+          $that.remove();
+        };
+
+        that.editable = function(data) {
+          that.options.editable = data;
+          that.createElements();
+          if(!that.options.styles.groupMode) {
+            that.focus();
+          }
+        };
+
+        /********************************************************************************
+         * init element
+         ********************************************************************************/
+        that.prepareElement();
+        that.createElements();
+        if(!that.options.styles.groupMode) {
+          that.focus();
+        }
+        that.firstTimeImageLoad();
+
+        that.initialized = true;
+        if(that.post) {
+          setTimeout(function(){
+            $that.trigger(events.ready, {id:that.options.id, data:that.post.storage["utImage_" + that.options.id + "_img"]});
+            if(that.options.styles.autoResize && that.post.storage["utImage_" + that.options.id + "_ratio"]) {
+              var sz = {
+                width: $that.width(),
+                height: Math.round($that.width() / that.post.storage["utImage_" + that.options.id + "_ratio"]),
+                ratio: that.post.storage["utImage_" + that.options.id + "_ratio"]
+              };
+              if(sz.height !== $that.height()) {
+                $that.height(sz.height);
+                $that.trigger(events.resize, sz);
+              }
+            }
+          }, 0);
+          that.addMediaListener();
         }
       });
-      if (returnVal !== undefined){
-        return returnVal;
-      } else {
-        return this;
-      }
-    } else if (typeof options === "object" || !options) {
-      return this.each(function() {
-        if (!$.data(this, 'utImage')) {
-          $.data(this, 'utImage', new UtImage(this, options));
-        }
-      });
-    }
-  };
-
-  $.expr[':'].utImage = function(elem) {
-    return $(elem).hasClass('ut-image');
-  };
-
-  $.fn.utImage.defaults = {
-    autoSave: true,
-    reuse: false,
-    flexRatio: true,
-    minSize: '100px',
-    editable: undefined, // true in edit mode, false in player mode
-    ui: {
-      edit: true,
-      add: true,
-      remove: true
+      return this;
     },
-    i18n: {
-      dialogLabel: undefined
+
+    show: function() {
+      this.each(function() {
+        if(this.utImage && this.utImage.show){
+          this.utImage.show.call(this);
+        }
+      });
+      return this;
+    },
+
+    hide: function() {
+      this.each(function() {
+        if(this.utImage && this.utImage.hide){
+          this.utImage.hide.call(this);
+        }
+      });
+      return this;
+    },
+
+    focus: function() {
+      this.each(function() {
+        if(this.utImage && this.utImage.focus){
+          this.utImage.focus.call(this);
+        }
+      });
+      return this;
+    },
+
+    blur: function() {
+      this.each(function() {
+        if(this.utImage && this.utImage.blur){
+          this.utImage.blur.call(this);
+        }
+      });
+      return this;
+    },
+
+    update: function(newParams) {
+      methods.init.call(this, newParams);
+      return this;
+    },
+
+    destroy: function() {
+      this.each(function() {
+        if(this.utImage && this.utImage.destroy){
+          this.utImage.destroy.call(this);
+        }
+      });
+      return this;
+    },
+
+    data: function() {
+      var res = null;
+      if(this.length > 0) {
+        if(this[0].utImage) {
+          res = this[0].utImage.data.pictureData;
+        }
+      }
+      return res;
+    },
+
+    ratio: function() {
+      var res = 0;
+      if(this.length > 0) {
+        if(this[0].utImage) {
+          res = this[0].utImage.data.imageHeight > 0 ? (this[0].utImage.data.imageWidth/this[0].utImage.data.imageHeight) : 0;
+        }
+      }
+      return res;
+    },
+
+    dialog: function(data) {
+      if(this.length > 0) {
+        if(this[0].utImage) {
+          this[0].utImage.queryImage.call(this[0], data);
+        }
+      }
+      return this;
+    },
+
+    editable: function(data) {
+      this.each(function() {
+        if(this.utImage && this.utImage.editable){
+          this.utImage.editable.call(this, data);
+        }
+      });
+      return this;
     }
   };
 
+  $.fn.utImage = function(method) {
+    if(typeof method === 'object' || !method) {
+      methods.init.apply(this, arguments);
+    } else if(methods[method]) {
+      return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+    } else {
+      $.error('Method ' + method + ' does not exist on $.utImage');
+    }
+    return this;
+  };
 })(jQuery, window, document, undefined);
+
+(function($) {
+  "use strict";
+  var methods = {
+    init: function(options) {
+      return this.each(function() {
+        var defaults = {
+          spinOpts: {
+            lines: 11, // The number of lines to draw
+            length: 10, // The length of each line
+            width: 4, // The line thickness
+            radius: 12, // The radius of the inner circle
+            rotate: 0, // The rotation offset
+            color: '#fff', // #rgb or #rrggbb
+            speed: 1, // Rounds per second
+            trail: 60, // Afterglow percentage
+            shadow: false, // Whether to render a shadow
+            hwaccel: false, // Whether to use hardware acceleration
+            className: 'ut-spinner', // The CSS class to assign to the spinner
+            zIndex: 2e9, // The z-index (defaults to 2000000000)
+            top: 'auto', // Top position relative to parent in px
+            left: 'auto' // Left position relative to parent in px
+          }
+        };
+
+        var $that = $(this);
+        var that = {};
+        this.utSpin = that;
+        that.options = $.extend(defaults, options);
+        that.options.spinOpts.left = $that.width()/2-that.options.spinOpts.radius-that.options.spinOpts.length;
+        that.options.spinOpts.top = $that.height()/2-that.options.spinOpts.radius-that.options.spinOpts.length;
+
+        that.spin = new window.Spinner(that.options.spinOpts).spin($that[0]);
+
+        that.hide = function(){
+          $that.hide();
+          that.spin.stop();
+        };
+
+        that.show = function(){
+          $that.show();
+          that.spin.spin($that[0]);
+        };
+      });
+    },
+
+    hide: function() {
+      this.each(function() {
+        if(this.utSpin) {
+          this.utSpin.hide();
+        }
+      });
+      return this;
+    },
+
+    show: function() {
+      this.each(function() {
+        if(this.utSpin) {
+          this.utSpin.show();
+        }
+      });
+      return this;
+    }
+  };
+
+  $.fn.utSpin = function(method) {
+    if (methods[method]) {
+      return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
+    } else if (typeof method === 'object' || !method) {
+      methods.init.apply(this, arguments);
+    } else {
+      $.error('Method ' + method + ' does not exist on $.utSpin');
+    }
+    return this;
+  };
+})(window.jQuery || window.Zepto || window.jq);
+
+(function(t,e){if(typeof exports=="object")module.exports=e();else if(typeof define=="function"&&define.amd)define(e);else t.Spinner=e()})(this,function(){"use strict";var t=["webkit","Moz","ms","O"],e={},i;function o(t,e){var i=document.createElement(t||"div"),o;for(o in e)i[o]=e[o];return i}function n(t){for(var e=1,i=arguments.length;e<i;e++)t.appendChild(arguments[e]);return t}var r=function(){var t=o("style",{type:"text/css"});n(document.getElementsByTagName("head")[0],t);return t.sheet||t.styleSheet}();function s(t,o,n,s){var a=["opacity",o,~~(t*100),n,s].join("-"),f=.01+n/s*100,l=Math.max(1-(1-t)/o*(100-f),t),d=i.substring(0,i.indexOf("Animation")).toLowerCase(),u=d&&"-"+d+"-"||"";if(!e[a]){r.insertRule("@"+u+"keyframes "+a+"{"+"0%{opacity:"+l+"}"+f+"%{opacity:"+t+"}"+(f+.01)+"%{opacity:1}"+(f+o)%100+"%{opacity:"+t+"}"+"100%{opacity:"+l+"}"+"}",r.cssRules.length);e[a]=1}return a}function a(e,i){var o=e.style,n,r;if(o[i]!==undefined)return i;i=i.charAt(0).toUpperCase()+i.slice(1);for(r=0;r<t.length;r++){n=t[r]+i;if(o[n]!==undefined)return n}}function f(t,e){for(var i in e)t.style[a(t,i)||i]=e[i];return t}function l(t){for(var e=1;e<arguments.length;e++){var i=arguments[e];for(var o in i)if(t[o]===undefined)t[o]=i[o]}return t}function d(t){var e={x:t.offsetLeft,y:t.offsetTop};while(t=t.offsetParent)e.x+=t.offsetLeft,e.y+=t.offsetTop;return e}var u={lines:12,length:7,width:5,radius:10,rotate:0,corners:1,color:"#000",direction:1,speed:1,trail:100,opacity:1/4,fps:20,zIndex:2e9,className:"spinner",top:"auto",left:"auto",position:"relative"};function p(t){if(typeof this=="undefined")return new p(t);this.opts=l(t||{},p.defaults,u)}p.defaults={};l(p.prototype,{spin:function(t){this.stop();var e=this,n=e.opts,r=e.el=f(o(0,{className:n.className}),{position:n.position,width:0,zIndex:n.zIndex}),s=n.radius+n.length+n.width,a,l;if(t){t.insertBefore(r,t.firstChild||null);l=d(t);a=d(r);f(r,{left:(n.left=="auto"?l.x-a.x+(t.offsetWidth>>1):parseInt(n.left,10)+s)+"px",top:(n.top=="auto"?l.y-a.y+(t.offsetHeight>>1):parseInt(n.top,10)+s)+"px"})}r.setAttribute("role","progressbar");e.lines(r,e.opts);if(!i){var u=0,p=(n.lines-1)*(1-n.direction)/2,c,h=n.fps,m=h/n.speed,y=(1-n.opacity)/(m*n.trail/100),g=m/n.lines;(function v(){u++;for(var t=0;t<n.lines;t++){c=Math.max(1-(u+(n.lines-t)*g)%m*y,n.opacity);e.opacity(r,t*n.direction+p,c,n)}e.timeout=e.el&&setTimeout(v,~~(1e3/h))})()}return e},stop:function(){var t=this.el;if(t){clearTimeout(this.timeout);if(t.parentNode)t.parentNode.removeChild(t);this.el=undefined}return this},lines:function(t,e){var r=0,a=(e.lines-1)*(1-e.direction)/2,l;function d(t,i){return f(o(),{position:"absolute",width:e.length+e.width+"px",height:e.width+"px",background:t,boxShadow:i,transformOrigin:"left",transform:"rotate("+~~(360/e.lines*r+e.rotate)+"deg) translate("+e.radius+"px"+",0)",borderRadius:(e.corners*e.width>>1)+"px"})}for(;r<e.lines;r++){l=f(o(),{position:"absolute",top:1+~(e.width/2)+"px",transform:e.hwaccel?"translate3d(0,0,0)":"",opacity:e.opacity,animation:i&&s(e.opacity,e.trail,a+r*e.direction,e.lines)+" "+1/e.speed+"s linear infinite"});if(e.shadow)n(l,f(d("#000","0 0 4px "+"#000"),{top:2+"px"}));n(t,n(l,d(e.color,"0 0 1px rgba(0,0,0,.1)")))}return t},opacity:function(t,e,i){if(e<t.childNodes.length)t.childNodes[e].style.opacity=i}});function c(){function t(t,e){return o("<"+t+' xmlns="urn:schemas-microsoft.com:vml" class="spin-vml">',e)}r.addRule(".spin-vml","behavior:url(#default#VML)");p.prototype.lines=function(e,i){var o=i.length+i.width,r=2*o;function s(){return f(t("group",{coordsize:r+" "+r,coordorigin:-o+" "+-o}),{width:r,height:r})}var a=-(i.width+i.length)*2+"px",l=f(s(),{position:"absolute",top:a,left:a}),d;function u(e,r,a){n(l,n(f(s(),{rotation:360/i.lines*e+"deg",left:~~r}),n(f(t("roundrect",{arcsize:i.corners}),{width:o,height:i.width,left:i.radius,top:-i.width>>1,filter:a}),t("fill",{color:i.color,opacity:i.opacity}),t("stroke",{opacity:0}))))}if(i.shadow)for(d=1;d<=i.lines;d++)u(d,-2,"progid:DXImageTransform.Microsoft.Blur(pixelradius=2,makeshadow=1,shadowopacity=.3)");for(d=1;d<=i.lines;d++)u(d);return n(e,l)};p.prototype.opacity=function(t,e,i,o){var n=t.firstChild;o=o.shadow&&o.lines||0;if(n&&e+o<n.childNodes.length){n=n.childNodes[e+o];n=n&&n.firstChild;n=n&&n.firstChild;if(n)n.opacity=i}}}var h=f(o("group"),{behavior:"url(#default#VML)"});if(!a(h,"transform")&&h.adj)c();else i=a(h,"animation");return p});
 /*
  * This source code is licensed under version 3 of the AGPL.
  * Copyright (c) 2013 by webdoc SA
