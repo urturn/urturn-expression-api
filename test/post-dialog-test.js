@@ -34,6 +34,7 @@
         });
       });
     });
+   
 
     describe("image", function() {
       beforeEach(function(){
@@ -266,5 +267,28 @@
         ]});
       });
     });
+
+    describe("suggestRotation", function() {
+      beforeEach(function(){
+        var self = this;
+        TestHelpers.setupExpression(this, {mode: 'edit'});
+        TestHelpers.listenToMessage('dialog.suggestRotation', function(message, callback){
+          self.expectMessage(message);
+        });
+      });
+      afterEach(function(){
+        this.expectMessage = null;
+      });
+      describe('with no args', function() {
+        it("send a dialog.suggestRotation message", function(done){
+          this.expectMessage = function(message){
+            expect(message.methodName).to.be('dialog.suggestRotation');
+            done();
+          };
+          this.post.notification('suggestRotation');
+        });
+      });
+    });
+
   });
 }());

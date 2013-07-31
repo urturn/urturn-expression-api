@@ -423,7 +423,7 @@
         window.trigger(a, 'click');
       });
     });
-
+    
     describe("users()", function() {
       beforeEach(function(){
         this.uuid = UT.uuid();
@@ -559,5 +559,118 @@
         });
       }
     });
+
+    describe("geoLocation()", function() {
+      beforeEach(function(){
+        var self = this;
+        TestHelpers.setupExpression(this, {mode: 'edit'});
+        TestHelpers.listenToMessage('document.geoLocation', function(message, callback){
+          self.expectMessage(message, callback);
+        });
+      });
+      afterEach(function(){
+        this.expectMessage = null;
+      });
+      it("send a document.geoLocation message", function(done){
+        this.expectMessage = function(message, callback){
+          expect(message.methodName).to.be('document.geoLocation');
+          done();
+        };
+        this.post.geoLocation(function(){});
+      });
+      it("get a geoLocation", function(done){
+        this.expectMessage = function(message, callback){
+          expect(message.methodName).to.be('document.geoLocation');
+          callback(10,12);
+        };
+        this.post.geoLocation(function(lng, lat){
+          expect(lng).to.eql(10);
+          expect(lat).to.eql(12);
+          done();
+        });
+      });
+    });
+
+    describe("enableRotation()", function() {
+      beforeEach(function(){
+        var self = this;
+        TestHelpers.setupExpression(this, {mode: 'edit'});
+        TestHelpers.listenToMessage('container.enableRotation', function(message, callback){
+          self.expectMessage(message, callback);
+        });
+      });
+      afterEach(function(){
+        this.expectMessage = null;
+      });
+
+      it("send a container.enableRotation message", function(done){
+        this.expectMessage = function(message, callback){
+          expect(message.methodName).to.be('container.enableRotation');
+          done();
+        };
+        this.post.enableRotation(true);
+      });
+
+      it("send a container.enableRotation true message", function(done){
+        this.expectMessage = function(message, callback){
+          expect(message.methodName).to.be('container.enableRotation');
+          expect(message.args[0]).to.be(true);
+          done();
+        };
+        this.post.enableRotation(true);
+      });
+
+      it("send a container.enableRotation false message", function(done){
+        this.expectMessage = function(message, callback){
+          expect(message.methodName).to.be('container.enableRotation');
+          expect(message.args[0]).to.be(false);
+          done();
+        };
+        this.post.enableRotation(false);
+      });
+    });
+
+    describe("post()", function() {
+      beforeEach(function(){
+        var self = this;
+        TestHelpers.setupExpression(this, {mode: 'edit'});
+        TestHelpers.listenToMessage('document.post', function(message, callback){
+          self.expectMessage(message, callback);
+        });
+      });
+      afterEach(function(){
+        this.expectMessage = null;
+      });
+
+      it("send a document.post message", function(done){
+        this.expectMessage = function(message, callback){
+          expect(message.methodName).to.be('document.post');
+          done();
+        };
+        this.post.post();
+      });
+    });
+
+     describe("urturn()", function() {
+      beforeEach(function(){
+        var self = this;
+        TestHelpers.setupExpression(this, {mode: 'player'});
+        TestHelpers.listenToMessage('document.urturn', function(message, callback){
+          self.expectMessage(message, callback);
+        });
+      });
+      afterEach(function(){
+        this.expectMessage = null;
+      });
+
+      it("send a document.urturn message", function(done){
+        this.expectMessage = function(message, callback){
+          expect(message.methodName).to.be('document.urturn');
+          done();
+        };
+        this.post.urturn();
+      });
+    });
+
   });
 })();
