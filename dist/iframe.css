@@ -1891,7 +1891,6 @@ you can use the generic selector below, but it's slower:
 .icon_activity:before {
   content: "\e0a4"; }
 .ut-sticker {
-  /*padding: 2px;*/
   background-clip: content-box;
 }
 
@@ -1904,6 +1903,16 @@ you can use the generic selector below, but it's slower:
   background-color: rgba(0,0,0,0.15);
 }
 
+.ut-sticker,
+.ut-sticker .ut-sticker-content,
+.ut-sticker .ut-sticker-button {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
 /********************************************************************************
  * buttons
  ********************************************************************************/
@@ -1911,11 +1920,6 @@ you can use the generic selector below, but it's slower:
   position: absolute;
   display: none;
   z-index: 10000;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
 }
 
 .ut-sticker .ut-sticker-content {
@@ -2033,6 +2037,19 @@ you can use the generic selector below, but it's slower:
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
+.ut-image,
+.ut-image .ut-image-button-add
+.ut-image .ut-image-button-add *,
+.ut-image .ut-image-control-panel,
+.ut-image .ut-image-control-panel * {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
 .ut-image {
   position: relative;
   left: 0;
@@ -2045,7 +2062,6 @@ you can use the generic selector below, but it's slower:
   background-position: 50% 50%;
   background-size: 100% 100%;
   background-repeat: no-repeat;
-
 }
 
 .ut-image.ut-image-edit {
@@ -2206,10 +2222,18 @@ you can use the generic selector below, but it's slower:
   background-color: rgba(25,25,25,1);
 }
 
-.ut-image-loading .ut-spinner{
+.ut-image-loading > .icon_spinner {
   position: absolute;
-  top: 50%;
   left: 50%;
+  top: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 30px;
+  line-height: 30px;
+  margin-left: -15px;
+  margin-top: -15px;
+  vertical-align: middle;
+  color: rgb(140, 140, 140);
 }
 
 /********************************************************************************
@@ -2317,6 +2341,90 @@ you can use the generic selector below, but it's slower:
 
 .ut-image-source-link.showText .ut-image-source-link-text > span > span {
   opacity: 1;
+}
+
+/* SOME ADDITIONAL CSS*/
+.icon-spinner {
+  -moz-animation: spin 2s infinite linear;
+  -o-animation: spin 2s infinite linear;
+  -webkit-animation: spin 2s infinite linear;
+  animation: spin 2s infinite linear;
+  /* display: inline-block;*/
+}
+@-moz-keyframes spin {
+  0% {
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  100% {
+    -moz-transform: rotate(359deg);
+    -o-transform: rotate(359deg);
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@-webkit-keyframes spin {
+  0% {
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  100% {
+    -moz-transform: rotate(359deg);
+    -o-transform: rotate(359deg);
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@-o-keyframes spin {
+  0% {
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  100% {
+    -moz-transform: rotate(359deg);
+    -o-transform: rotate(359deg);
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@-ms-keyframes spin {
+  0% {
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  100% {
+    -moz-transform: rotate(359deg);
+    -o-transform: rotate(359deg);
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@keyframes spin {
+  0% {
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  100% {
+    -moz-transform: rotate(359deg);
+    -o-transform: rotate(359deg);
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
 }
 @font-face {
   font-family: 'RobotoRegular';
@@ -2984,6 +3092,15 @@ you can use the generic selector below, but it's slower:
   font-style: normal;
 }
 
+.ut-video-ui,
+.ut-video-ui * {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
 .ut-video-skin-default.ut-video-ui {
 	width: 100%;
 	height: 100%;
@@ -2991,11 +3108,6 @@ you can use the generic selector below, but it's slower:
 	font-family: 'RobotoRegular', helvetica, arial, sans-serif;
 	z-index: 0;
 	overflow: hidden;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -o-user-select: none;
-  user-select: none;
 }
 
 .ut-video-skin-default.ut-video-ui div,
