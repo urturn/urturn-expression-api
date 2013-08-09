@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.1.1-alpha5';
+    return states && states.apiVersion || '1.2.0';
   };
 
   UT.Expression.version = function() {
@@ -2022,6 +2022,36 @@ UT.CollectionStore = function(options) {
       );
 
       return text;
+    };
+
+
+    /**
+     * Follow API
+     */
+    var follow = this.follow = function(uuid, username, callback) {
+      UT.Expression._callAPI('dialog.follow', [uuid, username], function(){
+          callback();
+        });
+    };
+
+    var getFollowers = this.getFollowers = function(from, callback) {
+        if (arguments.length == 1 && typeof (arguments[0]) === ' function') {
+          callback = from;
+          from = 0;
+        } 
+         UT.Expression._callAPI('document.followship', ['follower', from], function(followerList){
+          callback(followerList);
+        });
+    };
+
+    var getFollowing = this.getFollowing = function(from, callback) {
+        if (arguments.length == 1 && typeof (arguments[0]) === ' function') {
+          callback = from;
+          from = 0;
+        } 
+         UT.Expression._callAPI('document.followship', ['following', from], function(followerList){
+          callback(followerList);
+        });
     };
 
     /**
@@ -12484,7 +12514,7 @@ fontdetect = function()
             topOnFocus: true,
             preventAutoRemove: false
           },
-          i18n:{
+          i18n: {
             edit: "edit",
             resize: "resize",
             rotate: "rotate",
@@ -12757,15 +12787,19 @@ fontdetect = function()
           e.stopPropagation();
         };
 
-        that.onButtonClick = function(e) {
+        that.onButtonClick = function(event) {
           var id = $(this).attr("data-bkey");
+          var isBreakEvent = false;
           if(id === "remove" && !that.options.preventAutoRemove) {
             that.removeElement();
           } else {
-            $content.trigger(events.buttonClick, id);
+            var ev = $.Event(events.buttonClick);
+            $content.trigger(ev, id);
+            isBreakEvent = ev.isDefaultPrevented();
           }
-          if(!that.isTouch) {
-            e.stopPropagation();
+          if(!that.isTouch || isBreakEvent) {
+            event.stopPropagation();
+            event.preventDefault();
           }
         };
 
@@ -13477,13 +13511,20 @@ fontdetect = function()
          * mouse and touch events
          ********************************************************************************/
         var itemWasMoved = false;
-        that.onElementClick = function(e) {
+        that.onElementClick = function(event) {
+          var isStopEvent = false;
+          var isBreakEvent = false;
           if(!that.isEditMode || !that.data.editable || !itemWasMoved) {
-            $content.trigger(events.click);
+            var ev = $.Event(events.click);
+            $content.trigger(ev);
+            isStopEvent = ev.isPropagationStopped();
+            isBreakEvent = ev.isDefaultPrevented();
           }
-          if(!that.isTouch) {
-            e.stopPropagation();
-            e.preventDefault();
+          if(!that.isTouch || isStopEvent) {
+            event.stopPropagation();
+          }
+          if(!that.isTouch || isBreakEvent) {
+            event.preventDefault();
           }
         };
 
@@ -13885,7 +13926,7 @@ fontdetect = function()
     },
 
     destroy: function() {
-      return this.remove();
+      return methods.remove.apply(this);
     }
   };
 
@@ -13926,6 +13967,9 @@ fontdetect = function()
         if(this.utImage) {
           if(typeof(options) === "object") {
             this.utImage.options = $.extend(true, this.utImage.options, options);
+            if(options.data) {
+              this.utImage.firstTimeImageLoad();
+            }
           }
           this.utImage.createElements();
           this.utImage.resizeContainer();
@@ -14794,7 +14838,7 @@ fontdetect = function()
     },
 
     remove: function() {
-      return this.destroy();
+      return methods.destroy.apply(this);
     },
 
     destroy: function() {
