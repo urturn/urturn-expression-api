@@ -2,6 +2,16 @@
 
 # Changelogs
 
+## 1.2.0
+- ADDED : Follow API (let you follow user, get followr / following list)
+- ADDED : Support for error callback on dialog method.
+- ADDED : notification API with support for suggestRotation
+- ADDED : Geoloaction API
+- ADDED : Post api (let you programaticly jump to the 'set note' step)
+- FIXED : A bug with fastclick
+- REFACTOR : the jquery.ut-sticker component and API
+
+
 ## 1.1.0
 - REFACTOR: the jquery.ut-sticker components and API
 - REFACTOR: the jquery.ut-sound components and API
