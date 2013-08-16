@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.0';
+    return states && states.apiVersion || '1.2.1-alpha1';
   };
 
   UT.Expression.version = function() {
@@ -1319,7 +1319,8 @@ UT.CollectionStore = function(options) {
       editor: false,
       sandbox: false,
       thumbnail: false,
-      privacy: null
+      privacy: null,
+      mediaFirst : false
     };
     // set the proper context values
     if(states.mode == 'edit'){
@@ -1332,6 +1333,9 @@ UT.CollectionStore = function(options) {
     }
     context.privacy = states.documentPrivacy;
 
+    if (states.mediaFirst === true) {
+      context.mediaFirst = true;
+    }
     /**
      * Retrieve the public url of the document.
      *
@@ -14669,7 +14673,7 @@ fontdetect = function()
               var tmp = null;
               for(var qq = 0; qq < allPanels.length; qq++) {
                 var ww = (qq + methods.nextPanelToAddImage) % (allPanels.length);
-                if(allPanels[ww] && allPanels[ww].utImage && !allPanels[ww].utImage.data.pictureData.url) {
+                if(allPanels[ww] && allPanels[ww].utImage && (!allPanels[ww].utImage.data.pictureData || !allPanels[ww].utImage.data.pictureData.url)) {
                   tmp = allPanels[ww];
                   break;
                 }
@@ -14931,16 +14935,32 @@ fontdetect = function()
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-
-"use strict"
-;(function ($) {
+(function ($) {
+  "use strict";
   var methods = {
     init: function(options) {
       this.each(function() {
-
         var $that = $(this);
         var that = {};
         this.utAudio = that;
+
+        var events = {
+          ready: "utAudio:ready",
+          change: "utAudio:change",
+          buttonClick: "utVideo:buttonClick",
+          mediaAdd: "utVideo:mediaAdd",
+          mediaRemove: "utVideo:mediaRemove",
+          mediaReady: "utAudio:mediaReady",
+          timeUpdate: "utAudio:timeUpdate",
+          play: "utAudio:play",
+          pause: "utAudio:pause",
+          stop: "utAudio:stop",
+          finish: "utAudio:finish",
+          seek: "utAudio:seek",
+          error: "utAudio:error",
+          dialogOpen: "utAudio:dialogOpen",
+          dialogCancel: "utAudio:dialogCancel"
+        };
 
         var defaults = {
           data: undefined,
@@ -14954,6 +14974,9 @@ fontdetect = function()
             source:  true,
             artwork: true
           },
+          styles: {
+            autoPause: true
+          },
           editable: true,
           i18n:{
             add:         "add sound",
@@ -14966,6 +14989,11 @@ fontdetect = function()
         if(!that.post && UT && UT.Expression && UT.Expression.ready){
           UT.Expression.ready(function(post){
             that.post = post;
+            if(that.initialized) {
+              setTimeout(function() {
+                $that.trigger(events.ready, {id:that.options.id, data:that.options.data});
+              }, 0);
+            }
           });
         }
 
@@ -14975,7 +15003,7 @@ fontdetect = function()
         that.sckey   = 'T8Yki6U2061gLUkWvLA';
         that.doNotMakeAnimationFlag = false;
 
-        that.eventNS   = 'utAudio:';
+        that.eventNS   = '';
         that.storageNS = 'utAudio_';
         that.stateNS   = "ut-audio-state";
         that.editableNS= "ut-audio-editable";
@@ -14999,7 +15027,7 @@ fontdetect = function()
           };
         }
 
-        that.getOptionsDifference = function(newOptions, oldOptions){
+        that.getOptionsDifference = function(newOptions, oldOptions) {
           var diff = {newValue:{},oldValue:{}};
           var noDiff = {newValue:undefined,oldValue:undefined};
           $.each(newOptions, function(i){
@@ -15013,11 +15041,11 @@ fontdetect = function()
 
         that.triggerChangeEvent = function(){
           var diff = that.getOptionsDifference(that.options, that.oldOptions);
-          that.eventer('change', diff.newValue, diff.oldValue);
+          $that.trigger(events.change, diff.newValue, diff.oldValue);
           that.oldOptions = $.extend(true, {}, that.options);
         };
 
-        that.requestSoundcloudAboutAppData = function(url,callback) {
+        that.requestSoundcloudAboutAppData = function(url, callback) {
           var apiUrl = (document.location.protocol === 'https:' || (/^h ttps/i).test(url) ? 'https' : 'http') + '://api.soundcloud.com/resolve?url=' + url + '&format=json&consumer_key=' + that.sckey + '&callback=?';
           $.getJSON(apiUrl, function(data) {
             callback.call(this, data);
@@ -15045,7 +15073,7 @@ fontdetect = function()
           var canNotFind = function(country){
             that.setState('error');
             if(console && console.warn){
-              console.warn("utAaudio can't find the url="+url+" with id="+id+" in "+country+" itunes music store");
+              console.warn("utAaudio can't find the url=" + url + " with id=" + id + " in " + country + " itunes music store");
             }
           };
 
@@ -15069,29 +15097,25 @@ fontdetect = function()
             [
             that.uiNS,
             that.stateNS    + '-' + state,
-            that.editableNS + '-' + ((that.options.editable && !that.post.context.player)?'true':'false'),
-            (that.currents.serviceData?(that.serviceNS + '-' + that.currents.serviceData.service_name):''),
+            that.editableNS + '-' + ((that.options.editable && !that.post.context.player) ? "true" : "false"),
+            (that.currents.serviceData?(that.serviceNS + "-" + that.currents.serviceData.service_name) : ""),
             that.skinNS     + '-' + that.options.skin,
-            that.modeNS     + '-' +(that.post.context.player?'player':'editor'),
+            that.modeNS     + '-' +(that.post.context.player ? "player" : "editor"),
             that.aspectNS   + '-' + that.aspect,
             that.sizeNS     + '-' + that.size,
-            that.touchNS    + '-' + (that.isTouch?'true':'false'),
+            that.touchNS    + '-' + (that.isTouch ? "true" : "false"),
             'ut-media-placeholder'
             ].join(' ')
             );
         };
 
-        that.eventer = function(event,data1,data2,data3){
-          $that.trigger(that.eventNS+event,[data1,data2,data3]);
-        };
-
-        that.setPlayPos = function(ms,animationFlagSencitive) {
+        that.setPlayPos = function(ms, animationFlagSencitive) {
           if(that.doNotMakeAnimationFlag && animationFlagSencitive) {
             return false;
           }
 
           if(ms < 0 || !that.currents.serviceData) {
-            return;
+            return false;
           }
 
           if(ms > that.currents.serviceData.duration) {
@@ -15099,12 +15123,12 @@ fontdetect = function()
           }
 
           if(that.ui.progress){
-            that.ui.progress.find('.'+that.uiNS+'-progress-playing').css("width", ((ms/that.currents.serviceData.duration)*100) + "%");
+            that.ui.progress.find('.' + that.uiNS + '-progress-playing').css("width", ((ms / that.currents.serviceData.duration) * 100) + "%");
           }
 
-          var timeInSeconds = Math.round(ms/1000);
+          var timeInSeconds = Math.round(ms / 1000);
           if(ms > 0 || ms === -1){
-            that.eventer('timeupdate',timeInSeconds);
+            $that.trigger(events.timeUpdate, timeInSeconds);
           }
 
           if(that.currents.serviceData && that.currents.serviceData.duration) {
@@ -15123,7 +15147,8 @@ fontdetect = function()
             if(that){
               that.doNotMakeAnimationFlag = false;
             }
-          },1000);
+          }, 1000);
+          return true;
         };
 
         that.formatTime = function(ms) {
@@ -15229,6 +15254,136 @@ fontdetect = function()
           that.setPlayPos(0);
         };
 
+        that.getServiceName = function(){
+          if(that.options.data && that.options.data.service) {
+            return that.options.data.service;
+          } else {
+            if(that.options.data && that.options.data.url && that.options.data.url.toLowerCase().indexOf('soundcloud') !== -1) {
+              return 'soundcloud';
+            } else if(that.options.data && that.options.data.url && that.options.data.url.toLowerCase().indexOf('itunes.apple') !== -1) {
+              return 'itunes';
+            } else {
+              var error = 'Something went wrong with defining service name that you want to play';
+              console.error(error, that.options.data);
+              that.setState('error', error);
+              return false;
+            }
+          }
+        };
+
+        that.formatServiceData = function(data) {
+          if (that.getServiceName() === 'soundcloud') {
+            that.currents.serviceData = {
+              title:       data.title,
+              source:      data.permalink_url,
+              artwork_url: (data.artwork_url ? data.artwork_url : '').replace(/\-large\./ig, "-t500x500."),
+              duration:    data.duration
+            };
+          } else if(that.getServiceName() === 'itunes') {
+            that.currents.serviceData = {
+              title:       data.artistName + ' - ' + data.trackName,
+              source:      data.trackViewUrl,
+              artwork_url: (data.artworkUrl100 ? data.artworkUrl100 : '').replace("100x100","600x600"),
+              duration:    30000
+            };
+          }
+          that.currents.serviceData.service_name = that.getServiceName();
+        };
+
+        that.requestServiceData = function(callback) {
+          var errorTimeOut = setTimeout(function(){
+            if(that && (!that.currents || !that.currents.serviceData)){
+              that.setState('error', "We can't get data to play this track in 15 sec");
+            }
+          }, 15000);
+          if(that.options.data.appData){
+            clearTimeout(errorTimeOut);
+            callback(that.options.data.appData);
+          } else if (that.getServiceName() === 'soundcloud') {
+            that.requestSoundcloudAboutAppData(that.options.data.url, function(data) {
+              clearTimeout(errorTimeOut);
+              callback(data);
+            });
+          } else if (that.getServiceName() === 'itunes') {
+            that.requestItunesAboutAppData(that.options.data.url, function(data) {
+              clearTimeout(errorTimeOut);
+              callback(data);
+            });
+          }
+        };
+
+        that.setupServiceDataIntoPlayer = function(data){
+          var type, url;
+          if (that.getServiceName() === 'soundcloud') {
+            url = data.stream_url + (/\?/.test(data.stream_url) ? '&' : '?') + 'consumer_key=' + that.sckey;
+            type = "mp3";
+          } else {
+            url = data.previewUrl;
+            type = "m4a";
+          }
+
+          that.formatServiceData(data);
+
+          that.utAudioEngineOptions = {
+            duration: that.currents.serviceData && that.currents.serviceData.duration ? that.currents.serviceData.duration : false,
+            url: url,
+            type: type,
+            autoPause: that.options.styles.autoPause,
+            onReady: function() {
+              that.setPlayPos(0);
+            },
+            onPlay: function() {
+              that.setState('play');
+              $that.trigger(events.play);
+            },
+            onPause: function() {
+              that.setState('pause');
+              $that.trigger(events.pause);
+            },
+            onStop: function() {
+              that.setState('launch');
+              $that.trigger(events.stop);
+              that.setPlayPos(0);
+            },
+            onFinish: function() {
+              that.setState('launch');
+              $that.trigger(events.finish);
+              that.setPlayPos(0);
+            },
+            onSeekStart: function() {
+              if(that.currents.state !== "launch" && that.currents.state !== "empty") {
+                that.setState('seek');
+                $that.trigger(events.seek);
+              }
+            },
+            onSeekEnd: function() {
+              if(that.currents.state !== "launch" && that.currents.state !== "empty") {
+                that.setState("play");
+              }
+            },
+            onTimeUpdate: function(pos) {
+              that.setPlayPos(pos, true);
+            },
+            onError: function(message) {
+              $that.trigger(events.error, message);
+              that.setState('error');
+            }
+          };
+
+          that.updateUiContent();
+
+          if($that.utAudioEngine) {
+            that.setState('launch');
+            $that.utAudioEngine(that.utAudioEngineOptions);
+            setTimeout(function() {
+              $that.trigger(events.mediaReady, that.currents.serviceData);
+              that.triggerChangeEvent();
+            }, 10);
+          } else {
+            that.setState("error", "Sound Player !!! The library not found.");
+          }
+        };
+
         that.update = function(){
           that.currents = {
             id: that.options.id || $that.attr('id'),
@@ -15241,7 +15396,7 @@ fontdetect = function()
             that.options.data = JSON.parse(storege_data);
           }
 
-          if(typeof(that.options.data) === 'string'){
+          if(typeof(that.options.data) === 'string') {
             that.options.data = {url:that.options.data};
           }
 
@@ -15253,7 +15408,7 @@ fontdetect = function()
             return;
           }
 
-          if($that.utAudioEngine){
+          if($that.utAudioEngine) {
             that.utStop();
           }
 
@@ -15261,7 +15416,7 @@ fontdetect = function()
           if($that.css('position') !== "relative" && $that.css('position') !== "absolute"){
             $that.css('position','relative');
             if(console && console.warn) {
-              console.warn('Your comtainer (id='+that.currents.id+') css position was set as "relative" as requirement of utAudio component. You can set it "absolute" or "relative" in the css to avoid this warning in console');
+              console.warn('Your container (id='+that.currents.id+') css position was set as "relative" as requirement of utAudio component. You can set it "absolute" or "relative" in the css to avoid this warning in console');
             }
           }
           $that.find('.'+that.uiNS).remove();
@@ -15274,148 +15429,28 @@ fontdetect = function()
           if(that.options.ui.progress) { that.ui.progress = $('<div class="'+that.uiNS+'-progress">'     ).appendTo(that.ui.container);}
           if(that.options.ui.time)     { that.ui.time     = $('<div class="'+that.uiNS+'-time">'         ).appendTo(that.ui.container);}
           if(that.options.ui.source)   { that.ui.source   = $('<a class="'+that.uiNS+'-source">'         ).appendTo(that.ui.container);}
-          if(that.options.editable){
-            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_sound ut-media-button ut-button"></a>').html(that.options.i18n.add).appendTo(that.ui.container).on('click',function(){that.utDialog({});});
-            that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>').html(that.options.i18n.change).appendTo(that.ui.container).on('click',function(){that.utDialog({});});
+          if(that.options.editable) {
+            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_sound ut-media-button ut-button"></a>')
+                                .html(that.options.i18n.add)
+                                .appendTo(that.ui.container)
+                                .on('click', that.onAddClick);
+            that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>')
+                                .html(that.options.i18n.change)
+                                .appendTo(that.ui.container)
+                                .on('click', that.onRemoveClick);
           }
 
           that.aspect = 'square'; //TODO - make it more clear
-          if($that.width() > $that.height()*1.25) {that.aspect = 'horizontal';}
-          if($that.width()*1.25 < $that.height()) {that.aspect = 'vertical';}
+          if($that.width() > $that.height()*1.25) { that.aspect = 'horizontal'; }
+          if($that.width()*1.25 < $that.height()) { that.aspect = 'vertical'; }
 
           that.size = 'middle'; //TODO - make it more clear
-          if($that.width() > 300 || $that.height() > 300) {that.size = 'big';}
-          if($that.width() <= 200 || $that.height() <= 200) {that.size = 'small';}
+          if($that.width() > 300 || $that.height() > 300)   { that.size = 'big'; }
+          if($that.width() <= 200 || $that.height() <= 200) { that.size = 'small'; }
 
-          if(that.post){
+          if(that.post) {
             that.post.on('pause',that.utPause);
           }
-
-          that.getServiceName = function(){
-            if(that.options.data && that.options.data.service){
-              return that.options.data.service;
-            } else {
-              if(that.options.data && that.options.data.url && that.options.data.url.toLowerCase().indexOf('soundcloud')!==-1){
-                return 'soundcloud';
-              } else if(that.options.data && that.options.data.url && that.options.data.url.toLowerCase().indexOf('itunes.apple')!==-1){
-                return 'itunes';
-              } else {
-                var error = 'Something went wrong with defining service name that you want to play';
-                console.error(error,that.options.data);
-                that.setState('error',error);
-                return false;
-              }
-            }
-          };
-
-          that.formatServiceData = function(data){
-            if (that.getServiceName() === 'soundcloud') {
-              that.currents.serviceData = {
-                title:       data.title,
-                source:      data.permalink_url,
-                artwork_url: (data.artwork_url?data.artwork_url:'').replace(/\-large\./ig, "-t500x500."),
-                duration:    data.duration
-              };
-            } else if(that.getServiceName() === 'itunes') {
-              that.currents.serviceData = {
-                title:       data.artistName + ' - ' + data.trackName,
-                source:      data.trackViewUrl,
-                artwork_url: (data.artworkUrl100?data.artworkUrl100:'').replace("100x100","600x600"),
-                duration:    30000
-              };
-            }
-            that.currents.serviceData.service_name = that.getServiceName();
-          };
-
-          that.requestServiceData = function(callback){
-            setTimeout(function(){
-              if(that && (!that.currents || !that.currents.serviceData)){
-                that.setState('error', "We can't get data to play this track in 15 sec");
-              }
-            },15000);
-            if(that.options.data.appData){
-              callback(that.options.data.appData);
-            } else if (that.getServiceName() === 'soundcloud') {
-              that.requestSoundcloudAboutAppData(that.options.data.url, function(data) {
-                callback(data);
-              });
-            } else if (that.getServiceName() === 'itunes') {
-              that.requestItunesAboutAppData(that.options.data.url, function(data) {
-                callback(data);
-              });
-            }
-          };
-
-          that.setupServiceDataIntoPlayer = function(data){
-            var type,url;
-            if (that.getServiceName() === 'soundcloud') {
-              url = data.stream_url + (/\?/.test(data.stream_url) ? '&' : '?') + 'consumer_key=' + that.sckey;
-              type = "mp3";
-            } else {
-              url = data.previewUrl;
-              type = "m4a";
-            }
-
-            that.formatServiceData(data);
-
-            that.utAudioEngineOptions = {
-              duration: that.currents.serviceData && that.currents.serviceData.duration ? that.currents.serviceData.duration : false,
-              url:url,
-              type:type,
-              onReady: function() {
-                that.setPlayPos(0);
-              },
-              onPlay: function() {
-                that.setState('play');
-                that.eventer('play');
-              },
-              onPause: function() {
-                that.setState('pause');
-                that.eventer('pause');
-              },
-              onStop: function() {
-                that.setState('launch');
-                that.eventer('stop');
-                that.setPlayPos(0);
-              },
-              onFinish: function() {
-                that.setState('launch');
-                that.eventer('finish');
-                that.setPlayPos(0);
-              },
-              onSeekStart: function() {
-                if(that.currents.state !== 'launch'){
-                  that.setState('seek');
-                  that.eventer('seek');
-                }
-              },
-              onSeekEnd: function() {
-                if(that.currents.state !== 'launch'){
-                  that.setState('play');
-                }
-              },
-              onTimeUpdate: function(pos) {
-                that.setPlayPos(pos,true);
-              },
-              onError: function(message){
-                that.eventer('error',message);
-                that.setState('error');
-              }
-            };
-
-            that.updateUiContent();
-
-            if($that.utAudioEngine) {
-              that.setState('launch');
-              $that.utAudioEngine(that.utAudioEngineOptions);
-              setTimeout(function(){
-                that.eventer('canplay',that.currents.serviceData);
-                that.triggerChangeEvent();
-              },10);
-            } else {
-              that.setState('error',"Sound Player !!! The library not found.");
-            }
-          };
 
           if(that.options.data && (that.options.data.appData || that.options.data.url)) {
             that.setState("loading");
@@ -15423,12 +15458,40 @@ fontdetect = function()
           } else {
             that.setState("empty");
           }
+        };
 
+        that.onAddClick = function(event) {
+          var ev = $.Event(events.buttonClick);
+          $that.trigger(ev, "add");
+          if(!ev.isDefaultPrevented()) {
+            that.utDialog({});
+            event.stopPropagation();
+            event.preventDefault();
+          }
+        };
+
+        that.onRemoveClick = function(event) {
+          var ev = $.Event(events.buttonClick);
+          $that.trigger(ev, "remove");
+          if(!ev.isDefaultPrevented()) {
+            event.stopPropagation();
+            event.preventDefault();
+
+            $that.trigger(events.mediaRemove);
+            that.utEmpty();
+          }
+        };
+
+        that.utEmpty = function() {
+          that.post.storage[that.storageNS+that.currents.id] = null;
+          that.post.save();
+          that.options.data = null;
+          that.update();
         };
 
         that.utPlay = function(v) {
           if($that.utAudioEngine) {
-            $that.utAudioEngine("play",v);
+            $that.utAudioEngine("play", v);
           }
         };
 
@@ -15439,7 +15502,7 @@ fontdetect = function()
         };
 
         that.utStop = function() {
-          if($that.utAudioEngine){
+          if($that.utAudioEngine) {
             $that.utAudioEngine("stop");
           }
           that.setPlayPos(-1);
@@ -15447,11 +15510,13 @@ fontdetect = function()
 
         that.utVolume = function(v) {
           if($that.utAudioEngine) {
-            $that.utAudioEngine("volume",v);
+            $that.utAudioEngine("volume", v);
           }
         };
 
         that.utDestroy = function() {
+          that.post.storage[that.storageNS+that.currents.id] = null;
+          that.post.save();
           $that.empty();
           that = null;
         };
@@ -15462,37 +15527,55 @@ fontdetect = function()
 
         that.utDialog = function(opt) {
           var options = {
-            inputTypes:['search'],
+            inputTypes: ['search'],
             label: that.options.i18n.dialogLabel
           };
           if(!$.isEmptyObject(opt)) {
             options = $.extend(true, options, opt);
           }
 
-          that.post.dialog('sound',options,function(data){
+          $that.trigger(events.dialogOpen);
+          that.post.dialog("sound", options, function(data) {
             if(!data){
-              that.eventer('dialogclose');
+              $that.trigger(events.dialogCancel);
             } else {
+              $that.trigger(events.dialogCancel);
               that.options.data = data;
               that.update();
               that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
-              that.post.storage.save();      
+              that.post.save();
+              $that.trigger(events.mediaAdd);
             }
+          }, function(){
+            $that.trigger(events.dialogCancel);
           });
         };
 
         that.oldOptions = $.extend(true, {}, that.options);
         that.update();
-        setTimeout(function(){
-          that.eventer('ready');
-        },0);
+
+        that.initialized = true;
+        if(that.post) {
+          setTimeout(function() {
+            $that.trigger(events.ready, {id:that.options.id, data:that.options.data});
+          }, 0);
+        }
+      });
+      return this;
+    },
+
+    empty: function() {
+      this.each(function() {
+        if(this.utAudio) {
+          this.utAudio.utEmpty.call(this);
+        }
       });
       return this;
     },
 
     play: function(v) {
       this.each(function() {
-        if(this.utAudio && this.utAudio.utPlay) {
+        if(this.utAudio) {
           this.utAudio.utPlay.call(this,v);
         }
       });
@@ -15501,7 +15584,7 @@ fontdetect = function()
 
     pause: function() {
       this.each(function() {
-        if(this.utAudio && this.utAudio.utPause) {
+        if(this.utAudio) {
           this.utAudio.utPause.call(this);
         }
       });
@@ -15510,7 +15593,7 @@ fontdetect = function()
 
     stop: function() {
       this.each(function() {
-        if(this.utAudio && this.utAudio.utStop){
+        if(this.utAudio) {
           this.utAudio.utStop.call(this);
         }
       });
@@ -15519,7 +15602,7 @@ fontdetect = function()
 
     volume: function(v) {
       this.each(function() {
-        if(this.utAudio && this.utAudio.utVolume){
+        if(this.utAudio) {
           this.utAudio.utVolume.call(this,v);
         }
       });
@@ -15535,9 +15618,13 @@ fontdetect = function()
       return this;
     },
 
+    remove: function() {
+      methods.destroy.apply(this, arguments);
+    },
+
     destroy: function() {
       this.each(function() {
-        if(this.utAudio && this.utAudio.utDestroy){
+        if(this.utAudio) {
           this.utAudio.utDestroy.call(this);
         }
       });
@@ -15546,8 +15633,8 @@ fontdetect = function()
 
     dialog: function(options) {
       this.each(function() {
-        if(this.utAudio && this.utAudio.utDialog){
-          this.utAudio.utDialog.call(this,options);
+        if(this.utAudio) {
+          this.utAudio.utDialog.call(this, options);
         }
       });
       return this;
@@ -15564,7 +15651,6 @@ fontdetect = function()
     }
     return this;
   };
-
 })(window.$ || window.Zepto || window.jq);
 
 /*
@@ -15587,20 +15673,21 @@ fontdetect = function()
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
+(function ($) {
+  "use strict";
 
-"use strict"
-;(function ($) {
   var methods = {
     init: function(options) {
       this.each(function() {
         var defaults = {
-          path:"http://ds4kgpk6gzsw2.cloudfront.net/expression/lib/urturn-expression-api/0.9.2/components/jquery.ut-audio/swf/",
+          path: "http://ds4kgpk6gzsw2.cloudfront.net/expression/lib/urturn-expression-api/0.9.2/components/jquery.ut-audio/swf/",
           url: null,
           type: "mp3",
           duration: false,
           startBuffering: (window.navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? false : true),
           autoPlay: false,
-          debug:false,
+          debug: false,
+          autoPause: true,
           onReady:      function(){},
           onPlay:       function(){},
           onPause:      function(){},
@@ -15614,7 +15701,6 @@ fontdetect = function()
 
         var $that = $(this);
         var that = {};
-
         this.utAudioEngine = that;
         that.options = $.extend(true, defaults, options);
 
@@ -15626,13 +15712,12 @@ fontdetect = function()
         that.flagPlaying = false;
 
         that.globalUtAudioPauseEvent = "globalUtAudioPauseEvent";
-        that.uid = Math.ceil((Math.random()*1000000000)) + new Date().getTime();
+        that.uid = Math.ceil((Math.random() * 1000000000)) + new Date().getTime();
 
         that.player = $("<div style='opacity: 0;'></div>").appendTo($that);
         /********************************************************************************
          * control functions
          ********************************************************************************/
-
         that.doOnCanPlay = function(){};
         that.doOnReady = function(){};
 
@@ -15742,9 +15827,9 @@ fontdetect = function()
           $('body').trigger(that.globalUtAudioPauseEvent, that.uid);
         };
 
-        $('body').on(that.globalUtAudioPauseEvent, function(e,uid){
-          if(that.uid === uid) {
-            return false;
+        $('body').on(that.globalUtAudioPauseEvent, function(e, uid){
+          if(that.uid === uid || !that.options.autoPause) {
+            return;
           }
           that.pause();
         });
@@ -15789,7 +15874,6 @@ fontdetect = function()
         /********************************************************************************
          * init player
          ********************************************************************************/
-
       });
       return this;
     },
