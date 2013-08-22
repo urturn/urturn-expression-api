@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.1-alpha1';
+    return states && states.apiVersion || '1.2.1-alpha3';
   };
 
   UT.Expression.version = function() {
@@ -13961,7 +13961,8 @@ fontdetect = function()
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
-;(function($, window, document, undefined) {
+/* global UT:true */
+(function($, window, document, undefined) {
   "use strict";
 
   var methods = {
@@ -14019,7 +14020,8 @@ fontdetect = function()
             menuPosition: {}, // def: left:15, top:15
             filters: [],
             groupMode: false,
-            autoResize: true
+            autoResize: true,
+            listenMedia: true
           },
           i18n: {
             addButtonText: "Add image",
@@ -14666,7 +14668,7 @@ fontdetect = function()
         };
 
         that.addMediaListener = function() {
-          if(methods.nextPanelToAddImage < 0) {
+          if(methods.nextPanelToAddImage < 0 && that.options.styles.listenMedia) {
             that.post.on('media',function(data) {
               var obj = $(that.post.node);
               var allPanels = obj.find(".ut-image");
@@ -14755,6 +14757,17 @@ fontdetect = function()
           that.createElements();
           if(!that.options.styles.groupMode) {
             that.focus();
+          }
+        };
+
+        that.listenMedia =  function(isAllow) {
+          if(isAllow) {
+            that.options.styles.listenMedia = true;
+            that.addMediaListener();
+          } else {
+            that.options.styles.listenMedia = false;
+            that.post.off('media');
+            methods.nextPanelToAddImage = -1;
           }
         };
 
@@ -14897,6 +14910,15 @@ fontdetect = function()
       this.each(function() {
         if(this.utImage && this.utImage.editable){
           this.utImage.editable.call(this, data);
+        }
+      });
+      return this;
+    },
+
+    listenMedia: function(data) {
+      this.each(function() {
+        if(this.utImage && this.utImage.editable){
+          this.utImage.listenMedia.call(this, data);
         }
       });
       return this;
