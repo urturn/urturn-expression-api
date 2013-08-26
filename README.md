@@ -2,6 +2,12 @@
 
 # Changelogs
 
+## 1.2.1
+- ADDED : Media event in componnt
+- REFACTOR: component have better css
+- ADDED: post.context.mediaFirst
+- minor bug fixes
+
 ## 1.2.0
 - ADDED : Follow API (let you follow user, get followr / following list)
 - ADDED : Support for error callback on dialog method.
