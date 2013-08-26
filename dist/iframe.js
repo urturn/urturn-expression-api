@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.1-alpha3';
+    return states && states.apiVersion || '1.2.1-alpha4';
   };
 
   UT.Expression.version = function() {
@@ -14669,7 +14669,7 @@ fontdetect = function()
 
         that.addMediaListener = function() {
           if(methods.nextPanelToAddImage < 0 && that.options.styles.listenMedia) {
-            that.post.on('media',function(data) {
+            var onMediaHandler = function(data) {
               var obj = $(that.post.node);
               var allPanels = obj.find(".ut-image");
               var tmp = null;
@@ -14686,7 +14686,10 @@ fontdetect = function()
               if(tmp) {
                 tmp.utImage.onImageAdded.call(tmp, data, false);
               }
-            });
+            };
+
+            that.post.on('media', onMediaHandler);
+            that.post.on('image', onMediaHandler);
             methods.nextPanelToAddImage = 0;
           }
         };
@@ -14767,6 +14770,7 @@ fontdetect = function()
           } else {
             that.options.styles.listenMedia = false;
             that.post.off('media');
+            that.post.off('image');
             methods.nextPanelToAddImage = -1;
           }
         };
@@ -14960,6 +14964,8 @@ fontdetect = function()
 (function ($) {
   "use strict";
   var methods = {
+    nextPlayerToAddSound: -1,
+
     init: function(options) {
       this.each(function() {
         var $that = $(this);
@@ -14986,9 +14992,9 @@ fontdetect = function()
 
         var defaults = {
           data: undefined,
-          skin:'default',
-          id:false,
-          ui:{
+          skin: 'bottom-over',
+          id: false,
+          ui: {
             play:    true,
             progress:true,
             time:    true,
@@ -14997,10 +15003,11 @@ fontdetect = function()
             artwork: true
           },
           styles: {
-            autoPause: true
+            autoPause: true,
+            listenMedia: true
           },
           editable: true,
-          i18n:{
+          i18n: {
             add:         "add sound",
             change:      "",
             error:       "Error occurred",
@@ -15015,6 +15022,7 @@ fontdetect = function()
               setTimeout(function() {
                 $that.trigger(events.ready, {id:that.options.id, data:that.options.data});
               }, 0);
+              that.addMediaListener();
             }
           });
         }
@@ -15048,6 +15056,31 @@ fontdetect = function()
             artwork: v
           };
         }
+
+        that.addMediaListener = function() {
+          if(methods.nextPlayerToAddSound < 0 && that.options.styles.listenMedia) {
+            that.post.on('sound',function(data) {
+              var obj = $(that.post.node);
+              var allPanels = obj.find(".ut-audio");
+              var tmp = null;
+              for(var qq = 0; qq < allPanels.length; qq++) {
+                var ww = (qq + methods.nextPlayerToAddSound) % (allPanels.length);
+                if(allPanels[ww] && allPanels[ww].utAudio && allPanels[ww].utAudio.options && !allPanels[ww].utAudio.options.data) {
+                  tmp = allPanels[ww];
+                  break;
+                }
+              }
+              if(!tmp) {
+                tmp = allPanels[(methods.nextPlayerToAddSound++) % (allPanels.length)];
+              }
+              if(tmp) {
+                tmp.utAudio.options.data = data;
+                tmp.utAudio.update();
+              }
+            });
+            methods.nextPlayerToAddSound = 0;
+          }
+        };
 
         that.getOptionsDifference = function(newOptions, oldOptions) {
           var diff = {newValue:{},oldValue:{}};
@@ -15337,7 +15370,8 @@ fontdetect = function()
         that.setupServiceDataIntoPlayer = function(data){
           var type, url;
           if (that.getServiceName() === 'soundcloud') {
-            url = data.stream_url + (/\?/.test(data.stream_url) ? '&' : '?') + 'consumer_key=' + that.sckey;
+            var uri = data.stream_url;// ? data.stream_url : data.uri;
+            url = uri + (/\?/.test(uri) ? '&' : '?') + 'consumer_key=' + that.sckey;
             type = "mp3";
           } else {
             url = data.previewUrl;
@@ -15413,9 +15447,11 @@ fontdetect = function()
             state: 'loading'
           };
 
-          var storege_data = that.post.storage[that.storageNS+that.currents.id];
-          if(storege_data && !that.options.data) {
-            that.options.data = JSON.parse(storege_data);
+          $that.addClass("ut-audio");
+
+          var storage_data = that.post.storage[that.storageNS+that.currents.id];
+          if(storage_data && !that.options.data) {
+            that.options.data = JSON.parse(storage_data);
           }
 
           if(typeof(that.options.data) === 'string') {
@@ -15573,6 +15609,17 @@ fontdetect = function()
           });
         };
 
+        that.listenMedia = function(isAllow) {
+          if(isAllow) {
+            that.options.styles.listenMedia = true;
+            that.addMediaListener();
+          } else {
+            that.options.styles.listenMedia = false;
+            that.post.off('sound');
+            methods.nextPlayerToAddSound = -1;
+          }
+        };
+
         that.oldOptions = $.extend(true, {}, that.options);
         that.update();
 
@@ -15581,6 +15628,7 @@ fontdetect = function()
           setTimeout(function() {
             $that.trigger(events.ready, {id:that.options.id, data:that.options.data});
           }, 0);
+          that.addMediaListener();
         }
       });
       return this;
@@ -15657,6 +15705,15 @@ fontdetect = function()
       this.each(function() {
         if(this.utAudio) {
           this.utAudio.utDialog.call(this, options);
+        }
+      });
+      return this;
+    },
+
+    listenMedia: function(isAllow) {
+      this.each(function() {
+        if(this.utAudio) {
+          this.utAudio.listenMedia.call(this, isAllow);
         }
       });
       return this;
@@ -16104,6 +16161,8 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
   "use strict";
 
   var methods = {
+    nextPlayerToAddVideo: -1,
+
     init: function(opts) {
       this.each(function () {
         var $that = $(this);
@@ -16141,7 +16200,8 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           },
           styles: {
             skin:'default',
-            autoPause: true
+            autoPause: true,
+            listenMedia: true
           },
           i18n: {
             add:          "add video",
@@ -16158,6 +16218,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
               setTimeout(function() {
                 $that.trigger(events.ready, {id:that.options.id, data:that.options.data});
               }, 0);
+              that.addMediaListener();
             }
           });
         }
@@ -16189,6 +16250,31 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
             playing:  v
           };
         }
+
+        that.addMediaListener = function() {
+          if(methods.nextPlayerToAddVideo < 0 && that.options.styles.listenMedia) {
+            that.post.on('video',function(data) {
+              var obj = $(that.post.node);
+              var allPanels = obj.find(".ut-video");
+              var tmp = null;
+              for(var qq = 0; qq < allPanels.length; qq++) {
+                var ww = (qq + methods.nextPlayerToAddVideo) % (allPanels.length);
+                if(allPanels[ww] && allPanels[ww].utVideo && allPanels[ww].utVideo.options && !allPanels[ww].utVideo.options.data) {
+                  tmp = allPanels[ww];
+                  break;
+                }
+              }
+              if(!tmp) {
+                tmp = allPanels[(methods.nextPlayerToAddVideo++) % (allPanels.length)];
+              }
+              if(tmp) {
+                tmp.utVideo.options.data = data;
+                tmp.utVideo.update();
+              }
+            });
+            methods.nextPlayerToAddVideo = 0;
+          }
+        };
 
         that.getOptionsDifference = function(newOptions, oldOptions){
           var diff = {newValue:{},oldValue:{}};
@@ -17249,6 +17335,17 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           that.update();
         };
 
+        that.listenMedia = function(isAllow) {
+          if(isAllow) {
+            that.options.styles.listenMedia = true;
+            that.addMediaListener();
+          } else {
+            that.options.styles.listenMedia = false;
+            that.post.off('video');
+            methods.nextPlayerToAddVideo = -1;
+          }
+        };
+
         that.oldOptions = $.extend(true, {}, that.options);
         that.update();
 
@@ -17257,6 +17354,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           setTimeout(function() {
             $that.trigger(events.ready, {id:that.options.id, data:that.options.data});
           }, 0);
+          that.addMediaListener();
         }
       });
       return this;
@@ -17311,6 +17409,23 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
       this.each(function() {
         if(this.utVideo && this.utVideo.utDialog){
           this.utVideo.utDialog.call(this,options);
+        }
+      });
+      return this;
+    },
+
+    data: function() {
+      var res = null;
+      if(this.length > 0 && this[0].utVideo && this[0].utVideo.options) {
+        res = this[0].utVideo.options.data;
+      }
+      return res;
+    },
+
+    listenMedia: function(isAllow) {
+      this.each(function() {
+        if(this.utVideo) {
+          this.utVideo.listenMedia.call(this, isAllow);
         }
       });
       return this;
