@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.1-alpha4';
+    return states && states.apiVersion || '1.2.1';
   };
 
   UT.Expression.version = function() {
@@ -14318,20 +14318,30 @@ fontdetect = function()
         that.getSize = function(workData) {
           var options = {};
           if(typeof(workData.styles.width) === "undefined" || workData.styles.width === "auto") {
-            options.width = $that.width();
-            if(options.width <= 0 && that.post) {
-              options.width = $(that.post.node).width();
+            if(typeof(workData.styles.height) === "undefined" || workData.styles.height === "auto" || (workData.styles.height === false && workData.styles.flexRatio !== true)) {
+              options.width = $that.width();
+              options.height = $that.height();
+              if(that.post && (options.width <= 0 || options.height <= 0)) {
+                options.width = $(that.post.node).width();
+                options.height = $(that.post.node).height();
+              }
+            } else if(workData.styles.height !== false) {
+              options.width = $that.width();
+              if(that.post && options.width <= 0) {
+                options.width = $(that.post.node).width();
+              }
+              options.height = parseInt(workData.styles.height, 10);
             }
           } else if(workData.styles.width !== false) {
             options.width = parseInt(workData.styles.width, 10);
-          }
-          if(typeof(workData.styles.height) === "undefined" || workData.styles.height === "auto" || (workData.styles.height === false && workData.styles.flexRatio !== true)) {
-            options.height = $that.height();
-            if(options.height <= 0 && that.post) {
-              options.height = $(that.post.node).height();
+            if(typeof(workData.styles.height) === "undefined" || workData.styles.height === "auto" || (workData.styles.height === false && workData.styles.flexRatio !== true)) {
+              options.height = $that.height();
+              if(options.height <= 0 && that.post) {
+                options.height = $(that.post.node).height();
+              }
+            } else if(workData.styles.height !== false) {
+              options.height = parseInt(workData.styles.height, 10);
             }
-          } else if(workData.styles.height !== false) {
-            options.height = parseInt(workData.styles.height, 10);
           }
 
           if(typeof(workData.styles.minHeight) !== "undefined") {
@@ -14539,8 +14549,35 @@ fontdetect = function()
           }
 
           var options = {};
-          options.width = ((typeof(that.options.styles.width) === "undefined" || that.options.styles.width === "auto" || that.options.styles.width === false) ? ($that.width() > 0 || !that.post ? $that.width() : $(that.post.node).width()) : parseInt(that.options.styles.width, 10));
-          options.height = ((typeof(that.options.styles.height) === "undefined" || that.options.styles.height === "auto" || that.options.styles.height === false) ? ($that.height() > 0 || !that.post ? $that.height() : $(that.post.node).height()) : parseInt(that.options.styles.height, 10));
+
+          if(typeof(that.options.styles.width) === "undefined" || that.options.styles.width === "auto" || that.options.styles.width === false) {
+            if(typeof(that.options.styles.height) === "undefined" || that.options.styles.height === "auto" || that.options.styles.height === false) {
+              options.width = $that.width();
+              options.height = $that.height();
+              if(that.post && (options.width <= 0 || options.height <= 0)) {
+                options.width = $(that.post.node).width();
+                options.height = $(that.post.node).height();
+              }
+            } else {
+              options.width = $that.width();
+              if(that.post && options.width <= 0) {
+                options.width = $(that.post.node).width();
+              }
+              options.height = parseInt(that.options.styles.height, 10);
+            }
+          } else {
+            options.width = parseInt(that.options.styles.width, 10);
+            if(typeof(that.options.styles.height) === "undefined" || that.options.styles.height === "auto" || that.options.styles.height === false) {
+              if(that.post && $that.height() <= 0) {
+                options.height = options.width * $(that.post.node).height() / $(that.post.node).width();
+              } else {
+                options.height = options.width * $that.height() / $that.width();
+              }
+            } else {
+              options.height = parseInt(that.options.styles.height, 10);
+            }
+          }
+
           if(typeof(that.options.styles.minHeight) !== "undefined") {
             options.minHeight = parseInt(that.options.styles.minHeight, 10);
           }
