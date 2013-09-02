@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.1';
+    return states && states.apiVersion || '1.2.2-alpha3';
   };
 
   UT.Expression.version = function() {
@@ -1716,7 +1716,9 @@ UT.CollectionStore = function(options) {
     };
 
     var showNode = function() {
-      self.node.style.display = 'block';
+      if (CAN_SHOW_NODE) {
+        self.node.style.display = 'block';
+      }
     };
 
     var hideNodeOnDialog = function() {
@@ -1780,6 +1782,8 @@ UT.CollectionStore = function(options) {
       }
     };
 
+
+
     /**
      * Ask the container to resize to the given parameters or return the
      * current size without parameter.
@@ -1793,7 +1797,6 @@ UT.CollectionStore = function(options) {
      * - 'auto' automatically resize to the actual content size
      */
     var size = this.size = function(sizeInfo, callback) {
-      showNode(); // In case it was hidden, need to be displayed again to compute size
       if(typeof sizeInfo === 'function'){
         callback = sizeInfo;
         sizeInfo = null;
@@ -1829,6 +1832,18 @@ UT.CollectionStore = function(options) {
           return event;
         }
       }
+    };
+
+    var CAN_SHOW_NODE = false;
+    if (context.editor) {
+      CAN_SHOW_NODE = true;
+    }
+    /**
+     * Display the post and call resize events
+     */
+    var display = this.display = function() {
+      CAN_SHOW_NODE = true;
+      showNode();
     };
 
     /**
@@ -12516,7 +12531,8 @@ fontdetect = function()
               precision: 3
             },
             topOnFocus: true,
-            preventAutoRemove: false
+            preventAutoRemove: false,
+            preventEventsBubble: true // prevent default and stop propogation for click events on item and buttons
           },
           i18n: {
             edit: "edit",
@@ -12793,16 +12809,20 @@ fontdetect = function()
 
         that.onButtonClick = function(event) {
           var id = $(this).attr("data-bkey");
+          var isStopEvent = false;
           var isBreakEvent = false;
           if(id === "remove" && !that.options.preventAutoRemove) {
             that.removeElement();
           } else {
             var ev = $.Event(events.buttonClick);
             $content.trigger(ev, id);
+            isStopEvent = ev.isPropagationStopped();
             isBreakEvent = ev.isDefaultPrevented();
           }
-          if(!that.isTouch || isBreakEvent) {
+          if(isStopEvent || (that.options.styles.preventEventsBubble && that.isEditMode && that.data.editable)) {
             event.stopPropagation();
+          }
+          if(isBreakEvent || (that.options.styles.preventEventsBubble && that.isEditMode && that.data.editable)) {
             event.preventDefault();
           }
         };
@@ -13524,10 +13544,10 @@ fontdetect = function()
             isStopEvent = ev.isPropagationStopped();
             isBreakEvent = ev.isDefaultPrevented();
           }
-          if(!that.isTouch || isStopEvent) {
+          if(isStopEvent || (that.options.styles.preventEventsBubble && that.isEditMode && that.data.editable)) {
             event.stopPropagation();
           }
-          if(!that.isTouch || isBreakEvent) {
+          if(isBreakEvent || (that.options.styles.preventEventsBubble && that.isEditMode && that.data.editable)) {
             event.preventDefault();
           }
         };
@@ -13983,7 +14003,7 @@ fontdetect = function()
 
         var events = {
           ready: "utImage:ready",
-          buttonClick: "buttonClick",
+          buttonClick: "utImage:buttonClick",
           mediaAdd: "utImage:mediaAdd",
           mediaCrop: "utImage:mediaCrop",
           mediaRemove: "utImage:mediaRemove",
@@ -14318,15 +14338,14 @@ fontdetect = function()
         that.getSize = function(workData) {
           var options = {};
           if(typeof(workData.styles.width) === "undefined" || workData.styles.width === "auto") {
+            options.width = $that.width();
             if(typeof(workData.styles.height) === "undefined" || workData.styles.height === "auto" || (workData.styles.height === false && workData.styles.flexRatio !== true)) {
-              options.width = $that.width();
               options.height = $that.height();
               if(that.post && (options.width <= 0 || options.height <= 0)) {
                 options.width = $(that.post.node).width();
                 options.height = $(that.post.node).height();
               }
             } else if(workData.styles.height !== false) {
-              options.width = $that.width();
               if(that.post && options.width <= 0) {
                 options.width = $(that.post.node).width();
               }
@@ -14551,15 +14570,14 @@ fontdetect = function()
           var options = {};
 
           if(typeof(that.options.styles.width) === "undefined" || that.options.styles.width === "auto" || that.options.styles.width === false) {
+            options.width = $that.width();
             if(typeof(that.options.styles.height) === "undefined" || that.options.styles.height === "auto" || that.options.styles.height === false) {
-              options.width = $that.width();
               options.height = $that.height();
               if(that.post && (options.width <= 0 || options.height <= 0)) {
                 options.width = $(that.post.node).width();
                 options.height = $(that.post.node).height();
               }
             } else {
-              options.width = $that.width();
               if(that.post && options.width <= 0) {
                 options.width = $(that.post.node).width();
               }
@@ -14569,9 +14587,9 @@ fontdetect = function()
             options.width = parseInt(that.options.styles.width, 10);
             if(typeof(that.options.styles.height) === "undefined" || that.options.styles.height === "auto" || that.options.styles.height === false) {
               if(that.post && $that.height() <= 0) {
-                options.height = options.width * $(that.post.node).height() / $(that.post.node).width();
+                options.height = Math.floor(options.width * $(that.post.node).height() / $(that.post.node).width());
               } else {
-                options.height = options.width * $that.height() / $that.width();
+                options.height = Math.floor(options.width * $that.height() / $that.width());
               }
             } else {
               options.height = parseInt(that.options.styles.height, 10);
@@ -14947,6 +14965,15 @@ fontdetect = function()
       return this;
     },
 
+    crop: function(data) {
+      if(this.length > 0) {
+        if(this[0].utImage) {
+          this[0].utImage.recropImage.call(this[0], data);
+        }
+      }
+      return this;
+    },
+
     editable: function(data) {
       this.each(function() {
         if(this.utImage && this.utImage.editable){
@@ -15012,9 +15039,9 @@ fontdetect = function()
         var events = {
           ready: "utAudio:ready",
           change: "utAudio:change",
-          buttonClick: "utVideo:buttonClick",
-          mediaAdd: "utVideo:mediaAdd",
-          mediaRemove: "utVideo:mediaRemove",
+          buttonClick: "utAudio:buttonClick",
+          mediaAdd: "utAudio:mediaAdd",
+          mediaRemove: "utAudio:mediaRemove",
           mediaReady: "utAudio:mediaReady",
           timeUpdate: "utAudio:timeUpdate",
           play: "utAudio:play",
@@ -15634,7 +15661,6 @@ fontdetect = function()
             if(!data){
               $that.trigger(events.dialogCancel);
             } else {
-              $that.trigger(events.dialogCancel);
               that.options.data = data;
               that.update();
               that.post.storage[that.storageNS+that.currents.id] = JSON.stringify(data);
