@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.3-alpha2';
+    return states && states.apiVersion || '1.2.3-alpha3';
   };
 
   UT.Expression.version = function() {
@@ -2023,6 +2023,20 @@ UT.CollectionStore = function(options) {
       UT.Expression._callAPI('document.geoLocation', [], function(longitude, latitude) {
         callback(longitude, latitude);
       });
+    };
+
+    /**
+     * Define if player of this post should be static
+     * @param  {Boolean}  staticState 
+     */
+    var __static_state = false;
+    var isStatic = this.isStatic = function(staticState) {
+      if (staticState) {
+        __static_state = staticState;
+        UT.Expression._callAPI('document.isStatic', [staticState], function() {
+        });
+      }
+      return staticState || __static_state;
     };
 
     /**
