@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.3-alpha3';
+    return states && states.apiVersion || '1.2.3-alpha4';
   };
 
   UT.Expression.version = function() {
@@ -2031,7 +2031,7 @@ UT.CollectionStore = function(options) {
      */
     var __static_state = false;
     var isStatic = this.isStatic = function(staticState) {
-      if (staticState) {
+      if (staticState !== undefined) {
         __static_state = staticState;
         UT.Expression._callAPI('document.isStatic', [staticState], function() {
         });
@@ -14071,7 +14071,7 @@ fontdetect = function()
             add:true,
             edit:true,
             remove:true,
-            source:true
+            source:false
           },
           data: null,
           autoSave: true,
@@ -17229,6 +17229,10 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
         };
 
         that.processEmbedData = function(sourceEmbedData) {
+          if(that._embedVideoByDataTO) {
+            clearTimeout(that._embedVideoByDataTO);
+            that._embedVideoByDataTO = 0;
+          }
           that.currents.sourceEmbedData = sourceEmbedData;
           if(sourceEmbedData.source) {
             that.updatePreViewVideoData();
@@ -17327,10 +17331,12 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
             );
         };
 
-        that.embedVideoByData = function(data){
+        that._embedVideoByDataTO = 0;
+        that.embedVideoByData = function(data) {
+          that._embedVideoByDataTO = 0;
           that.setState("loading");
-          setTimeout(function () {
-            if(!that.currents.videoDataReceived && that.currents.state !== 'error') {
+          that._embedVideoByDataTO = setTimeout(function () {
+            if(!that.currents.videoDataReceived && that.currents.state !== 'error' && that.options.data) {
               $that.trigger(events.error, [false, 'sorry: utVideo can not embed this video']);
               that.setState('error');
             }
