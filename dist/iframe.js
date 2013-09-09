@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.2-alpha3';
+    return states && states.apiVersion || '1.2.3-alpha2';
   };
 
   UT.Expression.version = function() {
@@ -1821,7 +1821,12 @@ UT.CollectionStore = function(options) {
             callback(new UT.ResizeEvent(currentSize.width, currentSize.height));
           };
         }
-        UT.Expression._callAPI('container.resizeHeight', [height], fn);
+        if (CAN_SHOW_NODE) {
+          UT.Expression._callAPI('container.resizeHeight', [height, true], fn);
+        }
+        else {
+          RESIZE_STACK.push({height : height, callback : fn});
+        }
         return this;
       } else {
         var event = new UT.ResizeEvent(currentSize.width, currentSize.height);
@@ -1834,7 +1839,8 @@ UT.CollectionStore = function(options) {
       }
     };
 
-    var CAN_SHOW_NODE = false;
+    var CAN_SHOW_NODE = true;
+    var RESIZE_STACK = [];
     if (context.editor) {
       CAN_SHOW_NODE = true;
     }
@@ -1843,7 +1849,16 @@ UT.CollectionStore = function(options) {
      */
     var display = this.display = function() {
       CAN_SHOW_NODE = true;
+      UT.Expression._callAPI('container.display', [], function (){});
       showNode();
+      if (RESIZE_STACK.length) {
+        var i = 0;
+        while (i < RESIZE_STACK.length) {
+          var resize_event = RESIZE_STACK[i];
+          UT.Expression._callAPI('container.resizeHeight', [resize_event.height, true], resize_event.callback);
+          ++i;
+        }
+      }
     };
 
     /**
@@ -12594,6 +12609,10 @@ fontdetect = function()
           window.utStickerLastZIndex = 0;
         }
 
+        var mouseStart = that.isTouch ? "touchstart" : "mousedown";
+        var mouseMove = that.isTouch ? "touchmove" : "mousemove";
+        var mouseEnd = that.isTouch ? "touchend touchcancel" : "mouseup mouseleave";
+
         /********************************************************************************
          * common
          ********************************************************************************/
@@ -12623,10 +12642,6 @@ fontdetect = function()
             that.data.parentHeight = hh;
             isChanged = true;
           }
-          if(hh && hh > 0 && hh !== that.data.parentHeight) {
-            that.data.parentHeight = hh;
-            isChanged = true;
-          }
           if(ww === 0 || hh === 0) {
             console.warn("utSticker :: parent size has zero value");
           }
@@ -12636,18 +12651,20 @@ fontdetect = function()
         that.catchEvents = function(obj, callback) {
           var mStart = {};
           var mLast = {};
+          var path = 0;
           var $body = $("body");
           var onDown = function(e) {
+            path = 0;
             var mx = e.pageX ? e.pageX : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageX : 0);
             var my = e.pageY ? e.pageY : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageY : 0);
             mStart = { x:mx, y:my };
             mLast = { x:mx, y:my };
-            $body.on("mousemove touchmove", onMove);
-            $body.on("mouseup touchend touchcancel mouseleave", onUp);
+            $body.on(mouseMove, onMove);
+            $body.on(mouseEnd, onUp);
             if(callback) {
               if(callback.call(obj, "down", {x:mx, y:my, offStart:{x:0, y:0}, offLast:{x:0, y:0}}) === false) {
                 e.stopPropagation();
-                if(!that.isTouch) {
+                if(that.options.styles.preventEventsBubble) {
                   e.preventDefault();
                 }
               }
@@ -12670,18 +12687,22 @@ fontdetect = function()
                 }
               }) === false) {
                 e.stopPropagation();
-                if(!that.isTouch) {
+                if(that.options.styles.preventEventsBubble) {
                   e.preventDefault();
                 }
               }
             }
+            if(path < 3 && that.options.styles.preventEventsBubble && that.isTouch) {
+              obj.trigger("click");
+            }
             mLast = { x:mx, y:my };
-            $body.off("mousemove touchmove", onMove);
-            $body.off("mouseup touchend touchcancel mouseleave", onUp);
+            $body.off(mouseMove, onMove);
+            $body.off(mouseEnd, onUp);
           };
           var onMove = function(e) {
             var mx = e.pageX ? e.pageX : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageX : 0);
             var my = e.pageY ? e.pageY : (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].pageY : 0);
+            path += Math.abs(mx-mLast.x) + Math.abs(my-mLast.y);
             if(callback) {
               if(callback.call(obj, "move", {
                 x: mx,
@@ -12696,12 +12717,14 @@ fontdetect = function()
                 }
               }) === false) {
                 e.stopPropagation();
-                e.preventDefault();
+                if(that.options.styles.preventEventsBubble) {
+                  e.preventDefault();
+                }
               }
             }
             mLast = { x:mx, y:my };
           };
-          obj.on("mousedown touchstart", onDown);
+          obj.on(mouseStart, onDown);
         };
 
         /********************************************************************************
@@ -12721,8 +12744,8 @@ fontdetect = function()
               .attr("data-bkey", "remove")
               .attr("title", that.options.i18n.remove)
               .appendTo($that);
-            that.view.remove.on("mousedown touchstart", that.onButtonDown);
-            that.view.remove.on("mouseup touchend", that.onButtonUp);
+            that.view.remove.on(mouseStart, that.onButtonDown);
+            that.view.remove.on(mouseEnd, that.onButtonUp);
             that.view.remove.on("click", that.onButtonClick);
           }
 
@@ -12731,8 +12754,8 @@ fontdetect = function()
               .addClass("ut-sticker-button ut-sticker-button-edit icon_edit")
               .attr("data-bkey", "edit")
               .attr("title", that.options.i18n.edit).appendTo($that);
-            that.view.edit.on("mousedown touchstart", that.onButtonDown);
-            that.view.edit.on("mouseup touchend", that.onButtonUp);
+            that.view.edit.on(mouseStart, that.onButtonDown);
+            that.view.edit.on(mouseEnd, that.onButtonUp);
             that.view.edit.on("click", that.onButtonClick);
           }
 
@@ -12789,8 +12812,8 @@ fontdetect = function()
             }
             tmp.appendTo($that);
             tmp.attr("data-bkey", qq);
-            tmp.on("mousedown touchstart", that.onButtonDown);
-            tmp.on("mouseup touchend", that.onButtonUp);
+            tmp.on(mouseStart, that.onButtonDown);
+            tmp.on(mouseEnd, that.onButtonUp);
             tmp.on("click", that.onButtonClick);
           }
         };
@@ -12832,6 +12855,9 @@ fontdetect = function()
          ********************************************************************************/
         that.prepareElement = function() {
           $that.addClass("ut-sticker");
+          if(that.isMSIE) {
+            $that.addClass("msie");
+          }
           $that.css("position", "absolute");
           $content.addClass("ut-sticker-content");
           if($content.attr("id") === "" && that.options.id) {
@@ -12852,8 +12878,9 @@ fontdetect = function()
 
           // attach events for move sticker and blur
           that.catchEvents($that, that.onElementMouse);
+          // "click" event to ut-sticker-content
           $that.on("click", that.onElementClick);
-          $("body").on("mousedown touchstart", that.onBodyClick);
+          $("body").on(mouseStart, that.onBodyClick);
         };
 
         that.parseSizeValue = function(sss, size, def) {
@@ -13992,6 +14019,12 @@ fontdetect = function()
         if(this.utImage) {
           if(typeof(options) === "object") {
             this.utImage.options = $.extend(true, this.utImage.options, options);
+            if(options && options.styles && options.styles.linkPosition) {
+              this.utImage.options.styles.linkPosition = $.extend(true, {}, options.styles.linkPosition);
+            }
+            if(options && options.styles && options.styles.menuPosition) {
+              this.utImage.options.styles.menuPosition = $.extend(true, {}, options.styles.menuPosition);
+            }
             if(options.data) {
               this.utImage.firstTimeImageLoad();
             }
@@ -14035,7 +14068,6 @@ fontdetect = function()
             maxHeight: undefined,
             flexRatio: true,
             autoCrop: true,
-            reuse: false,
             linkPosition: {}, // def: left:0, bottom:0;
             menuPosition: {}, // def: left:15, top:15
             filters: [],
@@ -14049,7 +14081,8 @@ fontdetect = function()
           },
           dialog: {
             preferedFormat: false
-          }
+          },
+          reuse: false
         };
 
         var that = {};
@@ -14354,9 +14387,10 @@ fontdetect = function()
           } else if(workData.styles.width !== false) {
             options.width = parseInt(workData.styles.width, 10);
             if(typeof(workData.styles.height) === "undefined" || workData.styles.height === "auto" || (workData.styles.height === false && workData.styles.flexRatio !== true)) {
-              options.height = $that.height();
-              if(options.height <= 0 && that.post) {
-                options.height = $(that.post.node).height();
+              if(that.post && $that.height() <= 0) {
+                options.height = Math.floor(options.width * $(that.post.node).height() / $(that.post.node).width());
+              } else {
+                options.height = Math.floor(options.width * $that.height() / $that.width());
               }
             } else if(workData.styles.height !== false) {
               options.height = parseInt(workData.styles.height, 10);
@@ -14655,7 +14689,8 @@ fontdetect = function()
         /**
          * load image while component initializing
          */
-        that.firstTimeImageLoad = function() {
+        that.firstTimeImageLoad = function(withReuse) {
+          var storageKey = "utImage_" + that.options.id + "_img";
           if(that.options.data) {
             if(typeof(that.options.data) === "string") {
               that.onImageAdded({ url:that.options.data }, false);
@@ -14663,9 +14698,14 @@ fontdetect = function()
               that.onImageAdded(that.options.data, false);
             }
           } else {
-            var tmp = that.post.storage["utImage_" + that.options.id + "_img"];
+            var tmp = that.post.storage[storageKey];
             if(tmp && tmp.url) {
               that.onImageAdded(tmp);
+            } else if(withReuse && (that.options.reuse || that.options.styles.reuse)) {
+              if(that.post.collection('parent') && that.post.collection('parent')[storageKey]){
+                tmp = that.post.collection('parent')[storageKey];
+                that.onImageAdded(tmp);
+              }
             }
           }
         };
@@ -14838,7 +14878,7 @@ fontdetect = function()
         if(!that.options.styles.groupMode) {
           that.focus();
         }
-        that.firstTimeImageLoad();
+        that.firstTimeImageLoad(true);
 
         that.initialized = true;
         if(that.post) {
