@@ -2,6 +2,13 @@
 
 # Changelogs
 
+## 1.2.3
+- ADDED : post.isStatic() method that let you control if expression is displayd in a static state
+- FIX : A bug that prevent .display() to work correctly
+
+## 1.2.2
+- ADDED : post.display() method that let you control when an expression is display
+
 ## 1.2.1
 - ADDED : Media event in componnt
 - REFACTOR: component have better css
