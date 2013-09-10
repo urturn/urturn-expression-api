@@ -178,7 +178,7 @@ UT.touchEventFix = (function (global, isIframe) {
     log("->> enableTouchEvents");
 
     if (isIframe) {
-      global.top.postMessage("touchevents:enable", "*");
+      global.top.postMessage("touchevents-enable", "*");
     }
 
     for (var key in eventListeners) {
@@ -215,7 +215,7 @@ UT.touchEventFix = (function (global, isIframe) {
     log("->> disableTouchEvents");
 
     if (isIframe) {
-      global.top.postMessage("touchevents:disable", "*");
+      global.top.postMessage("touchevents-disable", "*");
     }
 
     for (var key in eventListeners) {
@@ -266,9 +266,9 @@ UT.touchEventFix = (function (global, isIframe) {
   function didReceiveMessage(event) {
     log("didReceiveMessage" + " " + event.data);
 
-    if (event.data === "touchevents:enable") {
+    if (event.data === "touchevents-enable") {
       enableTouchEvents();
-    } else if (event.data === "touchevents:disable") {
+    } else if (event.data === "touchevents-disable") {
       disableTouchEvents();
     }
   }
