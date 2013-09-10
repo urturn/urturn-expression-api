@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.3-alpha5';
+    return states && states.apiVersion || '1.2.3-alpha6';
   };
 
   UT.Expression.version = function() {
@@ -2031,7 +2031,7 @@ UT.CollectionStore = function(options) {
      */
     var __static_state = false;
     var isStatic = this.isStatic = function(staticState) {
-      if (staticState !== undefined) {
+      if (staticState !== undefined && this.context.editor) {
         __static_state = staticState;
         UT.Expression._callAPI('document.isStatic', [staticState], function() {
         });
