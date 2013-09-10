@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.3-alpha4';
+    return states && states.apiVersion || '1.2.3-alpha5';
   };
 
   UT.Expression.version = function() {
@@ -12620,7 +12620,7 @@ fontdetect = function()
         that.post = null;
         that.isEditMode = false;
         if(typeof(window.utStickerLastZIndex) === "undefined") {
-          window.utStickerLastZIndex = 0;
+          window.utStickerLastZIndex = 10;
         }
 
         var mouseStart = that.isTouch ? "touchstart" : "mousedown";
