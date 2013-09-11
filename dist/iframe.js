@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.5-alpha3';
+    return states && states.apiVersion || '1.2.5';
   };
 
   UT.Expression.version = function() {
@@ -2564,7 +2564,7 @@ window.addEventListener("message", function (e) {
   UT.preloader = {};
 
   UT.preloader.waitFor = function(keys, debug){
-    if(typeof(debug) == 'undefined') debug = true;
+    if(typeof(debug) == 'undefined') debug = false;
     var that = this;
     var instance = {
       keys:{},
