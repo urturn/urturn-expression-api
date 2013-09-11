@@ -2,6 +2,12 @@
 
 # Changelogs
 
+## 1.2.5
+- ADDED : UT.preloader to preload expression assets
+
+## 1.2.4
+- FIX : touchevent on iOS devices
+
 ## 1.2.3
 - ADDED : post.isStatic() method that let you control if expression is displayd in a static state
 - FIX : A bug that prevent .display() to work correctly
