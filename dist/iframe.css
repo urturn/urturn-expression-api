@@ -2990,10 +2990,32 @@ you can use the generic selector below, but it's slower:
   -moz-box-sizing: border-box;
 }
 
-/*----------------------  PLAYING CONTROLS  ------------------------------*/
+.ut-audio-skin-bottom-over .ut-audio-ui-artwork {
+  display: none;
+}
 
+/*----------------------  ADD AND REMOVE BUTTONS ------------------------------*/
+.ut-audio-skin-bottom-over .ut-audio-ui-add {
+  display: none;
+  text-align: center;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.ut-audio-skin-bottom-over .ut-audio-ui-remove {
+  display: none;
+}
+
+.ut-audio-skin-bottom-over.ut-audio-mode-editor.ut-audio-state-empty .ut-audio-ui-add,
+.ut-audio-skin-bottom-over.ut-audio-mode-editor.ut-audio-state-error .ut-audio-ui-add {
+  display: block;
+  font-family: 'Helvetica Neue', helvetica, arial, sans-serif;
+}
+
+/*----------------------  PLAYING CONTROLS  ------------------------------*/
 .ut-audio-skin-bottom-over .ut-audio-ui-play {
   position: absolute;
+  display: none;
   bottom: 10px;
   left: 10px;
   width: 40px;
@@ -3005,6 +3027,13 @@ you can use the generic selector below, but it's slower:
   font-size: 22px;
   line-height: 40px;
   text-align: center;
+}
+
+.ut-audio-skin-bottom-over.ut-audio-state-launch .ut-audio-ui-play,
+.ut-audio-skin-bottom-over.ut-audio-state-seek   .ut-audio-ui-play,
+.ut-audio-skin-bottom-over.ut-audio-state-play   .ut-audio-ui-play,
+.ut-audio-skin-bottom-over.ut-audio-state-pause  .ut-audio-ui-play {
+  display: block;
 }
 
 .ut-audio-skin-bottom-over.ut-audio-state-loading .ut-audio-ui-play {

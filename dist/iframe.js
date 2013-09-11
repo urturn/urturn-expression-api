@@ -178,7 +178,7 @@ UT.touchEventFix = (function (global, isIframe) {
     log("->> enableTouchEvents");
 
     if (isIframe) {
-      global.top.postMessage("touchevents-enable", "*");
+      global.top.postMessage("'touchevents-enable'", "*");
     }
 
     for (var key in eventListeners) {
@@ -215,7 +215,7 @@ UT.touchEventFix = (function (global, isIframe) {
     log("->> disableTouchEvents");
 
     if (isIframe) {
-      global.top.postMessage("touchevents-disable", "*");
+      global.top.postMessage("'touchevents-disable'", "*");
     }
 
     for (var key in eventListeners) {
@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.4';
+    return states && states.apiVersion || '1.2.5-alpha1';
   };
 
   UT.Expression.version = function() {
@@ -14460,7 +14460,8 @@ fontdetect = function()
           var ev = $.Event(events.buttonClick);
           $that.trigger(ev, "remove");
           if(!ev.isDefaultPrevented()) {
-            that.removeImage();
+            that.queryImage();
+//            that.removeImage();
           }
         };
 
@@ -15652,9 +15653,9 @@ fontdetect = function()
           if(!ev.isDefaultPrevented()) {
             event.stopPropagation();
             event.preventDefault();
-
-            $that.trigger(events.mediaRemove);
-            that.utEmpty();
+            that.utDialog({});
+//            $that.trigger(events.mediaRemove);
+//            that.utEmpty();
           }
         };
 
@@ -17443,7 +17444,8 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
           var ev = $.Event(events.buttonClick);
           $that.trigger(ev, "remove");
           if(!ev.isDefaultPrevented()) {
-            that.removeVideo();
+            that.utDialog({});
+//            that.removeVideo();
             event.stopPropagation();
             event.preventDefault();
           }
