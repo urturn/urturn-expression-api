@@ -32,7 +32,8 @@ module.exports = function(grunt) {
     'lib/expression-api/Video.js',
     'lib/expression-api/Sound.js',
     'lib/expression-api/events.js',
-    'lib/expression-api/init.js'
+    'lib/expression-api/init.js',
+    'lib/expression-api/preloader.js'
   ];
 
   var sourcesCSS = ['lib/iframe.css'];
