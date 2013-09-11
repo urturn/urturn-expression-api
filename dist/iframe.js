@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.5';
+    return states && states.apiVersion || '1.2.6-alpha1';
   };
 
   UT.Expression.version = function() {
@@ -1865,7 +1865,7 @@ UT.CollectionStore = function(options) {
     /**
      * Ask to the sdk to stop all other media in all other expressions!
      */
-    var stopAllOther = function() {
+    var stopAllOther = this.stopAllOther = function() {
       UT.Expression._callAPI('document.stopAllOther', [], function() {});
     };
     /**
