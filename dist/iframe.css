@@ -2027,6 +2027,10 @@ you can use the generic selector below, but it's slower:
   visibility: visible;
 }
 
+.ut-image.ut-image-inscroll .ut-image-control-panel {
+  display: none;
+}
+
 .ut-image-button-edit {
   display: inline-block;
   width: 73px;

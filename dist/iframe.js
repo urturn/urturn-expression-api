@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.6-alpha1';
+    return states && states.apiVersion || '1.2.6-alpha2';
   };
 
   UT.Expression.version = function() {
@@ -1717,9 +1717,7 @@ UT.CollectionStore = function(options) {
     };
 
     var showNode = function() {
-      if (CAN_SHOW_NODE) {
         self.node.style.display = 'block';
-      }
     };
 
     var hideNodeOnDialog = function() {
@@ -1822,12 +1820,7 @@ UT.CollectionStore = function(options) {
             callback(new UT.ResizeEvent(currentSize.width, currentSize.height));
           };
         }
-        if (CAN_SHOW_NODE) {
-          UT.Expression._callAPI('container.resizeHeight', [height, true], fn);
-        }
-        else {
-          RESIZE_STACK.push({height : height, callback : fn});
-        }
+        UT.Expression._callAPI('container.resizeHeight', [height, true], fn);
         return this;
       } else {
         var event = new UT.ResizeEvent(currentSize.width, currentSize.height);
@@ -1840,26 +1833,11 @@ UT.CollectionStore = function(options) {
       }
     };
 
-    var CAN_SHOW_NODE = true;
-    var RESIZE_STACK = [];
-    if (context.editor) {
-      CAN_SHOW_NODE = true;
-    }
     /**
      * Display the post and call resize events
      */
     var display = this.display = function() {
-      CAN_SHOW_NODE = true;
       UT.Expression._callAPI('container.display', [], function (){});
-      showNode();
-      if (RESIZE_STACK.length) {
-        var i = 0;
-        while (i < RESIZE_STACK.length) {
-          var resize_event = RESIZE_STACK[i];
-          UT.Expression._callAPI('container.resizeHeight', [resize_event.height, true], resize_event.callback);
-          ++i;
-        }
-      }
     };
 
     /**
@@ -14249,7 +14227,8 @@ fontdetect = function()
             }, 0);
             that.addMediaListener();
           }
-          setTimeout(function(){
+          setTimeout(function() {
+            $(".webdoc_expression_wrapper").on("touchmove", that.onTouchMove);
             that.post.on("scroll", that.onPostScroll);
           }, 0);
         });
@@ -14828,6 +14807,10 @@ fontdetect = function()
           }
         };
 
+        that.onTouchMove = function() {
+          $that.addClass("ut-image-inscroll");
+        };
+
         /**
          * the post was scrolled
          * @param v {Object} - data with scroll paddings
@@ -14836,6 +14819,7 @@ fontdetect = function()
           that.data.scrollTop = parseInt(v.scrollTop, 10);
           that.data.scrollBottom = parseInt(v.scrollBottom, 10);
           that.updateButtonsPosition();
+          $that.removeClass("ut-image-inscroll");
         };
 
         /**
@@ -17097,8 +17081,6 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
                   parser(data[0]);
                 });
               }
-
-
             },
             /**
              ** Embed.ly supported sites worker
@@ -17107,20 +17089,20 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
               // dailymotion make call toservice every time einsted of vidmeo and youtube
               embedProcessor.log(param.worker + ' started with parameters = ', param);
               var sourceUrl = encodeURIComponent(param.url);
-              var api_url = '//api.embed.ly/1/preview?key=c6544dc839bd11e088ae4040f9f86dcd&url=' + sourceUrl + '&autoplay=1&callback=?';
+              var api_url = '//api.embed.ly/1/oembed?key=c6544dc839bd11e088ae4040f9f86dcd&url=' + sourceUrl + '&autoplay=1&callback=?';
               $.getJSON(api_url, function (data) {
-                if (data && data.object && data.object.html) {
+                if(data && data.html) {
                   param.status = true;
                   param.duration = false;
                   param.duration_formatted = false;
-                  param.thumbnail_url = (data.images && data.images[0]) ? data.images[0].url : '';
+                  param.thumbnail_url = data.thumbnail_url ? data.thumbnail_url : '';
                   param.favicon_url = data.favicon_url;
                   if (param.source === 'dailymotion') {
                     param.favicon_url = '//favicon.yandex.net/favicon/dailymotion.com';
                   }
-                  param.service_name = data.service_name;
+                  param.provider_name = data.provider_name;
                   param.provider_url = data.provider_url;
-                  param.html = data.object.html;
+                  param.html = data.html;
                   param.title = data.title || '';
                   param.views = false;
                   if (embedProcessor._sources[param.source] && embedProcessor._sources[param.source].prepareEmbedCode) {
