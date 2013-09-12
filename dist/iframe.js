@@ -1067,7 +1067,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.5-alpha2';
+    return states && states.apiVersion || '1.2.6-alpha1';
   };
 
   UT.Expression.version = function() {
@@ -1537,7 +1537,6 @@ UT.CollectionStore = function(options) {
       UT.Expression._callAPI('dialog.suggestRotation', [options], function(){});
     };
 
-    
     var notificationHandler = {
       suggestRotation : suggestRotationInfo
     };
@@ -1550,6 +1549,8 @@ UT.CollectionStore = function(options) {
         throw new Error('InvalidArgument', 'unknown notification type ' + type);
       }
     };
+
+
 
 
     /**
@@ -1861,6 +1862,12 @@ UT.CollectionStore = function(options) {
       }
     };
 
+    /**
+     * Ask to the sdk to stop all other media in all other expressions!
+     */
+    var stopAllOther = this.stopAllOther = function() {
+      UT.Expression._callAPI('document.stopAllOther', [], function() {});
+    };
     /**
      * Ask the container to scroll to the top OR bottom position.
      *
@@ -2557,7 +2564,7 @@ window.addEventListener("message", function (e) {
   UT.preloader = {};
 
   UT.preloader.waitFor = function(keys, debug){
-    if(typeof(debug) == 'undefined') debug = true;
+    if(typeof(debug) == 'undefined') debug = false;
     var that = this;
     var instance = {
       keys:{},
@@ -2574,7 +2581,6 @@ window.addEventListener("message", function (e) {
 
     var setKeys = function(keys){
       keys.map(function(key){instance.keys[key] = {ready:false, startTime:now()};});
-      instance.callback.loadstart.call(that,instance.keys);
     };
 
     var readyKey = function(key){
