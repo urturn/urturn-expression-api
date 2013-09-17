@@ -74,12 +74,16 @@ UT.UUID = UT.uuid;
 /**
  * Fix touch events with text input on iOS
  */
+/**
+ * Fix touch events with text input on iOS
+ */
 UT.touchEventFix = (function (global, isIframe) {
+  "use strict";
   //Test if it is an iOS device and that we may swap the implementation
   if (!/(iPad|iPhone|iPod)/g.test(global.navigator.userAgent) || !Element.prototype.addEventListener) {
     return null;
   }
-  console.log('Load TouchEventFix');
+
   var nativeAddEventListener = global.Element.prototype.addEventListener,
     nativeRemoveEventListener = global.Element.prototype.removeEventListener,
     uuid = 0,
@@ -165,9 +169,8 @@ UT.touchEventFix = (function (global, isIframe) {
   }
 
   function onFocus(event) {
-    log('--> FOCUSED');
-    if (global.document.activeElement.nodeName.toUpperCase() == 'TEXTAREA' ||
-      global.document.activeElement.nodeName.toUpperCase() == 'INPUT' ||
+    if (global.document.activeElement.nodeName == 'TEXTAREA' ||
+      global.document.activeElement.nodeName == 'INPUT' ||
       global.document.activeElement.getAttribute('contenteditable')) {
       disableTouchEvents();
     }
@@ -251,18 +254,16 @@ UT.touchEventFix = (function (global, isIframe) {
     if (isIframe) {
       nativeAddEventListener.call(global.document, 'focus', onFocus, true);
       nativeAddEventListener.call(global.document, 'blur', enableTouchEvents, true);
-    } else {
-      global.addEventListener("message", didReceiveMessage, true);
     }
+    global.addEventListener("message", didReceiveMessage, true);
   }
 
   function disableCapture() {
     if (isIframe) {
       nativeRemoveEventListener.call(global.document, 'focus', onFocus, true);
       nativeRemoveEventListener.call(global.document, 'blur', enableTouchEvents, true);
-    } else {
-      global.removeEventListener("message", didReceiveMessage, true);
     }
+    global.removeEventListener("message", didReceiveMessage, true);
   }
 
   function didReceiveMessage(event) {
@@ -300,7 +301,8 @@ UT.touchEventFix = (function (global, isIframe) {
     disableCapture: disableCapture,
     enableTouchEvents: enableTouchEvents,
     disableTouchEvents: disableTouchEvents,
-    getEventListenersDescription: getEventListenersDescription
+    getEventListenersDescription: getEventListenersDescription,
+    didReceiveMessage : didReceiveMessage
   };
 
   return returnObj;
@@ -1069,7 +1071,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.6-alpha10';
+    return states && states.apiVersion || '1.2.6-alpha11';
   };
 
   UT.Expression.version = function() {
@@ -2161,6 +2163,23 @@ UT.CollectionStore = function(options) {
       currentScroll.scrollTop = values.scrollTop;
       currentScroll.scrollBottom = values.scrollBottom;
     };
+
+
+    /**
+     * Touchevents Fix
+     */
+    var enabletouchevents = null;
+    var disabletouchevents = null;
+
+    if (UT.touchEventFix) {
+      enabletouchevents = UT.touchEventFix.enableTouchEvents;
+      disabletouchevents =  UT.touchEventFix.disableTouchEvents;
+    }
+    
+    this.on('enabletouchevents', enabletouchevents);
+    this.on('disabletouchevents', disabletouchevents);
+
+
 
     /**
      * The default, private collection
@@ -12939,7 +12958,7 @@ fontdetect = function()
           var id = $(this).attr("data-bkey");
           var isStopEvent = false;
           var isBreakEvent = false;
-          if(id === "remove" && !that.options.preventAutoRemove) {
+          if(id === "remove" && !that.options.styles.preventAutoRemove) {
             that.removeElement();
           } else {
             var ev = $.Event(events.buttonClick);

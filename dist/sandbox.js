@@ -74,12 +74,16 @@ UT.UUID = UT.uuid;
 /**
  * Fix touch events with text input on iOS
  */
+/**
+ * Fix touch events with text input on iOS
+ */
 UT.touchEventFix = (function (global, isIframe) {
+  "use strict";
   //Test if it is an iOS device and that we may swap the implementation
   if (!/(iPad|iPhone|iPod)/g.test(global.navigator.userAgent) || !Element.prototype.addEventListener) {
     return null;
   }
-  console.log('Load TouchEventFix');
+
   var nativeAddEventListener = global.Element.prototype.addEventListener,
     nativeRemoveEventListener = global.Element.prototype.removeEventListener,
     uuid = 0,
@@ -165,9 +169,8 @@ UT.touchEventFix = (function (global, isIframe) {
   }
 
   function onFocus(event) {
-    log('--> FOCUSED');
-    if (global.document.activeElement.nodeName.toUpperCase() == 'TEXTAREA' ||
-      global.document.activeElement.nodeName.toUpperCase() == 'INPUT' ||
+    if (global.document.activeElement.nodeName == 'TEXTAREA' ||
+      global.document.activeElement.nodeName == 'INPUT' ||
       global.document.activeElement.getAttribute('contenteditable')) {
       disableTouchEvents();
     }
@@ -251,18 +254,16 @@ UT.touchEventFix = (function (global, isIframe) {
     if (isIframe) {
       nativeAddEventListener.call(global.document, 'focus', onFocus, true);
       nativeAddEventListener.call(global.document, 'blur', enableTouchEvents, true);
-    } else {
-      global.addEventListener("message", didReceiveMessage, true);
     }
+    global.addEventListener("message", didReceiveMessage, true);
   }
 
   function disableCapture() {
     if (isIframe) {
       nativeRemoveEventListener.call(global.document, 'focus', onFocus, true);
       nativeRemoveEventListener.call(global.document, 'blur', enableTouchEvents, true);
-    } else {
-      global.removeEventListener("message", didReceiveMessage, true);
     }
+    global.removeEventListener("message", didReceiveMessage, true);
   }
 
   function didReceiveMessage(event) {
@@ -300,7 +301,8 @@ UT.touchEventFix = (function (global, isIframe) {
     disableCapture: disableCapture,
     enableTouchEvents: enableTouchEvents,
     disableTouchEvents: disableTouchEvents,
-    getEventListenersDescription: getEventListenersDescription
+    getEventListenersDescription: getEventListenersDescription,
+    didReceiveMessage : didReceiveMessage
   };
 
   return returnObj;
