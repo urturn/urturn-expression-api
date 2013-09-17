@@ -75,19 +75,18 @@ UT.UUID = UT.uuid;
  * Fix touch events with text input on iOS
  */
 UT.touchEventFix = (function (global, isIframe) {
-  "use strict";
   //Test if it is an iOS device and that we may swap the implementation
   if (!/(iPad|iPhone|iPod)/g.test(global.navigator.userAgent) || !Element.prototype.addEventListener) {
     return null;
   }
-
+  console.log('Load TouchEventFix');
   var nativeAddEventListener = global.Element.prototype.addEventListener,
     nativeRemoveEventListener = global.Element.prototype.removeEventListener,
     uuid = 0,
     eventListeners = {},
     returnObj,
     touchEventsEnabled = true,
-    debug = false;
+    debug = true;
 
   //Run the tweak
   swapEventListenerImplementation();
@@ -97,7 +96,9 @@ UT.touchEventFix = (function (global, isIframe) {
 
   // log helpers
   var log = function(arg) {
-    return debug && global.console && global.log && global.log(arg);
+    if (debug) {
+      console.log(arg);
+    }
   };
   var group = function(arg) {
     return debug && global.console && global.console.group && global.console.group(arg);
@@ -164,8 +165,9 @@ UT.touchEventFix = (function (global, isIframe) {
   }
 
   function onFocus(event) {
-    if (global.document.activeElement.nodeName == 'TEXTAREA' ||
-      global.document.activeElement.nodeName == 'INPUT' ||
+    log('--> FOCUSED');
+    if (global.document.activeElement.nodeName.toUpperCase() == 'TEXTAREA' ||
+      global.document.activeElement.nodeName.toUpperCase() == 'INPUT' ||
       global.document.activeElement.getAttribute('contenteditable')) {
       disableTouchEvents();
     }
@@ -1067,7 +1069,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.6-alpha2';
+    return states && states.apiVersion || '1.2.6-alpha10';
   };
 
   UT.Expression.version = function() {
@@ -2583,12 +2585,16 @@ window.addEventListener("message", function (e) {
     };
 
     var cacheImage = function(key, url) {
+      if(!url) {
+        readyKey(key);
+        if(console && console.warn) console.warn('You have to specify image url as a second parameter of readyImage(key, url).. currently url='+name);
+        return;
+      }
       var tmpImg = new Image();
       tmpImg.onload = function() {
-        readyKey(key, tmpImg);
+        readyKey(key);
       };
       tmpImg.onerror = function() {
-        instance.keys[key].ready = false;
         readyKey(key);
       };
       instance.keys[key].startTime = now();
@@ -2597,15 +2603,19 @@ window.addEventListener("message", function (e) {
     };
 
     var cacheFont = function(key, name) {
+      if(!name) {
+        readyKey(key);
+        if(console && console.warn) console.warn('You have to specify font name as a second parameter of readyFont(key, fontName).. currently fontname='+name);
+        return;
+      }
       instance.keys[key].startTime = now();
       instance.keys[key].fontName = name;
       fontdetect.onFontLoaded(name, function(){
-        readyKey(key, name);
-      }, function() {
-        if(debug) console.error('BAD .. FONT NOT LOADED IN 10 SEC...');
-        instance.keys[key].ready = false;
         readyKey(key);
-      }, {msInterval: 100, msTimeout: 10000});
+      }, function() {
+        if(debug) console.error('We was not able to load the font "'+name+'" in 5 sec...');
+        readyKey(key);
+      }, {msInterval: 30, msTimeout: 5000});
     };
 
     instance.on = function(event,callback){

@@ -1,9 +1,9 @@
 {
-  "title": "bdd-1-2-6-alpha2",
+  "title": "bdd-1-2-6-alpha10",
   "description": "",
-  "system_name": "bdd-1-2-6-alpha2",
+  "system_name": "bdd-1-2-6-alpha10",
   "version": "0.1.34",
-  "api_version": "1.2.6-alpha2",
+  "api_version": "1.2.6-alpha10",
   "dependencies": [
     {
       "path": "lib/mocha.css"

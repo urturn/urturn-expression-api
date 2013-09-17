@@ -75,19 +75,18 @@ UT.UUID = UT.uuid;
  * Fix touch events with text input on iOS
  */
 UT.touchEventFix = (function (global, isIframe) {
-  "use strict";
   //Test if it is an iOS device and that we may swap the implementation
   if (!/(iPad|iPhone|iPod)/g.test(global.navigator.userAgent) || !Element.prototype.addEventListener) {
     return null;
   }
-
+  console.log('Load TouchEventFix');
   var nativeAddEventListener = global.Element.prototype.addEventListener,
     nativeRemoveEventListener = global.Element.prototype.removeEventListener,
     uuid = 0,
     eventListeners = {},
     returnObj,
     touchEventsEnabled = true,
-    debug = false;
+    debug = true;
 
   //Run the tweak
   swapEventListenerImplementation();
@@ -97,7 +96,9 @@ UT.touchEventFix = (function (global, isIframe) {
 
   // log helpers
   var log = function(arg) {
-    return debug && global.console && global.log && global.log(arg);
+    if (debug) {
+      console.log(arg);
+    }
   };
   var group = function(arg) {
     return debug && global.console && global.console.group && global.console.group(arg);
@@ -164,8 +165,9 @@ UT.touchEventFix = (function (global, isIframe) {
   }
 
   function onFocus(event) {
-    if (global.document.activeElement.nodeName == 'TEXTAREA' ||
-      global.document.activeElement.nodeName == 'INPUT' ||
+    log('--> FOCUSED');
+    if (global.document.activeElement.nodeName.toUpperCase() == 'TEXTAREA' ||
+      global.document.activeElement.nodeName.toUpperCase() == 'INPUT' ||
       global.document.activeElement.getAttribute('contenteditable')) {
       disableTouchEvents();
     }
