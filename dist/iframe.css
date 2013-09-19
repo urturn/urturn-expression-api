@@ -1977,7 +1977,8 @@ you can use the generic selector below, but it's slower:
   cursor: pointer;
 }
 
-.ut-image.ut-image-focus:not(.ut-image-full) .ut-image-button-add {
+/*.ut-image.ut-image-focus:not(.ut-image-full) .ut-image-button-add {*/
+.ut-image:not(.ut-image-full) .ut-image-button-add {
   opacity: 1;
   visibility: visible;
 }

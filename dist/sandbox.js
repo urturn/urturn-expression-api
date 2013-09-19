@@ -90,7 +90,7 @@ UT.touchEventFix = (function (global, isIframe) {
     eventListeners = {},
     returnObj,
     touchEventsEnabled = true,
-    debug = true;
+    debug = false;
 
   //Run the tweak
   swapEventListenerImplementation();
@@ -307,6 +307,9 @@ UT.touchEventFix = (function (global, isIframe) {
 
   return returnObj;
 }(window, true));
+
+__STACK_JQUERY_JS = [];
+
 ; (function(UT, window, document, undefined){
   "use strict";
   /**

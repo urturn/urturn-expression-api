@@ -346,6 +346,13 @@ module.exports = function(grunt) {
         'if ( parent && parent.attachEvent && parent !== parent.top ) {'));
   });
 
+  grunt.registerTask('patchJQuerySO', function(){
+    grunt.file.write('dist/iframe.js',
+      grunt.file.read('dist/iframe.js').replace(
+        'camelCase: function( string ) {', 
+        'camelCase: function( string ) {var stack = new Error().stack; __STACK_JQUERY_JS.push({stack : stack, string : string});'));
+  });
+
   grunt.registerTask('updateVersionNumber', function(){
     function updateInJSFiles(filename, version){
       content = grunt.file.read(filename);
@@ -410,7 +417,7 @@ module.exports = function(grunt) {
 
   // Default task.
   grunt.registerTask('default', ['clean', 'exec:clean', 'test', 'urturn_component', 'build', 'buildTestExpression', 'updateVersionNumber', 'urturn_component:createmanifest', 'minify', 'copyAssetToDist']);
-  grunt.registerTask('build', ['urturn_component:createmanifest', 'addIncludedModule', "concat", "concat_css", 'patchJQuery202']);
+  grunt.registerTask('build', ['urturn_component:createmanifest', 'addIncludedModule', "concat", "concat_css", 'patchJQuery202', 'patchJQuerySO']);
   grunt.registerTask('dependencies', ['urturn_component']);
   grunt.registerTask('minify', ['uglify', 'cssmin']);
   grunt.registerTask('test', ['jshint', 'filecheck', 'mocha']);

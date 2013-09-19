@@ -90,7 +90,7 @@ UT.touchEventFix = (function (global, isIframe) {
     eventListeners = {},
     returnObj,
     touchEventsEnabled = true,
-    debug = true;
+    debug = false;
 
   //Run the tweak
   swapEventListenerImplementation();
@@ -307,6 +307,9 @@ UT.touchEventFix = (function (global, isIframe) {
 
   return returnObj;
 }(window, true));
+
+__STACK_JQUERY_JS = [];
+
 ; (function(UT, window, document, undefined){
   "use strict";
   /**
@@ -1071,7 +1074,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.6-alpha11';
+    return states && states.apiVersion || '1.2.6-alpha19';
   };
 
   UT.Expression.version = function() {
@@ -1726,7 +1729,7 @@ UT.CollectionStore = function(options) {
 
     var hideNodeOnDialog = function() {
       if (isIOSApp) {
-        self.node.style.display = 'none';
+        //  self.node.style.display = 'none';
       }
     };
 
@@ -3953,7 +3956,7 @@ jQuery.extend({
 
 	// Convert dashed to camelCase; used by the css and data modules
 	// Microsoft forgot to hump their vendor prefix (#9572)
-	camelCase: function( string ) {
+	camelCase: function( string ) {var stack = new Error().stack; __STACK_JQUERY_JS.push({stack : stack, string : string});
 		return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
 	},
 
@@ -12612,6 +12615,7 @@ fontdetect = function()
           buttonClick: "utSticker:buttonClick",
           destroy: "utSticker:destroy",
           click: "utSticker:click",
+          dblClick: "utSticker:dblClick",
           focus: "utSticker:focus",
           blur: "utSticker:blur"
         };
@@ -13686,11 +13690,20 @@ fontdetect = function()
          * mouse and touch events
          ********************************************************************************/
         var itemWasMoved = false;
+        var doubleClickTimeOut = 600;
+        var lastClickTime = 0;
         that.onElementClick = function(event) {
+          console.log("that.onElementClick");
+          var eventType = events.click;
+          var curTime = (new Date()).getTime();
+          if((curTime - lastClickTime) < doubleClickTimeOut) {
+            eventType = events.dblClick;
+          }
+          lastClickTime = curTime;
           var isStopEvent = false;
           var isBreakEvent = false;
           if(!that.isEditMode || !that.data.editable || !itemWasMoved) {
-            var ev = $.Event(events.click);
+            var ev = $.Event(eventType);
             $content.trigger(ev);
             isStopEvent = ev.isPropagationStopped();
             isBreakEvent = ev.isDefaultPrevented();
@@ -14153,6 +14166,9 @@ fontdetect = function()
               this.utImage.firstTimeImageLoad();
             }
           }
+
+          this.utImage.updateElement();
+
           this.utImage.createElements();
           this.utImage.resizeContainer();
           return;
@@ -14262,25 +14278,32 @@ fontdetect = function()
           }, 0);
         });
 
-        that.prepareElement = function(){
-          $that.addClass("ut-image");
+        that.updateElement = function() {
           if(that.options.styles.groupMode) {
             $that.addClass("ut-image-in-group");
+          } else {
+            $that.removeClass("ut-image-in-group");
           }
 
           if($that.attr("id") === "" && that.options.id) {
             that.options.id = "image-" + UT.uuid();
-//            console.warn("utImage :: element ID not found, generating new:", that.options.id);
           }
           if(that.options.id !== "") {
             $that.attr("id", that.options.id);
           } else {
             that.options.id = $that.attr("id");
           }
+        };
+
+        that.prepareElement = function(){
+          $that.addClass("ut-image");
+          that.updateElement();
 
           $that.on("click", function() {
             if(!$that.hasClass("ut-image-focus")) {
               that.focus();
+            } else if(that.options.styles.groupMode) { // && $(".ut-image").length <= 1
+              that.blur();
             }
           });
         };
@@ -15004,9 +15027,10 @@ fontdetect = function()
         /********************************************************************************
          * init element
          ********************************************************************************/
+        var isSetFocus = (jQuery(".ut-image").length <= 0);
         that.prepareElement();
         that.createElements();
-        if(!that.options.styles.groupMode) {
+        if(!that.options.styles.groupMode || isSetFocus) {
           that.focus();
         }
         that.firstTimeImageLoad(true);
