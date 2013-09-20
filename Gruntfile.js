@@ -269,11 +269,7 @@ module.exports = function(grunt) {
     function doUpload(src, dest, retry, callback){
       var headers = {'x-amz-acl': 'public-read'};
       // Define cache controle policy (no-cache if -beta, -alpha or -rc)
-      if(info.version.match(/^[0-9]+\.[0-9]+\.[0-9]+$/)){
-        headers['Cache-Control'] = "public, max-age=" + 60*60*24*365;
-      } else {
-        headers['Cache-Control'] = "no-cache";
-      }
+      headers['Cache-Control'] = "public, max-age=" + 60*60*24*365;
       headers['Content-Encoding'] = 'gzip';
       var mimeType = mime.lookup(dest.replace(/\.gz/, ''));
       console.log(dest, mimeType);
@@ -418,6 +414,13 @@ module.exports = function(grunt) {
   // Default task.
   grunt.registerTask('default', ['clean', 'exec:clean', 'test', 'urturn_component', 'build', 'buildTestExpression', 'updateVersionNumber', 'urturn_component:createmanifest', 'minify', 'copyAssetToDist']);
   grunt.registerTask('build', ['urturn_component:createmanifest', 'addIncludedModule', "concat", "concat_css", 'patchJQuery202', 'patchJQuerySO']);
+  
+  // light sdk version task.
+  grunt.registerTask('light', ['clean', 'exec:clean', 'test', 'buildlight', 'buildTestExpression', 'updateVersionNumber', 'minify', 'copyAssetToDist']);
+  grunt.registerTask('buildlight', ["concat", "concat_css"]);
+  
+
+
   grunt.registerTask('dependencies', ['urturn_component']);
   grunt.registerTask('minify', ['uglify', 'cssmin']);
   grunt.registerTask('test', ['jshint', 'filecheck', 'mocha']);
