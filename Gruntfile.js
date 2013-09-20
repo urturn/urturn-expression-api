@@ -171,6 +171,29 @@ module.exports = function(grunt) {
     }
   };
 
+  config.urturn_simple_component = {
+    createmanifest: {
+      manifest: {
+        main: ['iframe.min.css', 'iframe.min.js'],
+        dependencies: {
+          'jquery': '~2.0.0'
+        },
+        includes: [
+          "fastclick",
+          "urturn-expression-css",
+          "jquery",
+          "FontDetect",
+          "jquery-textfill",
+          "jquery.ut-image",
+          "jquery.ut-text"
+        ]
+      }
+    },
+    config: {
+      bower: true
+    }
+  };
+
   config.watch = {
     scripts: {
       files: ['lib/**/*.js', 'test/**/*.js'],
@@ -419,8 +442,10 @@ module.exports = function(grunt) {
   grunt.registerTask('light', ['clean', 'exec:clean', 'test', 'buildlight', 'buildTestExpression', 'updateVersionNumber', 'minify', 'copyAssetToDist']);
   grunt.registerTask('buildlight', ["concat", "concat_css"]);
   
-
-
+  // simple sdk version task.
+  grunt.registerTask('simple', ['clean', 'exec:clean', 'test', 'urturn_simple_component', 'buildSimple', 'buildTestExpression', 'updateVersionNumber', 'urturn_simple_component:createmanifest', 'minify', 'copyAssetToDist']);
+  grunt.registerTask('buildSimple', ['urturn_simple_component:createmanifest', 'addIncludedModule', "concat", "concat_css", 'patchJQuery202', 'patchJQuerySO']);
+  
   grunt.registerTask('dependencies', ['urturn_component']);
   grunt.registerTask('minify', ['uglify', 'cssmin']);
   grunt.registerTask('test', ['jshint', 'filecheck', 'mocha']);

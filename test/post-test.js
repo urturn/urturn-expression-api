@@ -123,6 +123,7 @@
           }]
         });
         this.post.context.editor = true;
+        this.post.display();
         var defaultSaved, testAnotherOneSaved;
         TestHelpers.listenToMessage('collections.save', function(message, callback){
           try {

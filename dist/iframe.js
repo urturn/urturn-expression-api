@@ -1074,7 +1074,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.6';
+    return states && states.apiVersion || '1.2.7-alpha2';
   };
 
   UT.Expression.version = function() {
@@ -1091,6 +1091,14 @@ UT.CollectionStore = function(options) {
    * @param callBack {Function} the callback function that will contains the result of call
    */
   var _callAPI = UT.Expression._callAPI = function(methodName, args, callback){
+    // For save we delay it until post is ready
+    if (methodName == 'collections.save' && !postInstance.isDisplay()) {
+      __callAPIStack.push({methodName : methodName, args : args, callback : function() {}});
+      if (callback) {
+          callback(); 
+      }
+      return;
+    }
     var jsonMessage = {
       type:"ExpAPICall",
       methodName:methodName,
@@ -1105,6 +1113,16 @@ UT.CollectionStore = function(options) {
     }
     var json = JSON.stringify(jsonMessage);
     window.parent.postMessage(json, "*");
+  };
+
+  var __callAPIStack = [];
+
+  var _resolveCallAPIStack = UT.Expression._resolveCallAPIStack = function () {
+    var i = 0;
+    while (i < __callAPIStack.length) {
+      _callAPI(__callAPIStack[i].methodName, __callAPIStack[i].args, __callAPIStack[i].callback);
+      ++i;
+    }
   };
 
   /**
@@ -1840,11 +1858,18 @@ UT.CollectionStore = function(options) {
       }
     };
 
+
+    var _isDisplay = false;
+    var isDisplay = this.isDisplay = function( ) {
+      return _isDisplay;
+    };
     /**
      * Display the post and call resize events
      */
     var display = this.display = function() {
-      UT.Expression._callAPI('container.display', [], function (){});
+      _isDisplay = true;
+      UT.Expression._callAPI('container.display', [], function (){});       
+      UT.Expression._resolveCallAPIStack();
     };
 
     /**
