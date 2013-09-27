@@ -1074,7 +1074,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.7';
+    return states && states.apiVersion || '1.2.8-alpha1';
   };
 
   UT.Expression.version = function() {
@@ -12788,6 +12788,9 @@ fontdetect = function()
           that.options.editable = that.isEditMode ? that.options.editable : false;
           if(that.initialized) {
             setTimeout(function(){
+              if(!that.post.storage["utSticker_" + that.options.id + "_pos"]) {
+                that._savePosition();
+              }
               $content.trigger(events.ready, {id:that.options.id, data:that._getCurrentData()});
             },0);
           }
@@ -14075,6 +14078,9 @@ fontdetect = function()
         that.initialized = true;
         if(that.post) {
           setTimeout(function(){
+            if(!that.post.storage["utSticker_" + that.options.id + "_pos"]) {
+              that._savePosition();
+            }
             $content.trigger(events.ready, {id:that.options.id, data:that._getCurrentData()});
           },0);
         }
