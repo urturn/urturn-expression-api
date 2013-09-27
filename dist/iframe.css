@@ -1948,7 +1948,7 @@ you can use the generic selector below, but it's slower:
   text-align: center;
   vertical-align: middle;
   background-position: 50% 50%;
-  background-size: 100% 100%;
+  background-size: cover;
   background-repeat: no-repeat;
 }
 

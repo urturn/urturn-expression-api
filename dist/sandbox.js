@@ -308,7 +308,7 @@ UT.touchEventFix = (function (global, isIframe) {
   return returnObj;
 }(window, true));
 
-__STACK_JQUERY_JS = [];
+__STACK_JQUERY_JS = null;
 
 ; (function(UT, window, document, undefined){
   "use strict";

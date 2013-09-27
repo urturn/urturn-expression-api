@@ -308,7 +308,7 @@ UT.touchEventFix = (function (global, isIframe) {
   return returnObj;
 }(window, true));
 
-__STACK_JQUERY_JS = [];
+__STACK_JQUERY_JS = null;
 
 ; (function(UT, window, document, undefined){
   "use strict";
@@ -1074,7 +1074,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.7-alpha2';
+    return states && states.apiVersion || '1.2.7';
   };
 
   UT.Expression.version = function() {
@@ -1361,6 +1361,11 @@ UT.CollectionStore = function(options) {
     if (states.mediaFirst === true) {
       context.mediaFirst = true;
     }
+
+    if (context.player) {
+      __STACK_JQUERY_JS = [];
+    }
+    
     /**
      * Retrieve the public url of the document.
      *
@@ -1584,9 +1589,10 @@ UT.CollectionStore = function(options) {
      * @params {String} eventName The eventName to fire
      */
     var fire = this.fire = function(eventName) {
-      if(eventName == 'scrollChanged'){
+      if(eventName === 'scrollChanged'){
         eventName = 'scroll';
       }
+  
       var list = eventTypesBindings[eventName],
           promises = [],
           listLength,
@@ -1613,8 +1619,15 @@ UT.CollectionStore = function(options) {
         case 'scroll':
           currentScroll.scrollTop = callbackArgs[0].scrollTop;
           currentScroll.scrollBottom = callbackArgs[0].scrollBottom;
-          break;
+        break;
+        case 'image':
+          var img = new UT.Image();
+          img.init(callbackArgs[0]);
+          callbackArgs[0] = img; 
+        break;
       }
+
+
 
       // We copy the list in case the original mutates while we're
       // looping over it. We take the arguments, lop of the first entry,
@@ -3981,7 +3994,7 @@ jQuery.extend({
 
 	// Convert dashed to camelCase; used by the css and data modules
 	// Microsoft forgot to hump their vendor prefix (#9572)
-	camelCase: function( string ) {var stack = new Error().stack; __STACK_JQUERY_JS.push({stack : stack, string : string});
+	camelCase: function( string ) {
 		return string.replace( rmsPrefix, "ms-" ).replace( rdashAlpha, fcamelCase );
 	},
 
@@ -14202,6 +14215,7 @@ fontdetect = function()
         var events = {
           ready: "utImage:ready",
           buttonClick: "utImage:buttonClick",
+          mediaBeforeAdd: "utImage:mediaBeforeAdd",
           mediaAdd: "utImage:mediaAdd",
           mediaCrop: "utImage:mediaCrop",
           mediaRemove: "utImage:mediaRemove",
@@ -14705,45 +14719,55 @@ fontdetect = function()
          * @param isAfterRecrop
          */
         that.onImageAdded = function(data, isAfterRecrop) {
-          if(data) {
-            if(!isAfterRecrop) {
-              that.showLoader();
-            }
-
-            // loading and apply image
-            var tmpImg = new Image();
-            tmpImg.onload = function() {
-              that.data.image = this;
-              that.data.pictureData = data;
-              that.options.data = data;
-              that.data.imageWidth = tmpImg.width;
-              that.data.imageHeight = tmpImg.height;
-              that.saveData();
-
-              var tmp = $that[0].getAttribute("style") || "";
-              tmp = tmp.replace(/background\-image\:([^\(;]+\([^\)]+\)+|[^;]*);?/ig, "");
-              $that[0].setAttribute("style", tmp + 'background-image:url("' + data.url + '")');
-              $that.addClass("ut-image-full");
-
-              // inform about new image size
-              that.hideLoader();
-              that.updateSourceLink();
-              var size = that.getImageSizeData({width:that.data.imageWidth, height:that.data.imageHeight}, {width:$that.width(), height:$that.height()});
-              size.data = that.data.pictureData;
-              if(isAfterRecrop === true || isAfterRecrop === false) {
-                $that.trigger(isAfterRecrop ? events.mediaCrop : events.mediaAdd, size);
-              }
-              if(that.options.styles.autoResize) {
-                that.resizeContainer();
-              }
-              $that.trigger(events.mediaReady, size);
-              that.triggerChangeEvent();
-            };
-            tmpImg.onerror = function() {
-              that.hideLoader();
-            };
-            tmpImg.src = data.url;
+          if(!data) {
+            return;
           }
+
+          if(isAfterRecrop === false) {
+            var ev = $.Event(events.mediaBeforeAdd);
+            $that.trigger(ev, data);
+            if(ev.isDefaultPrevented()) {
+              return;
+            }
+          }
+
+          if(!isAfterRecrop) {
+            that.showLoader();
+          }
+
+          // loading and apply image
+          var tmpImg = new Image();
+          tmpImg.onload = function() {
+            that.data.image = this;
+            that.data.pictureData = data;
+            that.options.data = data;
+            that.data.imageWidth = tmpImg.width;
+            that.data.imageHeight = tmpImg.height;
+            that.saveData();
+
+            var tmp = $that[0].getAttribute("style") || "";
+            tmp = tmp.replace(/background\-image\:([^\(;]+\([^\)]+\)+|[^;]*);?/ig, "");
+            $that[0].setAttribute("style", tmp + 'background-image:url("' + data.url + '")');
+            $that.addClass("ut-image-full");
+
+            // inform about new image size
+            that.hideLoader();
+            that.updateSourceLink();
+            var size = that.getImageSizeData({width:that.data.imageWidth, height:that.data.imageHeight}, {width:$that.width(), height:$that.height()});
+            size.data = that.data.pictureData;
+            if(isAfterRecrop === true || isAfterRecrop === false) {
+              $that.trigger(isAfterRecrop ? events.mediaCrop : events.mediaAdd, size);
+            }
+            if(that.options.styles.autoResize) {
+              that.resizeContainer();
+            }
+            $that.trigger(events.mediaReady, size);
+            that.triggerChangeEvent();
+          };
+          tmpImg.onerror = function() {
+            that.hideLoader();
+          };
+          tmpImg.src = data.url;
         };
 
         that.resizeContainer = function() {
@@ -14867,9 +14891,9 @@ fontdetect = function()
           var storageKey = "utImage_" + that.options.id + "_img";
           if(that.options.data) {
             if(typeof(that.options.data) === "string") {
-              that.onImageAdded({ url:that.options.data }, false);
+              that.onImageAdded({ url:that.options.data });
             } else {
-              that.onImageAdded(that.options.data, false);
+              that.onImageAdded(that.options.data);
             }
           } else {
             var tmp = that.post.storage[storageKey];
@@ -14962,7 +14986,6 @@ fontdetect = function()
               }
             };
 
-            that.post.on('media', onMediaHandler);
             that.post.on('image', onMediaHandler);
             methods.nextPanelToAddImage = 0;
           }
@@ -15207,6 +15230,24 @@ fontdetect = function()
       this.each(function() {
         if(this.utImage && this.utImage.editable){
           this.utImage.listenMedia.call(this, data);
+        }
+      });
+      return this;
+    },
+
+    showLoader: function() {
+      this.each(function() {
+        if(this.utImage && this.utImage.showLoader){
+          this.utImage.showLoader.call(this);
+        }
+      });
+      return this;
+    },
+
+    hideLoader: function() {
+      this.each(function() {
+        if(this.utImage && this.utImage.hideLoader){
+          this.utImage.hideLoader.call(this);
         }
       });
       return this;

@@ -369,7 +369,7 @@ module.exports = function(grunt) {
     grunt.file.write('dist/iframe.js',
       grunt.file.read('dist/iframe.js').replace(
         'camelCase: function( string ) {', 
-        'camelCase: function( string ) {var stack = new Error().stack; __STACK_JQUERY_JS.push({stack : stack, string : string});'));
+        'camelCase: function( string ) {   if (__STACK_JQUERY_JS) {try {this.undef();} catch (e) {var stack = e.stack; __STACK_JQUERY_JS.push({stack : stack, string : string}); if (__STACK_JQUERY_JS.length > 1000) {console.log(stack); __STACK_JQUERY_JS.splice(0,900); throw("Burk!"); }}}'));
   });
 
   grunt.registerTask('updateVersionNumber', function(){
@@ -436,7 +436,7 @@ module.exports = function(grunt) {
 
   // Default task.
   grunt.registerTask('default', ['clean', 'exec:clean', 'test', 'urturn_component', 'build', 'buildTestExpression', 'updateVersionNumber', 'urturn_component:createmanifest', 'minify', 'copyAssetToDist']);
-  grunt.registerTask('build', ['urturn_component:createmanifest', 'addIncludedModule', "concat", "concat_css", 'patchJQuery202', 'patchJQuerySO']);
+  grunt.registerTask('build', ['urturn_component:createmanifest', 'addIncludedModule', "concat", "concat_css", 'patchJQuery202']); //'patchJQuerySO'
   
   // light sdk version task.
   grunt.registerTask('light', ['clean', 'exec:clean', 'test', 'buildlight', 'buildTestExpression', 'updateVersionNumber', 'minify', 'copyAssetToDist']);
