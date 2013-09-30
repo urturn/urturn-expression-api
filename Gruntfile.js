@@ -439,8 +439,8 @@ module.exports = function(grunt) {
   grunt.registerTask('build', ['urturn_component:createmanifest', 'addIncludedModule', "concat", "concat_css", 'patchJQuery202']); //'patchJQuerySO'
   
   // light sdk version task.
-  grunt.registerTask('light', ['clean', 'exec:clean', 'test', 'buildlight', 'buildTestExpression', 'updateVersionNumber', 'minify', 'copyAssetToDist']);
-  grunt.registerTask('buildlight', ["concat", "concat_css"]);
+  grunt.registerTask('vanilla', ['clean', 'exec:clean', 'test', 'buildvanilla', 'buildTestExpression', 'updateVersionNumber', 'minify', 'copyAssetToDist']);
+  grunt.registerTask('buildvanilla', ["concat", "concat_css"]);
   
   // simple sdk version task.
   grunt.registerTask('simple', ['clean', 'exec:clean', 'test', 'urturn_simple_component', 'buildSimple', 'buildTestExpression', 'updateVersionNumber', 'urturn_simple_component:createmanifest', 'minify', 'copyAssetToDist']);
