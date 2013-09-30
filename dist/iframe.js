@@ -1074,7 +1074,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.8-alpha1';
+    return states && states.apiVersion || '1.2.8';
   };
 
   UT.Expression.version = function() {
@@ -1123,6 +1123,7 @@ UT.CollectionStore = function(options) {
       _callAPI(__callAPIStack[i].methodName, __callAPIStack[i].args, __callAPIStack[i].callback);
       ++i;
     }
+    __callAPIStack = [];
   };
 
   /**
@@ -1881,8 +1882,9 @@ UT.CollectionStore = function(options) {
      */
     var display = this.display = function() {
       _isDisplay = true;
-      UT.Expression._callAPI('container.display', [], function (){});       
       UT.Expression._resolveCallAPIStack();
+      UT.Expression._callAPI('container.display', [], function (){});       
+
     };
 
     /**
