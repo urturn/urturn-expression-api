@@ -145,7 +145,7 @@ module.exports = function(grunt) {
     }
   };
 
-  config.urturn_component = {
+  config.urturn_simple_component = {
     createmanifest: {
       manifest: {
         main: ['iframe.min.css', 'iframe.min.js'],
@@ -171,7 +171,7 @@ module.exports = function(grunt) {
     }
   };
 
-  config.urturn_simple_component = {
+  config.urturn_component = {
     createmanifest: {
       manifest: {
         main: ['iframe.min.css', 'iframe.min.js'],

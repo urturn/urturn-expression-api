@@ -1,6 +1,6 @@
 {
   "name": "urturn-expression-api",
-  "version": "1.2.9",
+  "version": "1.2.9-simple",
   "dependencies": {
     "jquery": "~2.0.0"
   },
@@ -10,10 +10,7 @@
     "jquery",
     "FontDetect",
     "jquery-textfill",
-    "jquery.ut-sticker",
     "jquery.ut-image",
-    "jquery.ut-audio",
-    "jquery.ut-video",
     "jquery.ut-text"
   ],
   "main": [
