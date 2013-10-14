@@ -317,6 +317,7 @@ module.exports = function(grunt) {
     sourcesAssets.forEach( function(filepath) {
       if(grunt.file.isFile(filepath)){
         grunt.file.copy(filepath, path.join('dist', filepath));
+        grunt.file.copy(filepath, path.join('archive/' + info.version , filepath));
       } else {
         grunt.log.writeln(filepath + " is not a file.");
       }
@@ -438,6 +439,7 @@ module.exports = function(grunt) {
       "jquery.ut-text"
     ];
   });
+
 
   // Default task.
   grunt.registerTask('default', ['clean', 'exec:clean', 'test', 'urturn_component', 'build', 'buildTestExpression', 'updateVersionNumber', 'urturn_component:createmanifest', 'minify', 'copyAssetToDist']);
