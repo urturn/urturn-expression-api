@@ -124,7 +124,7 @@ module.exports = function(grunt) {
         bucket: configs.bucket,
         distribution: configs.distribution,
         files: {
-          'dist_gz/**/*': '/expression/lib/urturn-expression-api/' + info.version
+          'dist_gz/**/*': '/expression/lib/urturn-expression-api/'
         }
       };
     };
@@ -246,7 +246,7 @@ module.exports = function(grunt) {
         return;
       }
       var filepath = source.replace(/^.*?\//, '').replace(/\.gz$/, '');
-      files[source] = this.data.files[pattern] + '/' + filepath;
+      files[source] = this.data.files[pattern] +  info.version + '/' + filepath;
       console.log(source, files[source]);
     }.bind(this);
     for(var pattern in this.data.files){
@@ -458,4 +458,6 @@ module.exports = function(grunt) {
   grunt.registerTask('test', ['jshint', 'filecheck', 'mocha']);
   grunt.registerTask('publish', ['exec:tag', 'exec:npmpublish']);
   grunt.registerTask('deploy', ['compress', 's3deploy']);
+  grunt.registerTask('deploysimple', ['tagSimple', 'compress', 's3deploy']);
+  grunt.registerTask('deployvanilla', ['tagVanilla', 'compress', 's3deploy']);
 };
