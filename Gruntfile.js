@@ -392,6 +392,10 @@ module.exports = function(grunt) {
         console.log('Includes component', comp.name);
         var pathMap = {};
         var fileToRebind = [];
+        
+        if (!comp.main && comp.name == 'jquery-textfill') {
+          comp.main = ['jquery.textfill.js'];
+        }
         comp.main.forEach(function(f){
           var filepath = path.join(comp.basedir, f);
           if (filepath.match(/\.js$/)) {
@@ -403,6 +407,7 @@ module.exports = function(grunt) {
             sourcesAssets.push(filepath);
           }
         });
+
         comp.assets.forEach(function(f){
           var filepath = path.join(comp.basedir, f);
           pathMap[f] = filepath;
