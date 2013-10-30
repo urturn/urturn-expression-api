@@ -1,6 +1,6 @@
 {
   "name": "urturn-expression-api",
-  "version": "1.2.9-alpha1",
+  "version": "1.2.9-alpha1-simple",
   "dependencies": {
     "jquery": "~2.0.0"
   },
