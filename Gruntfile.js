@@ -191,7 +191,7 @@ module.exports = function(grunt) {
 
   config.exec = {
     clean: {
-      cmd: "bower cache-clean"
+      cmd: "bower cache clean"
     },
     tag: {
       cmd: "git tag v" + info.version + " && git push --tags"
