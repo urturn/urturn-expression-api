@@ -227,6 +227,7 @@ module.exports = function(grunt) {
 
   // Declare the S3 grunt Task
   grunt.registerMultiTask('s3deploy', 'Deploying built file on AWS s3', function() {
+    console.log('Will deploy on', this.data.bucket);
     var done = this.async();
     var knox = require('knox');
     var cloudfront = require('cloudfront');
@@ -347,7 +348,7 @@ module.exports = function(grunt) {
   grunt.registerTask('patchJQuerySO', function(){
     grunt.file.write('dist/iframe.js',
       grunt.file.read('dist/iframe.js').replace(
-        'camelCase: function( string ) {', 
+        'camelCase: function( string ) {',
         'camelCase: function( string ) {   if (__STACK_JQUERY_JS) {try {this.undef();} catch (e) {var stack = e.stack; __STACK_JQUERY_JS.push({stack : stack, string : string}); if (__STACK_JQUERY_JS.length > 1000) {console.log(stack); __STACK_JQUERY_JS.splice(0,900); throw("Burk!"); }}}'));
   });
 
@@ -377,7 +378,7 @@ module.exports = function(grunt) {
     updateInBower(info.version);
   });
 
-  
+
 
   grunt.registerTask('addIncludedModule', function(){
     var Component = require('grunt-urturn-component/component');
@@ -387,12 +388,12 @@ module.exports = function(grunt) {
     var component = Component.fromOptions(info);
 
     component.eachInclude(function(comp){
-   
+
       if (!selectedComponents.length || selectedComponents.indexOf(comp.name) != -1) {
         console.log('Includes component', comp.name);
         var pathMap = {};
         var fileToRebind = [];
-        
+
         if (!comp.main && comp.name == 'jquery-textfill') {
           comp.main = ['jquery.textfill.js'];
         }
@@ -433,7 +434,7 @@ module.exports = function(grunt) {
   });
 
 
-  grunt.registerTask('select_simple_component', function() {    
+  grunt.registerTask('select_simple_component', function() {
     selectedComponents =[
       "fastclick",
       "urturn-expression-css",
@@ -449,15 +450,15 @@ module.exports = function(grunt) {
   // Default task.
   grunt.registerTask('default', ['clean', 'exec:clean', 'test', 'urturn_component', 'build', 'buildTestExpression', 'updateVersionNumber', 'urturn_component:createmanifest', 'minify', 'copyAssetToDist']);
   grunt.registerTask('build', ['urturn_component:createmanifest', 'addIncludedModule', "concat", "concat_css", 'patchJQuery202']); //'patchJQuerySO'
-  
+
   // light sdk version task.
   grunt.registerTask('vanilla', ['tagVanilla', 'clean', 'exec:clean', 'test', 'buildvanilla', 'buildTestExpression', 'updateVersionNumber', 'minify', 'copyAssetToDist']);
   grunt.registerTask('buildvanilla', ["concat", "concat_css"]);
-  
+
   // simple sdk version task.
   grunt.registerTask('simple', ['tagSimple', 'select_simple_component', 'clean', 'exec:clean', 'test', 'urturn_component', 'buildSimple', 'buildTestExpression', 'updateVersionNumber', 'urturn_component:createmanifest', 'minify', 'copyAssetToDist']);
   grunt.registerTask('buildSimple', ['urturn_component:createmanifest', 'addIncludedModule', "concat", "concat_css", 'patchJQuery202']);
-  
+
   grunt.registerTask('dependencies', ['urturn_component']);
   grunt.registerTask('minify', ['uglify', 'cssmin']);
   grunt.registerTask('test', ['jshint', 'filecheck', 'mocha']);
