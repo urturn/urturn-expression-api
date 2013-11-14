@@ -2,6 +2,11 @@
 
 # Changelogs
 
+## 1.2.10
+UPDATED: The handling of post.note property changed.
+ADDED: post.on('noteUpdated', fn) event
+See http://developers.urturn.com/reference/post.html#sect_19 for more informations
+
 ## 1.2.5
 - ADDED : UT.preloader to preload expression assets
 
