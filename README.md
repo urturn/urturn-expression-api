@@ -2,6 +2,9 @@
 
 # Changelogs
 
+## 1.2.12
+ADDED: UT.Image deal with SVG both in input and output.
+
 ## 1.2.10
 UPDATED: The handling of post.note property changed.
 ADDED: post.on('noteUpdated', fn) event
