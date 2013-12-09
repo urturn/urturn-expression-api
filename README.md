@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/urturn/urturn-expression-api.png?branch=master)](https://travis-ci.org/urturn/urturn-expression-api)
-
 # Changelogs
 
 ## 1.2.12
