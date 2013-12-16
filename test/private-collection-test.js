@@ -125,7 +125,6 @@
           var marshallCalled = 0;
           var item = {
             marshall: function(){
-              console.log('SAVE');
               marshallCalled ++;
               return {};
             }
