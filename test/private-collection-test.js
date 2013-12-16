@@ -121,6 +121,31 @@
           expect(collection.getItem('dotSyntax').comment).to.be('My Object') ;
           expect(collection.getItem('dotSyntax').dotSyntax).not.to.be.ok();
         });
+        it('detect object with a _dirty key has keys to update', function() {
+          var marshallCalled = 0;
+          var item = {
+            marshall: function(){
+              console.log('SAVE');
+              marshallCalled ++;
+              return {};
+            }
+          };
+          collection.setItem('tt', item);
+          collection.save();
+          expect(marshallCalled).to.be(1);
+
+          collection.save();
+          expect(marshallCalled).to.be(1);
+          item.bob = 'test';
+          collection.save();
+          expect(marshallCalled).to.be(1);
+
+          item._dirty = true;
+          collection.save();
+          expect(item._dirty).to.be(undefined);
+          expect(marshallCalled).to.be(2);
+          expect(item._dirty).not.to.be.ok();
+        });
       });
     });
 
