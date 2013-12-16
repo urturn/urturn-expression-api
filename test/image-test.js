@@ -157,12 +157,12 @@
           url: imageURL,
           svgTemplate: templateSVG,
           svgCssSelector: 'image[xlink:href]',
-          rasterURL: rasterizedImageURL
+          rasterUrl: rasterizedImageURL
         });
       });
 
-      it('has a rasterURL', function() {
-        expect(this.image.rasterURL).to.be(rasterizedImageURL);
+      it('has a rasterUrl', function() {
+        expect(this.image.rasterUrl).to.be(rasterizedImageURL);
       });
 
       it('retrieve an img node whose src is the raster URL', function(done) {
