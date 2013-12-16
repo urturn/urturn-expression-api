@@ -270,7 +270,6 @@ module.exports = function(grunt) {
 
     function doUpload(src, dest, retry, callback){
       var headers = {'x-amz-acl': 'public-read'};
-      // Define cache controle policy (no-cache if -beta, -alpha or -rc)
       headers['Cache-Control'] = "public, max-age=" + 60*60*24*365;
       headers['Content-Encoding'] = 'gzip';
       var mimeType = mime.lookup(dest.replace(/\.gz/, ''));
