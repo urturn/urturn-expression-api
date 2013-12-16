@@ -417,6 +417,7 @@ __STACK_JQUERY_JS = null;
 
     this.save = function() {
       bindNewKeys();
+      addDirtyObjects();
       var itemsToSave = {};
       if(dirtyKeys.length > 0) {
         for(var i = 0; i < dirtyKeys.length; i++) {
@@ -511,16 +512,39 @@ __STACK_JQUERY_JS = null;
       }
     };
 
-    var bindNewKeys = function() {
+    // retrieve properties defined on this that
+    // are not reserved keywords.
+    var eachItemProperties = function(fn) {
       var keys = Object.keys(self);
       for(var i = keys.length - 1; i >= 0; i--) {
         var key = keys[i];
-        if(!UT.Collection.isReservedKey(key) && boundKeys.indexOf(key) == -1) {
-          setItem(key, self[key]);
-          bindItem(key, self[key]);
+        if(!UT.Collection.isReservedKey(key)) {
+          fn(key, self[key]);
         }
       }
     };
+
+    var addDirtyObjects = function() {
+      for (var i = self.length - 1; i >= 0; i--) {
+        var k = self.key(i),
+            v = self.getItem(k);
+
+        if (v && v.hasOwnProperty('_dirty') && v._dirty && dirtyKeys.indexOf(k) === -1) {
+          delete v._dirty;
+          self.setItem(k, v);
+        }
+      }
+    };
+
+    var bindNewKeys = function() {
+      eachItemProperties(function(k,v) {
+        if (boundKeys.indexOf(k) === -1) {
+          setItem(k, v);
+          bindItem(k, v);
+        }
+      });
+    };
+
     initialize(options);
   };
 
