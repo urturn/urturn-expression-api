@@ -1098,7 +1098,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.12-alpha1';
+    return states && states.apiVersion || '1.2.12-alpha2';
   };
 
   UT.Expression.version = function() {
@@ -1119,7 +1119,7 @@ UT.CollectionStore = function(options) {
     if (methodName == 'collections.save' && !postInstance.isDisplay()) {
       __callAPIStack.push({methodName : methodName, args : args, callback : function() {}});
       if (callback) {
-          callback();
+          callback(); 
       }
       return;
     }
@@ -2103,6 +2103,12 @@ UT.CollectionStore = function(options) {
       return staticState || __static_state;
     };
 
+
+    var setInteractionMap = this.setInteractionMap = function(map) {
+      UT.Expression._callAPI('document.setInteractionMap', [map], function() {
+      });
+    };
+
     /**
      * autoLink
      * Parse text to convert @mentions and #hashtags
@@ -2322,7 +2328,7 @@ UT.CollectionStore = function(options) {
      * a rasterized version might be created by our server to
      * be used in place of the current image + filters.
      */
-    this.rasterURL = null;
+    this.rasterUrl = null;
 
     /**
      * A set of metadata about this item
@@ -2465,8 +2471,8 @@ UT.CollectionStore = function(options) {
       try {
         return {
           img: function(callback) {
-            if (this.rasterURL) {
-              _loadImage(this.rasterURL, callback);
+            if (this.rasterUrl) {
+              _loadImage(this.rasterUrl, callback);
             } else if (this.svgTemplate) {
               callback(null, new Error('No Raster Image'));
             } else {
@@ -2664,7 +2670,7 @@ UT.CollectionStore = function(options) {
         if (imageDescriptor.svgTemplate) {
           this.svg(imageDescriptor.svgTemplate, imageDescriptor.svgCssSelector || 'image[xlink:href]');
         }
-        this.rasterURL = imageDescriptor.rasterURL;
+        this.rasterUrl = imageDescriptor.rasterUrl;
 
         // general descriptor and info
         this.descriptor = imageDescriptor;
