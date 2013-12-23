@@ -72,7 +72,6 @@
         var image = new UT.Image({svgTemplate: svg});
         var json = JSON.stringify(image);
         expect(json).to.be.ok();
-        console.log(json);
         var data = JSON.parse(json);
         expect(data.svgTemplate).to.be.ok();
         expect(data.svgTemplate).to.be.a('string');
@@ -90,9 +89,13 @@
           .svg(templateSVG, 'image[xlink:href]')
           .svg(function(svg) {
             expect(svg.getAttribute('class')).to.be('ut-image-view');
-            expect(svg.querySelector('image').getAttribute('xlink:href')).to.be(imageURL);
+            expect(svg.querySelector('image').getAttribute('xlink:href')).to.contain(imageURL);
             done();
           });
+      });
+
+      it('flag the image as dirty', function() {
+        expect(this.image.svg(templateSVG, 'image[xlink:href]')._dirty).to.be(true);
       });
 
       it('can be added as a svg element to an image', function(done) {
@@ -101,7 +104,7 @@
           .svg(template, 'image[xlink:href]')
           .svg(function(svg) {
             expect(svg.getAttribute('class')).to.be('ut-image-view');
-            expect(svg.querySelector('image').getAttribute('xlink:href')).to.be(imageURL);
+            expect(svg.querySelector('image').getAttribute('xlink:href')).to.contain(imageURL);
             done();
           });
       });
@@ -139,12 +142,12 @@
           url: imageURL,
           svgTemplate: this.template
         });
-        expect(this.template.querySelector('image').getAttribute('xlink:href')).to.be(imageURL);
+        expect(this.template.querySelector('image').getAttribute('xlink:href')).to.contain(imageURL);
       });
 
       it('update the template if its an SVGElement', function(){
         this.image.svg(this.template);
-        expect(this.template.querySelector('image').getAttribute('xlink:href')).to.be(imageURL);
+        expect(this.template.querySelector('image').getAttribute('xlink:href')).to.contain(imageURL);
       });
 
       it('toJSON updated version of the svg tag', function() {
@@ -188,7 +191,7 @@
       it('get editable version of rasterized image', function(done) {
         this.image.node('svg', function(svg) {
           expect(svg.nodeName).to.be('svg');
-          expect(svg.querySelector('image').getAttribute('xlink:href')).to.be(imageURL);
+          expect(svg.querySelector('image').getAttribute('xlink:href')).to.contain(imageURL);
           done();
         });
       });
@@ -215,6 +218,24 @@
           expect(img.height).to.be(404);
           done();
         });
+      });
+    });
+
+    describe('absolutURL', function() {
+      it('works with absolute HTTP url', function() {
+        var img = new UT.Image({url: 'http://absolute/test.jpg'});
+        expect(img.absoluteUrl()).to.be('http://absolute/test.jpg');
+      });
+      it('works with /url', function() {
+        var img = new UT.Image({url: '/test.jpg'});
+        expect(img.absoluteUrl()).to.be(window.location.protocol + '//' + window.location.host + '/test.jpg');
+      });
+      it('works with relative url', function() {
+        var img = new UT.Image({url: 'test.jpg'});
+        var parts = window.location.pathname.split('/');
+        parts.pop();
+
+        expect(img.absoluteUrl()).to.be(window.location.protocol + '//' + window.location.host + parts.join('/') +'/test.jpg');
       });
     });
 

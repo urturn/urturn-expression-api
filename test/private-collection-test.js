@@ -265,6 +265,20 @@
           }
         }
       });
+      it('let you save image with template', function() {
+        var image = new UT.Image({url: 'http://image/image.jpg'});
+        image.svg('<svg></svg>', 'image');
+        collection.setItem('img', image);
+        collection.save();
+        var message = dataDelegate.operations.pop();
+        expect(message).to.be.ok();
+        var img = message.items.img;
+        expect(img).to.be.ok();
+        expect(img.svgTemplate).to.be.ok();
+        expect(img.svgCssSelector).to.be.ok();
+        expect(img.svgTemplate).to.be('<svg></svg>');
+        expect(img.svgCssSelector).to.be('image');
+      });
       it('let you save sound', function() {
         var url = 'http://www.xyz.cz';
         var sound = new UT.Sound({url: url});

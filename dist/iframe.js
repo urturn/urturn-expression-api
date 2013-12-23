@@ -1087,7 +1087,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.12-alpha1';
+    return states && states.apiVersion || '1.2.12-test1';
   };
 
   UT.Expression.version = function() {
@@ -2092,6 +2092,12 @@ UT.CollectionStore = function(options) {
       return staticState || __static_state;
     };
 
+
+    var setInteractionMap = this.setInteractionMap = function(map) {
+      UT.Expression._callAPI('document.setInteractionMap', [map], function() {
+      });
+    };
+
     /**
      * autoLink
      * Parse text to convert @mentions and #hashtags
@@ -2287,7 +2293,7 @@ UT.CollectionStore = function(options) {
   };
 })(UT, window, document, undefined);
 
-(function(document, undefined) {
+(function(document, window, undefined) {
   var RE_CSS_INJECTION_SELECTOR = /^((?:[\w\s#,.<>]|(?:\[[\w\:]+\=[\w\:'"]+\]))*)(?:\[([\w\:]+)\])?$/;
   var RE_DATA_URL_SVG = /data\:image\/svg\+xml;/;
   var SVG_NS_URL = "http://www.w3.org/2000/svg";
@@ -2563,7 +2569,7 @@ UT.CollectionStore = function(options) {
       } else {
         _setSVG.apply(this, arguments);
       }
-
+      this._dirty = true;
       return this;
     };
 
@@ -2590,12 +2596,30 @@ UT.CollectionStore = function(options) {
           var element = matches[1] && svg.querySelector(matches[1]) || svg;
           var attribute = matches[2];
           if (attribute) {
-            element.setAttribute(attribute, this.url);
+            switch(attribute) {
+              case 'xlink:href':
+                element.setAttributeNS(XLINK_NS_URL, 'xlink:href', this.absoluteUrl());
+                break;
+              default:
+                console.log('unsupported attribute', attribute);
+            }
           } else {
-            element.appendChild(_buildImage(this.url));
+            element.appendChild(_buildImage(this.absoluteUrl()));
           }
         }
       }
+    };
+
+    this.absoluteUrl = function() {
+      if (this.url && this.url.match(/^(https?\:)?\/\//)) {
+        return this.url;
+      }
+      if (this.url && this.url[0] != '/') {
+        var parts = window.location.pathname.split('/');
+        parts.pop();
+        return window.location.protocol + '//' + window.location.host + parts.join('/') + '/' + this.url;
+      }
+      return window.location.protocol + '//' + window.location.host + this.url;
     };
 
     this._removeInjectedImage = function(svg) {
@@ -2672,7 +2696,7 @@ UT.CollectionStore = function(options) {
     }
   };
 
-}(document));
+}(document, window));
 /**
  * An video object return by create('video');
  * Use it to manipulate a video (crop and filters comming in futur)
