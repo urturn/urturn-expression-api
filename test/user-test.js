@@ -28,7 +28,7 @@
       expect(u.numberOfUse).to.be(50);
     });
     it('marshalling', function() {
-      expect(this.user.marshall()).to.eql({_type: 'user', uuid: this.uuid});
+      expect(this.user.toJSON()).to.eql({_type: 'user', uuid: this.uuid});
     });
   });
 })();

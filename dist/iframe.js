@@ -585,8 +585,8 @@ __STACK_JQUERY_JS = null;
   };
 
   UT.Collection.marshallItem = function(item){
-    if(item && item.marshall){
-      return item.marshall();
+    if(item && item.toJSON){
+      return item.toJSON();
     } else if(item !== undefined && item !== null) {
       return item;
     } else {
@@ -839,17 +839,6 @@ UT.CollectionStore = function(options) {
 
     this.toString = function() {
       return '<PublicCollection @name="' + this.name + '">';
-    };
-
-
-    var marshall = function(item){
-      if(item && item.marshall){
-        return item.marshall();
-      } else if(item) {
-        return item;
-      } else {
-        return null; // item to delete
-      }
     };
 
     this.save = function() {
@@ -1119,7 +1108,7 @@ UT.CollectionStore = function(options) {
     if (methodName == 'collections.save' && !postInstance.isDisplay()) {
       __callAPIStack.push({methodName : methodName, args : args, callback : function() {}});
       if (callback) {
-          callback();
+          callback(); 
       }
       return;
     }
@@ -1254,7 +1243,7 @@ UT.CollectionStore = function(options) {
     this.numberOfUse = userDescriptor.numberOfUse;
   };
 
-  UT.User.prototype.marshall = function(){
+  UT.User.prototype.toJSON = function(){
     return { _type: 'user', uuid: this.uuid };
   };
 })(UT);
@@ -2322,7 +2311,7 @@ UT.CollectionStore = function(options) {
      * a rasterized version might be created by our server to
      * be used in place of the current image + filters.
      */
-    this.rasterURL = null;
+    this.rasterUrl = null;
 
     /**
      * A set of metadata about this item
@@ -2422,7 +2411,7 @@ UT.CollectionStore = function(options) {
      );
     };
 
-    this.marshall = function() {
+    this.toJSON = function() {
       this.descriptor._type = 'image';
       if (this.svgTemplate) {
         this.descriptor.svgTemplate = this._svgTemplateString();
@@ -2465,8 +2454,8 @@ UT.CollectionStore = function(options) {
       try {
         return {
           img: function(callback) {
-            if (this.rasterURL) {
-              _loadImage(this.rasterURL, callback);
+            if (this.rasterUrl) {
+              _loadImage(this.rasterUrl, callback);
             } else if (this.svgTemplate) {
               callback(null, new Error('No Raster Image'));
             } else {
@@ -2664,7 +2653,7 @@ UT.CollectionStore = function(options) {
         if (imageDescriptor.svgTemplate) {
           this.svg(imageDescriptor.svgTemplate, imageDescriptor.svgCssSelector || 'image[xlink:href]');
         }
-        this.rasterURL = imageDescriptor.rasterURL;
+        this.rasterUrl = imageDescriptor.rasterUrl;
 
         // general descriptor and info
         this.descriptor = imageDescriptor;
@@ -2704,7 +2693,7 @@ UT.Video = function(videoDescriptor) {
 	 */
 	this.type = 'video';
 
-	this.marshall = function(){
+	this.toJSON = function(){
 		descriptor.url = this.url;
 		descriptor._type = 'video';
 		descriptor.appData = this.appData;
@@ -2809,7 +2798,7 @@ UT.Sound = function(soundDescriptor) {
 		this.appData = soundDescriptor.appData;
 	}
 
-	this.marshall = function(){
+	this.toJSON = function(){
 		return {
 			_type: 'sound',
 			service: this.service,

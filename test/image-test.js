@@ -66,6 +66,19 @@
       });
     });
 
+    describe('toJSON', function() {
+      it('can be serialized to JSON natively when a SVG tag exists', function(){
+        var svg = html(templateSVG);
+        var image = new UT.Image({svgTemplate: svg});
+        var json = JSON.stringify(image);
+        expect(json).to.be.ok();
+        console.log(json);
+        var data = JSON.parse(json);
+        expect(data.svgTemplate).to.be.ok();
+        expect(data.svgTemplate).to.be.a('string');
+      });
+    });
+
     describe('SVG templates', function() {
       beforeEach(function() {
         this.image = new UT.Image(imageURL);
@@ -96,14 +109,14 @@
       it('marshalled with the image', function() {
         var data = this.image
           .svg(templateSVG)
-          .marshall();
+          .toJSON();
         expect(data.svgTemplate).to.be(templateSVG);
         expect(data.svgCssSelector).to.be(data.svgCssSelector);
       });
 
       it('not marshalled in standard image after its NOT svg rendering', function(done) {
         this.image.svg(function(){
-          expect(this.marshall().svgTemplate).to.be(undefined);
+          expect(this.toJSON().svgTemplate).to.be(undefined);
           done();
         });
       });
@@ -118,7 +131,7 @@
         };
         this.image = new UT.Image(descriptor);
         expect(this.image.svgTemplate).to.be(templateSVG);
-        expect(this.image.marshall(this.image)).to.eql(descriptor);
+        expect(this.image.toJSON()).to.eql(descriptor);
       });
 
       it('update the template at creation if its an SVGElement', function() {
@@ -134,9 +147,9 @@
         expect(this.template.querySelector('image').getAttribute('xlink:href')).to.be(imageURL);
       });
 
-      it('marshall updated version of the svg tag', function() {
+      it('toJSON updated version of the svg tag', function() {
         this.image.svg(this.template);
-        var actual = this.image.marshall().svgTemplate;
+        var actual = this.image.toJSON().svgTemplate;
         expect(actual.match(/xlink:href/)).to.be(null);
         expect(this.template.querySelector('image').getAttribute('xlink:href')).to.be.ok();
       });

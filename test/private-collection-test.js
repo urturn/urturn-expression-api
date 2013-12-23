@@ -122,27 +122,27 @@
           expect(collection.getItem('dotSyntax').dotSyntax).not.to.be.ok();
         });
         it('detect object with a _dirty key has keys to update', function() {
-          var marshallCalled = 0;
+          var toJSONCalled = 0;
           var item = {
-            marshall: function(){
-              marshallCalled ++;
+            toJSON: function(){
+              toJSONCalled ++;
               return {};
             }
           };
           collection.setItem('tt', item);
           collection.save();
-          expect(marshallCalled).to.be(1);
+          expect(toJSONCalled).to.be(1);
 
           collection.save();
-          expect(marshallCalled).to.be(1);
+          expect(toJSONCalled).to.be(1);
           item.bob = 'test';
           collection.save();
-          expect(marshallCalled).to.be(1);
+          expect(toJSONCalled).to.be(1);
 
           item._dirty = true;
           collection.save();
           expect(item._dirty).to.be(undefined);
-          expect(marshallCalled).to.be(2);
+          expect(toJSONCalled).to.be(2);
           expect(item._dirty).not.to.be.ok();
         });
       });
@@ -180,7 +180,7 @@
         };
       });
       it('sanitize anonymous object with a marshall function', function() {
-        collection.val = {a:2, marshall: function(){return {a:2};}};
+        collection.val = {a:2, toJSON: function(){return {a:2};}};
         collection.save();
         var message = dataDelegate.operations.pop();
         expect(message).to.be.ok();
@@ -210,7 +210,7 @@
         });
         it('let marshallable objects as it', function() {
           var k = function(){
-            this.marshall = function(){
+            this.toJSON = function(){
               return {m:true};
             };
           };
@@ -249,7 +249,7 @@
         collection.setItem('img', image);
         var act = collection.getItem('img');
         expect(act.url).to.be(url);
-        expect(act.marshall).to.be.ok();
+        expect(act.toJSON).to.be.ok();
 
         collection.save();
         var message = dataDelegate.operations.pop();
@@ -273,7 +273,7 @@
         collection.setItem('img', sound);
         var act = collection.getItem('img');
         expect(act.url).to.be(url);
-        expect(act.marshall).to.be.ok();
+        expect(act.toJSON).to.be.ok();
 
         collection.save();
         var message = dataDelegate.operations.pop();
@@ -297,7 +297,7 @@
         collection.setItem('img', video);
         var act = collection.getItem('img');
         expect(act.url).to.be(url);
-        expect(act.marshall).to.be.ok();
+        expect(act.toJSON).to.be.ok();
 
         collection.save();
         var message = dataDelegate.operations.pop();

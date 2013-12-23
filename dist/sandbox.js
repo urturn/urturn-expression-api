@@ -585,8 +585,8 @@ __STACK_JQUERY_JS = null;
   };
 
   UT.Collection.marshallItem = function(item){
-    if(item && item.marshall){
-      return item.marshall();
+    if(item && item.toJSON){
+      return item.toJSON();
     } else if(item !== undefined && item !== null) {
       return item;
     } else {
@@ -771,17 +771,6 @@ __STACK_JQUERY_JS = null;
 
     this.toString = function() {
       return '<PublicCollection @name="' + this.name + '">';
-    };
-
-
-    var marshall = function(item){
-      if(item && item.marshall){
-        return item.marshall();
-      } else if(item) {
-        return item;
-      } else {
-        return null; // item to delete
-      }
     };
 
     this.save = function() {
