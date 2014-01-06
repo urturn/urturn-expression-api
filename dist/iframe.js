@@ -1087,7 +1087,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.12-test1';
+    return states && states.apiVersion || '1.2.12-test5';
   };
 
   UT.Expression.version = function() {
@@ -2408,12 +2408,13 @@ UT.CollectionStore = function(options) {
      */
     this.editable = function(callback) {
      UT.Expression._callAPI(
-       'medias.getEditableImage',
-       [this.url],
-       function(editableImageUrl) {
-         this.url = editableImageUrl;
-         callback.call(this, this);
-       }.bind(this)
+      'medias.getEditableImage',
+      [this.url],
+      function(editableImageUrl) {
+        console.log('editable image URL:', editableImageUrl);
+        this.url = editableImageUrl;
+        callback.call(this, this);
+      }.bind(this)
      );
     };
 
@@ -2519,6 +2520,8 @@ UT.CollectionStore = function(options) {
        * If no SVG tempalte has been set beforehand, svgElement will be null
        * and err.message will be 'No SVG Template'.
        *
+       * This will mutate the URL to an editable one to avoid cross origin issues.
+       *
        * If svgElement is an actual node, it will be retrieved by reference rather
        * than copied.
        */
@@ -2529,23 +2532,25 @@ UT.CollectionStore = function(options) {
           callback(container.children[0]);
           return;
         } else {
-          _loadImage.call(self, self.url, function(img, err) {
-            if (err) {
-              return callback.call(self, null, err);
-            }
-            var svg;
-            if (self.svgTemplate) { // SVG Text Template to SVG Element
-              if (typeof self.svgTemplate === 'string') {
-                container = document.createElement('div');
-                container.innerHTML = self.svgTemplate;
-                self.svgTemplate = container.children[0];
+          self.editable(function(){
+            _loadImage.call(self, self.url, function(img, err) {
+              if (err) {
+                return callback.call(self, null, err);
               }
-              svg = self.svgTemplate;
-              self._injectImage(svg);
-              callback.call(self, svg);
-            } else {
-              callback.call(self, null, new Error('No SVG Template'));
-            }
+              var svg;
+              if (self.svgTemplate) { // SVG Text Template to SVG Element
+                if (typeof self.svgTemplate === 'string') {
+                  container = document.createElement('div');
+                  container.innerHTML = self.svgTemplate;
+                  self.svgTemplate = container.children[0];
+                }
+                svg = self.svgTemplate;
+                self._injectImage(svg);
+                callback.call(self, svg);
+              } else {
+                callback.call(self, null, new Error('No SVG Template'));
+              }
+            });
           });
         }
       };
@@ -2611,7 +2616,8 @@ UT.CollectionStore = function(options) {
     };
 
     this.absoluteUrl = function() {
-      if (this.url && this.url.match(/^(https?\:)?\/\//)) {
+      // valid strings are (http:, https:, //, data:)
+      if (this.url && this.url.match(/^((https?|data):|\/\/)/)) {
         return this.url;
       }
       if (this.url && this.url[0] != '/') {
