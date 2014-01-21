@@ -30,7 +30,7 @@
     "grunt-notify": "~0.2.4"
   },
   "scripts": {
-    "test": "grunt"
+    "test": "grunt test"
   },
   "repository": {
     "type": "git",
