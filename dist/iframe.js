@@ -1087,7 +1087,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.12-test5';
+    return states && states.apiVersion || '1.2.12-beta1';
   };
 
   UT.Expression.version = function() {
@@ -1812,10 +1812,22 @@ UT.CollectionStore = function(options) {
         // readd visibility
         showNode();
         if(callback){
-          _this.scroll({
-            scrollTop : _scrollPositionTop,
-            scrollBottom : _scrollPositionBottom
-          }, function () {});
+         if (type !== 'text') {
+            _this.scroll({
+              scrollTop : _scrollPositionTop,
+              scrollBottom : _scrollPositionBottom
+            }, function () {});
+          }
+          else {
+            // Hacky : on Mobile Web the keyboard disapear the the browser CENTER on the element
+            // that was edited. If we directly scroll this has no effect
+            setTimeout(function() {
+             _this.scroll({
+              scrollTop :  -1000,
+              scrollBottom : 0
+            }, function () {});
+           }, 1);
+          }
           callback.apply(this, arguments);
         }
       };
@@ -1826,10 +1838,22 @@ UT.CollectionStore = function(options) {
           // readd visibility
           showNode();
           if(errorCallback){
-            _this.scroll({
-              scrollTop : _scrollPositionTop,
-              scrollBottom : _scrollPositionBottom
-            }, function () {});
+            if (type !== 'text') {
+              _this.scroll({
+                scrollTop : _scrollPositionTop,
+                scrollBottom : _scrollPositionBottom
+              }, function () {});
+            }
+            else {
+              // Hacky : on Mobile Web the keyboard disapear the the browser CENTER on the element
+              // that was edited. If we directly scroll this has no effect
+              setTimeout(function() {
+               _this.scroll({
+                scrollTop :  -1000,
+                scrollBottom : 0
+              }, function () {});
+             }, 1);
+            }
             errorCallback.apply(this, arguments);
           }
         };
@@ -1914,6 +1938,7 @@ UT.CollectionStore = function(options) {
     var stopAllOther = this.stopAllOther = function() {
       UT.Expression._callAPI('document.stopAllOther', [], function() {});
     };
+
     /**
      * Ask the container to scroll to the top OR bottom position.
      *
@@ -2009,7 +2034,12 @@ UT.CollectionStore = function(options) {
         app : app,
         parameters : options
       };
-      UT.Expression._callAPI('container.navigate', [opt]);
+      // must trigger window.open synchronously.
+      if (app === 'browse' && states.behaviors.navigate.browseStrategy === 'blank') {
+        window.open(options, '_blank');
+      } else {
+        UT.Expression._callAPI('container.navigate', [opt]);
+      }
     };
 
     /**

@@ -1,9 +1,9 @@
 {
-  "title": "bdd-1-2-12-test10",
+  "title": "bdd-1-2-12-beta1",
   "description": "",
-  "system_name": "bdd-1-2-12-test10",
+  "system_name": "bdd-1-2-12-beta1",
   "version": "0.1.34",
-  "api_version": "1.2.12-test10",
+  "api_version": "1.2.12-beta1",
   "dependencies": [
     {
       "path": "lib/mocha.css"
