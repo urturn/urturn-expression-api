@@ -2,6 +2,8 @@
 
 ## 1.2.12
 ADDED: UT.Image deal with SVG both in input and output.
+FIXED: post.navigate('browse') open link in new window/tab but without being
+       stuck by pop-up blockers.
 
 ## 1.2.10
 UPDATED: The handling of post.note property changed.
