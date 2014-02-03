@@ -185,7 +185,11 @@ module.exports = function(grunt) {
   config.concat_css = {
     all: {
       src: sourcesCSS,
-      dest: "dist/iframe.css"
+      dest: "dist/iframe.css",
+      options: {
+        assetBaseUrl: './',
+        debugMode: true
+      }
     }
   };
 

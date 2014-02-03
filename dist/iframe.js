@@ -1087,7 +1087,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.2.12-beta3';
+    return states && states.apiVersion || '1.2.12';
   };
 
   UT.Expression.version = function() {
