@@ -1,0 +1,44 @@
+{
+  "name": "jquery.ut-image",
+  "title": "Urturn Image Panel Component",
+  "description": "Image component for Urturn expressions",
+  "version": "1.1.37",
+  "author": {
+    "name": "Urturn",
+    "email": "dev@urturn.com"
+  },
+  "licenses": [
+    {
+      "type": "AGPL-3",
+      "url": "https://github.com/urturn/ut-image/blob/master/LICENSE"
+    }
+  ],
+  "main": "component.urturn.json",
+  "dependencies": {
+    "jquery": ">=1.8.0",
+    "urturn-expression-css": ">=0.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/urturn/jquery.ut-image.git"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "components",
+    "test",
+    "lib"
+  ],
+  "devDependencies": {
+    "qunit": "~1.11.0"
+  },
+  "homepage": "https://github.com/urturn/jquery.ut-image",
+  "_release": "1.1.37",
+  "_resolution": {
+    "type": "version",
+    "tag": "v1.1.37",
+    "commit": "f180fe34d4cf565d4032199c978a80764ef90318"
+  },
+  "_source": "git://github.com/urturn/jquery.ut-image.git",
+  "_target": "*"
+}

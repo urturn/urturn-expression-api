@@ -1,0 +1,45 @@
+expression-content {
+  width: 100%;
+  font-size: 10px;
+}
+
+.sticker-panel {
+  height: 350px;
+  position: relative;
+  background: #FFFFFF;
+}
+
+.sticker-panel-tiny {
+  height: 200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.ut-method code {
+  background-color: transparent;
+}
+
+
+.ut-image {
+  box-shadow: 0 0 3px rgba(0,0,0,1);
+}
+
+
+.stylesList {
+  display: block;
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  font-family: 'Monaco', courier, monospace;
+  font-size: 1em;
+  color: #ffffff;
+  /*height: 1500px;*/
+  height: 200px;
+  border: none;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.1);
+}
+.stylesList:focus {
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.1);
+}

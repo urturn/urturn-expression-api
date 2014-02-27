@@ -1,0 +1,20 @@
+{
+  "name": "jquery.ut-video",
+  "version": "0.1.26",
+  "dependencies": {
+    "jquery": ">=2.0.0",
+    "urturn-expression-css": "*"
+  },
+  "includes": [],
+  "main": [
+    "js/jquery.ut-video.js",
+    "js/froogaloop.min.js",
+    "css/default/jquery.ut-video.css"
+  ],
+  "assets": [
+    "css/default/Roboto-Regular-webfont.eot",
+    "css/default/Roboto-Regular-webfont.ttf",
+    "css/default/Roboto-Regular-webfont.svg",
+    "css/default/Roboto-Regular-webfont.woff"
+  ]
+}

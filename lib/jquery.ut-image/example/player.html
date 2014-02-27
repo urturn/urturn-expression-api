@@ -1,0 +1,161 @@
+<section class="expression-content">
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Simple utImage initialization</h3>
+    <pre><code data-language="html">&lt;div id="image-1" style="width:100%;height:100%;"&gt;&lt;/div&gt;</code></pre>
+    <pre><code data-language="javascript">$('#image-1').utImage();</code></pre>
+    <div class="sticker-panel">
+      <div id="image-1" style="width:100%;height:100%;"></div>
+    </div>
+  </div>
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Inititialize with image</h3>
+    <pre><code data-language="html">&lt;div id="image-2" style="width:100%;height:100%;"&gt;&lt;/div&gt;</code></pre>
+    <pre><code data-language="javascript">$('#image-2').utImage({data:"http://assets.urturn.com/medias/image/752d3b05-8e8c-4932-8831-3ed4d2edee1e/default_tumblr_lzpw5md5mf1rphuqgo1_500.png?1374681615"});</code></pre>
+    <div class="sticker-panel" style="height:404px">
+      <div id="image-2" style="width:100%;height:100%;"></div>
+    </div>
+  </div>
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Work in group mode</h3>
+    <pre><code data-language="html">
+&lt;div id="image-3" style="width:50%;height:100%;"&gt;&lt;/div&gt;
+&lt;div id="image-4" style="width:50%;height:100%;"&gt;&lt;/div&gt;
+    </code></pre>
+    <pre><code data-language="javascript">
+$('#image-3').utImage({styles:{groupMode:true,autoResize:false}}).utImage("focus");
+$('#image-4').utImage({styles:{groupMode:true,autoResize:false}});
+    </code></pre>
+    <div class="sticker-panel sticker-panel-tiny" style="white-space:nowrap;">
+      <div id="image-3" style="display:inline-block;width:50%;height:100%;"></div>
+      <div id="image-4" style="display:inline-block;width:50%;height:100%;"></div>
+    </div>
+  </div>
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Different buttons</h3>
+    <pre><code data-language="html">
+&lt;div id="image-5" style="width:50%;height:50%;"&gt;&lt;/div&gt;
+&lt;div id="image-6" style="width:50%;height:50%;"&gt;&lt;/div&gt;
+&lt;div id="image-7" style="width:50%;height:50%;"&gt;&lt;/div&gt;
+&lt;div id="image-8" style="width:50%;height:50%;"&gt;&lt;/div&gt;
+    </code></pre>
+    <pre><code data-language="javascript">
+$('#image-5').utImage({ui:{add:false}, data:"http://assets.urturn.com/medias/image/752d3b05-8e8c-4932-8831-3ed4d2edee1e/default_tumblr_lzpw5md5mf1rphuqgo1_500.png?1374681615",styles:{autoResize:false}});
+$('#image-6').utImage({ui:{edit:false}, data:"http://assets.urturn.com/medias/image/752d3b05-8e8c-4932-8831-3ed4d2edee1e/default_tumblr_lzpw5md5mf1rphuqgo1_500.png?1374681615",styles:{autoResize:false}});
+$('#image-7').utImage({ui:{remove:false}, data:"http://assets.urturn.com/medias/image/752d3b05-8e8c-4932-8831-3ed4d2edee1e/default_tumblr_lzpw5md5mf1rphuqgo1_500.png?1374681615",styles:{autoResize:false}});
+$('#image-8').utImage({ui:{edit:false,remove:false}, data:"http://assets.urturn.com/medias/image/752d3b05-8e8c-4932-8831-3ed4d2edee1e/default_tumblr_lzpw5md5mf1rphuqgo1_500.png?1374681615",styles:{autoResize:false}});
+    </code></pre>
+    <div class="sticker-panel sticker-panel-tiny" style="white-space:nowrap;">
+      <div id="image-5" style="display:inline-block;width:50%;height:100%;"></div>
+      <div id="image-6" style="display:inline-block;width:50%;height:100%;"></div>
+    </div>
+    <div class="sticker-panel sticker-panel-tiny" style="white-space:nowrap;">
+      <div id="image-7" style="display:inline-block;width:50%;height:100%;"></div>
+      <div id="image-8" style="display:inline-block;width:50%;height:100%;"></div>
+    </div>
+  </div>
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Max and min image height</h3>
+    <pre><code data-language="html">
+&lt;div id="image-9" style="width:100%;height:100%;"&gt;&lt;/div&gt;
+    </code></pre>
+    <pre><code data-language="javascript">$('#image-9').utImage({styles:{minHeight:100, maxHeight:200}});</code></pre>
+    <div class="sticker-panel">
+      <div id="image-9" style="width:100%;height:100%;"></div>
+    </div>
+  </div>
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Fixed image ratio</h3>
+    <pre><code data-language="html">
+&lt;div id="image-10" style="width:100%;height:100%;"&gt;&lt;/div&gt;
+    </code></pre>
+    <pre><code data-language="javascript">$('#image-10').utImage({styles:{flexRatio:false}});</code></pre>
+    <div class="sticker-panel">
+      <div id="image-10" style="width:100%;height:100%;"></div>
+    </div>
+  </div>
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Different buttons position</h3>
+    <pre><code data-language="html">
+&lt;div id="image-11" style="width:50%;height:50%;"&gt;&lt;/div&gt;
+&lt;div id="image-12" style="width:50%;height:50%;"&gt;&lt;/div&gt;
+&lt;div id="image-13" style="width:50%;height:50%;"&gt;&lt;/div&gt;
+&lt;div id="image-14" style="width:50%;height:50%;"&gt;&lt;/div&gt;
+    </code></pre>
+    <pre><code data-language="javascript">
+$('#image-11').utImage({styles:{menuPosition:{right:15,bottom:15},autoResize:false}, data:"http://assets.urturn.com/medias/image/752d3b05-8e8c-4932-8831-3ed4d2edee1e/default_tumblr_lzpw5md5mf1rphuqgo1_500.png?1374681615"});
+$('#image-12').utImage({styles:{menuPosition:{bottom:15},autoResize:false}, data:"http://assets.urturn.com/medias/image/752d3b05-8e8c-4932-8831-3ed4d2edee1e/default_tumblr_lzpw5md5mf1rphuqgo1_500.png?1374681615"});
+$('#image-13').utImage({styles:{menuPosition:{right:15},autoResize:false}, data:"http://assets.urturn.com/medias/image/752d3b05-8e8c-4932-8831-3ed4d2edee1e/default_tumblr_lzpw5md5mf1rphuqgo1_500.png?1374681615"});
+$('#image-14').utImage({styles:{menuPosition:{},autoResize:false}, data:"http://assets.urturn.com/medias/image/752d3b05-8e8c-4932-8831-3ed4d2edee1e/default_tumblr_lzpw5md5mf1rphuqgo1_500.png?1374681615"});
+    </code></pre>
+    <div class="sticker-panel sticker-panel-tiny" style="white-space:nowrap;">
+      <div id="image-11" style="display:inline-block;width:50%;height:100%;"></div>
+      <div id="image-12" style="display:inline-block;width:50%;height:100%;"></div>
+    </div>
+    <div class="sticker-panel sticker-panel-tiny" style="white-space:nowrap;">
+      <div id="image-13" style="display:inline-block;width:50%;height:100%;"></div>
+      <div id="image-14" style="display:inline-block;width:50%;height:100%;"></div>
+    </div>
+  </div>
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Set the editable attribute.</h3>
+    <p>By default, the ut-image is editable in editor but not in player.
+      But you can do the opposite of course.</p>
+    <pre><code data-language="html">
+&lt;div id="image-15" style="width:100%;height:100%;"&gt;&lt;/div&gt;
+    </code></pre>
+    <pre><code data-language="javascript">
+$('#image-15').utImage({
+  editable: !(post.context.editor),
+  styles: {
+    width: $('#image-15').width(),
+    height: $('#image-15').height(),
+    flexRatio: false
+  }
+});
+$('.image-editable').on('click', function(event) {
+  $('#image-15').utImage("editable", ($(event.target).data('editable') === 'editable'));
+});
+    </code></pre>
+    <div>
+      <button class="image-editable" data-editable="editable">enable</button>
+      <button class="image-editable" data-editable="">disable</button>
+    </div>
+    <div class="sticker-panel">
+      <div id="image-15" style="width:100%;height:100%;"></div>
+    </div>
+  </div>
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Source link position</h3>
+    <pre><code data-language="html">
+&lt;div id="image-16" style="width:50%;height:50%;"&gt;&lt;/div&gt;
+&lt;div id="image-17" style="width:50%;height:50%;"&gt;&lt;/div&gt;
+&lt;div id="image-18" style="width:50%;height:50%;"&gt;&lt;/div&gt;
+&lt;div id="image-19" style="width:50%;height:50%;"&gt;&lt;/div&gt;
+    </code></pre>
+    <pre><code data-language="javascript">
+var img = "http://colorvisiontesting.com/plate%20with%205.jpg";
+$('#image-16').utImage({editable:false,styles:{linkPosition:{top:0},autoResize:false}, data:{url:img,info:{source:img}} });
+$('#image-17').utImage({editable:false,styles:{linkPosition:{top:0,right:0},autoResize:false}, data:{url:img,info:{source:img}} });
+$('#image-18').utImage({editable:false,styles:{linkPosition:{},autoResize:false}, data:{url:img,info:{source:img}} });
+$('#image-19').utImage({editable:false,styles:{linkPosition:{right:0},autoResize:false}, data:{url:img,info:{source:img}} });
+    </code></pre>
+    <div class="sticker-panel sticker-panel-tiny" style="white-space:nowrap;">
+      <div id="image-16" style="display:inline-block;width:50%;height:100%;"></div>
+      <div id="image-17" style="display:inline-block;width:50%;height:100%;"></div>
+    </div>
+    <div class="sticker-panel sticker-panel-tiny" style="white-space:nowrap;">
+      <div id="image-18" style="display:inline-block;width:50%;height:100%;"></div>
+      <div id="image-19" style="display:inline-block;width:50%;height:100%;"></div>
+    </div>
+  </div>
+
+</section>

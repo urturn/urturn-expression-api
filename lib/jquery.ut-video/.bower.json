@@ -1,0 +1,39 @@
+{
+  "name": "jquery.ut-video",
+  "version": "0.1.26",
+  "author": {
+    "name": "Urturn",
+    "email": "dev@urturn.com"
+  },
+  "homepage": "http://github.com/urturn/jquery.ut-video/",
+  "licenses": [
+    {
+      "type": "AGPL-3",
+      "url": "https://github.com/urturn/jquery.ut-sticker/blob/master/LICENSE"
+    }
+  ],
+  "main": [
+    "js/jquery.ut-video.js",
+    "js/froogaloop.min.js",
+    "css/default/jquery.ut-video.css",
+    "css/default/Roboto-Regular-webfont.eot",
+    "css/default/Roboto-Regular-webfont.ttf",
+    "css/default/Roboto-Regular-webfont.svg",
+    "css/default/Roboto-Regular-webfont.woff"
+  ],
+  "dependencies": {
+    "jquery": ">=2.0.0",
+    "urturn-expression-css": "*"
+  },
+  "devDependencies": {
+    "qunit": "~1.11.0"
+  },
+  "_release": "0.1.26",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.1.26",
+    "commit": "6b783b9b66073380e6e55191531b5cc1ed198919"
+  },
+  "_source": "git://github.com/urturn/jquery.ut-video.git",
+  "_target": "*"
+}

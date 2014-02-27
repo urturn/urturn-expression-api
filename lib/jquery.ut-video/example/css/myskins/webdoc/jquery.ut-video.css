@@ -1,0 +1,322 @@
+.ut-video-skin-webdoc.ut-video-ui {
+	width: 100%;
+	height: 100%;
+	position: relative;
+	background-color: rgb(0,0,0,1);
+	background-image: -webkit-linear-gradient(rgb(77, 77, 77), rgb(51, 51, 51));
+	background-image:    -moz-linear-gradient(rgb(77, 77, 77), rgb(51, 51, 51));
+	background-image:      -o-linear-gradient(rgb(77, 77, 77), rgb(51, 51, 51));
+	background-image:         linear-gradient(rgb(77, 77, 77), rgb(51, 51, 51));
+	font-family: 'Helvetica Neue', helvetica, arial, sans-serif;
+	z-index: 0;
+	overflow: hidden;
+	box-shadow: 0 5px 10px 0 rgba(0,0,0,0.4) inset;
+}
+
+.ut-video-skin-webdoc.ut-video-ui div,
+.ut-video-skin-webdoc.ut-video-ui h1,
+.ut-video-skin-webdoc.ut-video-ui a {
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+}
+
+/*----------------------  ADD AND EDIT  -----------------------------------*/
+
+.ut-video-skin-webdoc .ut-video-ui-add,
+.ut-video-skin-webdoc .ut-video-ui-remove{
+	display: none;
+	z-index: 10;
+}
+
+.ut-video-skin-webdoc.ut-video-mode-editor.ut-video-state-launch .ut-video-ui-remove,
+.ut-video-skin-webdoc.ut-video-mode-editor.ut-video-state-video  .ut-video-ui-remove{
+	display: block;
+	position: absolute;
+	top: 4em;
+	left: 1em;
+	z-index: 11;
+}
+
+.ut-video-skin-webdoc.ut-video-mode-editor.ut-video-state-empty .ut-video-ui-add {
+	display: block;
+	position: absolute;
+  width: 100%;
+	font-size: 20px;
+	color:white;
+	text-align: center;
+}
+
+.ut-video-skin-webdoc .ut-video-ui-add[class*="icon_"]:before{
+  font-size: 28px;
+  display: block;
+  padding: 15px 0 5px 0;
+}
+
+/*----------------------  ARTWORK  PANEL  -----------------------------------*/
+
+.ut-video-skin-webdoc .ut-video-ui-artwork {
+	width: 100%;
+	height: 100%;
+	z-index: 0;
+	position: absolute;
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	background-size: cover;
+}
+
+.ut-video-skin-webdoc.ut-video-state-launch .ut-video-ui-artwork {
+	display: block;
+	opacity: 1;
+}
+
+.ut-video-skin-webdoc.ut-video-state-video .ut-video-ui-artwork {
+	opacity: 0;
+	-webkit-transition: opacity 1s ease-out;
+	-moz-transition:    opacity 1s ease-out;
+	-o-transition:      opacity 1s ease-out;
+	transition:         opacity 1s ease-out;
+}
+
+.ut-video-skin-webdoc.ut-video-state-loading .ut-video-ui-artwork,
+.ut-video-skin-webdoc.ut-video-state-pause .ut-video-ui-artwork,
+.ut-video-skin-webdoc.ut-video-state-error .ut-video-ui-artwork {
+	display: none;
+}
+
+
+
+
+/*----------------------  PLAY BUTTON  -----------------------------------*/
+
+.ut-video-skin-webdoc .ut-video-ui-play {
+	width: 100px;
+	height: 100px;
+	position: absolute;
+	z-index: 4;
+	top: 50%;
+	left: 50%;
+	margin-top: -50px;
+	margin-left: -50px;
+	background-repeat: no-repeat;
+	background-image: url('play.png');
+	background-position: 50% 50%;
+	display: block;
+	-webkit-transition: opacity 1s ease-out;
+	-moz-transition:    opacity 1s ease-out;
+	-o-transition:      opacity 1s ease-out;
+	transition:         opacity 1s ease-out;
+	cursor: pointer;
+	opacity: 0;
+}
+
+.ut-video-skin-webdoc.ut-video-state-loading .ut-video-ui-play {
+	display: none;
+}
+
+.ut-video-skin-webdoc.ut-video-state-launch .ut-video-ui-play {
+	opacity: 0.6;
+}
+
+.ut-video-skin-webdoc.ut-video-state-launch:hover  .ut-video-ui-play,
+.ut-video-skin-webdoc.ut-video-state-loading:hover .ut-video-ui-play {
+	opacity: 1;
+	-webkit-transition: opacity 1s ease-out;
+	-moz-transition:    opacity 1s ease-out;
+	-o-transition:      opacity 1s ease-out;
+	transition:         opacity 1s ease-out;
+}
+
+.ut-video-skin-webdoc.ut-video-state-video  .ut-video-ui-play {
+	opacity: 0;
+	-webkit-transition: opacity 0.3s ease-out;
+	-moz-transition:    opacity 0.3s ease-out;
+	-o-transition:      opacity 0.3s ease-out;
+	transition:         opacity 0.3s ease-out;
+}
+
+.ut-video-skin-webdoc.ut-video-state-pause .ut-video-ui-play,
+.ut-video-skin-webdoc.ut-video-state-error .ut-video-ui-play {
+	display: none
+}
+
+/*----------------------  TITLE PANEL  -----------------------------------*/
+/*----------------------  LINK  PANEL  -----------------------------------*/
+
+.ut-video-skin-webdoc .ut-video-ui-title,
+.ut-video-skin-webdoc .ut-video-ui-source {
+	display: block;
+	position: absolute;
+	z-index: 5;
+	opacity: 0;
+	left: 0;
+	width: 100%;
+	margin: 0;
+	padding: 0.6em;
+	text-decoration: none;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-weight: normal;
+  color: rgba(255,255,255,0.9);
+  background-color: rgba(0, 0, 0, 0.3);
+	-webkit-transition: all 0.5s ease-out;
+	-moz-transition:    all 0.5s ease-out;
+	-o-transition:      all 0.5s ease-out;
+	transition:         all 0.5s ease-out;
+  text-shadow: 0 0 0 transparent;
+}
+
+.ut-video-skin-webdoc.ut-video-ui:hover .ut-video-ui-title,
+.ut-video-skin-webdoc.ut-video-ui:hover .ut-video-ui-source {
+	-webkit-transition: all 0.5s ease-out;
+	-moz-transition:    all 0.5s ease-out;
+	-o-transition:      all 0.5s ease-out;
+	transition:         all 0.5s ease-out;
+	background-color: rgba(0,0,0,0.9);
+	color: rgba(255,255,255,0.9);
+}
+
+.ut-video-skin-webdoc.ut-video-state-loading .ut-video-ui-title,
+.ut-video-skin-webdoc.ut-video-state-loading .ut-video-ui-source {
+	display: none;
+}
+
+.ut-video-skin-webdoc.ut-video-state-launch .ut-video-ui-title,
+.ut-video-skin-webdoc.ut-video-state-launch .ut-video-ui-source {
+	opacity: 1;
+}
+
+.ut-video-skin-webdoc.ut-video-state-video  .ut-video-ui-title,
+.ut-video-skin-webdoc.ut-video-state-video  .ut-video-ui-source{
+	display: none;
+	-webkit-transition: opacity 0.5s ease-in-out;
+	-moz-transition:    opacity 0.5s ease-in-out;
+	-o-transition:      opacity 0.5s ease-in-out;
+	transition:         opacity 0.5s ease-in-out;
+}
+
+.ut-video-skin-webdoc.ut-video-state-pause .ut-video-ui-title,
+.ut-video-skin-webdoc.ut-video-state-pause .ut-video-ui-source,
+.ut-video-skin-webdoc.ut-video-state-error .ut-video-ui-title,
+.ut-video-skin-webdoc.ut-video-state-error .ut-video-ui-source {
+	display: none;
+}
+
+.ut-video-skin-webdoc .ut-video-ui-title{
+	top: 0;
+	text-align: center;
+  font-size: 1.8em;
+}
+
+.ut-video-skin-webdoc .ut-video-ui-source {
+  bottom: 0;
+  text-align: right;
+  font-size: 1.2em;
+}
+
+.ut-video-skin-webdoc .ut-video-ui-source:hover{
+	text-decoration: underline;
+}
+
+.ut-video-skin-webdoc .ut-video-ui-source img {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	margin-left: 0.7em;
+	vertical-align: middle;
+}
+
+
+/*----------------------  VIDEO  PANEL  -----------------------------------*/
+
+.ut-video-skin-webdoc .ut-video-ui-video{
+	width: 100%;
+	height: 100%;
+	z-index: 2;
+	position: absolute;
+}
+
+.ut-video-skin-webdoc.ut-video-state-video iframe {
+  border: none;
+}
+
+.ut-video-skin-webdoc.ut-video-state-loading .ut-video-ui-video,
+.ut-video-skin-webdoc.ut-video-state-launch  .ut-video-ui-video {
+	opacity: 0;
+}
+
+.ut-video-skin-webdoc.ut-video-state-video .ut-video-ui-video,
+.ut-video-skin-webdoc.ut-video-state-pause .ut-video-ui-video {
+	opacity: 1;
+	-webkit-transition: opacity 1s ease-out;
+	-moz-transition:    opacity 1s ease-out;
+	-o-transition:      opacity 1s ease-out;
+	transition:         opacity 1s ease-out;
+}
+
+.ut-video-skin-webdoc.ut-video-state-error .ut-video-ui-video {
+	display: none;
+}
+
+/*----------------------- LOADING PANEL ---------------------------------*/
+
+.ut-video-skin-webdoc .ut-video-ui-loading {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	opacity: 0;
+	z-index: 3;
+	background: url('loading.gif');
+}
+
+.ut-video-skin-webdoc.ut-video-state-loading .ut-video-ui-loading {
+	opacity: 1;
+	-webkit-transition: opacity 0.5s ease-in-out;
+	-moz-transition:    opacity 0.5s ease-in-out;
+	-o-transition:      opacity 0.5s ease-in-out;
+	transition:         opacity 0.5s ease-in-out;
+}
+
+.ut-video-skin-webdoc.ut-video-state-launch .ut-video-ui-loading {
+	opacity: 0;
+	-webkit-transition: opacity 0.5s ease-in-out;
+	-moz-transition:    opacity 0.5s ease-in-out;
+	-o-transition:      opacity 0.5s ease-in-out;
+	transition:         opacity 0.5s ease-in-out;
+}
+
+.ut-video-skin-webdoc.ut-video-state-video .ut-video-ui-loading,
+.ut-video-skin-webdoc.ut-video-state-pause .ut-video-ui-loading,
+.ut-video-skin-webdoc.ut-video-state-error .ut-video-ui-loading {
+	display: none;
+}
+
+/*----------------------- ERROR PANEL ---------------------------------*/
+
+.ut-video-skin-webdoc .ut-video-ui-error {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	display: block;
+	z-index: 5;
+	display: none;
+}
+
+.ut-video-skin-webdoc .ut-video-ui-error div {
+	position: absolute;
+	width: 190px;
+	height: 115px;
+	left: 50%;
+	top: 50%;
+	margin-top: -57px;
+	margin-left: -95px;
+	background: url('error.png');
+}
+
+.ut-video-skin-webdoc .ut-video-state-loading .ut-video-ui-error,
+.ut-video-skin-webdoc .ut-video-state-video   .ut-video-ui-error,
+.ut-video-skin-webdoc .ut-video-state-launch  .ut-video-ui-error,
+.ut-video-skin-webdoc .ut-video-state-pause   .ut-video-ui-error,
+.ut-video-skin-webdoc .ut-video-state-error   .ut-video-ui-error{
+	display: none;
+}

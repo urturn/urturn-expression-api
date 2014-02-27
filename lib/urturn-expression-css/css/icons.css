@@ -1,0 +1,406 @@
+@font-face {
+  font-family: "urturn_icons";
+  src: url('../fonts/urturn_icons.eot') format('embedded-opentype'), url('../fonts/urturn_icons.woff') format('woff'), url('../fonts/urturn_icons.ttf') format('truetype'); }
+
+/* Use the following CSS code if you want to use data attributes for inserting your icons */
+[data-icon]:before {
+  font-family: 'urturn_icons';
+  content: attr(data-icon);
+  speak: none;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  -webkit-font-smoothing: antialiased; }
+
+/* Use the following CSS code if you want to have a class per icon */
+/*
+Instead of a list of all class selectors,
+you can use the generic selector below, but it's slower:
+[class*="icon_"] {
+*/
+[class*="icon_"]:before {
+  font-family: 'urturn_icons';
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  -webkit-font-smoothing: antialiased; }
+
+.icon_activity:before {
+  content: "\e000"; }
+
+.icon_add_alt:before {
+  content: "\e001"; }
+
+.icon_add_friends:before {
+  content: "\e002"; }
+
+.icon_add:before {
+  content: "\e003"; }
+
+.icon_alert:before {
+  content: "\e004"; }
+
+.icon_arrow_down:before {
+  content: "\e005"; }
+
+.icon_arrow_left:before {
+  content: "\e006"; }
+
+.icon_arrow_right:before {
+  content: "\e007"; }
+
+.icon_arrow_up:before {
+  content: "\e008"; }
+
+.icon_background:before {
+  content: "\e009"; }
+
+.icon_block:before {
+  content: "\e00a"; }
+
+.icon_blogger:before {
+  content: "\e00b"; }
+
+.icon_browse:before {
+  content: "\e00c"; }
+
+.icon_brush:before {
+  content: "\e00d"; }
+
+.icon_bucket:before {
+  content: "\e00e"; }
+
+.icon_camera_switch:before {
+  content: "\e00f"; }
+
+.icon_camera:before {
+  content: "\e010"; }
+
+.icon_category:before {
+  content: "\e011"; }
+
+.icon_check_alt:before {
+  content: "\e012"; }
+
+.icon_check:before {
+  content: "\e013"; }
+
+.icon_clock:before {
+  content: "\e014"; }
+
+.icon_cloud_upload:before {
+  content: "\e015"; }
+
+.icon_comment_outline:before {
+  content: "\e016"; }
+
+.icon_comment:before {
+  content: "\e017"; }
+
+.icon_connect:before {
+  content: "\e018"; }
+
+.icon_contact:before {
+  content: "\e019"; }
+
+.icon_dailymotion:before {
+  content: "\e01a"; }
+
+.icon_delete_alt:before {
+  content: "\e01b"; }
+
+.icon_delete:before {
+  content: "\e01c"; }
+
+.icon_edit:before {
+  content: "\e01d"; }
+
+.icon_eraser:before {
+  content: "\e01e"; }
+
+.icon_eye:before {
+  content: "\e01f"; }
+
+.icon_facebook_alt:before {
+  content: "\e020"; }
+
+.icon_facebook:before {
+  content: "\e021"; }
+
+.icon_filters:before {
+  content: "\e022"; }
+
+.icon_flag:before {
+  content: "\e023"; }
+
+.icon_flash:before {
+  content: "\e024"; }
+
+.icon_flickr:before {
+  content: "\e025"; }
+
+.icon_follow:before {
+  content: "\e026"; }
+
+.icon_following_activities:before {
+  content: "\e027"; }
+
+.icon_following:before {
+  content: "\e028"; }
+
+.icon_fullscreen_exit:before {
+  content: "\e029"; }
+
+.icon_fullscreen:before {
+  content: "\e02a"; }
+
+.icon_generating:before {
+  content: "\e02b"; }
+
+.icon_globe:before {
+  content: "\e02c"; }
+
+.icon_google_plus:before {
+  content: "\e02d"; }
+
+.icon_google:before {
+  content: "\e02e"; }
+
+.icon_heart_break:before {
+  content: "\e02f"; }
+
+.icon_heart_outline:before {
+  content: "\e030"; }
+
+.icon_heart:before {
+  content: "\e031"; }
+
+.icon_home:before {
+  content: "\e032"; }
+
+.icon_info:before {
+  content: "\e033"; }
+
+.icon_instagram:before {
+  content: "\e034"; }
+
+.icon_itunes:before {
+  content: "\e035"; }
+
+.icon_layout_2:before {
+  content: "\e036"; }
+
+.icon_layout_3:before {
+  content: "\e037"; }
+
+.icon_layout_4:before {
+  content: "\e038"; }
+
+.icon_link:before {
+  content: "\e039"; }
+
+.icon_load:before {
+  content: "\e03a"; }
+
+.icon_location:before {
+  content: "\e03b"; }
+
+.icon_lock:before {
+  content: "\e03c"; }
+
+.icon_mail:before {
+  content: "\e03d"; }
+
+.icon_microphone:before {
+  content: "\e03e"; }
+
+.icon_mobile:before {
+  content: "\e03f"; }
+
+.icon_more:before {
+  content: "\e040"; }
+
+.icon_move:before {
+  content: "\e041"; }
+
+.icon_new_post:before {
+  content: "\e042"; }
+
+.icon_notifications:before {
+  content: "\e043"; }
+
+.icon_orientation:before {
+  content: "\e044"; }
+
+.icon_participated:before {
+  content: "\e045"; }
+
+.icon_pause:before {
+  content: "\e046"; }
+
+.icon_pen:before {
+  content: "\e047"; }
+
+.icon_picture_alt:before {
+  content: "\e048"; }
+
+.icon_picture:before {
+  content: "\e049"; }
+
+.icon_pin_down:before {
+  content: "\e04a"; }
+
+.icon_pin_left:before {
+  content: "\e04b"; }
+
+.icon_pin_right:before {
+  content: "\e04c"; }
+
+.icon_pin_up:before {
+  content: "\e04d"; }
+
+.icon_pinterest:before {
+  content: "\e04e"; }
+
+.icon_play:before {
+  content: "\e04f"; }
+
+.icon_point_down:before {
+  content: "\e050"; }
+
+.icon_point_left:before {
+  content: "\e051"; }
+
+.icon_point_right:before {
+  content: "\e052"; }
+
+.icon_point_up:before {
+  content: "\e053"; }
+
+.icon_quote_close:before {
+  content: "\e054"; }
+
+.icon_record:before {
+  content: "\e055"; }
+
+.icon_refresh:before {
+  content: "\e056"; }
+
+.icon_reload:before {
+  content: "\e057"; }
+
+.icon_reply:before {
+  content: "\e058"; }
+
+.icon_repost:before {
+  content: "\e059"; }
+
+.icon_rotate:before {
+  content: "\e05a"; }
+
+.icon_scissors:before {
+  content: "\e05b"; }
+
+.icon_search:before {
+  content: "\e05c"; }
+
+.icon_settings:before {
+  content: "\e05d"; }
+
+.icon_share:before {
+  content: "\e05e"; }
+
+.icon_shopping_cart:before {
+  content: "\e05f"; }
+
+.icon_sidebar:before {
+  content: "\e060"; }
+
+.icon_sound:before {
+  content: "\e061"; }
+
+.icon_soundcloud:before {
+  content: "\e062"; }
+
+.icon_spinner:before {
+  content: "\e063"; }
+
+.icon_star_outline:before {
+  content: "\e064"; }
+
+.icon_star:before {
+  content: "\e065"; }
+
+.icon_stop:before {
+  content: "\e066"; }
+
+.icon_switch:before {
+  content: "\e067"; }
+
+.icon_text_big:before {
+  content: "\e068"; }
+
+.icon_text_small:before {
+  content: "\e069"; }
+
+.icon_text:before {
+  content: "\e06a"; }
+
+.icon_theme:before {
+  content: "\e06b"; }
+
+.icon_trash:before {
+  content: "\e06c"; }
+
+.icon_tumblr:before {
+  content: "\e06d"; }
+
+.icon_twitter_alt:before {
+  content: "\e06e"; }
+
+.icon_twitter:before {
+  content: "\e06f"; }
+
+.icon_unfollow:before {
+  content: "\e070"; }
+
+.icon_unlisted:before {
+  content: "\e071"; }
+
+.icon_unlock:before {
+  content: "\e072"; }
+
+.icon_unrepost:before {
+  content: "\e073"; }
+
+.icon_urturn_alt:before {
+  content: "\e074"; }
+
+.icon_urturn:before {
+  content: "\e075"; }
+
+.icon_user:before {
+  content: "\e076"; }
+
+.icon_video_alt:before {
+  content: "\e077"; }
+
+.icon_video:before {
+  content: "\e078"; }
+
+.icon_vimeo:before {
+  content: "\e079"; }
+
+.icon_yahoo:before {
+  content: "\e07a"; }
+
+.icon_youtube:before {
+  content: "\e07b"; }
+
+.icon_zoom_in:before {
+  content: "\e07c"; }
+
+.icon_zoom_out:before {
+  content: "\e07d"; }

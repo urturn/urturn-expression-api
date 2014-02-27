@@ -1,0 +1,385 @@
+<header>
+  <h1><b>jquery.utAudio</b> live code samples</h1>
+</header>
+
+<article>
+  <!-- ---------------------------------------- -->
+  <section data-title="Basic usage">
+    <h2>Easiest way to add player inside your expression</h2>
+    <p>Default player will provide possibility to:</p>
+    <ul>
+      <li>search, add, edit, re-edit audio for expresion creators</li>
+      <li>load and play this audio for expression viewers</li>
+    </ul>
+    <p>Your video container must have uniq id, same in edit and view mode</p>
+    <pre data-language="html">&lt;div id="player0"&gt;&lt;/div&gt;</pre>
+    <div class='demo'>
+      <script>
+        UT.Expression.ready(function(post) {
+          jQuery('#player0').utAudio();
+        });
+      </script>
+      <div class="player" id="player0"></div>
+    </div>
+  </section>
+
+  <section data-title="Default skin">
+    <h2>Default skin adapts itself for any form factor</h2>
+    <p>minimal width 150px,
+    <br/> minimal height 110px</p>
+    <pre data-language="html">&lt;div id="player0"&gt;&lt;/div&gt;</pre>
+    <div class='demo'>
+      <script>
+        UT.Expression.ready(function(post) {
+          jQuery('#player01').utAudio({skin:"default",data:"https://soundcloud.com/yahoo1/timelift-time-demo"});
+          jQuery('#player02').utAudio({skin:"default",data:"https://itunes.apple.com/gb/album/six-degrees-of-separation/id550978544?i=550978548"});
+          jQuery('#player03').utAudio({skin:"default",data:"https://soundcloud.com/firebee/jellyfish-ask-yourself"});
+          jQuery('#player04').utAudio({skin:"default",data:"https://itunes.apple.com/us/album/into-the-groove/id329043011?i=329043298"});
+          jQuery('#player05').utAudio({skin:"default",data:"https://soundcloud.com/ruslandevice/ruslan-device-id-cut-2013"});
+          jQuery('#player06').utAudio({skin:"default",data:"https://soundcloud.com/dualclick/dualclick-sarduday-original"});
+          jQuery('#player07').utAudio({skin:"default",data:"https://soundcloud.com/andy-reed-6/andy-reed-unplugged"});
+          jQuery('#player08').utAudio({skin:"default",data:"https://soundcloud.com/trance123/a1"});
+          jQuery('#player09').utAudio({skin:"default",data:"https://soundcloud.com/alipa/speechless"});
+        });
+      </script>
+      <div class="player" id="player01"></div>
+      <div class="player" id="player02"></div>
+      <div class="player" id="player03"></div>
+      <div class="player" id="player04"></div>
+      <div class="player" id="player05"></div>
+      <div class="player" id="player06"></div>
+      <div class="player" id="player07"></div>
+      <div class="player" id="player08"></div>
+      <div class="player" id="player09"></div>
+    </div>
+  </section>
+
+  <section data-title="Errors and loading">
+    <h2>Error screen (wrong service) defined in the URl</h2>
+    <p>minimal width 150px,
+      <br/> minimal height 110px</p>
+    <pre data-language="html">&lt;div id="player0"&gt;&lt;/div&gt;</pre>
+    <div class='demo'>
+      <script>
+        UT.Expression.ready(function(post) {
+          jQuery('#player007').utAudio({
+            skin:"default",
+            data:'I am wrong URL'
+          });
+        });
+      </script>
+      <div class="player" id="player007"></div>
+    </div>
+  </section>
+
+  <section data-title="Pre-defined audio">
+    <h2>Can be usefull for "original-remake" or "tag this audio" expressions, where expression creates around pre-defined audio.
+      <strong>RESTRICTION:</strong> for now working only for soundcloud tracks</h2>
+    <pre data-language="html">&lt;div id="player0"&gt;&lt;/div&gt;</pre>
+    <div class='demo'>
+      <script>
+        UT.Expression.ready(function(post) {
+          jQuery('#player1').utAudio({
+            skin:"default",
+            data:"https://soundcloud.com/andy-reed-6/andy-reed-unplugged"
+          });
+        });
+      </script>
+      <div class="player" id="player1"></div>
+    </div>
+  </section>
+
+  <section data-title="Disable edit">
+    <h2>In case of static audio, you can disable ability to edit it</h2>
+    <pre data-language="html">&lt;div id="player0"&gt;&lt;/div&gt;</pre>
+    <div class='demo'>
+      <script>
+        UT.Expression.ready(function(post) {
+          jQuery('#player2').utAudio({
+            skin:"default",
+            data:"https://soundcloud.com/andy-reed-6/andy-reed-unplugged",
+            editable: false
+          });
+        });
+      </script>
+      <div class="player" id="player2"></div>
+    </div>
+  </section>
+
+  <section data-title="Custom id">
+    <h2>Custom id parameter required if DOM ID of container is not specified</h2>
+    <pre data-language="html">&lt;div id="player myplayer"&gt;&lt;/div&gt;</pre>
+    <div class='demo'>
+      <script>
+        UT.Expression.ready(function(post) {
+          jQuery('.myplayer').utAudio({
+            skin:"default",
+            id:"myId"
+          });
+        });
+      </script>
+      <div class="player myplayer"></div>
+    </div>
+  </section>
+
+  <section data-title="Custom add, remove">
+    <h2>Custom way to add, remove audios</h2>
+    <p>It can be usefull if you want to create audio panel dynamicly. For example, some audio-playlists, audio-walls, audio-slideshows and etc.</p>
+    <pre data-language="html">&lt;div id="player myplayer"&gt;&lt;/div&gt;</pre>
+    <div class='demo'>
+      <script>
+        UT.Expression.ready(function(post) {
+          // audio container and action buttons
+          var container3 = jQuery('#player3');
+          var buttons3 = {
+            add:     $('.player3-add-button'),
+            destroy: $('.player3-remove-button')
+          };
+
+          // create new audio panel
+          buttons3.add.on('click',function(){
+            post.dialog('sound', function(data){
+              container3.utAudio({skin:"default",data:data});
+            });
+          });
+
+          // fully destroy audio
+          buttons3.destroy.on('click',function(){
+            container3.utAudio('destroy');
+          });
+        });
+      </script>
+      <div class="player3-add-button ut-edit-button icon_sound spaced-right">Embed audio</div>
+      <div class="player3-remove-button ut-edit-button icon_delete spaced-right">Destroy</div>
+      <div class="player" id="player3"></div>
+    </div>
+  </section>
+
+  <section data-title="Events">
+    <h2>For some cases it can be usefull to listen for player's events. Example: You can</h2>
+    <ul>
+      <li>change UI outside player during playing, editing</li>
+      <li>highlight custom play/pause controls depends on player state</li>
+      <li>start to play next audio, if current audio is finished</li>
+      <li>... and much more :)</li>
+    </ul>
+    <p>Open your browser console to check it ;)</p>
+    <pre data-language="html">&lt;div id="player myplayer"&gt;&lt;/div&gt;</pre>
+    <div class='demo'>
+      <script>
+        UT.Expression.ready(function(post) {
+          var player4 = jQuery('#player4').utAudio({skin:"default"});
+
+          player4.on('utAudio:change',function(e,newValue,oldValue){
+            console.log('--- utAudio:change -> audio data/parameters was changed. Changed data: new = ',newValue,', old = ',oldValue);
+          });
+
+          player4.on('utAudio:ready',function(e, data){
+            console.log('--- utAudio:ready -> audio component ready to accept events', data);
+          });
+
+          player4.on('utAudio:mediaReady',function() {
+            console.log('--- utAudio:mediaReady -> audio ready to be played');
+          });
+
+          player4.on('utAudio:mediaAdd',function() {
+            console.log('--- utAudio:mediaAdd -> audio ready to be played');
+          });
+
+          player4.on('utAudio:mediaRemove',function() {
+            console.log('--- utAudio:mediaRemove -> audio ready to be played');
+          });
+
+          player4.on('utAudio:play',function() {
+            console.log('--- utAudio:play -> audio started to play');
+          });
+
+          player4.on('utAudio:pause',function() {
+            console.log('--- utAudio:pause -> audio paused');
+          });
+
+          player4.on('utAudio:stop',function() {
+            console.log('--- utAudio:stop -> audio stopped');
+          });
+
+          player4.on('utAudio:finish',function() {
+            console.log('--- utAudio:finish -> audio finished');
+          });
+
+          player4.on('utAudio:timeUpdate',function(e, s) {
+            console.log('--- utAudio:timeupdate -> audio time updated', s);
+          });
+
+          player4.on('utAudio:seek',function() {
+            console.log('--- utAudio:seek -> audio seek started');
+          });
+
+          player4.on('utAudio:dialogOpen',function() {
+            console.log('--- utAudio:dialogOpen -> audio seek started');
+          });
+
+          player4.on('utAudio:dialogCancel',function() {
+            console.log('--- utAudio:dialogCancel -> audio seek started');
+          });
+        });
+      </script>
+      <div class="player" id="player4"></div>
+    </div>
+  </section>
+
+  <section data-title="Public methods">
+    <h2>Public methods</h2>
+    <p>
+      Player support "play", "pause" and "stop" methods,
+      <br>as well as "change" and "destroy" (check part "Custom way to add, edit, remove audios").
+      <br>As example of usage:
+    </p>
+    <ul>
+      <li>you can stop/pause all audios on your page, while you you are watching for one of audio.</li>
+      <li>you can have custom playback controls, somewhere outside player</li>
+      <li>you can play several audios one by one (using events as well)</li>
+      <li>... and much more :)</li>
+    </ul>
+    <pre data-language="html">&lt;div id="player myplayer"&gt;&lt;/div&gt;</pre>
+    <div class='demo'>
+      <script>
+        UT.Expression.ready(function(post) {
+          var player5 =  jQuery('#player5').utAudio({
+            skin:"default",
+            data:"https://itunes.apple.com/us/album/into-the-groove/id329043011?i=329043298",
+            ui:{
+              play:    true,
+              progress:true,
+              time:    true,
+              title:   true,
+              source:  true,
+              artwork: true
+            },
+            editable: false
+          });
+
+          var buttons5 = {
+            play:   $('.player5-play-button'),
+            seek:   $('.player5-seek-button'),
+            pause:  $('.player5-pause-button'),
+            stop:   $('.player5-stop-button'),
+            volDn:  $('.player5-volume-down-button'),
+            volUp:  $('.player5-volume-up-button'),
+            dialog: $('.player5-dialog-button'),
+            update: $('.player5-update-button')
+          };
+
+          buttons5.play.on('click',function(){
+            player5.utAudio('play');
+          });
+
+          buttons5.seek.on('click',function(){
+            player5.utAudio('play',15);
+          });
+
+          buttons5.pause.on('click',function(){
+            player5.utAudio('pause');
+          });
+
+          buttons5.stop.on('click',function(){
+            player5.utAudio('stop');
+          });
+
+          buttons5.volDn.on('click',function(){
+            player5.utAudio('volume',0.2);
+          });
+
+          buttons5.volUp.on('click',function(){
+            player5.utAudio('volume',0.8);
+          });
+
+          buttons5.dialog.on('click',function(){
+            player5.utAudio('dialog');
+          });
+
+          buttons5.update.on('click',function(){
+            player5.width(player5.width()*0.8);
+            player5.utAudio('update');
+          });
+        });
+      </script>
+      <div class="player5-play-button ut-edit-button icon_play " title="play"></div>
+      <div class="player5-seek-button ut-edit-button icon_next spaced-right "  title="play starting 15 sec">15s</div>
+      <div class="player5-pause-button ut-edit-button icon_pause " title="pause"></div>
+      <div class="player5-stop-button ut-edit-button icon_stop " title="stop"></div>
+      <div class="player5-volume-down-button ut-edit-button icon_volume_1 spaced-right " title="set 20% of volume">0.2</div>
+      <div class="player5-volume-up-button   ut-edit-button icon_volume_3 spaced-right " title="set 80% of volume">0.8</div>
+      <div class="player5-dialog-button ut-action-button ut-large-button ut-button" title="dialog">Dialog</div>
+      <div class="player5-update-button   ut-edit-button icon_refresh "  title="update"></div>
+      <div class="player" id="player5"></div>
+    </div>
+  </section>
+
+  <section data-title="UI elements">
+    <h2>Show hide UI elements</h2>
+    <div class='demo'>
+      <script>
+        UT.Expression.ready(function(post) {
+          jQuery('#player6').utAudio({
+            skin:"default",
+            data:'https://soundcloud.com/londongrammar/hey-now',
+            ui:{
+              play:    true,
+              progress:true,
+              time:    true,
+              title:   true,
+              source:  true,
+              artwork: true
+            },
+            editable: false
+          });
+
+          jQuery('#player7').utAudio({
+            skin:"default",
+            data:'https://soundcloud.com/londongrammar/hey-now',
+            ui:{
+              progress:false,
+              time:    false
+            },
+            editable: false
+          });
+
+          jQuery('#player8').utAudio({
+            skin:"default",
+            data:'https://soundcloud.com/londongrammar/hey-now',
+            ui:{
+              play:    true,
+              progress:false,
+              time:    false,
+              title:   false,
+              source:  false,
+              artwork: true
+            },
+            editable: false
+          });
+        });
+      </script>
+      <div class="player" id="player6"></div>
+      <div class="player" id="player7"></div>
+      <div class="player" id="player8"></div>
+    </div>
+  </section>
+
+  <section data-title="Custom skins">
+    <h2>
+      You can create your own skin by creating css file based on default skin. This functionality is experemental, but you can check the example here:
+      <br><a target="_blank" href="https://github.com/urturn/urturn-expression-showcase/tree/master/expressions/sticker-player">Source on github</a>
+      <br><a target="_blank" href="http://www.urturn.com/Dmitry/sticker-player">Live example</a>
+    </h2>
+    <div class='demo'>
+      <script>
+        UT.Expression.ready(function(post) {
+          jQuery("#player9").utAudio({
+            skin: 'default'
+          });
+        });
+      </script>
+      <div class="player" id="player9"></div>
+    </div>
+  </section>
+</article>

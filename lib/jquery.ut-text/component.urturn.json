@@ -1,0 +1,15 @@
+{
+  "name": "jquery.ut-text",
+  "version": "0.4.7",
+  "dependencies": {
+    "jquery": ">=2.0.0",
+    "urturn-expression-css": ">=0.6.0",
+    "jquery-textfill": "http://github.com/urturn/jquery-textfill.git",
+    "FontDetect": "http://github.com/maiis/FontDetect.git"
+  },
+  "includes": [],
+  "main": [
+    "jquery.ut-text.js",
+    "jquery.ut-text.css"
+  ]
+}

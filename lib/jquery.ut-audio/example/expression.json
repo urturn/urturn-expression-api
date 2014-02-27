@@ -1,0 +1,24 @@
+{
+  "title":"Test utAudio",
+  "system_name":"test-ut-audio",
+  "version":"1.0.78",
+  "admins":["dmitry"],
+  "api_version": "1.2.1",
+  "platform": [],
+  "assets":[],
+  "dependencies":[
+    {"path":"lib/jquery.ut-audio/js/jquery.ut-audio-engine.js"},
+    {"path":"lib/jquery.ut-audio/js/jquery.ut-audio.js"},
+    {"path":"lib/jquery.ut-audio/js/jquery.jplayer.min.js"},
+    {"path":"lib/jquery.ut-audio/css/default/jquery.ut-audio.css"},
+    {"path":"lib/jquery.ut-audio/css/bottom-over/ut-audio-player-bottom-over.css"},
+
+    {"path":"js/example.js"},
+    {"path":"css/example.css"},
+
+    {"path":"css/main.css"},
+
+    {"path":"rainbow/rainbow.min.js"},
+    {"path":"rainbow/themes/github.css"}
+  ]
+}

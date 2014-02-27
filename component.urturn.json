@@ -2,7 +2,7 @@
   "name": "urturn-expression-api",
   "version": "1.2.12",
   "dependencies": {
-    "jquery": "~2.0.0"
+    "jquery": "~2.1.0"
   },
   "includes": [
     "fastclick",

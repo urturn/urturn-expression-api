@@ -1,5 +1,3 @@
-/node_modules/
-/components/
 /.s3private.json
 .urturn/
 *.expression

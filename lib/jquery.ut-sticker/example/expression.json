@@ -1,0 +1,33 @@
+{
+  "title": "jQuery.utSticker Usage",
+  "description": "",
+  "system_name": "ut-sticker-example",
+  "version": "0.2.1",
+  "api_version": "0.9.0",
+  "platform": [
+    "desktop"
+  ],
+  "dependencies": [
+    {
+      "path": "assets/master.css"
+    },
+    {
+      "path": "assets/rainbow.css"
+    },
+    {
+      "path": "assets/exp.css"
+    },
+    {
+      "path": "assets/editor.js"
+    },
+    {
+      "path": "assets/rainbow.min.js"
+    },
+    {
+      "path": "lib/jquery.ut-sticker/jquery.ut-sticker.js"
+    },
+    {
+      "path": "lib/jquery.ut-sticker/jquery.ut-sticker.css"
+    }
+  ]
+}

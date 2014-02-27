@@ -1,0 +1,511 @@
+<section class="expression-content">
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Sticker are constrained to their parent element</h3>
+    <pre><code data-language="html">&lt;div&gt;
+  &lt;div id="sticker-1" style="width:90px"&gt;
+    &lt;img src="assets/pix0.png" style="width:100%; height:100%"/&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    <pre><code data-language="javascript">$('#sticker-1').utSticker();</code></pre>
+    <div class="sticker-panel sticker-panel-tiny">
+      <div id="sticker-1" style="width:90px"><img src="assets/pix0.png" style="width:100%; height:100%;"/></div>
+    </div>
+  </div>
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Multiple Stickers Instantiation</h3>
+    <p>The following code will create sticker automatically keep references for retrieving them on load.</p>
+    <pre><code data-language="html">&lt;div&gt;
+  &lt;img class="sticker-2" id="sticker-2-1" src="assets/pix1.png" width="50px"/&gt;
+  &lt;img class="sticker-2" id="sticker-2-2" src="assets/pix2.png" width="50px"/&gt;
+  &lt;img class="sticker-2" id="sticker-2-3" src="assets/pix3.png" width="50px"/&gt;
+&lt;/div&gt;</code></pre>
+    <pre><code data-language="javascript">$('.sticker-2').utSticker();</code></pre>
+    <div class="sticker-panel sticker-panel-tiny">
+      <img class="sticker-2" id="sticker-2-1" src="assets/pix1.png" width="50px"/>
+      <img class="sticker-2" id="sticker-2-2" src="assets/pix2.png" width="50px"/>
+      <img class="sticker-2" id="sticker-2-3" src="assets/pix3.png" width="50px"/>
+    </div>
+  </div>
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Sticker Without Drop Control</h3>
+    <p>You can remove some of the display by passing ui object properties to the options.</p>
+    <pre><code data-language="html">&lt;div&gt;
+  &lt;img class="sticker-3" src="assets/pix4.png" width="50px"/&gt;
+&lt;/div&gt;</code></pre>
+    <pre><code data-language="javascript">$('.sticker-3').utSticker({
+  id: 'sticker3',
+  ui: {
+    remove: false
+  }
+});</code></pre>
+    <div class="sticker-panel sticker-panel-tiny">
+      <img class="sticker-3" src="assets/pix4.png" width="50"/>
+    </div>
+  </div>
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Positioned Stickers</h3>
+    <p>You can set default sticker position by use cx/left/right,cy/top/bottom properties, and size by width,height,ratio properties.</p>
+    <pre><code data-language="html">&lt;div&gt;
+  &lt;div id="sticker-4-1&gt;
+    &lt;img src="assets/pix5.png" style="width:100%; height:100%"/&gt;
+  &lt;/div&gt;
+  &lt;div id="sticker-4-2"&gt;
+    &lt;img src="assets/pix5.png" style="width:100%; height:100%"/&gt;
+  &lt;/div&gt;
+  &lt;div id="sticker-4-3"&gt;
+    &lt;img src="assets/pix5.png" style="width:100%; height:100%"/&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    <pre><code data-language="javascript">$('#sticker-4-1').utSticker({
+      styles:{
+        pos:{
+          cx: "25%",
+          cy: "50%",
+          width: 58,
+          height: 48
+        }
+      }
+    });
+      $('#sticker-4-2').utSticker({
+      styles:{
+        pos:{
+          right: "10%",
+          cy: "50%",
+          width: 58,
+          ratio: 58/48,
+          rotation: 0
+        }
+      }
+    });
+    $('#sticker-4-3').utSticker({
+      styles:{
+        pos:{
+          cx: "50%",
+          bottom: "5px",
+          width: 58,
+          height: 48
+        }
+      }
+    });</code></pre>
+    <div class="sticker-panel sticker-panel-tiny">
+      <div class="tempLine1">25%</div>
+      <div class="tempLine2">50%</div>
+      <div class="tempLine3">90%</div>
+      <div class="tempLine4">50%</div>
+      <div class="tempLine5">5px from bottom</div>
+      <div id="sticker-4-1"><img src="assets/pix5.png" style="width:100%; height:100%"/></div>
+      <div id="sticker-4-2"><img src="assets/pix5.png" style="width:100%; height:100%"/></div>
+      <div id="sticker-4-3"><img src="assets/pix5.png" style="width:100%; height:100%"/></div>
+    </div>
+  </div>
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Set movable area</h3>
+    <p>You can set movable area for stickers, used indent and outdent.</p>
+    <pre><code data-language="html">&lt;div&gt;
+  &lt;div id="sticker-7-1&gt;
+    &lt;img src="assets/pix1.png" style="width:100%; height:100%"/&gt;
+  &lt;/div&gt;
+  &lt;div id="sticker-7-2"&gt;
+    &lt;img src="assets/pix2.png" style="width:100%; height:100%"/&gt;
+  &lt;/div&gt;
+  &lt;div id="sticker-7-3"&gt;
+    &lt;img src="assets/pix3.png" style="width:100%; height:100%"/&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+    <pre><code data-language="javascript">$('#sticker-7-1').utSticker({
+  styles:{
+    pos:{
+      cx: "25%",
+      cy: "50%",
+      width: 50,
+      height: 78,
+      rotation: -30
+    },
+    parentIndent: {
+      left: 0,
+      top: 0,
+      right: "50%",
+      bottom: "0"
+    }
+  }
+});
+$('#sticker-7-2').utSticker({
+  styles:{
+    pos:{
+      right: "10%",
+      cy: "50%",
+      width: 50,
+      ratio: 50/74,
+      rotation: 30
+    },
+    parentIndent: {
+      left: "50%",
+      top: 0,
+      right: "0",
+      bottom: "0"
+    }
+  }
+});
+$('#sticker-7-3').utSticker({
+  styles:{
+    pos:{
+      cx: "50%",
+      bottom: "5px",
+      width: 50,
+      height: 38,
+      rotation: 0
+    },
+    parentIndent: {
+      left: 0,
+      top: 0,
+      right: 0,
+      bottom: 0
+    },
+    selfOutdent: {
+      left: "50%",
+      top: "30px",
+      right: "50%",
+      bottom: "30px"
+    }
+  }
+});</code></pre>
+    <div class="sticker-panel sticker-panel-tiny">
+      <div id="sticker-7-1"><img src="assets/pix1.png" style="width:100%; height:100%"/></div>
+      <div id="sticker-7-2"><img src="assets/pix2.png" style="width:100%; height:100%"/></div>
+      <div id="sticker-7-3"><img src="assets/pix3.png" style="width:100%; height:100%"/></div>
+    </div>
+  </div>
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Rotation limits and snap</h3>
+    <p>You can set different rotation limits and snap.</p>
+    <pre><code data-language="html">&lt;div&gt;
+  &lt;img id="sticker-9-1" src="assets/pix1.png" style="width:60px"/&gt;
+  &lt;img id="sticker-9-2" src="assets/pix2.png" style="width:60px"/&gt;
+  &lt;img id="sticker-9-3" src="assets/pix3.png" style="width:70px"/&gt;
+&lt;/div&gt;</code></pre>
+    <pre><code data-language="javascript">$('#sticker-9-1').utSticker({
+  styles:{
+    autoflip: false, // disable auto flip content
+    pos:{
+      cx: "25%",
+      cy: "50%"
+    },
+    rotationLimits: {
+      min: 0,
+      max: 180
+    },
+    rotationSnap: {
+      base: 45,
+      precision: 4
+    }
+  }
+});
+$('#sticker-9-2').utSticker({
+  styles:{
+    autoflip: false, // disable auto flip content
+    pos:{
+      cx: "75%",
+      cy: "50%"
+    },
+    rotationLimits: {
+      min: -180,
+      max: 0
+    },
+    rotationSnap: {
+      base: 30
+    }
+  }
+});
+$('#sticker-9-3').utSticker({
+  styles:{
+    autoflip: false, // disable auto flip content
+    pos:{
+      cx: "50%",
+      bottom: "0"
+    },
+    rotationSnap: {
+      base: 20,
+      precision: 10
+    }
+  }
+});</code></pre>
+    <div class="sticker-panel sticker-panel-tiny">
+      <img id="sticker-9-1" src="assets/pix1.png" style="width:60px"/>
+      <img id="sticker-9-2" src="assets/pix2.png" style="width:60px"/>
+      <img id="sticker-9-3" src="assets/pix3.png" style="width:70px"/>
+    </div>
+  </div>
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Rotate and resize buttons</h3>
+    <p>You can skip 'rotate' and 'resize' fields in 'ui' parameters and manage bugs by 'editable' parameter.</p>
+    <pre><code data-language="html">&lt;div&gt;
+      &lt;img id="sticker-10-1" src="assets/pix1.png" style="width:50px"/&gt;
+      &lt;img id="sticker-10-2" src="assets/pix2.png" style="width:50px"/&gt;
+      &lt;img id="sticker-10-3" src="assets/pix3.png" style="width:50px"/&gt;
+      &lt;img id="sticker-10-4" src="assets/pix1.png" style="width:50px"/&gt;
+      &lt;img id="sticker-10-5" src="assets/pix2.png" style="width:50px"/&gt;
+      &lt;img id="sticker-10-6" src="assets/pix3.png" style="width:50px"/&gt;
+      &lt;/div&gt;</code></pre>
+    <pre><code data-language="javascript">$('#sticker-10-1').utSticker({
+  editable: {
+    movable: true,
+    rotatable: true,
+    resizable: true
+  },
+  styles:{
+    autoflip: false, // disable auto flip content
+    pos:{
+      cx: "25%",
+      cy: "25%"
+    }
+  }
+});
+$('#sticker-10-2').utSticker({
+  editable: {
+    rotatable: false,
+    resizable: true
+  },
+  styles:{
+    autoflip: false, // disable auto flip content
+    pos:{
+      cx: "50%",
+      cy: "25%"
+    }
+  }
+});
+$('#sticker-10-3').utSticker({
+  editable: {
+    rotatable: true,
+    resizable: false
+  },
+  styles:{
+    autoflip: false, // disable auto flip content
+    pos:{
+      cx: "75%",
+      cy: "25%"
+    }
+  }
+});
+
+$('#sticker-10-4').utSticker({
+  editable: {
+    rotatable: true,
+    resizable: true
+  },
+  styles:{
+    proportional: false,
+    autoflip: false, // disable auto flip content
+    pos:{
+      cx: "25%",
+      cy: "75%"
+    }
+  }
+});
+$('#sticker-10-5').utSticker({
+  editable: {
+    rotatable: false,
+    resizable: true
+  },
+  styles:{
+    proportional: false,
+    autoflip: false, // disable auto flip content
+    pos:{
+      cx: "50%",
+      cy: "75%"
+    }
+  }
+});
+$('#sticker-10-6').utSticker({
+  editable: {
+    rotatable: true,
+    resizable: false
+  },
+  styles:{
+    proportional: false,
+    autoflip: false, // disable auto flip content
+    pos:{
+      cx: "75%",
+      cy: "75%"
+    }
+  }
+});
+</code></pre>
+    <div class="sticker-panel sticker-panel-tiny">
+      <img id="sticker-10-1" src="assets/pix1.png" style="width:50px"/>
+      <img id="sticker-10-2" src="assets/pix2.png" style="width:50px"/>
+      <img id="sticker-10-3" src="assets/pix3.png" style="width:50px"/>
+      <img id="sticker-10-4" src="assets/pix1.png" style="width:50px"/>
+      <img id="sticker-10-5" src="assets/pix2.png" style="width:50px"/>
+      <img id="sticker-10-6" src="assets/pix3.png" style="width:50px"/>
+    </div>
+  </div>
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Create stickers dynamically</h3>
+    <pre><code data-language="html">&lt;div id="sticker-panel-3"&gt;
+  &lt;button id="add-sticker-3"&gt;ADD&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+    <pre><code data-language="javascript">UT.Expression.ready(function(post){
+  // define the sticker_keys that
+  // will hold name of all sticker instances.
+  var sticker_keys = post.storage.sticker_keys || []
+
+  /**
+   * Create the sticker HTML markup, append it to a parent node,
+   * and make it a sticker.
+   */
+  function addSticker(name){
+    // Define some random values for the start position.
+    var top = parseInt(Math.random() * 150, 10),
+        left = parseInt(Math.random() * 250, 10),
+        size = parseInt(Math.random() * 75, 10) + 25,
+        rotation = parseInt(Math.random() * 2 * Math.PI);
+    $('&lt;img src="assets/pix0.png" width="50px" height="50px"/&gt;')
+      .appendTo('#sticker-panel-3')
+      .utSticker({
+        id: name,
+        styles:{
+          pos:{
+            top: top,          // distance from top in px
+            left: left,        // distance from left in px
+            width: size,       // width in pixels
+            height: size,      // height in pixels
+            rotation: rotation // rotation in radian
+          }
+        }
+      });
+  }
+
+  /**
+   * Load existing data if any
+   */
+  $(post.storage.sticker_keys).each(function(_, sticker_key){
+    if(post.storage[sticker_key]){
+      addSticker(sticker_key); // This will load the data from storage.
+    }
+  });
+
+  // Bind the ADD button
+  $('#add-sticker-3').on('click', function(event){
+    var name = 'sticker-' + UT.uuid();
+    sticker_keys.push(name);
+    post.storage.sticker_keys = sticker_keys;
+    addSticker(name);
+  });
+})</code></pre>
+    <div class="sticker-panel sticker-panel-tiny" id="sticker-panel-3">
+      <button id="add-sticker-3">ADD</button>
+    </div>
+  </div>
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Set the editable attribute.</h3>
+    <p>By default, the sticker is editable in editor but not in player.
+      But you can do the opposite of course.</p>
+    <pre><code data-language="html">&lt;div&gt;
+  &lt;img src="assets/pix0.png" style="width:50px; height:50px"/&gt;
+&lt;/div&gt;</code></pre>
+    <pre><code data-language="javascript">$('#sticker-5').utSticker({
+  editable: !(post.context.editor)
+});
+$('.sticker-editable').on('click', function(event){
+  $('#sticker-5').utSticker('editable',
+    ($(event.target).data('editable') === 'editable'));
+});
+</code></pre>
+    <div>
+      <button class="sticker-editable" data-editable="editable">enable</button>
+      <button class="sticker-editable" data-editable="">disable</button>
+    </div>
+    <div class="sticker-panel sticker-panel-tiny">
+      <div id="sticker-5" style="width:90px"><img src="assets/pix0.png" style="width:100%; height:100%;"/></div>
+    </div>
+  </div>
+
+  <div class="ut-method">
+    <h3 class="ut-method-name">Try to use...</h3>
+    <p>Change parameters for sticker, and click "update" to apply it.</p>
+    <pre><code data-language="html">&lt;div&gt;
+  &lt;img src="assets/pix6.png" style="width:50px; height:50px"/&gt;
+&lt;/div&gt;</code></pre>
+    <pre><span class="selector">$</span>(<span class="string">'#sticker-6'</span>).<span class="function call">utSticker</span>({
+      <textArea class="stylesList" wrap="off">{
+  id: "",
+  editable: true, // sticker can be edited by user
+  ui: { // show/hide sticker's buttons
+    edit: false,
+    resize: false, // you can hide resize or rotate button, and keep "proportional" as true, to rotate and resize by one button
+    rotate: true, // you can hide resize or rotate button, and keep "proportional" as true, to rotate and resize by one button
+    remove: true
+    // custom: "class1" -- also you can add custom buttons
+  },
+  styles: {
+    proportional: true, // the sticker will resizing proportionally
+    autoflip: true, // auto flip sticker content if angle more 180deg
+    useBounds: true, // calculate sticker bounds for validate position in movable area
+    pos: {
+      width: null, // sticker width
+      ratio: null, // sticker size ratio (e.g. width/height)
+      height: null, // sticker height
+      cx: null, // x-position from center (default '50%')
+      cy: null, // y-position from center (default '50%')
+      left: null, // position from parent left side
+      right: null, // position from parent right side
+      top: null, // position from parent top side
+      bottom: null, // position from parent bottom side
+      rotation: 0, // angle for rotation in deg
+      zIndex: 0 // z-index of sticker
+    },
+    parentIndent: { // set movable area for sticker, based on parent container
+      top: null,
+      left: null,
+      bottom: null,
+      right: null
+    },
+    selfOutdent: { // set outdent for sticker, based on current sticker size
+      top: "0%",
+      left: "0%",
+      bottom: "0%",
+      right: "0%"
+    },
+    sizeLimits: { // min and max sticker's size
+      minWidth: "10%",
+      minHeight: "10%",
+      maxWidth: "90%",
+      maxHeight: "90%"
+    },
+    rotationLimits: { // start and end angle for rotation
+      min: "-180",
+      max: "180"
+    },
+    rotationSnap: { // snap for rotation
+      base: 90,
+      precision: 3
+    },
+    topOnFocus: true // every time when focus was captured, sticker will moved to top layer
+  },
+  i18n:{ // tip's text
+    edit: "edit",
+    resize: "resize",
+    rotate: "rotate",
+    remove: "remove"
+  }
+}</textArea>
+      });
+    </pre>
+    <div>
+      <button class="sticker-recreate">Recreate sticker</button>
+      <button class="sticker-update">Update</button>
+    </div>
+    <div class="sticker-panel sticker-panel-tiny" id="last_sticker_panel">
+      <img id="sticker-6" src="assets/pix6.png" style="width:50px; height:50px;"/>
+    </div>
+  </div>
+</section>

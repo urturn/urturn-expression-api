@@ -1,0 +1,52 @@
+.player{
+  width: 100%;
+  height: 300px;
+  position: relative;
+  margin: 5px 0;
+  background: rgba(0,0,0,0.1);
+}
+
+#player01,
+#player02,
+#player03,
+#player04,
+#player05,
+#player06,
+#player07{
+  display: block;
+}
+
+#player01{
+  width: 400px;
+  height: 400px;
+}
+
+#player02{
+  width: 300px;
+  height: 300px;
+}
+
+#player03{
+  width: 200px;
+  height: 200px;
+}
+
+#player04{
+  width: 200px;
+  height: 300px;
+}
+
+#player05{
+  width: 300px;
+  height: 200px;
+}
+
+#player06{
+  width: 400px;
+  height: 200px;
+}
+
+#player07{
+  width: 200px;
+  height: 400px;
+}

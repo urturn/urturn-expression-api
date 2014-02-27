@@ -1,0 +1,19 @@
+{
+  "title": "jQuery.utImage Usage",
+  "description": "",
+  "system_name": "ut-image-example",
+  "version": "0.2.15",
+  "api_version": "1.2.1",
+  "platform": [
+    "desktop"
+  ],
+  "dependencies": [
+    { "path": "lib/jquery.ut-image/jquery.ut-image.js" },
+    { "path": "lib/jquery.ut-image/jquery.ut-image.css" },
+    { "path": "assets/master.css" },
+    { "path": "assets/rainbow.css" },
+    { "path": "assets/rainbow.min.js" },
+    { "path": "assets/exp.css" },
+    { "path": "assets/editor.js" }
+  ]
+}

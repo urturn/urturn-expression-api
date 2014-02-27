@@ -1,0 +1,23 @@
+{
+  "name": "jquery.ut-sticker",
+  "version": "0.9.32",
+  "author": {
+    "name": "Urturn",
+    "email": "dev@urturn.com"
+  },
+  "homepage": "http://github.com/urturn/jquery.ut-sticker/",
+  "licenses": [
+    {
+      "type": "AGPL-3",
+      "url": "https://github.com/urturn/jquery.ut-sticker/blob/master/LICENSE"
+    }
+  ],
+  "main": ["jquery.ut-sticker.js", "jquery.ut-sticker.css"],
+  "dependencies": {
+    "jquery": ">=1.8.1",
+    "urturn-expression-css": ">=0.6.0"
+  },
+  "devDependencies": {
+    "qunit": "~1.11.0"
+  }
+}

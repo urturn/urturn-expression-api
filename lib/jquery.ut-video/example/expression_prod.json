@@ -1,0 +1,16 @@
+{
+  "title":"Test utVideo",
+  "system_name":"test-ut-video",
+  "version":"1.1.0",
+  "admins":["dmitry"],
+  "api_version": "0.9.0",
+  "platform": [],
+  "assets":[],
+  "dependencies":[
+    {"path":"js/main.js"},
+    {"path":"css/main.css"},
+
+    {"path":"rainbow/rainbow.min.js"},
+    {"path":"rainbow/themes/sunburst.css"}
+  ]
+}

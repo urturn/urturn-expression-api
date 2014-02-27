@@ -1,0 +1,226 @@
+@import "../modules/mixins";
+@import "../modules/variables";
+
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, code, time,
+del, dfn, em, img, q, dl, dt, dd, ol, ul, li,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, dialog, figure, footer, header,
+hgroup, nav, section {
+  @include box-sizing(border-box);
+  @include background-origin(padding-box);
+}
+
+.webdoc_expression_wrapper,
+.urturn-expression-wrapper {
+  position: relative;
+  top:0;
+  left:0;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  
+  font: 62.5%/1.4 'Helvetica Neue', helvetica, arial, sans-serif;
+  -webkit-text-size-adjust: none;
+  -ms-text-size-adjust: none;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-touch-callout: none;
+  
+  @include transform(translateZ(0));
+
+  -webkit-font-smoothing: antialiased;
+}
+
+.clearfix:after {
+  display: block;
+  visibility: hidden;
+  clear: both;
+  height: 0;
+  content: " ";
+  font-size: 0;
+}
+
+/* utilities */
+
+.hidden,
+.is-hidden {
+  display: none !important;
+}
+
+.is-invisible {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.is-visible {
+  @include transition(opacity 0.16s ease-in);
+  visibility: visible;
+  opacity: 1;
+}
+
+.no-transition {
+  @include transition(none !important);
+}
+
+.no-select {
+  @include user-select(none);
+  cursor: default;
+}
+
+/* Positioning */
+
+.tl, .tr, .bl, .br, .tls, .trs, .bls, .brs { position: absolute; }
+.tl, .tr { top: 0; }
+.bl, .br { bottom: 0; }
+.tl, .bl { left: 0; }
+.tr, .br { right: 0; }
+
+.tls, .trs { top: 1em; }
+.bls, .brs { bottom: 1em; }
+.tls, .bls { left: 1em; }
+.trs, .brs { right: 1em; }
+
+/* scroll */
+.scroll {
+  overflow: auto;
+  webkit-overflow-scrolling: touch;
+}
+
+.scroll::-webkit-scrollbar {
+  border-radius: 12px;
+  width: 9px;
+  height: 9px;
+  background-color: transparent;
+}
+
+.scroll::-webkit-scrollbar-thumb:vertical,
+.scroll::-webkit-scrollbar-thumb:horizontal {
+  border-radius: 12px;
+  border: 2px solid white;
+  background-color: #888888;
+}
+
+.scroll::-webkit-scrollbar-thumb:vertical {
+  min-height: 20px;
+}
+
+.scroll::-webkit-scrollbar-thumb:horizontal {
+  min-width: 20px;
+}
+
+.scroll::-webkit-scrollbar-track-piece:disabled,
+.scroll::-webkit-scrollbar-button:disabled {
+  display: none !important;
+}
+
+.x-scroll {
+  overflow-y: hidden;
+}
+
+.y-scroll {
+  overflow-x: hidden;
+}
+
+.x-scroll.y-scroll {
+  overflow: scroll;
+}
+
+.no-scroll {
+  overflow: hidden;
+}
+
+/* Icons */
+
+.spaced-right::before {
+  margin-right: 0.5em;
+}
+
+.spaced-left::before {
+  margin-left: 0.5em;
+}
+
+//* Loading Dots */
+.ut-loading_dots {
+  width: 110px;
+  height: 12px;
+  line-height: 12px;
+  margin: 16px auto;
+  text-align: center;
+
+  span {
+    display: block;
+    float: left;
+    width: 12px;
+    height: 12px;
+    margin: 0 5px;
+
+    vertical-align: middle;
+
+    background-color: $electric-red;
+    border-radius: 50%;
+    -webkit-transform: translateZ(0); // Enable GPU
+    -webkit-animation: fadin .4s infinite alternate;
+       -moz-animation: fadin .4s infinite alternate;
+         -o-animation: fadin .4s infinite alternate;
+            animation: fadin .4s infinite alternate;
+
+    &:nth-child(2) {
+      -webkit-animation-delay: 0.1s;
+         -moz-animation-delay: 0.1s;
+          -ms-animation-delay: 0.1s;
+           -o-animation-delay: 0.1s;
+              animation-delay: 0.1s;
+    }
+    &:nth-child(3) {
+      -webkit-animation-delay: 0.2s;
+         -moz-animation-delay: 0.2s;
+          -ms-animation-delay: 0.2s;
+           -o-animation-delay: 0.2s;
+              animation-delay: 0.2s;
+    }
+    &:nth-child(4) {
+      -webkit-animation-delay: 0.3s;
+         -moz-animation-delay: 0.3s;
+          -ms-animation-delay: 0.3s;
+           -o-animation-delay: 0.3s;
+              animation-delay: 0.3s;
+    }
+    &:nth-child(5) {
+      -webkit-animation-delay: 0.4s;
+         -moz-animation-delay: 0.4s;
+          -ms-animation-delay: 0.4s;
+           -o-animation-delay: 0.4s;
+              animation-delay: 0.4s;
+    }
+  }
+
+  &.absolute {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 1;
+  }
+}
+
+@-webkit-keyframes fadin {
+  0%   { opacity: 1;  }
+  100% { opacity: .2; }
+}
+@-moz-keyframes fadin {
+  0%   { opacity: 1;  }
+  100% { opacity: .2; }
+}
+@-ms-keyframes fadin {
+  0%   { opacity: 1;  }
+  100% { opacity: .2; }
+}
+@-o-keyframes fadin {
+  0%   { opacity: 1;  }
+  100% { opacity: .2; }
+}
+@keyframes fadin {
+  0%   { opacity: 1;  }
+  100% { opacity: .2; }
+}

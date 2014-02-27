@@ -1,0 +1,244 @@
+@import "../modules/mixins";
+@import "../modules/variables";
+
+// Reset "Template"
+
+button,
+input,
+select,
+textarea {
+  margin: 0;
+  font-size: 1.2em;
+  font-family: inherit;
+}
+
+label,
+.label {
+  display: block;
+}
+input,
+select,
+textarea {
+  display: inline-block;
+}
+
+label input[type="checkbox"],
+label input[type="radio"],
+label input.checkbox,
+label input.radio {
+  margin-right: 0.72em;
+}
+
+
+label,
+.label {
+  padding: 0;
+  height: 3.2em;
+  font-weight: bold;
+  font-size: 1em;
+  line-height: 3.2em;
+}
+
+
+legend {
+
+  margin-left: 1em;
+  padding: 0 0.75em;
+
+  border: 1px solid rgb(220,220,220);
+  border-radius: 1em;
+
+  color: rgb(180,180,180);
+  font-weight: normal;
+  font-size: 1.1em;
+}
+
+fieldset {
+  &.styled,
+  &:not(:last-of-type) {
+    margin-bottom: 1em;
+    padding-bottom: 1em;
+    border-bottom: 1px solid rgb(240,240,240);
+  }
+
+  + fieldset {
+    padding-top: 0;
+  }
+
+  &.unformatted {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+
+  .pane & {
+    border-color: rgba(0,0,0,.1);
+  }
+
+  input[type=file] {
+    margin-top: 0.72em;
+  }
+
+  input + p.small {
+    margin-top: 1em;
+  }
+}
+
+
+input:not([type]),
+input[type='text'],
+input[type='password'],
+input[type='number'],
+input[type='email'],
+input[type='url'],
+input[type='range'],
+input[type='search'],
+input[type='color'],
+input[type='tel'],
+input[type='date'],
+input[type='time'],
+input[type='week'],
+input[type='month'],
+input[type='datetime'],
+input[type='datetime-local'],
+textarea,
+select {
+  color: rgb(128,128,128);
+  text-indent: 0;
+  font-weight: normal;
+  opacity: 1;
+}
+
+input:not([type]),
+input[type='text'],
+input[type='password'],
+input[type='number'],
+input[type='email'],
+input[type='url'],
+input[type='range'],
+input[type='search'],
+input[type='color'],
+input[type='tel'],
+input[type='date'],
+input[type='time'],
+input[type='week'],
+input[type='month'],
+input[type='datetime'],
+input[type='datetime-local'],
+select {
+  height: 3.2em;
+}
+  input[type='text'].huge,
+  input[type='search'].huge {
+    font-size: 1.8em;
+  }
+
+input:not([type]),
+input[type='text'],
+input[type='file'],
+input[type='password'],
+input[type='number'],
+input[type='email'],
+input[type='url'],
+input[type='search'],
+input[type='color'],
+input[type='tel'],
+input[type='date'],
+input[type='time'],
+input[type='week'],
+input[type='month'],
+input[type='datetime'],
+input[type='datetime-local'],
+textarea,
+select {
+
+  @include transition(box-shadow .1s ease-in-out);
+  padding-right: 1em;
+  padding-left: 1em;
+  border: 1px solid rgb(204,204,204);
+
+  /* Nominally 4px */
+  border-radius: 4px;
+
+  background-color: white;
+
+  &:focus {
+    box-shadow: 0 0 5px rgb(152,152,152);
+    outline: none;
+    border-color: rgb(128,128,128);
+    color: $default-text-color;
+  }
+}
+
+select {
+
+  @include linear-gradient(rgb(250,250,250), rgb(230,230,230));
+  padding: 0.6em 0.6em 0.6em 0.8em;
+  background-position: 0 0;
+  background-repeat: no-repeat, repeat;
+
+  text-shadow: 0 1px 0 rgb(255,255,255);
+  -webkit-padding-end: 20px;
+
+  -webkit-appearance: none;
+     -moz-appearance: none;
+
+  &:focus,
+  &:active {
+    background-position: 0 0;
+  }
+}
+
+textarea,
+textarea.column {
+  padding-top: 0.72em;
+  padding-bottom: 0.72em;
+  min-height: 4.2em;
+  line-height: 1.5em;
+  resize: vertical;
+}
+
+.ut-textbox-item textarea {
+  padding: 0;
+  min-height: 0;
+}
+
+label .required {
+  color: $bloody-red;
+}
+
+abbr.required {
+  border-bottom: 0;
+}
+
+/* Make webkit render search field as textfield */
+
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  display: none;
+}
+
+input[type="search"] {
+  padding-right: 3em;
+  -webkit-appearance: textfield;
+}
+
+
+/* Error styles */
+input[type='text']:focus:invalid,
+input[type='password']:focus:invalid,
+input[type='number']:focus:invalid,
+input[type='email']:focus:invalid,
+input[type='url']:focus:invalid,
+input[type='search']:focus:invalid,
+input[type='color']:focus:invalid,
+input[type='tel']:focus:invalid,
+select:focus:invalid,
+textarea:focus:invalid {
+  border-color: $bloody-red !important;
+
+  &:focus {
+    box-shadow: 0 0 5px rgba(193,39,45,.75);
+  }
+}

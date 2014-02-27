@@ -1,0 +1,24 @@
+{
+  "title":"Test utVideo",
+  "system_name":"test-ut-video",
+  "version":"1.1.7",
+  "admins":["dmitry"],
+  "api_version": "1.2.1",
+  "platform": [],
+  "assets":[],
+  "dependencies":[
+    {"path":"lib/jquery.ut-video/js/jquery.ut-video.js"},
+    {"path":"lib/jquery.ut-video/js/froogaloop.min.js"},
+    {"path":"lib/jquery.ut-video/css/default/jquery.ut-video.css"},
+    {"path":"css/myskins/carbon/jquery.ut-video.css"},
+    {"path":"css/myskins/webdoc/jquery.ut-video.css"},
+
+    {"path":"js/example.js"},
+    {"path":"css/example.css"},
+
+    {"path":"css/main.css"},
+
+    {"path":"rainbow/rainbow.min.js"},
+    {"path":"rainbow/themes/github.css"}
+  ]
+}

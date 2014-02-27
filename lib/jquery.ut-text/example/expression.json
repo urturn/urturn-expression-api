@@ -1,0 +1,20 @@
+{
+  "title": "jQuery.utText Usage",
+  "description": "",
+  "system_name": "ut-text-example",
+  "version": "0.2.9",
+  "api_version": "0.0.0",
+  "platform": [
+    "desktop",
+    "ios"
+  ],
+  "dependencies": [
+    { "path" : "lib/FontDetect/fontdetect.2.1.js"},
+    { "path" : "lib/jquery-textfill/jquery.textfill.js"},
+    { "path" : "jquery.ut-text.js"},
+    { "path" : "jquery.ut-text.css"},
+    { "context": "editor", "path" : "js/editor.js"},
+    { "context": "player", "path" : "js/player.js"},
+    { "path": "css/exp.css"}
+  ]
+}

@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Urturn Expressions CSS</title>
+  <meta name="description" content="Base CSS for Urturn expressions">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- <link href="components/bootstrap-urturn/urturn-theme/css/urturn.css" rel="stylesheet"> -->
+  <link href="http://urturn.github.io/bootstrap-urturn/urturn-theme/css/urturn.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/doc.css">
+
+  </head>
+  <body>
+
+    <header class="navbar navbar-static-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand with_logo" href="/">
+            <span class="logo">Urturn</span> Developers
+          </a>
+
+          <a class="btn btn-navbar collapsed" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+
+          <div class="nav-collapse collapse" style="height: 0px;">
+            <ul class="nav pull-right">
+              <li><a href="http://developers.urturn.com">Documentation</a></li>
+              <li class="active"><a href="/">Base CSS</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Subhead
+  ================================================== -->
+  <header class="jumbotron subhead" id="overview">
+    <div class="container">
+      <h1>Base CSS</h1>
+      <p class="lead">Fundamental Urturn Expressions elements styled and enhanced with extensible classes.</p>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span3">
+        <ul class="nav nav-tabs nav-stacked bs-docs-sidenav bs-docs-sidebar nav-tabs nav-stacked ">
+          <!-- <li><a href="#typography"><i class="icon-chevron-right"></i> Typography</a></li>
+          <li><a href="#forms"><i class="icon-chevron-right"></i> Forms</a></li> -->
+          <li><a href="#globals"><i class="icon-chevron-right"></i> Globals</a></li>
+          <li><a href="#buttons"><i class="icon-chevron-right"></i> Buttons</a></li>
+          <li><a href="#indexes"><i class="icon-chevron-right"></i> Lists</a></li>
+          <li><a href="#icons"><i class="icon-chevron-right"></i> Icons</a></li>
+        </ul>
+      </div>
+      <div class="doc-main span9">
+
+      <!-- Globals
+        ================================================== -->
+        <section id="globals">
+          <div class="page-header">
+            <h1>Globals</h1>
+          </div>
+
+          <p> Expressions are served encapsuled in a <code>.urturn-expression-wrapper</code> class that apply some defaults style:</p>
+
+<pre class="prettyprint">body {
+  box-sizing: border-box;
+  background-origin: padding-box;
+}
+</pre>
+
+<pre class="prettyprint">.urturn-expression-wrapper {
+  font-size: 62.5%;
+  font-family: 'Helvetica Neue', helvetica, arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+</pre>
+
+        </section>
+
+      <!-- Buttons
+        ================================================== -->
+        <section id="buttons">
+          <div class="page-header">
+            <h1>Buttons</h1>
+          </div>
+
+          <h2>Default buttons</h2>
+          <p>Button styles can be applied to anything with the <code>.ut-button</code> class applied.</p>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th>Button</th>
+                <th>class=""</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td><a href="#" class="ut-button">Unstyled</a></td>
+                <td><code>ut-button</code></td>
+              </tr>
+              <tr>
+                <td><a href="#" class="ut-default-button ut-button">Default</a></td>
+                <td><code>ut-default-button ut-button</code></td>
+              </tr>
+              <tr>
+                <td><a href="#" class="ut-primary-button ut-button">Primary</a></td>
+                <td><code>ut-primary-button ut-button</code></td>
+              </tr>
+              <tr>
+                <td><a href="#" class="ut-success-button ut-button">Default</a></td>
+                <td><code>ut-success-button ut-button</code></td>
+              </tr>
+              <tr>
+                <td><a href="#" class="ut-dark-button ut-button">Default</a></td>
+                <td><code>ut-dark-button ut-button</code></td>
+              </tr>
+              <tr>
+                <td><a href="#" class="ut-gold-button ut-button">Default</a></td>
+                <td><code>ut-gold-button ut-button</code></td>
+              </tr>
+            </tbody>
+          </table>
+
+
+          <h2>Button sizes</h2>
+          <table class="table table-bordered table-striped buttons-size-table">
+            <thead>
+              <tr>
+                <th>Button</th>
+                <th>class=""</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td><a href="#" class="ut-giant-button ut-default-button ut-button">Default</a></td>
+                <td><code>ut-giant-button ut-default-button ut-button</code></td>
+              </tr>
+              <tr>
+                <td><a href="#" class="ut-huge-button ut-default-button ut-button">Default</a></td>
+                <td><code>ut-huge-button ut-default-button ut-button</code></td>
+              </tr>
+              <tr>
+                <td><a href="#" class="ut-large-button ut-default-button ut-button">Default</a></td>
+                <td><code>ut-large-button ut-default-button ut-button</code></td>
+              </tr>
+              <tr>
+                <td><a href="#" class="ut-medium-button ut-default-button ut-button">Default</a></td>
+                <td><code>ut-medium-button ut-default-button ut-button</code></td>
+              </tr>
+              <tr>
+                <td><a href="#" class="ut-small-button ut-default-button ut-button">Default</a></td>
+                <td><code>ut-small-button  ut-default-button ut-button</code></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>Edit buttons</h2>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th>Button</th>
+                <th>class=""</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td><a href="#" class="ut-action-button ut-button">Default</a></td>
+                <td><code>ut-action-button ut-button</code></td>
+              </tr>
+              <tr style="height: 70px;">
+                <td><a href="#" class="icon_camera ut-item-button ut-button"></a></td>
+                <td><code>icon_camera ut-item-button</code></td>
+              </tr>
+              <tr style="height: 70px;">
+                <td><a href="#" class="icon_check ut-panel-button ut-button"></a></td>
+                <td><code>icon_check ut-panel-button ut-button</code></td>
+              </tr>
+              <tr style="height: 100px;">
+                <td style="position:relative;"><a href="#" class="icon_video small ut-media-button ut-button">Add video</a></td>
+                <td><code>icon_video ut-media-button ut-button</code></td>
+              </tr>
+            </tbody>
+          </table>
+
+        </section>
+
+
+      <!-- Indexes
+        ================================================== -->
+        <section id="indexes">
+          <div class="page-header">
+            <h1>Lists</h1>
+          </div>
+
+          <p> Unorderd lists can be display vertically <code>.vertical</code> or horizontaly <code>.horizontal</code> extening the <code>.index</code> class. With margins by adding <code>.spaced</code></p>
+
+        <p><code>.horizontal</code>
+
+<pre class="prettyprint">&lt;ul class="horizontal index"&gt;
+  &lt;li&gt;First&lt;/li&gt;
+  &lt;li&gt;Second&lt;/li&gt;
+  &lt;li&gt;Third&lt;/li&gt;
+&lt;ul&gt;
+</pre>
+
+            <ul class="horizontal index">
+              <li><a href="#" class="ut-medium-button ut-default-button ut-button">Button</a></li>
+              <li><a href="#" class="ut-medium-button ut-default-button ut-button">Button</a></li>
+              <li><a href="#" class="ut-medium-button ut-default-button ut-button">Button</a></li>
+            </ul>
+          </p>
+
+          <p><code>.vertical</code>
+
+<pre class="prettyprint">&lt;ul class="horizontal index spaced"&gt;
+&lt;ul class="vertical index"&gt;
+  &lt;li&gt;First&lt;/li&gt;
+  &lt;li&gt;Second&lt;/li&gt;
+  &lt;li&gt;Third&lt;/li&gt;
+&lt;ul&gt;
+</pre>
+
+          <ul class="vertical index spaced">
+            <li><a href="#" class="ut-medium-button ut-default-button ut-button">Button</a></li>
+            <li><a href="#" class="ut-medium-button ut-default-button ut-button">Button</a></li>
+            <li><a href="#" class="ut-medium-button ut-default-button ut-button">Button</a></li>
+          </ul>
+          </p>
+        </section>
+
+      <!-- Icons
+        ================================================== -->
+        <section id="icons">
+          <div class="page-header">
+            <h1>Icons</h1>
+          </div>
+ <span class="box1">
+    <span aria-hidden="true" class="icon_zoom_out"></span>
+    &nbsp;icon_zoom_out
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_zoom_in"></span>
+    &nbsp;icon_zoom_in
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_youtube"></span>
+    &nbsp;icon_youtube
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_yahoo"></span>
+    &nbsp;icon_yahoo
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_vimeo"></span>
+    &nbsp;icon_vimeo
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_video"></span>
+    &nbsp;icon_video
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_video_alt"></span>
+    &nbsp;icon_video_alt
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_user"></span>
+    &nbsp;icon_user
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_urturn"></span>
+    &nbsp;icon_urturn
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_urturn_alt"></span>
+    &nbsp;icon_urturn_alt
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_unrepost"></span>
+    &nbsp;icon_unrepost
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_unlock"></span>
+    &nbsp;icon_unlock
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_unlisted"></span>
+    &nbsp;icon_unlisted
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_unfollow"></span>
+    &nbsp;icon_unfollow
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_twitter"></span>
+    &nbsp;icon_twitter
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_twitter_alt"></span>
+    &nbsp;icon_twitter_alt
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_tumblr"></span>
+    &nbsp;icon_tumblr
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_trash"></span>
+    &nbsp;icon_trash
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_theme"></span>
+    &nbsp;icon_theme
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_text"></span>
+    &nbsp;icon_text
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_text_small"></span>
+    &nbsp;icon_text_small
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_text_big"></span>
+    &nbsp;icon_text_big
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_switch"></span>
+    &nbsp;icon_switch
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_stop"></span>
+    &nbsp;icon_stop
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_star"></span>
+    &nbsp;icon_star
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_star_outline"></span>
+    &nbsp;icon_star_outline
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_spinner"></span>
+    &nbsp;icon_spinner
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_soundcloud"></span>
+    &nbsp;icon_soundcloud
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_sound"></span>
+    &nbsp;icon_sound
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_sidebar"></span>
+    &nbsp;icon_sidebar
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_shopping_cart"></span>
+    &nbsp;icon_shopping_cart
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_share"></span>
+    &nbsp;icon_share
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_settings"></span>
+    &nbsp;icon_settings
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_search"></span>
+    &nbsp;icon_search
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_scissors-20"></span>
+    &nbsp;icon_scissors-20
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_rotate"></span>
+    &nbsp;icon_rotate
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_repost"></span>
+    &nbsp;icon_repost
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_reply"></span>
+    &nbsp;icon_reply
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_reload"></span>
+    &nbsp;icon_reload
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_refresh"></span>
+    &nbsp;icon_refresh
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_record"></span>
+    &nbsp;icon_record
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_quote_close"></span>
+    &nbsp;icon_quote_close
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_point_up"></span>
+    &nbsp;icon_point_up
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_point_right"></span>
+    &nbsp;icon_point_right
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_point_left"></span>
+    &nbsp;icon_point_left
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_point_down"></span>
+    &nbsp;icon_point_down
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_play"></span>
+    &nbsp;icon_play
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_pinterest"></span>
+    &nbsp;icon_pinterest
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_pin_up"></span>
+    &nbsp;icon_pin_up
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_pin_right"></span>
+    &nbsp;icon_pin_right
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_pin_left"></span>
+    &nbsp;icon_pin_left
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_pin_down"></span>
+    &nbsp;icon_pin_down
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_picture"></span>
+    &nbsp;icon_picture
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_picture_alt"></span>
+    &nbsp;icon_picture_alt
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_pen"></span>
+    &nbsp;icon_pen
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_pause"></span>
+    &nbsp;icon_pause
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_participated"></span>
+    &nbsp;icon_participated
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_orientation"></span>
+    &nbsp;icon_orientation
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_notifications"></span>
+    &nbsp;icon_notifications
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_new_post"></span>
+    &nbsp;icon_new_post
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_move"></span>
+    &nbsp;icon_move
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_more"></span>
+    &nbsp;icon_more
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_mobile"></span>
+    &nbsp;icon_mobile
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_microphone"></span>
+    &nbsp;icon_microphone
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_mail"></span>
+    &nbsp;icon_mail
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_lock"></span>
+    &nbsp;icon_lock
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_location"></span>
+    &nbsp;icon_location
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_load"></span>
+    &nbsp;icon_load
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_link"></span>
+    &nbsp;icon_link
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_layout_4"></span>
+    &nbsp;icon_layout_4
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_layout_3"></span>
+    &nbsp;icon_layout_3
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_layout_2"></span>
+    &nbsp;icon_layout_2
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_itunes"></span>
+    &nbsp;icon_itunes
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_instagram"></span>
+    &nbsp;icon_instagram
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_info"></span>
+    &nbsp;icon_info
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_home"></span>
+    &nbsp;icon_home
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_heart"></span>
+    &nbsp;icon_heart
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_heart_outline"></span>
+    &nbsp;icon_heart_outline
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_heart_break"></span>
+    &nbsp;icon_heart_break
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_google"></span>
+    &nbsp;icon_google
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_google_plus"></span>
+    &nbsp;icon_google_plus
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_globe"></span>
+    &nbsp;icon_globe
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_generating"></span>
+    &nbsp;icon_generating
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_fullscreen"></span>
+    &nbsp;icon_fullscreen
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_fullscreen_exit"></span>
+    &nbsp;icon_fullscreen_exit
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_following"></span>
+    &nbsp;icon_following
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_following_activities"></span>
+    &nbsp;icon_following_activities
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_follow"></span>
+    &nbsp;icon_follow
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_flickr"></span>
+    &nbsp;icon_flickr
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_flash"></span>
+    &nbsp;icon_flash
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_flag"></span>
+    &nbsp;icon_flag
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_filters"></span>
+    &nbsp;icon_filters
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_facebook"></span>
+    &nbsp;icon_facebook
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_facebook_alt"></span>
+    &nbsp;icon_facebook_alt
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_eye"></span>
+    &nbsp;icon_eye
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_eraser"></span>
+    &nbsp;icon_eraser
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_edit"></span>
+    &nbsp;icon_edit
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_delete"></span>
+    &nbsp;icon_delete
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_delete_alt"></span>
+    &nbsp;icon_delete_alt
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_dailymotion"></span>
+    &nbsp;icon_dailymotion
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_contact"></span>
+    &nbsp;icon_contact
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_connect"></span>
+    &nbsp;icon_connect
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_comment"></span>
+    &nbsp;icon_comment
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_comment_outline"></span>
+    &nbsp;icon_comment_outline
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_cloud_upload"></span>
+    &nbsp;icon_cloud_upload
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_clock"></span>
+    &nbsp;icon_clock
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_check"></span>
+    &nbsp;icon_check
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_check_alt"></span>
+    &nbsp;icon_check_alt
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_category"></span>
+    &nbsp;icon_category
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_camera"></span>
+    &nbsp;icon_camera
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_camera_switch"></span>
+    &nbsp;icon_camera_switch
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_bucket"></span>
+    &nbsp;icon_bucket
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_brush"></span>
+    &nbsp;icon_brush
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_browse"></span>
+    &nbsp;icon_browse
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_blogger"></span>
+    &nbsp;icon_blogger
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_block"></span>
+    &nbsp;icon_block
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_background"></span>
+    &nbsp;icon_background
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_arrow_up"></span>
+    &nbsp;icon_arrow_up
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_arrow_right"></span>
+    &nbsp;icon_arrow_right
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_arrow_left"></span>
+    &nbsp;icon_arrow_left
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_arrow_down"></span>
+    &nbsp;icon_arrow_down
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_alert"></span>
+    &nbsp;icon_alert
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_add"></span>
+    &nbsp;icon_add
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_add_friends"></span>
+    &nbsp;icon_add_friends
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_add_alt"></span>
+    &nbsp;icon_add_alt
+  </span>
+  <span class="box1">
+    <span aria-hidden="true" class="icon_activity"></span>
+    &nbsp;icon_activity
+  </span>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  </body>
+  </html>

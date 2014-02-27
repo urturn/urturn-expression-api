@@ -1,0 +1,13 @@
+{
+  "name": "urturn-expression-css",
+  "version": "0.6.91",
+  "main": [
+    "css/styles.css"
+  ],
+  "assets": [
+    "fonts/urturn_icons.eot",
+    "fonts/urturn_icons.svg",
+    "fonts/urturn_icons.ttf",
+    "fonts/urturn_icons.woff"
+  ]
+}

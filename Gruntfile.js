@@ -34,11 +34,56 @@ module.exports = function(grunt) {
     'lib/expression-api/Sound.js',
     'lib/expression-api/events.js',
     'lib/expression-api/init.js',
-    'lib/expression-api/preloader.js'
+    'lib/expression-api/preloader.js',
+    // ut-image
+    'lib/jquery.ut-image/jquery.ut-image.js',
+    // ut-audio
+    'lib/jquery.ut-audio/js/jquery.ut-audio.js',
+    'lib/jquery.ut-audio/js/jquery.ut-audio-engine.js',
+    'lib/jquery.ut-audio/js/jquery.jplayer.min.js',
+    // ut-video
+    'lib/jquery.ut-video/js/froogaloop.min.js',
+    'lib/jquery.ut-video/js/jquery.ut-video.js',
+    // ut-text
+    'lib/jquery.ut-text/jquery.ut-text.js',
+    // ut-sticker
+    'lib/jquery.ut-sticker/jquery.ut-sticker.js'
   ];
+  var jshintSources = [].concat(sources);
+  jshintSources.splice(jshintSources.indexOf('lib/jquery.ut-audio/js/jquery.jplayer.min.js'),1);
+  jshintSources.splice(jshintSources.indexOf('lib/jquery.ut-video/js/froogaloop.min.js'),1);
 
-  var sourcesCSS = ['lib/iframe.css'];
-  var sourcesAssets = [];
+  var sourcesCSS = [
+    'lib/iframe.css',
+    // urturn-expression-css
+    'lib/urturn-expression-css/css/styles.css',
+    // ut-image
+    'lib/jquery.ut-image/jquery.ut-image.css',
+    // ut-audio
+    'lib/jquery.ut-audio/css/default/jquery.jplayer.min.js',
+    'lib/jquery.ut-audio/css/default/jquery.ut-audio-engine.css',
+    'lib/jquery.ut-audio/css/default/jquery.ut-audio.css',
+    'lib/jquery.ut-video/css/default/jquery.ut-video.css',
+    'lib/jquery.ut-audio/css/bottom-over/ut-audio-player-bottom-over.css',
+    // ut-text
+    'lib/jquery.ut-text/jquery.ut-text.css',
+    // ut-sticker
+    'lib/jquery.ut-sticker/jquery.ut-sticker.css'
+  ];
+  var sourcesAssets = [
+    // urturn-expression-css
+    'lib/urturn-expression-css/fonts/urturn_icons.eot',
+    'lib/urturn-expression-css/fonts/urturn_icons.svg',
+    'lib/urturn-expression-css/fonts/urturn_icons.ttf',
+    'lib/urturn-expression-css/fonts/urturn_icons.woff',
+    // ut-audio, ut-video
+    'lib/jquery.ut-audio/css/default/Roboto-Regular-webfont.eot',
+    'lib/jquery.ut-audio/css/default/Roboto-Regular-webfont.svg',
+    'lib/jquery.ut-audio/css/default/Roboto-Regular-webfont.ttf',
+    'lib/jquery.ut-audio/css/default/Roboto-Regular-webfont.woff',
+    // ut-audio
+    'lib/jquery.ut-audio/swf/Jplayer.swf'
+  ];
   var pathMap = {}; // map relative path to asset paths
 
   var config = {};
@@ -49,7 +94,7 @@ module.exports = function(grunt) {
       browser: true
     },
     build: ['Gruntfile.js'],
-    lib: ['lib/**/*.js'],
+    lib: jshintSources,
     test: ['test/*.js', 'test/lib/collection-fixtures.js', 'test/lib/dom.js']
   };
 
@@ -146,38 +191,20 @@ module.exports = function(grunt) {
     }
   };
 
-  config.urturn_component = {
-    createmanifest: {
-      manifest: {
-        main: ['iframe.min.css', 'iframe.min.js'],
-        dependencies: {
-          'jquery': '~2.0.0'
-        },
-        includes: [
-          "fastclick",
-          "urturn-expression-css",
-          "jquery",
-          "FontDetect",
-          "jquery-textfill",
-          "jquery.ut-sticker",
-          "jquery.ut-image",
-          "jquery.ut-audio",
-          "jquery.ut-video",
-          "jquery.ut-text"
-        ]
-      }
-    },
-    config: {
-      bower: true
-    }
-  };
-
   config.watch = {
     scripts: {
       files: ['lib/**/*.js', 'test/**/*.js'],
       tasks: ['test'],
       options: {
         nospawn: true
+      }
+    }
+  };
+
+  config.compass = {
+    dist: {
+      options: {
+        config: 'lib/urturn-expression-css/config.rb'
       }
     }
   };
@@ -218,7 +245,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-compress');
   grunt.loadNpmTasks('grunt-concat-css');
-  grunt.loadNpmTasks('grunt-urturn-component');
   grunt.loadNpmTasks('grunt-exec');
 
   grunt.registerMultiTask('filecheck', "Ensure sources file are here", function(){
@@ -364,11 +390,11 @@ module.exports = function(grunt) {
     }
     function updateInBower(version){
       var bower = require('bower');
-      var bowerInfo = grunt.file.readJSON(bower.config.json);
+      var bowerInfo = grunt.file.readJSON("bower.json");
       if(bowerInfo.version !== version) {
         bowerInfo.version = version;
         grunt.log.writeln("Updated bower version to " + bowerInfo.version);
-        grunt.file.write(bower.config.json, JSON.stringify(bowerInfo, null, 2));
+        grunt.file.write("bower.json", JSON.stringify(bowerInfo, null, 2));
       }
     }
     [
@@ -381,53 +407,6 @@ module.exports = function(grunt) {
     updateInBower(info.version);
   });
 
-
-
-  grunt.registerTask('addIncludedModule', function(){
-    var Component = require('grunt-urturn-component/component');
-    var path = require('path');
-    var info = grunt.file.readJSON('component.urturn.json');
-    info.basedir = '.';
-    var component = Component.fromOptions(info);
-
-    component.eachInclude(function(comp){
-
-      if (!selectedComponents.length || selectedComponents.indexOf(comp.name) != -1) {
-        console.log('Includes component', comp.name);
-        var pathMap = {};
-        var fileToRebind = [];
-
-        if (!comp.main && comp.name == 'jquery-textfill') {
-          comp.main = ['jquery.textfill.js'];
-        }
-        comp.main.forEach(function(f){
-          var filepath = path.join(comp.basedir, f);
-          if (filepath.match(/\.js$/)) {
-            sources.push(filepath);
-            fileToRebind.push(filepath);
-          } else if (filepath.match(/\.css$/)) {
-            sourcesCSS.push(filepath);
-          } else {
-            sourcesAssets.push(filepath);
-          }
-        });
-
-        comp.assets.forEach(function(f){
-          var filepath = path.join(comp.basedir, f);
-          pathMap[f] = filepath;
-          sourcesAssets.push(filepath);
-        });
-        fileToRebind.forEach(function(filepath){
-          var content = grunt.file.read(filepath);
-          for(var f in pathMap){
-            content = content.replace(new RegExp(f, 'gm'), pathMap[f]);
-          }
-          grunt.file.write(filepath, content);
-        });
-      }
-    });
-  });
-
   grunt.registerTask('tagVanilla', function() {
     info.version = info.version + '-vanilla';
   });
@@ -435,6 +414,7 @@ module.exports = function(grunt) {
   grunt.registerTask('tagSimple', function() {
     info.version = info.version + '-simple';
   });
+
 
 
   grunt.registerTask('select_simple_component', function() {
@@ -449,20 +429,18 @@ module.exports = function(grunt) {
     ];
   });
 
-
   // Default task.
-  grunt.registerTask('default', ['clean', 'exec:clean', 'test', 'urturn_component', 'build', 'buildTestExpression', 'updateVersionNumber', 'urturn_component:createmanifest', 'minify', 'copyAssetToDist']);
-  grunt.registerTask('build', ['urturn_component:createmanifest', 'addIncludedModule', "concat", "concat_css", 'patchJQuery202']); //'patchJQuerySO'
+  grunt.registerTask('default', ['clean', 'exec:clean', 'test', 'build', 'buildTestExpression', 'updateVersionNumber', 'minify', 'copyAssetToDist']);
+  grunt.registerTask('build', ["concat", "concat_css", 'patchJQuery202']); //'patchJQuerySO'
 
   // light sdk version task.
   grunt.registerTask('vanilla', ['tagVanilla', 'clean', 'exec:clean', 'test', 'buildvanilla', 'buildTestExpression', 'updateVersionNumber', 'minify', 'copyAssetToDist']);
   grunt.registerTask('buildvanilla', ["concat", "concat_css"]);
 
   // simple sdk version task.
-  grunt.registerTask('simple', ['tagSimple', 'select_simple_component', 'clean', 'exec:clean', 'test', 'urturn_component', 'buildSimple', 'buildTestExpression', 'updateVersionNumber', 'urturn_component:createmanifest', 'minify', 'copyAssetToDist']);
-  grunt.registerTask('buildSimple', ['urturn_component:createmanifest', 'addIncludedModule', "concat", "concat_css", 'patchJQuery202']);
+  grunt.registerTask('simple', ['tagSimple', 'select_simple_component', 'clean', 'exec:clean', 'test', 'buildSimple', 'buildTestExpression', 'updateVersionNumber', 'minify', 'copyAssetToDist']);
+  grunt.registerTask('buildSimple', ["concat", "concat_css", 'patchJQuery202']);
 
-  grunt.registerTask('dependencies', ['urturn_component']);
   grunt.registerTask('minify', ['uglify', 'cssmin']);
   grunt.registerTask('test', ['jshint', 'filecheck', 'mocha']);
   grunt.registerTask('publish', ['exec:tag', 'exec:npmpublish']);

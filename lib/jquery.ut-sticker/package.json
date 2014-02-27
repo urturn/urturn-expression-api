@@ -1,0 +1,35 @@
+{
+  "name": "jquery.ut-sticker",
+  "version": "0.0.0-ignored",
+  "description": "A jquery widget to manage sticker dom node in urturn.com expressions",
+  "main": "jquery.ut-sticker.js",
+  "scripts": {
+    "install": "grunt configure"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/urturn/jquery.ut-sticker.git"
+  },
+  "keywords": [
+    "urturn",
+    "jquery",
+    "plugin",
+    "javascript",
+    "widget",
+    "expression"
+  ],
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-jshint": "~0.1.1",
+    "grunt-contrib-watch": "~0.4.4",
+    "grunt-contrib-clean": "~0.4.0",
+    "grunt-contrib-qunit": "~0.1.1",
+    "grunt-urturn-component": "git://github.com/urturn/grunt-urturn-component.git",
+    "grunt-exec": "~0.4.1",
+    "bower": "~0.9.2"
+  },
+  "author": "Urturn <dev@urturn.com>",
+  "license": "AGPL-3",
+  "readmeFilename": "README.md",
+  "gitHead": "819602d9f0a005543b879069453af3a7d0d3400e"
+}

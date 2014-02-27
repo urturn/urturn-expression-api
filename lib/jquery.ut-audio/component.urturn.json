@@ -1,0 +1,23 @@
+{
+  "name": "jquery.ut-audio",
+  "version": "0.1.38",
+  "dependencies": {
+    "jquery": ">=2.0.0",
+    "urturn-expression-css": "*"
+  },
+  "includes": [],
+  "main": [
+    "js/jquery.ut-audio.js",
+    "js/jquery.ut-audio-engine.js",
+    "js/jquery.jplayer.min.js",
+    "css/default/jquery.ut-audio.css",
+    "css/bottom-over/ut-audio-player-bottom-over.css"
+  ],
+  "assets": [
+    "swf/Jplayer.swf",
+    "css/default/Roboto-Regular-webfont.eot",
+    "css/default/Roboto-Regular-webfont.ttf",
+    "css/default/Roboto-Regular-webfont.svg",
+    "css/default/Roboto-Regular-webfont.woff"
+  ]
+}

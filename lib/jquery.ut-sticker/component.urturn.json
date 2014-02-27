@@ -1,0 +1,13 @@
+{
+  "name": "jquery.ut-sticker",
+  "version": "0.9.32",
+  "dependencies": {
+    "jquery": ">=1.8.1",
+    "urturn-expression-css": ">=0.6.0"
+  },
+  "includes": [],
+  "main": [
+    "jquery.ut-sticker.css",
+    "jquery.ut-sticker.js"
+  ]
+}

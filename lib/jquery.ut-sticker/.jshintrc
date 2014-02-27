@@ -1,0 +1,26 @@
+{
+  "curly": true,
+  "eqeqeq": true,
+  "immed": true,
+  "latedef": true,
+  "newcap": true,
+  "noarg": true,
+  "sub": true,
+  "undef": true,
+  "unused": true,
+  "boss": true,
+  "eqnull": true,
+  "node": true,
+  "es5": true,
+  "globals": {
+    "document": true,
+    "UT": true,
+    "QUnit": true,
+    "ok": true,
+    "equal": true,
+    "deepEqual": true,
+    "window": true,
+    "jQuery": true,
+    "test": true
+  }
+}

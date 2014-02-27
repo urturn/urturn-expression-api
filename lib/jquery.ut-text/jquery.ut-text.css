@@ -1,0 +1,117 @@
+.ut-text {
+  position: relative;
+  display: inline-block;
+  background-color: rgba(247,247,247,0);
+
+  color: rgb(70,70,70);
+  text-align: left;
+  font-size: 24px;
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+
+.ut-font-detect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  color: transparent;
+}
+
+.ut-text-flex {
+  width: 100%;
+}
+
+.ut-text-content {
+  width: auto;
+  white-space: pre-line;
+  word-wrap: break-word;
+}
+
+.ut-text-content[data-placeholder]:not([data-div-placeholder-content]):before {
+  position: absolute;
+  right: 6px;
+  left: 6px;
+  margin-left: 2px;
+  color: rgba(70,70,70,0.5);
+
+  content: attr(data-placeholder);
+  text-align: inherit;
+
+  font-style: italic;
+  font-size: inherit;
+  font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+
+.ut-text-content[data-placeholder]:not([data-div-placeholder-content]) {
+  color: rgb(30,30,30);
+}
+
+.ut-text-content {
+  display: inline-block;
+  padding: 10px;
+  width: 100%;
+  outline: none;
+  background-color: inherit;
+  color: inherit;
+  text-align: inherit;
+  font-size: inherit;
+
+  font-family: inherit;
+  line-height: 1;
+}
+
+.ut-text .ut-text-countdown {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  font-size: 10px;
+  pointer-events:none;
+}
+
+.ut-text .ut-text-countdown-max {
+  background-color:rgba(172,15,0,0.5);
+}
+
+.ut-image .ut-text-content {
+  margin: 5px;
+  background-color: rgba(0,0,0,0.5);
+  color: rgb(255,255,255);
+}
+
+.ut-text-content::-moz-selection {
+  background-color: rgba(90,185,245,0.5);
+}
+
+.ut-text-content::selection {
+  background-color: rgba(90,185,245,0.5);
+}
+
+
+.ut-navigate-hashtag,
+.ut-navigate-mention,
+.ut-navigate-url {
+  color: rgb(120,120,120);
+  text-decoration: none;
+}
+
+.ut-navigate-hashtag:hover,
+.ut-navigate-mention:hover,
+.ut-navigate-url:hover {
+  color: rgb(183,15,0);
+  text-decoration: none;
+}
+
+
+.ut-navigate-hashtag:active,
+.ut-navigate-mention:active,
+.ut-navigate-url:active {
+  color: rgb(130,10,0);
+  text-decoration: none;
+}
+
+.ut-navigate-url,
+.ut-navigate-url:hover,
+.ut-navigate-url:active {
+  text-decoration: underline;
+}

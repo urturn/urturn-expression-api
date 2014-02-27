@@ -1,0 +1,18 @@
+/* Colors */
+$electric-red: rgb(230,15,0);
+$bloody-red:   rgb(192,15,0);
+
+$default-text-color:  rgb(71,71,71);
+$default-links-color: $bloody-red;
+$default-light-color: rgb(152,152,152);
+
+$primary-button-background:           	rgb(172,15,0);
+$primary-button-background-highlight: 	$electric-red;
+$primary-button-border:               	darken($electric-red,12%);
+$primary-button-color: 					white;
+
+/* Tips */
+$tip-bg:         rgb(254,244,207);
+$tip-border:     rgb(254,207,54);
+$tip-text:       rgb(105,80,0);
+$tip-icon:       rgb(230,176,1);

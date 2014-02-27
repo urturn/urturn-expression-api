@@ -1,0 +1,15 @@
+{
+  "title":"Test utAudio",
+  "system_name":"test-ut-audio",
+  "version":"1.1.1",
+  "admins":["dmitry"],
+  "api_version": "0.9.2",
+  "platform": [],
+  "assets":[],
+  "dependencies":[
+    {"path":"js/main.js"},
+    {"path":"css/main.css"},
+    {"path":"rainbow/rainbow.min.js"},
+    {"path":"rainbow/themes/sunburst.css"}
+  ]
+}

@@ -1,0 +1,443 @@
+.ut-audio-skin-bottom-over.ut-audio-ui {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  font-family: helvetica, arial, sans-serif;
+  z-index: 0;
+  overflow: visible;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.ut-audio-skin-bottom-over.ut-audio-ui div,
+.ut-audio-skin-bottom-over.ut-audio-ui h1,
+.ut-audio-skin-bottom-over.ut-audio-ui a {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+
+.ut-audio-skin-bottom-over .ut-audio-ui-artwork {
+  display: none;
+}
+
+/*----------------------  ADD AND REMOVE BUTTONS ------------------------------*/
+.ut-audio-skin-bottom-over .ut-audio-ui-add {
+  display: none;
+  text-align: center;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.ut-audio-skin-bottom-over .ut-audio-ui-remove {
+  display: none;
+}
+
+.ut-audio-skin-bottom-over.ut-audio-mode-editor.ut-audio-state-empty .ut-audio-ui-add,
+.ut-audio-skin-bottom-over.ut-audio-mode-editor.ut-audio-state-error .ut-audio-ui-add {
+  display: block;
+  font-family: 'Helvetica Neue', helvetica, arial, sans-serif;
+}
+
+/*----------------------  PLAYING CONTROLS  ------------------------------*/
+.ut-audio-skin-bottom-over .ut-audio-ui-play {
+  position: absolute;
+  display: none;
+  bottom: 10px;
+  left: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 1);
+  background-color: rgb(255, 255, 255);
+  color: black;
+  font-size: 22px;
+  line-height: 40px;
+  text-align: center;
+}
+
+.ut-audio-skin-bottom-over.ut-audio-state-launch .ut-audio-ui-play,
+.ut-audio-skin-bottom-over.ut-audio-state-finish .ut-audio-ui-play,
+.ut-audio-skin-bottom-over.ut-audio-state-seek   .ut-audio-ui-play,
+.ut-audio-skin-bottom-over.ut-audio-state-play   .ut-audio-ui-play,
+.ut-audio-skin-bottom-over.ut-audio-state-pause  .ut-audio-ui-play {
+  display: block;
+}
+
+.ut-audio-skin-bottom-over.ut-audio-state-loading .ut-audio-ui-play {
+  display: none;
+}
+
+.ut-audio-skin-bottom-over .ut-audio-ui-play:hover {
+  background-color: rgb(200, 200, 200);
+}
+
+.ut-audio-skin-bottom-over .ut-audio-ui-play:active {
+  background-color: rgb(140, 140, 140);
+}
+
+.ut-audio-skin-bottom-over .ut-audio-ui-play .ut-audio-ui-play-icon {
+  display: block;
+  padding-left: 4px;
+}
+
+.ut-audio-skin-bottom-over.ut-audio-state-play .ut-audio-ui-play .ut-audio-ui-play-icon {
+  display: none;
+}
+
+.ut-audio-skin-bottom-over.ut-audio-state-play .ut-audio-ui-play .ut-audio-ui-pause-icon {
+  display: block;
+}
+
+/*----------------------  TITLE PANEL  -----------------------------------*/
+
+.ut-audio-skin-bottom-over .ut-audio-ui-title{
+  display: none;
+  position: absolute;
+  z-index: 5;
+  bottom: 20px;
+  left: 60px; /*35px;*/
+  width: -webkit-calc(100% - 155px);
+  width:         calc(100% - 155px);
+  white-space: nowrap;
+  line-height: 30px;
+  height: 30px;
+  margin: 0;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: bold;
+  color: rgba(255,255,255,1);
+  text-shadow: 0 0 3px rgba(0,0,0,.5);
+  font-family: "Roboto";
+  text-align: left;
+  font-size: 16px;
+}
+
+.ut-audio-skin-bottom-over.ut-audio-state-launch .ut-audio-ui-title,
+.ut-audio-skin-bottom-over.ut-audio-state-finish .ut-audio-ui-title,
+.ut-audio-skin-bottom-over.ut-audio-state-seek   .ut-audio-ui-title,
+.ut-audio-skin-bottom-over.ut-audio-state-play   .ut-audio-ui-title,
+.ut-audio-skin-bottom-over.ut-audio-state-pause  .ut-audio-ui-title{
+  display: block;
+}
+
+/*----------------------  PROGRESS PANEL  -----------------------------------*/
+
+.ut-audio-skin-bottom-over .ut-audio-ui-progress {
+  display: none;
+  position: absolute;
+  z-index: 40;
+  left: 60px; /*10px;*/
+  bottom: 10px;
+  width: -webkit-calc(100% - 120px);
+  width:         calc(100% - 120px);
+  height: 10px;
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: ellipsis;
+  font-weight: normal;
+  color: rgba(255,255,255,1);
+  background-color: rgba(0, 0, 0, 1);
+  text-shadow: 0 0 0 transparent;
+  text-align: left;
+  font-size: 24px;
+}
+
+.ut-audio-skin-bottom-over.ut-audio-state-launch .ut-audio-ui-progress,
+.ut-audio-skin-bottom-over.ut-audio-state-finish .ut-audio-ui-progress,
+.ut-audio-skin-bottom-over.ut-audio-state-seek   .ut-audio-ui-progress,
+.ut-audio-skin-bottom-over.ut-audio-state-play   .ut-audio-ui-progress,
+.ut-audio-skin-bottom-over.ut-audio-state-pause  .ut-audio-ui-progress{
+  display: block;
+}
+
+.ut-audio-ui-progress-playing{
+  width: 0%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  background: rgba(255,255,255,1);
+}
+
+.ut-audio-ui-progress-marker {
+  position: absolute;
+  bottom: 0;
+  left: 20px;
+  height: 35px;
+  width: 1px;
+  background: rgba(155,155,155,1);
+  display: none;
+  z-index: 40;
+}
+
+.ut-audio-ui-progress-marker.ut-audio-ui-progress-marker-visible {
+  display: block;
+}
+
+.ut-audio-ui-progress-marker-time {
+  position: absolute;
+  top: 0;
+  left: -20px;
+  height: 20px;
+  line-height: 20px;
+  width: 40px;
+  background: rgba(0,0,0,0.8);
+  display: block;
+  text-align: center;
+  font-size: 12px;
+}
+
+/*----------------------  TIME  PANEL  -----------------------------------*/
+
+.ut-audio-skin-bottom-over .ut-audio-ui-time {
+  display: none;
+  position: absolute;
+  z-index: 11;
+  bottom: 20px;
+  right: 60px;
+  width: 100px;
+  height: 30px;
+  line-height: 40px;
+  margin: 0;
+  padding: 8px 0px 8px 0;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: normal;
+  color: rgba(255,255,255,1);
+  text-shadow: 0 0 0 transparent;
+  text-align: right;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.ut-audio-skin-bottom-over.ut-audio-state-launch .ut-audio-ui-time,
+.ut-audio-skin-bottom-over.ut-audio-state-finish .ut-audio-ui-time,
+.ut-audio-skin-bottom-over.ut-audio-state-seek   .ut-audio-ui-time,
+.ut-audio-skin-bottom-over.ut-audio-state-play   .ut-audio-ui-time,
+.ut-audio-skin-bottom-over.ut-audio-state-pause  .ut-audio-ui-time{
+  display: block;
+}
+
+.ut-audio-ui-progress-time-current,
+.ut-audio-ui-progress-time-left{
+  display: block;
+  height: 14px;
+  line-height: 14px;
+  color: rgba(255,255,255,1);
+  text-shadow: 0 0 5px rgba(0,0,0,1);
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.ut-audio-ui-progress-time-current{
+
+}
+
+.ut-audio-ui-progress-time-left{
+  display: none;
+}
+
+/*----------------------  SOURCE PANEL  -----------------------------------*/
+
+.ut-audio-skin-bottom-over .ut-audio-ui-source {
+  display: none;
+  position: absolute;
+  z-index: 5;
+  bottom: 10px;
+  right: 20px;
+  width: 30px;
+  height: 40px;
+  line-height: 40px;
+  vertical-align: middle;
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: ellipsis;
+  font-weight: normal;
+  color: rgba(255,255,255,1);
+  text-shadow: 0 0 5px rgba(0,0,0,1);
+  text-align: center;
+  font-size: 38px;
+}
+
+.ut-audio-skin-bottom-over.ut-audio-state-launch .ut-audio-ui-source,
+.ut-audio-skin-bottom-over.ut-audio-state-finish .ut-audio-ui-source,
+.ut-audio-skin-bottom-over.ut-audio-state-seek  .ut-audio-ui-source,
+.ut-audio-skin-bottom-over.ut-audio-state-play  .ut-audio-ui-source,
+.ut-audio-skin-bottom-over.ut-audio-state-pause .ut-audio-ui-source{
+  display: block;
+}
+
+.ut-audio-skin-bottom-over.ut-audio-state-error .ut-audio-ui-source,
+.ut-audio-skin-bottom-over.ut-audio-state-loading .ut-audio-ui-source {
+  display: none;
+}
+
+/*----------------------- LOADING PANEL ---------------------------------*/
+
+.ut-audio-skin-bottom-over .ut-audio-ui-loading {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+.ut-audio-skin-bottom-over .ut-audio-ui-loading div {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  top: 50%;
+  left: 50%;
+  font-size: 30px;
+  margin-left: -15px;
+  margin-top: -15px;
+  vertical-align: middle;
+  color: rgba(140,140,140,1);
+}
+
+.ut-audio-skin-bottom-over.ut-audio-state-loading .ut-audio-ui-loading {
+  display: block;
+}
+
+.ut-audio-skin-bottom-over.ut-audio-state-launch .ut-audio-ui-loading,
+.ut-audio-skin-bottom-over.ut-audio-state-finish .ut-audio-ui-loading,
+.ut-audio-skin-bottom-over.ut-audio-state-play .ut-audio-ui-loading,
+.ut-audio-skin-bottom-over.ut-audio-state-pause .ut-audio-ui-loading,
+.ut-audio-skin-bottom-over.ut-audio-state-error .ut-audio-ui-loading {
+  display: none;
+}
+
+/*----------------------- ERROR PANEL ---------------------------------*/
+
+.ut-audio-skin-bottom-over .ut-audio-ui-error {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 5;
+  display: none;
+}
+
+.ut-audio-skin-bottom-over .ut-audio-ui-error div{
+  position: absolute;
+  width: 100%;
+  height: 30px;
+  line-height: 30px;
+  bottom:10px;
+  right: 10px;
+  color: #A0A0A0;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+  font-size: 18px;
+  text-align: right;
+}
+
+.ut-audio-skin-bottom-over.ut-audio-state-loading .ut-audio-ui-error,
+.ut-audio-skin-bottom-over.ut-audio-state-play   .ut-audio-ui-error,
+.ut-audio-skin-bottom-over.ut-audio-state-launch  .ut-audio-ui-error,
+.ut-audio-skin-bottom-over.ut-audio-state-finish  .ut-audio-ui-error,
+.ut-audio-skin-bottom-over.ut-audio-state-pause   .ut-audio-ui-error{
+  display: none;
+}
+
+.ut-audio-skin-bottom-over.ut-audio-state-error .ut-audio-ui-error{
+  display: block;
+}
+/*
+/* SOME ADDITIONAL CSS*/
+
+.icon_spinner{
+  -moz-animation: spin 2s infinite linear;
+  -o-animation: spin 2s infinite linear;
+  -webkit-animation: spin 2s infinite linear;
+  animation: spin 2s infinite linear;
+ /* display: inline-block;*/
+}
+
+@-moz-keyframes spin {
+  0% {
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  100% {
+    -moz-transform: rotate(359deg);
+    -o-transform: rotate(359deg);
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@-webkit-keyframes spin {
+  0% {
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  100% {
+    -moz-transform: rotate(359deg);
+    -o-transform: rotate(359deg);
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@-o-keyframes spin {
+  0% {
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  100% {
+    -moz-transform: rotate(359deg);
+    -o-transform: rotate(359deg);
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@-ms-keyframes spin {
+  0% {
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  100% {
+    -moz-transform: rotate(359deg);
+    -o-transform: rotate(359deg);
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+@keyframes spin {
+  0% {
+    -moz-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  100% {
+    -moz-transform: rotate(359deg);
+    -o-transform: rotate(359deg);
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}

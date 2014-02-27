@@ -1,0 +1,22 @@
+@import "compass/css3";
+@import "compass/css3/user-interface";
+
+$experimental-support-for-svg: true;
+
+@mixin linear-gradient($top_color, $bottom_color, $fallback: $top_color) {
+  background-color: $fallback;
+  background-image: -webkit-gradient(linear, left top, left bottom, from($top_color),      to($bottom_color));
+  background-image:                         -webkit-linear-gradient(top, $top_color,          $bottom_color);
+  background-image:                            -moz-linear-gradient(top, $top_color,          $bottom_color);
+  background-image:                              -o-linear-gradient(top, $top_color,          $bottom_color);
+  background-image:                                 linear-gradient(to bottom, $top_color,    $bottom_color);
+}
+
+
+@mixin image-set($sd, $hd) {
+  background-image: url($sd);
+  background-image: -webkit-image-set(url($sd) 1x, url($hd) 2x);
+  background-image:    -moz-image-set(url($sd) 1x, url($hd) 2x);
+  background-image:      -o-image-set(url($sd) 1x, url($hd) 2x);
+  background-image:     -ms-image-set(url($sd) 1x, url($hd) 2x);
+}

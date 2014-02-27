@@ -1,0 +1,45 @@
+body {
+	background: white;
+}
+
+.sticker-panel {
+  height: 600px;
+  border: 1px solid #EFEFEF;
+  position: relative;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.sticker-panel .text {
+	position: absolute;
+	top: 35%;
+	width: 90%;
+	left: 5%;
+	bottom: 18%;
+}
+
+
+.fixed-size {
+	width: 300px;
+	height: 90px;
+	border-radius: 4px;
+	box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+	margin: 20px;
+	display: block;
+	overflow: hidden;
+}
+
+.with-countown {
+	margin-top: 20px;
+	margin-bottom: 50px;
+}
+
+.webdoc_expression_wrapper {
+	height: auto !important;
+}
+
+#demo5 {
+	color: rgb(0, 173, 255);
+	font-size: 20px;
+	background: yellow;
+}

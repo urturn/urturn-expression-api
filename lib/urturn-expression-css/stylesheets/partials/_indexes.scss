@@ -1,0 +1,141 @@
+/* .index
+
+   Defines styles for lists of inline-blocks like buttons, thumbs or toolbars,
+   as well as lists with dividers. Horizontal by default. */
+
+.index {
+  margin: 0;
+  padding: 0;
+  /* Remove default styling from list items. */
+  list-style: none;
+}
+
+.index > li {
+  position: relative;
+  /* Specifically remove default margin and padding from
+     list items in case some typography rules have added
+     these back in after the reset. */
+  margin: 0;
+  padding: 0;
+  /* Make list items act as position parents. */
+}
+
+
+/* .index classes with horizontal layout.
+
+   Simulate a bunch of blocks pushed against each other horizontally
+   by using inline-block layout to create a horizontal effect. Because
+   they're in the flow, children must have no space between them in
+   the html.
+*/
+
+.horizontal {
+  line-height: 0;
+}
+
+.horizontal > * {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.horizontal > *:last-child {
+    margin-right: 0;
+}
+
+.horizontal > *.last {
+    margin-right: 0;
+}
+
+
+.horizontal > input[type='radio'],
+.horizontal > input[type='checkbox'] {
+    margin-top: 0.25em;
+    width: auto;
+    height: auto;
+}
+
+.horizontal.index > dt,
+.horizontal.index > dd {
+    margin: 0;
+}
+.horizontal.index > dt,
+.horizontal.index > dd {
+    width: 160px;
+    line-height: 1.6em;
+}
+.horizontal.index > dt {
+    vertical-align: text-bottom;
+}
+.horizontal.index > dd {
+    margin-top: 1.6667em;
+    margin-bottom: 1.6667em;
+    margin-left: 0;
+    margin-left: -166px;
+    vertical-align: text-top;
+}
+
+.horizontal.spaced {
+  > li:not(:last-child) {
+    margin-right: 1em;
+  }
+
+  > li.pull-right {
+    margin-right: 0;
+
+    + li.pull-right {
+      margin-right: 1em;
+    }
+  }
+}
+
+
+/* .vertical */
+
+.vertical > * {
+  display: block;
+}
+
+.vertical > *:last-child {
+  margin-bottom: 0;
+}
+
+.vertical > *.last {
+  margin-bottom: 0;
+}
+
+.vertical > dt,
+.vertical > dd {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  vertical-align: top;
+}
+
+.vertical > dt {
+  margin-right: 2%;
+  width: 36.20%;
+  text-align: right;
+  /* The golden ratio */
+}
+
+.vertical > dd {
+  margin-right: 0;
+  /* The golden ratio */
+  width: 61.80%;
+}
+
+.vertical.spaced {
+  li:not(:last-child) {
+    margin-bottom: 1em;
+  }
+}
+
+/* spaced children */
+
+.horizontal > .spaced {
+  margin: 0 1.3333em;
+}
+
+.vertical > .spaced {
+  margin: 1.3333em 0;
+}

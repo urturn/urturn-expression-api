@@ -1,0 +1,30 @@
+{
+  "name": "jquery.ut-text",
+  "version": "0.4.7",
+  "author": {
+    "name": "Urturn",
+    "email": "dev@urturn.com"
+  },
+  "homepage": "http://github.com/urturn/jquery.ut-text/",
+  "licenses": [
+    {
+      "type": "AGPL-3",
+      "url": "https://github.com/urturn/jquery.ut-text/blob/master/LICENSE"
+    }
+  ],
+  "main": [
+    "vendor/jquery.textfill.js",
+    "vendor/fontdetect.2.1.js",
+    "jquery.ut-text.js",
+    "jquery.ut-text.css"
+  ],
+  "dependencies": {
+    "jquery": ">=2.0.0",
+    "urturn-expression-css": ">=0.6.0",
+    "jquery-textfill": "http://github.com/urturn/jquery-textfill.git",
+    "FontDetect": "http://github.com/maiis/FontDetect.git"
+  },
+  "devDependencies": {
+    "qunit": "~1.11.0"
+  }
+}
