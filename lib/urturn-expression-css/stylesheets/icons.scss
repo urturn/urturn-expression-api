@@ -3,8 +3,9 @@
 @include font-face("urturn_icons", font-files(
 	"urturn_icons.eot",
 	"urturn_icons.woff",
-	"urturn_icons.ttf"
-));
+	"urturn_icons.ttf",
+	"urturn_icons.svg#urturn_icons"
+), "urturn_icons.eot", normal, normal);
 
 /* Use the following CSS code if you want to use data attributes for inserting your icons */
 [data-icon]:before {

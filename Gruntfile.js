@@ -77,10 +77,10 @@ module.exports = function(grunt) {
     'lib/urturn-expression-css/fonts/urturn_icons.ttf',
     'lib/urturn-expression-css/fonts/urturn_icons.woff',
     // ut-audio, ut-video
-    'lib/jquery.ut-audio/css/default/Roboto-Regular-webfont.eot',
-    'lib/jquery.ut-audio/css/default/Roboto-Regular-webfont.svg',
-    'lib/jquery.ut-audio/css/default/Roboto-Regular-webfont.ttf',
-    'lib/jquery.ut-audio/css/default/Roboto-Regular-webfont.woff',
+    'lib/urturn-expression-css/fonts/Roboto-Regular-webfont.eot',
+    'lib/urturn-expression-css/fonts/Roboto-Regular-webfont.svg',
+    'lib/urturn-expression-css/fonts/Roboto-Regular-webfont.ttf',
+    'lib/urturn-expression-css/fonts/Roboto-Regular-webfont.woff',
     // ut-audio
     'lib/jquery.ut-audio/swf/Jplayer.swf'
   ];
@@ -204,7 +204,8 @@ module.exports = function(grunt) {
   config.compass = {
     dist: {
       options: {
-        config: 'lib/urturn-expression-css/config.rb'
+        config: 'lib/urturn-expression-css/config.rb',
+        basePath: 'lib/urturn-expression-css'
       }
     }
   };
@@ -244,6 +245,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-compress');
+  grunt.loadNpmTasks('grunt-contrib-compass');
   grunt.loadNpmTasks('grunt-concat-css');
   grunt.loadNpmTasks('grunt-exec');
 
@@ -430,8 +432,8 @@ module.exports = function(grunt) {
   });
 
   // Default task.
-  grunt.registerTask('default', ['clean', 'exec:clean', 'test', 'build', 'buildTestExpression', 'updateVersionNumber', 'minify', 'copyAssetToDist']);
-  grunt.registerTask('build', ["concat", "concat_css", 'patchJQuery202']); //'patchJQuerySO'
+  grunt.registerTask('default', ['clean', 'exec:clean', 'test', 'prebuild', 'buildTestExpression', 'updateVersionNumber', 'minify', 'copyAssetToDist']);
+  grunt.registerTask('prebuild', ["compass", "concat", "concat_css", 'patchJQuery202']); //'patchJQuerySO'
 
   // light sdk version task.
   grunt.registerTask('vanilla', ['tagVanilla', 'clean', 'exec:clean', 'test', 'buildvanilla', 'buildTestExpression', 'updateVersionNumber', 'minify', 'copyAssetToDist']);
