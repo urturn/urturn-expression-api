@@ -1,13 +1,18 @@
 # Changelogs
 
+## 1.3.0
+- FIXED: display() call was not correctly handled
+- REFACTOR: the build system now includes the components in the same project
+and bower dependencies are checked in the repository.
+
 ## 1.2.12
-ADDED: UT.Image deal with SVG both in input and output.
-FIXED: post.navigate('browse') open link in new window/tab but without being
-       stuck by pop-up blockers.
+- ADDED: UT.Image deal with SVG both in input and output.
+- FIXED: post.navigate('browse') open link in new window/tab but without being
+stuck by pop-up blockers.
 
 ## 1.2.10
-UPDATED: The handling of post.note property changed.
-ADDED: post.on('noteUpdated', fn) event
+- UPDATED: The handling of post.note property changed.
+- ADDED: post.on('noteUpdated', fn) event
 See http://developers.urturn.com/reference/post.html#sect_19 for more informations
 
 ## 1.2.5
