@@ -19,7 +19,15 @@ module.exports = function(grunt) {
   }
 
   // List all source files that might be include.
-  var sources = [
+  var vendor_sources = [
+    'vendors/jquery-2.1.0.min.js',
+    'components/fastclick/lib/fastclick.js',
+    'components/FontDetect/fontdetect.2.1.min.js',
+    'components/jquery-textfill/jquery.textfill.min.js',
+    'lib/jquery.ut-video/js/froogaloop.min.js',
+    'lib/jquery.ut-audio/js/jquery.jplayer.min.js'
+  ];
+  var jshintSources = [
     'lib/expression-api/namespace.js',
     'lib/expression-api/uuid.js',
     'lib/expression-api/compat.js',
@@ -40,18 +48,14 @@ module.exports = function(grunt) {
     // ut-audio
     'lib/jquery.ut-audio/js/jquery.ut-audio.js',
     'lib/jquery.ut-audio/js/jquery.ut-audio-engine.js',
-    'lib/jquery.ut-audio/js/jquery.jplayer.min.js',
     // ut-video
-    'lib/jquery.ut-video/js/froogaloop.min.js',
     'lib/jquery.ut-video/js/jquery.ut-video.js',
     // ut-text
     'lib/jquery.ut-text/jquery.ut-text.js',
     // ut-sticker
     'lib/jquery.ut-sticker/jquery.ut-sticker.js'
   ];
-  var jshintSources = [].concat(sources);
-  jshintSources.splice(jshintSources.indexOf('lib/jquery.ut-audio/js/jquery.jplayer.min.js'),1);
-  jshintSources.splice(jshintSources.indexOf('lib/jquery.ut-video/js/froogaloop.min.js'),1);
+  var sources = vendor_sources.concat(jshintSources);
 
   var sourcesCSS = [
     'lib/iframe.css',
@@ -122,8 +126,7 @@ module.exports = function(grunt) {
 
   config.clean = {
     dist: ['dist/'],
-    gz: ['dist_gz/'],
-    components: ['components/']
+    gz: ['dist_gz/']
   };
 
   config.filecheck = {

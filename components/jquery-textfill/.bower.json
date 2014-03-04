@@ -1,0 +1,13 @@
+{
+  "name": "jquery-textfill",
+  "homepage": "https://github.com/urturn/jquery-textfill",
+  "version": "0.4.1",
+  "_release": "0.4.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.4.1",
+    "commit": "972a84757c3debf510a7cc14e7884bed8bee273b"
+  },
+  "_source": "http://github.com/urturn/jquery-textfill.git",
+  "_target": "*"
+}

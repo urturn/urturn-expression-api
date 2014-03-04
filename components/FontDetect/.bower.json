@@ -1,0 +1,22 @@
+{
+  "name": "maiis-fontdetect",
+  "version": "0.2.2",
+  "homepage": "http://github.com/maiis/FontDetect/",
+  "main": [
+    "fontdetect.2.1.js"
+  ],
+  "dependencies": {
+    "jquery": ">=2.0.0"
+  },
+  "devDependencies": {
+    "qunit": "~1.11.0"
+  },
+  "_release": "0.2.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.2.2",
+    "commit": "d0507db7a0ca06ab7692e3b791efcf3551e6c163"
+  },
+  "_source": "http://github.com/maiis/FontDetect.git",
+  "_target": "*"
+}
