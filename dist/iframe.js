@@ -1962,7 +1962,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.0-beta3';
+    return states && states.apiVersion || '1.3.0-beta4';
   };
 
   UT.Expression.version = function() {
@@ -2194,7 +2194,7 @@ UT.CollectionStore = function(options) {
     }
 
 
-    var locale = this.locale = states.locale;
+    var language = this.language = states.locale;
 
     // Set parameters in states
     var parameters = this.parameters = states.parameters;
