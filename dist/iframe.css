@@ -1814,7 +1814,7 @@ you can use the generic selector below, but it's slower:
 }
 
 .ut-image {
-  position: relative;
+  position: absolute;
   left: 0;
   top: 0;
   width: 100%;
