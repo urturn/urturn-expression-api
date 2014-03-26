@@ -896,6 +896,261 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
 var UT = {},
     WD = UT;
 
+/**
+ * i18nJs
+ */
+
+i18n = window.i18n || {};
+__I18N__DEFAULT = 'en';
+
+
+/**
+ * Load a local dictionary
+ * @param  {[type]} locale local code
+ * @param  {[type]} data   dictionary
+ */
+i18n.load = function(locale, data) {
+  this.data = this.data || {};
+  
+  var localeData = this.data[locale];
+  if (localeData.length) {
+    for (var key in localeData) {
+      if (!data[key]) {
+        data[key] = localeData[key];
+      }
+    }
+  }
+  this.data[locale] = data;
+};
+
+i18n.getLocale = function() {
+  return this.locale || __I18N__DEFAULT;
+};
+
+i18n.setLocale = function(locale) {
+  this.locale = locale;
+};
+
+i18n.get = function(key) {
+  var locale = this.getLocale();
+
+  if (this.data[locale] && this.data[locale][key]) {
+    return this.data[locale][key];
+  }
+  else if (this.data[__I18N__DEFAULT]  && this.data[__I18N__DEFAULT][key]) {
+    return this.data[__I18N__DEFAULT][key];
+  }
+  else {
+    return key;
+  }
+};
+
+/**
+ * Locale for pluggins
+ */
+
+
+/**
+ * German
+ */
+
+i18n.load('ar', {
+  'add_image' : 'Add image',
+  'add_sound' : 'Add sound',
+  'add_video' : 'Add video',
+  'edit'      : 'تحرير',
+  'remove'    : 'حذف',
+  'rotate'    : 'Rotate',
+  'resize'    : 'Resize',
+  'error'     : 'Error occurred',
+  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
+  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+});
+
+/**
+ * German
+ */
+
+i18n.load('de', {
+  'add_image' : 'Add image',
+  'add_sound' : 'Add sound',
+  'add_video' : 'Add video',
+  'edit'      : 'Bearbeiten',
+  'remove'    : 'Löschen',
+  'rotate'    : 'Rotate',
+  'resize'    : 'Resize',
+  'error'     : 'Error occurred',
+  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
+  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+});
+
+
+i18n.load('en', {
+  'add_image' : 'Add image',
+  'add_sound' : 'Add sound',
+  'add_video' : 'Add video',
+  'edit'      : 'Edit',
+  'remove'    : 'Remove',
+  'rotate'    : 'Rotate',
+  'resize'    : 'Resize',
+  'error'     : 'Error occurred',
+  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
+  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+});
+
+/**
+ * German
+ */
+
+i18n.load('es', {
+  'add_image' : 'Add image',
+  'add_sound' : 'Add sound',
+  'add_video' : 'Add video',
+  'edit'      : 'Editar',
+  'remove'    : 'Eliminar',
+  'rotate'    : 'Rotate',
+  'resize'    : 'Resize',
+  'error'     : 'Error occurred',
+  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
+  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+});
+
+/**
+ * German
+ */
+
+i18n.load('fr', {
+  'add_image' : 'Add image',
+  'add_sound' : 'Add sound',
+  'add_video' : 'Add video',
+  'edit'      : 'Editer',
+  'remove'    : 'Supprimer',
+  'rotate'    : 'Rotate',
+  'resize'    : 'Resize',
+  'error'     : 'Error occurred',
+  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
+  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+});
+
+/**
+ * German
+ */
+
+i18n.load('hi', {
+  'add_image' : 'Add image',
+  'add_sound' : 'Add sound',
+  'add_video' : 'Add video',
+  'edit'      : 'संपादित करें',
+  'remove'    : 'हटाएँ',
+  'rotate'    : 'Rotate',
+  'resize'    : 'Resize',
+  'error'     : 'Error occurred',
+  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
+  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+});
+
+/**
+ * German
+ */
+
+i18n.load('it', {
+  'add_image' : 'Add image',
+  'add_sound' : 'Add sound',
+  'add_video' : 'Add video',
+  'edit'      : 'Modifica',
+  'remove'    : 'Cancella',
+  'rotate'    : 'Rotate',
+  'resize'    : 'Resize',
+  'error'     : 'Error occurred',
+  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
+  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+});
+
+/**
+ * German
+ */
+
+i18n.load('nl', {
+  'add_image' : 'Add image',
+  'add_sound' : 'Add sound',
+  'add_video' : 'Add video',
+  'edit'      : 'Bewerken',
+  'remove'    : 'Verwijderen',
+  'rotate'    : 'Rotate',
+  'resize'    : 'Resize',
+  'error'     : 'Error occurred',
+  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
+  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+});
+
+/**
+ * German
+ */
+
+i18n.load('pt', {
+  'add_image' : 'Add image',
+  'add_sound' : 'Add sound',
+  'add_video' : 'Add video',
+  'edit'      : 'Editar',
+  'remove'    : 'Apagar',
+  'rotate'    : 'Rotate',
+  'resize'    : 'Resize',
+  'error'     : 'Error occurred',
+  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
+  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+});
+
+/**
+ * German
+ */
+
+i18n.load('ru', {
+  'add_image' : 'Add image',
+  'add_sound' : 'Add sound',
+  'add_video' : 'Add video',
+  'edit'      : 'Редактировать',
+  'remove'    : 'Удалить',
+  'rotate'    : 'Rotate',
+  'resize'    : 'Resize',
+  'error'     : 'Error occurred',
+  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
+  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+});
+
+/**
+ * German
+ */
+
+i18n.load('th', {
+  'add_image' : 'Add image',
+  'add_sound' : 'Add sound',
+  'add_video' : 'Add video',
+  'edit'      : 'แก้ไข',
+  'remove'    : 'ลบ',
+  'rotate'    : 'Rotate',
+  'resize'    : 'Resize',
+  'error'     : 'Error occurred',
+  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
+  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+});
+
+/**
+ * German
+ */
+
+i18n.load('zh', {
+  'add_image' : 'Add image',
+  'add_sound' : 'Add sound',
+  'add_video' : 'Add video',
+  'edit'      : '编辑',
+  'remove'    : '删除',
+  'rotate'    : 'Rotate',
+  'resize'    : 'Resize',
+  'error'     : 'Error occurred',
+  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
+  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+});
+
 // Generate Random UUID compliant with rfc4122 v4
 // Fantastic piece of code from @broofa on:
 // http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
@@ -1962,7 +2217,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.0-beta4';
+    return states && states.apiVersion || '1.3.0-beta5';
   };
 
   UT.Expression.version = function() {
@@ -2196,6 +2451,9 @@ UT.CollectionStore = function(options) {
 
     var language = this.language = states.locale;
 
+    if (i18n) {
+      i18n.setLocale(language);
+    }
     // Set parameters in states
     var parameters = this.parameters = states.parameters;
 
@@ -3999,8 +4257,7 @@ window.addEventListener("message", function (e) {
             expandPreloader: false
           },
           i18n: {
-            addButtonText: "Add image",
-            dialogLabel: ""
+            dialogLabel: undefined
           },
           dialog: {
             preferedFormat: false
@@ -4110,14 +4367,14 @@ window.addEventListener("message", function (e) {
           $that.addClass("ut-image-edit");
 
           if(that.options.ui.add) {
-            that.view.addButton = $("<div>", {"class":"ut-image-button-add ut-button ut-media-button icon_camera"}).appendTo($that).html(that.options.i18n.addButtonText);
+            that.view.addButton = $("<div>", {"class":"ut-image-button-add ut-button ut-media-button icon_camera"}).appendTo($that).html(i18n.get('add_image'));
             that.view.addButton.on("click",that.onAddButtonClick);
           }
           if(that.options.ui.edit || that.options.ui.remove) {
             that.view.ctrlPanel = $("<div>", {"class":"ut-image-control-panel"}).appendTo($that);
             if(that.options.ui.edit) {
               that.view.editButton = $("<div>", {"class":"ut-image-button-edit"}).appendTo(that.view.ctrlPanel);
-              $("<span>").appendTo(that.view.editButton).html('<span class="icon_camera">&nbsp;</span>Edit');
+              $("<span>").appendTo(that.view.editButton).html('<span class="icon_camera">&nbsp;</span>' + i18n.get('edit'));
               that.view.editButton.on("click", that.onEditButtonClick);
             }
             if(that.options.ui.remove) {
@@ -5144,9 +5401,6 @@ window.addEventListener("message", function (e) {
           },
           editable: true,
           i18n: {
-            add:         "add sound",
-            change:      "",
-            error:       "Error occurred",
             dialogLabel: undefined
           }
         };
@@ -5490,7 +5744,7 @@ window.addEventListener("message", function (e) {
         that.requestServiceData = function(callback) {
           var errorTimeOut = setTimeout(function(){
             if(that && (!that.currents || !that.currents.serviceData)){
-              that.setState('error', "We can't get data to play this track in 15 sec");
+              that.setState('error', i18n.get('error_timeout_sound'));
             }
           }, 15000);
           if(that.options.data.appData){
@@ -5578,7 +5832,7 @@ window.addEventListener("message", function (e) {
               that.triggerChangeEvent();
             }, 10);
           } else {
-            that.setState("error", "Sound Player !!! The library not found.");
+            that.setState("error", i18n.get('error_nolibrary_sound'));
           }
         };
 
@@ -5631,11 +5885,11 @@ window.addEventListener("message", function (e) {
           if(that.options.ui.source)   { that.ui.source   = $('<a class="'+that.uiNS+'-source">'         ).appendTo(that.ui.container);}
           if(that.options.editable) {
             that.ui.add     = $('<a class="'+that.uiNS+'-add icon_sound ut-media-button ut-button"></a>')
-                                .html(that.options.i18n.add)
+                                .html(i18n.get('add_sound'))
                                 .appendTo(that.ui.container)
                                 .on('click', that.onAddClick);
             that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>')
-                                .html(that.options.i18n.change)
+                                .html("")
                                 .appendTo(that.ui.container)
                                 .on('click', that.onRemoveClick);
           }
@@ -6237,12 +6491,6 @@ window.addEventListener("message", function (e) {
             skin:'default',
             autoPause: true,
             listenMedia: true
-          },
-          i18n: {
-            add:          "add video",
-            change:       "",
-            error:        "Error occurred",
-            dialogLabel:  undefined
           }
         };
 
@@ -7241,7 +7489,7 @@ window.addEventListener("message", function (e) {
         that.utDialog = function(opt) {
           var options = {
             inputTypes: ['search'],
-            label: that.options.i18n.dialogLabel
+            label: ''
           };
           if(!$.isEmptyObject(opt)) {
             options = $.extend(true, options, opt);
@@ -7347,15 +7595,15 @@ window.addEventListener("message", function (e) {
           $that.find('.'+that.uiNS).remove();
           that.ui.container = $('<div class="'+that.uiNS+'"></div>').appendTo($that);
           that.ui.video     = $('<div class="'+that.uiNS+'-video"></div>'  ).appendTo(that.ui.container);
-          that.ui.error     = $('<div class="'+that.uiNS+'-error"></div>').append($('<div>').html(that.options.i18n.error)).appendTo( that.ui.container);
+          that.ui.error     = $('<div class="'+that.uiNS+'-error"></div>').append($('<div>').html(i18n.get('error'))).appendTo( that.ui.container);
           if(that.options.ui.artwork) {that.ui.artwork = $('<div class="'+that.uiNS+'-artwork">'      ).appendTo(that.ui.container);}
           if(that.options.ui.loading) {that.ui.loading = $('<div class="'+that.uiNS+'-loading"></div>').append('<div class="icon_spinner '+that.uiNS+'-loading-icon"></div>').appendTo(that.ui.container);}
           if(that.options.ui.play)    {that.ui.play    = $('<div class="'+that.uiNS+'-play">'         ).appendTo(that.ui.container);}
           if(that.options.ui.title)   {that.ui.title   = $('<h1  class="'+that.uiNS+'-title"></h1>'   ).appendTo(that.ui.container);}
           if(that.options.ui.source)  {that.ui.source  = $('<a   class="'+that.uiNS+'-source"></a>'   ).appendTo(that.ui.container);}
           if(that.options.editable) {
-            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_video ut-media-button ut-button"></a>').html(that.options.i18n.add).appendTo(that.ui.container);
-            that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>').html(that.options.i18n.edit).appendTo(that.ui.container);
+            that.ui.add     = $('<a class="'+that.uiNS+'-add icon_video ut-media-button ut-button"></a>').html(i18n.get('add_video')).appendTo(that.ui.container);
+            that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>').html(i18n.get('edit')).appendTo(that.ui.container);
 
             that.ui.add.on('click', that.onAddButtonClick);
             that.ui.remove.on('click', that.onRemoveButtonClick);
@@ -7938,6 +8186,9 @@ window.addEventListener("message", function (e) {
             remove: true
             //custom: "class1"
           },
+          i18n: {
+            dialogLabel: undefined
+          },
           styles: {
             proportional: true,
             autoflip: true,
@@ -7984,12 +8235,6 @@ window.addEventListener("message", function (e) {
             topOnFocus: true,
             preventAutoRemove: false,
             preventEventsBubble: true // prevent default and stop propogation for click events on item and buttons
-          },
-          i18n: {
-            edit: "edit",
-            resize: "resize",
-            rotate: "rotate",
-            remove: "remove"
           }
         };
 
@@ -8196,7 +8441,7 @@ window.addEventListener("message", function (e) {
           if(that.options.ui.remove) {
             that.view.remove = $("<a>").addClass("ut-sticker-button ut-sticker-button-remove icon_delete")
               .attr("data-bkey", "remove")
-              .attr("title", that.options.i18n.remove)
+              .attr("title", i18n.get('remove'))
               .appendTo($that);
             that.view.remove.on(mouseStart, that.onButtonDown);
             that.view.remove.on(mouseEnd, that.onButtonUp);
@@ -8207,7 +8452,7 @@ window.addEventListener("message", function (e) {
             that.view.edit = $("<a>")
               .addClass("ut-sticker-button ut-sticker-button-edit icon_edit")
               .attr("data-bkey", "edit")
-              .attr("title", that.options.i18n.edit).appendTo($that);
+              .attr("title", i18n.get('edit')).appendTo($that);
             that.view.edit.on(mouseStart, that.onButtonDown);
             that.view.edit.on(mouseEnd, that.onButtonUp);
             that.view.edit.on("click", that.onButtonClick);
@@ -8235,7 +8480,7 @@ window.addEventListener("message", function (e) {
           if(that.options.ui.rotate) {
             that.view.rotate = $("<a>")
               .addClass("ut-sticker-button ut-sticker-button-rotate icon_rotate")
-              .attr("title", that.options.i18n.rotate)
+              .attr("title", i18n.get('rotate'))
               .appendTo($that);
             that.catchEvents(that.view.rotate, that.onElementRotate);
           }
@@ -8244,7 +8489,7 @@ window.addEventListener("message", function (e) {
           if(that.options.ui.resize) {
             that.view.resize = $("<a>")
               .addClass("ut-sticker-button ut-sticker-button-resize icon_fullscreen")
-              .attr("title", that.options.i18n.resize)
+              .attr("title", i18n.get('resize'))
               .appendTo($that);
             that.catchEvents(that.view.resize, that.onElementResize);
           }
@@ -8262,8 +8507,8 @@ window.addEventListener("message", function (e) {
               }
               var className = that.options.ui[qq];
               var tmp = $("<a>").addClass("ut-sticker-button ut-sticker-button-custom " + className);
-              if(that.options.i18n[qq]) {
-                tmp.attr("title", that.options.i18n[qq]);
+              if(i18n.get(qq)) {
+                tmp.attr("title", i18n.get(qq));
               }
               tmp.appendTo($that);
               tmp.attr("data-bkey", qq);
