@@ -913,7 +913,7 @@ i18n.load = function(locale, data) {
   this.data = this.data || {};
   
   var localeData = this.data[locale];
-  if (localeData && localeData.length) {
+  if (localeData) {
     for (var key in localeData) {
       if (!data[key]) {
         data[key] = localeData[key];
@@ -2217,7 +2217,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.0-beta8';
+    return states && states.apiVersion || '1.3.0-beta9';
   };
 
   UT.Expression.version = function() {
