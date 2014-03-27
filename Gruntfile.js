@@ -56,6 +56,7 @@ module.exports = function(grunt) {
     'lib/expression-api/events.js',
     'lib/expression-api/init.js',
     'lib/expression-api/preloader.js',
+    'lib/filter-image.js',
     // ut-image
     'lib/jquery.ut-image/jquery.ut-image.js',
     // ut-audio
