@@ -950,40 +950,32 @@ i18n.get = function(key) {
  */
 
 
-/**
- * German
- */
 
 i18n.load('ar', {
-  'add_image' : 'Add image',
-  'add_sound' : 'Add sound',
-  'add_video' : 'Add video',
+  'add_image' : 'إضافة صورة',
+  'add_sound' : 'إضافة مقطع صوتي',
+  'add_video' : 'إضافة مقطع فيديو',
   'edit'      : 'تحرير',
-  'remove'    : 'حذف',
-  'rotate'    : 'Rotate',
-  'resize'    : 'Resize',
-  'error'     : 'Error occurred',
-  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
-  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+  'remove'    : 'إزالة',
+  'rotate'    : 'تدوير',
+  'resize'    : 'تغيير الحجم',
+  'error'     : 'حدث خطأ',
+  'error_timeout_sound' : "المعذرة، هذا المقطع الصوتي غير متوفر",
+  'error_nolibrary_sound' : "المعذرة، هذه المكتبة غير متوفرة"
 });
-
-/**
- * German
- */
 
 i18n.load('de', {
-  'add_image' : 'Add image',
-  'add_sound' : 'Add sound',
-  'add_video' : 'Add video',
+  'add_image' : 'Bild hinzufügen',
+  'add_sound' : 'Sound hinzufügen',
+  'add_video' : 'Video hinzufügen',
   'edit'      : 'Bearbeiten',
-  'remove'    : 'Löschen',
-  'rotate'    : 'Rotate',
-  'resize'    : 'Resize',
-  'error'     : 'Error occurred',
-  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
-  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+  'remove'    : 'Entfernen',
+  'rotate'    : 'Drehen',
+  'resize'    : 'Grösse verändern',
+  'error'     : 'Fehler aufgetreten',
+  'error_timeout_sound' : "Sorry, dieser Sound ist nicht verfügbar",
+  'error_nolibrary_sound' : "Sorry, die Bibliothek ist nicht verfügbar"
 });
-
 
 i18n.load('en', {
   'add_image' : 'Add image',
@@ -998,159 +990,124 @@ i18n.load('en', {
   'error_nolibrary_sound' : "Sound Player !!! The library not found."
 });
 
-/**
- * German
- */
 
 i18n.load('es', {
-  'add_image' : 'Add image',
-  'add_sound' : 'Add sound',
-  'add_video' : 'Add video',
+  'add_image' : 'Agregar imagen',
+  'add_sound' : 'Agregar sonido',
+  'add_video' : 'Agregar video',
   'edit'      : 'Editar',
   'remove'    : 'Eliminar',
-  'rotate'    : 'Rotate',
-  'resize'    : 'Resize',
-  'error'     : 'Error occurred',
-  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
-  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+  'rotate'    : 'Rotar',
+  'resize'    : 'Cambiar tamaño',
+  'error'     : 'Ocurrió un error',
+  'error_timeout_sound' : "Lo siento, este sonido no está disponible",
+  'error_nolibrary_sound' : "Lo siento, la librería no está disponible"
 });
-
-/**
- * German
- */
 
 i18n.load('fr', {
-  'add_image' : 'Add image',
-  'add_sound' : 'Add sound',
-  'add_video' : 'Add video',
-  'edit'      : 'Editer',
+  'add_image' : 'Ajouter une image',
+  'add_sound' : 'Ajouter un son',
+  'add_video' : 'Ajouter une vidéo',
+  'edit'      : 'Modifier',
   'remove'    : 'Supprimer',
-  'rotate'    : 'Rotate',
-  'resize'    : 'Resize',
-  'error'     : 'Error occurred',
-  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
-  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+  'rotate'    : 'Rotation',
+  'resize'    : 'Redimensionner',
+  'error'     : 'Une erreur est survenue',
+  'error_timeout_sound' : "Désolé, ce son n’est pas disponible",
+  'error_nolibrary_sound' : "Désolé, la librairie n’est pas disponible"
 });
-
-/**
- * German
- */
 
 i18n.load('hi', {
-  'add_image' : 'Add image',
-  'add_sound' : 'Add sound',
-  'add_video' : 'Add video',
-  'edit'      : 'संपादित करें',
-  'remove'    : 'हटाएँ',
-  'rotate'    : 'Rotate',
-  'resize'    : 'Resize',
-  'error'     : 'Error occurred',
-  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
-  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+  'add_image' : "चित्र जोड़ें",
+  'add_sound' : "ध्वनि जोड़ें",
+  'add_video' : "वीडियो जोड़े",
+  'edit'      : "संपादित करें",
+  'remove'    : "हटाएँ",
+  'rotate'    : "घुमाओ",
+  'resize'    : "आकार बदलो",
+  'error'     : "एक त्रुटि आ गई है",
+  'error_timeout_sound' : "क्षमा करें, यह ध्वनि उपलब्ध नही है",
+  'error_nolibrary_sound' : "क्षमा करें, यह लाइब्रेरी उपलब्ध नही है"
 });
-
-/**
- * German
- */
 
 i18n.load('it', {
-  'add_image' : 'Add image',
-  'add_sound' : 'Add sound',
-  'add_video' : 'Add video',
+  'add_image' : 'Aggiungi immagine',
+  'add_sound' : 'Aggiungi suono',
+  'add_video' : 'Aggiungi video',
   'edit'      : 'Modifica',
-  'remove'    : 'Cancella',
-  'rotate'    : 'Rotate',
-  'resize'    : 'Resize',
-  'error'     : 'Error occurred',
-  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
-  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+  'remove'    : 'Rimuovi',
+  'rotate'    : 'Ruota',
+  'resize'    : 'Ridimensiona',
+  'error'     : 'Si è verificato un errore',
+  'error_timeout_sound' : "Spiacenti, questo suono non è disponibile",
+  'error_nolibrary_sound' : "Spiacenti, la libreria non è disponibile"
 });
-
-/**
- * German
- */
 
 i18n.load('nl', {
   'add_image' : 'Add image',
   'add_sound' : 'Add sound',
   'add_video' : 'Add video',
-  'edit'      : 'Bewerken',
-  'remove'    : 'Verwijderen',
+  'edit'      : 'Edit',
+  'remove'    : 'Remove',
   'rotate'    : 'Rotate',
   'resize'    : 'Resize',
   'error'     : 'Error occurred',
-  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
-  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+  'error_timeout_sound' : "Sorry, this sound is not available",
+  'error_nolibrary_sound' : "Sorry, the library is not available"
 });
-
-/**
- * German
- */
 
 i18n.load('pt', {
-  'add_image' : 'Add image',
-  'add_sound' : 'Add sound',
-  'add_video' : 'Add video',
+  'add_image' : 'Adicionar imagem',
+  'add_sound' : 'Adicionar som',
+  'add_video' : 'Adicionar vídeo',
   'edit'      : 'Editar',
-  'remove'    : 'Apagar',
-  'rotate'    : 'Rotate',
-  'resize'    : 'Resize',
-  'error'     : 'Error occurred',
-  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
-  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+  'remove'    : 'Remover',
+  'rotate'    : 'Rotacionar',
+  'resize'    : 'Redimensionar',
+  'error'     : 'Um erro ocorreu',
+  'error_timeout_sound' : "Desculpe, esse som está indisponível",
+  'error_nolibrary_sound' : "Desculpe, a biblioteca está indisponível"
 });
-
-/**
- * German
- */
 
 i18n.load('ru', {
-  'add_image' : 'Add image',
-  'add_sound' : 'Add sound',
-  'add_video' : 'Add video',
+  'add_image' : 'Добавить изображение',
+  'add_sound' : 'Добавить звук',
+  'add_video' : 'Добавить видео',
   'edit'      : 'Редактировать',
-  'remove'    : 'Удалить',
-  'rotate'    : 'Rotate',
-  'resize'    : 'Resize',
-  'error'     : 'Error occurred',
-  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
-  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+  'remove'    : 'Передвинуть',
+  'rotate'    : 'Вращать',
+  'resize'    : 'Изменить размер',
+  'error'     : 'Произошла ошибка',
+  'error_timeout_sound' : "К сожалению, этот звук не доступен",
+  'error_nolibrary_sound' : "К сожалению, библиотека не доступна"
 });
 
-/**
- * German
- */
 
 i18n.load('th', {
-  'add_image' : 'Add image',
-  'add_sound' : 'Add sound',
-  'add_video' : 'Add video',
-  'edit'      : 'แก้ไข',
-  'remove'    : 'ลบ',
-  'rotate'    : 'Rotate',
-  'resize'    : 'Resize',
-  'error'     : 'Error occurred',
-  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
-  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+  'add_image' : 'เพิ่มรูป',
+  'add_sound' : 'เพิ่มเสียง',
+  'add_video' : 'เพิ่มวิดีโอ',
+  'edit'      : 'ตัดแต่ง',
+  'remove'    : 'ลบออก',
+  'rotate'    : 'หมุน',
+  'resize'    : 'ปรับขนาด',
+  'error'     : 'เกิดข้อผิดพลาด',
+  'error_timeout_sound' : "ขอโทษ ไม่สามารถใช้เสียงนี้ได้",
+  'error_nolibrary_sound' : "ขอโทษ ไม่สามารถใช้ห้องสมุดนี้ได้"
 });
-
-/**
- * German
- */
 
 i18n.load('zh', {
-  'add_image' : 'Add image',
-  'add_sound' : 'Add sound',
-  'add_video' : 'Add video',
+  'add_image' : '添加图片',
+  'add_sound' : '添加声音',
+  'add_video' : '添加视频',
   'edit'      : '编辑',
-  'remove'    : '删除',
-  'rotate'    : 'Rotate',
-  'resize'    : 'Resize',
-  'error'     : 'Error occurred',
-  'error_timeout_sound' : "We can't get data to play this track in 15 sec",
-  'error_nolibrary_sound' : "Sound Player !!! The library not found."
+  'remove'    : '清除',
+  'rotate'    : '旋转',
+  'resize'    : '改变尺寸',
+  'error'     : '发生错误',
+  'error_timeout_sound' : "对不起,这个声音不可用",
+  'error_nolibrary_sound' : "对不起,搜索结果面板不可用"
 });
-
 // Generate Random UUID compliant with rfc4122 v4
 // Fantastic piece of code from @broofa on:
 // http://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid-in-javascript
@@ -2217,7 +2174,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.0-beta10';
+    return states && states.apiVersion || '1.3.0-beta11';
   };
 
   UT.Expression.version = function() {
@@ -5542,6 +5499,9 @@ window.addEventListener("message", function (e) {
           },
           editable: true,
           i18n: {
+            add:         "add sound",
+            change:      "",
+            error:       "Error occurred",
             dialogLabel: undefined
           }
         };
@@ -5551,6 +5511,7 @@ window.addEventListener("message", function (e) {
             that.post = post;
             if(that.initialized) {
               setTimeout(function() {
+                that.update();
                 $that.trigger(events.ready, {id:that.options.id, data:that.options.data});
               }, 0);
               that.addMediaListener();
@@ -5846,6 +5807,12 @@ window.addEventListener("message", function (e) {
           that.setPlayPos(0);
         };
 
+        that.seek = function(pos) {
+          if(that.currents.state === 'play' || that.currents.state === 'pause'){
+            $that.utAudioEngine("seek", pos);
+          }
+        };
+
         that.getServiceName = function(){
           if(that.options.data && that.options.data.service) {
             return that.options.data.service;
@@ -5869,14 +5836,18 @@ window.addEventListener("message", function (e) {
               title:       data.title,
               source:      data.permalink_url,
               artwork_url: (data.artwork_url ? data.artwork_url : '').replace(/\-large\./ig, "-t500x500."),
-              duration:    data.duration
+              duration:    data.duration,
+              artist:      (data.user && data.user.username ? data.user.username : ""),
+              trackName:   data.title
             };
           } else if(that.getServiceName() === 'itunes') {
             that.currents.serviceData = {
               title:       data.artistName + ' - ' + data.trackName,
               source:      data.trackViewUrl,
               artwork_url: (data.artworkUrl100 ? data.artworkUrl100 : '').replace("100x100","600x600"),
-              duration:    30000
+              duration:    30000,
+              artist:      data.artistName,
+              trackName:   data.trackName
             };
           }
           that.currents.serviceData.service_name = that.getServiceName();
@@ -5885,7 +5856,7 @@ window.addEventListener("message", function (e) {
         that.requestServiceData = function(callback) {
           var errorTimeOut = setTimeout(function(){
             if(that && (!that.currents || !that.currents.serviceData)){
-              that.setState('error', i18n.get('error_timeout_sound'));
+              that.setState('error', "We can't get data to play this track in 15 sec");
             }
           }, 15000);
           if(that.options.data.appData){
@@ -5921,11 +5892,14 @@ window.addEventListener("message", function (e) {
             duration: that.currents.serviceData && that.currents.serviceData.duration ? that.currents.serviceData.duration : false,
             url: url,
             type: type,
-            autoPause: that.options.styles.autoPause,
+//            autoPause: that.options.styles.autoPause,
             onReady: function() {
               that.setPlayPos(0);
             },
             onPlay: function() {
+//              if(that.post && that.post.stopAllOther && that.options.styles.autoPause) {
+//                that.post.stopAllOther();
+//              }
               that.setState('play');
               $that.trigger(events.play);
             },
@@ -5951,6 +5925,9 @@ window.addEventListener("message", function (e) {
             },
             onSeekEnd: function() {
               if(that.currents.state !== "launch" && that.currents.state !== "finish" && that.currents.state !== "empty") {
+//                if(that.post && that.post.stopAllOther && that.options.styles.autoPause) {
+//                  that.post.stopAllOther();
+//                }
                 that.setState("play");
               }
             },
@@ -5973,7 +5950,7 @@ window.addEventListener("message", function (e) {
               that.triggerChangeEvent();
             }, 10);
           } else {
-            that.setState("error", i18n.get('error_nolibrary_sound'));
+            that.setState("error", "Sound Player !!! The library not found.");
           }
         };
 
@@ -6026,11 +6003,11 @@ window.addEventListener("message", function (e) {
           if(that.options.ui.source)   { that.ui.source   = $('<a class="'+that.uiNS+'-source">'         ).appendTo(that.ui.container);}
           if(that.options.editable) {
             that.ui.add     = $('<a class="'+that.uiNS+'-add icon_sound ut-media-button ut-button"></a>')
-                                .html(i18n.get('add_sound'))
+                                .html(that.options.i18n.add)
                                 .appendTo(that.ui.container)
                                 .on('click', that.onAddClick);
             that.ui.remove  = $('<a class="'+that.uiNS+'-remove icon_trash"></a>')
-                                .html("")
+                                .html(that.options.i18n.change)
                                 .appendTo(that.ui.container)
                                 .on('click', that.onRemoveClick);
           }
@@ -6083,6 +6060,10 @@ window.addEventListener("message", function (e) {
         };
 
         that.utPlay = function(v) {
+          if(that.post && that.post.stopAllOther && that.options.styles.autoPause) {
+            that.post.stopAllOther();
+          }
+
           that.setState("seek");
           if($that.utAudioEngine) {
             $that.utAudioEngine("play", v);
@@ -6156,11 +6137,11 @@ window.addEventListener("message", function (e) {
         };
 
         that.oldOptions = $.extend(true, {}, that.options);
-        that.update();
 
         that.initialized = true;
         if(that.post) {
           setTimeout(function() {
+            that.update();
             $that.trigger(events.ready, {id:that.options.id, data:that.options.data});
           }, 0);
           that.addMediaListener();
@@ -6200,6 +6181,15 @@ window.addEventListener("message", function (e) {
       this.each(function() {
         if(this.utAudio) {
           this.utAudio.utStop.call(this);
+        }
+      });
+      return this;
+    },
+
+    seek: function(pos) {
+      this.each(function() {
+        if(this.utAudio) {
+          this.utAudio.seek.call(this, pos);
         }
       });
       return this;
