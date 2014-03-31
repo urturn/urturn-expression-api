@@ -2174,7 +2174,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.0';
+    return states && states.apiVersion || '1.3.1';
   };
 
   UT.Expression.version = function() {
@@ -4165,9 +4165,21 @@ window.addEventListener("message", function (e) {
       if(filter && filter.parameters) {
         filterValues = {
           saturation: getSaturationColorMatrix(filter.parameters.saturation),
+          
           gammaR:     filter.parameters.gammaR,
           gammaG:     filter.parameters.gammaG,
           gammaB:     filter.parameters.gammaB,
+
+          amplitudeR: filter.parameters.amplitudeR || 1.0,
+          amplitudeG: filter.parameters.amplitudeG || 1.0,
+          amplitudeB: filter.parameters.amplitudeB || 1.0,
+        
+
+          exponentR: filter.parameters.exponentR || 1.0,
+          exponentG: filter.parameters.exponentG || 1.0,
+          exponentB: filter.parameters.exponentB || 1.0,
+        
+
           vignette:   filter.parameters.vignette
         };
       }
@@ -4175,9 +4187,9 @@ window.addEventListener("message", function (e) {
         '<filter id="blackAndWhite" x="0" y="0" width="100%" height="100%" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">' +
           '<feColorMatrix id="saturation-0" result="flt1" values="'+ filterValues.saturation+'"/>' +
           '<feComponentTransfer in="flt1" result="flt2">' +
-          '<feFuncR type="gamma" id="redChannel-0"   amplitude="1.600000" exponent="1.300000" offset="'+ filterValues.gammaR+'"/>' +
-          '<feFuncG type="gamma" id="greenChannel-0" amplitude="1.600000" exponent="1.300000" offset="'+ filterValues.gammaG+'"/>' +
-          '<feFuncB type="gamma" id="blueChannel-0"  amplitude="1.600000" exponent="1.300000" offset="'+ filterValues.gammaB+'"/>' +
+          '<feFuncR type="gamma" id="redChannel-0"   amplitude="' + filterValues.amplitudeR + '" exponent="' + filterValues.exponentR + '" offset="'+ filterValues.gammaR+'"/>' +
+          '<feFuncG type="gamma" id="greenChannel-0" amplitude="' + filterValues.amplitudeG + '" exponent="' + filterValues.exponentG + '" offset="'+ filterValues.gammaG+'"/>' +
+          '<feFuncB type="gamma" id="blueChannel-0"  amplitude="' + filterValues.amplitudeB + '" exponent="' + filterValues.exponentB + '" offset="'+ filterValues.gammaB+'"/>' +
           '</feComponentTransfer>' +
           '</filter>';
       return filtersStr;
@@ -4212,14 +4224,14 @@ window.addEventListener("message", function (e) {
           }, {
             filter: 'gammaRGB',
             parameters: {
-              amplitudeR: 1.6,
-              exponentR: 1.3,
+              amplitudeR: filterData.parameters.amplitudeR,
+              exponentR: filterData.parameters.exponentR,
               offsetR: filterData.parameters.gammaR,
-              amplitudeG: 1.6,
-              exponentG: 1.3,
+              amplitudeG: filterData.parameters.amplitudeG,
+              exponentG: filterData.parameters.exponentG,
               offsetG: filterData.parameters.gammaG,
-              amplitudeB: 1.6,
-              exponentB: 1.3,
+              amplitudeB: filterData.parameters.amplitudeB,
+              exponentB: filterData.parameters.exponentB,
               offsetB: filterData.parameters.gammaB
             }
           }, {
