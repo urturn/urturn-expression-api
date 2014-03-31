@@ -1044,16 +1044,16 @@ i18n.load('it', {
 });
 
 i18n.load('nl', {
-  'add_image' : 'Add image',
-  'add_sound' : 'Add sound',
-  'add_video' : 'Add video',
-  'edit'      : 'Edit',
-  'remove'    : 'Remove',
-  'rotate'    : 'Rotate',
-  'resize'    : 'Resize',
-  'error'     : 'Error occurred',
-  'error_timeout_sound' : "Sorry, this sound is not available",
-  'error_nolibrary_sound' : "Sorry, the library is not available"
+  'add_image' : 'Afbeelding toevoegen',
+  'add_sound' : 'Geluid toevoegen',
+  'add_video' : 'Video toevoegen',
+  'edit'      : 'Bewerken',
+  'remove'    : 'Verwijderen',
+  'rotate'    : 'Roteren',
+  'resize'    : 'Formaat wijzigen',
+  'error'     : 'Fout opgetreden',
+  'error_timeout_sound' : "Sorry, dit geluid is niet beschikbaar",
+  'error_nolibrary_sound' : "Sorry, deze bibliotheek is niet beschikbaar"
 });
 
 i18n.load('pt', {
@@ -2174,7 +2174,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.0-beta11';
+    return states && states.apiVersion || '1.3.0';
   };
 
   UT.Expression.version = function() {
@@ -8650,16 +8650,21 @@ window.addEventListener("message", function (e) {
           }
         };
 
+        that.preventButtonEvents = null;
         that.onButtonDown = function(e) {
           that.preventButtonEvents = $(this).attr("data-bkey");
           e.stopPropagation();
         };
 
         that.onButtonUp = function(e) {
-          if(that.preventButtonEvents !== $(this).attr("data-bkey")) {
+          if(!that.preventButtonEvents || that.preventButtonEvents !== $(this).attr("data-bkey")) {
+            that.preventButtonEvents = null;
             return;
           }
-          e.stopPropagation();
+          that.preventButtonEvents = null;
+          if(e.type === "mouseup") {
+            e.stopPropagation();
+          }
         };
 
         that.onButtonClick = function(event) {
@@ -9063,7 +9068,7 @@ window.addEventListener("message", function (e) {
           }
 
           if(that.options.styles.proportional) {
-            if((nww / that.pos.ratio) > nhh) {
+            if((nww / that.pos.ratio) < nhh) {
               nww = nhh * that.pos.ratio;
             }
             that.pos.width = nww / that.data.parentWidth;
@@ -9343,6 +9348,8 @@ window.addEventListener("message", function (e) {
 
         that._getCurrentData = function() {
           return {
+            left: that.pos.left * that.data.parentWidth,
+            top: that.pos.top * that.data.parentHeight,
             width: that.pos.width * that.data.parentWidth,
             height: that.pos.width/that.pos.ratio * that.data.parentWidth,
             rotation: that.pos.angle * 180 / Math.PI,
