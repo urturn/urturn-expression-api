@@ -2174,7 +2174,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.1';
+    return states && states.apiVersion || '1.3.2';
   };
 
   UT.Expression.version = function() {
@@ -8622,7 +8622,7 @@ window.addEventListener("message", function (e) {
           // get or create rotate button
           if(that.options.ui.rotate) {
             that.view.rotate = $("<a>")
-              .addClass("ut-sticker-button ut-sticker-button-rotate icon_rotate")
+              .addClass("ut-sticker-button ut-sticker-button-rotate icon_fullscreen")
               .attr("title", i18n.get('rotate'))
               .appendTo($that);
             that.catchEvents(that.view.rotate, that.onElementRotate);
