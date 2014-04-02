@@ -109,7 +109,8 @@ module.exports = function(grunt) {
   // Lint
   config.jshint = {
     options: {
-      browser: true
+      browser: true,
+      sub : true
     },
     build: ['Gruntfile.js'],
     lib: jshintSources,

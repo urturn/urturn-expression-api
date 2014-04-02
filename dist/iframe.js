@@ -2174,7 +2174,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.2';
+    return states && states.apiVersion || '1.3.3';
   };
 
   UT.Expression.version = function() {
@@ -6303,7 +6303,6 @@ window.addEventListener("message", function (e) {
           startBuffering: (window.navigator.userAgent.match(/(iPad|iPhone|iPod)/g) ? false : true),
           autoPlay: false,
           debug: false,
-          autoPause: true,
           createPlayerBeforePlaying:true,//(window.navigator.userAgent.match(/(iPad|iPhone|iPod|android)/g) ? false : true),
           onReady:      function(){},
           onPlay:       function(){},
@@ -6340,7 +6339,7 @@ window.addEventListener("message", function (e) {
 
         that.initPlayer = function() {
           that.player.jPlayer({
-            supplied: "mp3,m4a",
+            supplied: that.options.type,
             swfPath: that.options.path,
             errorAlerts: false,
             warningAlerts: false,
@@ -6353,12 +6352,14 @@ window.addEventListener("message", function (e) {
               };
               that.flagPlayerReady = true;
               that.loadTrack(that.options.url);
-              if(that.environment.flash){
-                that.player.jPlayer('play');
-              } else {
-                that.doOnCanPlay = function(){
+              if(that.options.autoPlay) {
+                if(that.environment.flash){
                   that.player.jPlayer('play');
-                };
+                } else {
+                  that.doOnCanPlay = function(){
+                    that.player.jPlayer('play');
+                  };
+                }
               }
               that.options.onReady();
             },
@@ -6380,7 +6381,6 @@ window.addEventListener("message", function (e) {
             },
             seeking:function(){
               that.options.onSeekStart();
-
             },
             seeked:function(){
               that.options.onSeekEnd();
@@ -6417,7 +6417,6 @@ window.addEventListener("message", function (e) {
         };
 
         that.play = function(v) {
-
           if(!that.flagPlayerInited) {
             that.options.onSeekStart();
             if(!that.options.createPlayerBeforePlaying) {
@@ -6438,13 +6437,6 @@ window.addEventListener("message", function (e) {
           that.flagPlaying = true;
           $('body').trigger(that.globalUtAudioPauseEvent, that.uid);
         };
-
-        $('body').on(that.globalUtAudioPauseEvent, function(e, uid){
-          if(that.uid === uid || !that.options.autoPause) {
-            return;
-          }
-          that.pause();
-        });
 
         that.pause = function() {
           that.flagPlaying = false;
@@ -6485,7 +6477,6 @@ window.addEventListener("message", function (e) {
 
         if(that.options.createPlayerBeforePlaying){
           that.initPlayer();
-          //this.utAudioEngine.stop();
         }
 
 
@@ -6589,6 +6580,7 @@ window.addEventListener("message", function (e) {
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
+/* global UT:true */
 (function ($) {
   "use strict";
 
@@ -6637,7 +6629,20 @@ window.addEventListener("message", function (e) {
           }
         };
 
-        if(!that.post && UT && UT.Expression && UT.Expression.ready) {
+        that.options = $.extend(true, defaults, opts);
+        if(that.options.manualMode) {
+          that.options.editable = false;
+          that.options.styles.listenMedia = false;
+          that.post = {
+            storage: [],
+            on: function() {},
+            off: function() {},
+            save: function() {},
+            context: {player:true}
+          };
+        }
+
+        if(!that.post && window.UT && UT.Expression && UT.Expression.ready) {
           UT.Expression.ready(function(post) {
             that.post = post;
             if(that.initialized) {
@@ -6650,7 +6655,8 @@ window.addEventListener("message", function (e) {
         }
 
         that.isTouch = (('ontouchstart' in window) || (window.navigator.msMaxTouchPoints > 0));
-        that.options = $.extend(true, defaults, opts);
+        // TODO do it for all touch devices now :P
+        that.isMobileSafari = that.isTouch;//!!(window.navigator.userAgent.match(/(iPod|iPhone|iPad)/) && window.navigator.userAgent.match(/AppleWebKit/));
         that.canplay = false;
 
         that.eventNS   = 'utVideo:';
@@ -6736,7 +6742,7 @@ window.addEventListener("message", function (e) {
             param.appData = appData;
             param.source = this._getSourceNameByUrl(url);
             param.options = options;
-            that.autoplay = !that.isTouch;
+            that.autoplay = that.options.autoPlay || !that.isMobileSafari;
 
             if (!this._sources[param.source]) {
               param.worker = this.defaultWorker;
@@ -6795,24 +6801,23 @@ window.addEventListener("message", function (e) {
 
                   that.onPlayerReady = function(event) {
                     player.addEventListener('onStateChange', that.onPlayerStateChange);
-                    if(!that.isTouch) {
+                    if(that.autoplay) { /*!that.isMobileSafari*/
                       event.target.playVideo();
                     }
                   };
 
                   that.onPlayerStateChange = function(event) {
                     if (event.data === window.YT.PlayerState.PLAYING) {
-                      that.pauseOtherPlayers();
+//                      that.pauseOtherPlayers();
                       $that.trigger(events.play);
+                      that.setState("play");
                     }
 
                     if (event.data === window.YT.PlayerState.ENDED) {
-                      if(!that.isTouch){
-                        that.utStop();
-                        player.stopVideo();
-                        player.destroy();
-                        player = null;
-                      }
+                      that.utStop();
+                      player.stopVideo();
+                      player.destroy();
+                      player = null;
                       $that.trigger(events.finish);
                     }
 
@@ -6825,8 +6830,7 @@ window.addEventListener("message", function (e) {
                   };
 
 
-                  var playerVars = that.options.ui.playing?{}:{controls:0,showinfo:0};
-                  playerVars.rel = 0;
+                  var playerVars = that.options.ui.playing?null:{controls:0,showinfo:0};
 
                   var player = new window.YT.Player(id, {
                     height:'100%',
@@ -6883,15 +6887,13 @@ window.addEventListener("message", function (e) {
 
                 function ready(playerID) {
                   window.Froogaloop(playerID).addEvent('play', function () {
-                    that.pauseOtherPlayers();
+//                    that.pauseOtherPlayers();
                     $that.trigger(events.play);
                   });
 
                   window.Froogaloop(playerID).addEvent('finish', function () {
                     $that.trigger(events.finish);
-                    if(!that.isTouch){
-                      that.utStop();
-                    }
+                    that.utStop();
                   });
 
                   window.Froogaloop(playerID).addEvent('pause', function () {  //paleyerId
@@ -6930,7 +6932,8 @@ window.addEventListener("message", function (e) {
                 return param;
               },
               embedVideo:function (param) {
-                var container = that.ui.video.empty();
+                that.ui.video.empty();
+                var container = jQuery("<div>").appendTo(that.ui.video);
                 // This code loads the Dailymotion Javascript SDK asynchronously.
                 (function () {
                   var e = document.createElement('script');
@@ -6953,13 +6956,13 @@ window.addEventListener("message", function (e) {
 
                   player.addEventListener("apiready", function (e) {
                     var prevE = e;
-                    that.pauseOtherPlayers();
-                    $that.trigger(events.play);
+//                    that.pauseOtherPlayers();
+                    if(that.autoplay) {
+                      $that.trigger(events.play);
+                    }
                     e.target.addEventListener("ended", function () {
                       $that.trigger(events.finish);
-                      if(!that.isTouch){
-                        that.utStop();
-                      }
+                      that.utStop();
                     });
 
                     e.target.addEventListener("pause", function () {
@@ -6978,7 +6981,6 @@ window.addEventListener("message", function (e) {
                 window.dmAsyncInit = function () {
                   initDM();
                 };
-
               }
             },
 
@@ -7245,7 +7247,7 @@ window.addEventListener("message", function (e) {
                   param.status = true;
                   param.duration = (data.media$group.yt$duration) ? parseInt(data.media$group.yt$duration.seconds,10) : 0;
                   param.duration_formatted = embedProcessor._timeConverter(param.duration);
-                  var thumbs = data.media$group.media$thumbnail;
+                  var thumbs = data["media$group"]["media$thumbnail"];
                   var selThumb = null;
                   if (thumbs && thumbs.length > 0){
                     for (var qq = 0; qq < thumbs.length; qq++){
@@ -7259,8 +7261,9 @@ window.addEventListener("message", function (e) {
                   param.service_name = "YouTube";
                   param.provider_url = "//youtube.com";
                   param.html = false;
-                  param.views = ((data.yt$statistics && data.yt$statistics.viewCount) ? data.yt$statistics.viewCount : 0);
-                  param.title = data.title ? data.title.$t : "";
+                  param.views = ((data["yt$statistics"] && data["yt$statistics"].viewCount) ? data["yt$statistics"].viewCount : 0);
+                  param.title = data.title ? data.title["$t"] : "";
+                  param.author = data.author && data.author[0] && data.author[0].name && data.author[0].name["$t"] ? data.author[0].name["$t"] : "";
                   param = embedProcessor._paramEmbedCodeNormalizer(embedProcessor._sources[param.source].prepareEmbedCode(param));
                 } else {
                   param.status = false;
@@ -7298,6 +7301,7 @@ window.addEventListener("message", function (e) {
                   param.html = false;
                   param.views = data.stats_number_of_plays;
                   param = embedProcessor._paramEmbedCodeNormalizer(embedProcessor._sources[param.source].prepareEmbedCode(param));
+                  param.author = data.user_name || "";
                 } else {
                   param.status = false;
                 }
@@ -7344,6 +7348,7 @@ window.addEventListener("message", function (e) {
                   if (embedProcessor._sources[param.source] && embedProcessor._sources[param.source].prepareEmbedCode) {
                     param = embedProcessor._sources[param.source].prepareEmbedCode(param);
                   }
+                  param.author = data.author_name || "";
                   param = embedProcessor._paramEmbedCodeNormalizer(param);
                 } else {
                   /* prepare data from appData */
@@ -7361,6 +7366,7 @@ window.addEventListener("message", function (e) {
                     if (embedProcessor._sources[param.source] && embedProcessor._sources[param.source].prepareEmbedCode) {
                       param = embedProcessor._sources[param.source].prepareEmbedCode(param);
                     }
+                    param.author = data.author_name || "";
                     param = embedProcessor._paramEmbedCodeNormalizer(param);
                   } else {
                     param.status = false;
@@ -7507,12 +7513,15 @@ window.addEventListener("message", function (e) {
           if(!that.options.styles.autoPause) {
             return;
           }
-          var list = $(".ut-video");
-          $.each(list, function(i, v) {
-            if(v !== $that[0]) {
-              $(v).utVideo("pause");
-            }
-          });
+//          var list = $(".ut-video");
+//          $.each(list, function(i, v) {
+//            if(v !== $that[0]) {
+//              $(v).utVideo("pause");
+//            }
+//          });
+          if(that.post && that.post.stopAllOther) {
+            that.post.stopAllOther();
+          }
         };
 
         /************************************************************/
@@ -7574,11 +7583,13 @@ window.addEventListener("message", function (e) {
           that.currents.sourceEmbedData = sourceEmbedData;
           if(sourceEmbedData.source) {
             that.canplay = true;
-            if(that.isTouch){
+            if(that.isMobileSafari){
               that.utPlay();
             } else {
               that.updatePreViewVideoData();
-              that.setState('launch');
+              if(!that.autoplay) {
+                that.setState('launch');
+              }
             }
             setTimeout(function() {
               $that.trigger(events.mediaReady, sourceEmbedData);
@@ -7606,6 +7617,7 @@ window.addEventListener("message", function (e) {
 
         that.utPlay = function() {
           if(!that.canplay) {return;}
+          that.pauseOtherPlayers();
           if(that.currents.state === 'pause') {
             that.ui.video.trigger('continueAfterPause');
           } else {
@@ -7632,7 +7644,7 @@ window.addEventListener("message", function (e) {
         that.utDialog = function(opt) {
           var options = {
             inputTypes: ['search'],
-            label: ''
+            label: that.options.i18n.dialogLabel
           };
           if(!$.isEmptyObject(opt)) {
             options = $.extend(true, options, opt);
@@ -7909,6 +7921,7 @@ window.addEventListener("message", function (e) {
     return this;
   };
 })(window.$ || window.Zepto || window.jq);
+
 /*global UT: true, jQuery: true, navigator: true, fontdetect: true */
 /*
  * This source code is licensed under version 3 of the AGPL.
