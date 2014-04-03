@@ -2174,7 +2174,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.3';
+    return states && states.apiVersion || '1.3.4';
   };
 
   UT.Expression.version = function() {
@@ -3134,6 +3134,14 @@ UT.CollectionStore = function(options) {
       } else {
         UT.Expression._callAPI('container.navigate', [opt]);
       }
+    };
+
+    var isNativeApp = this.isNativeApp = function() {
+      // Mobiel hotfix
+      if (states.behaviors.navigate.browseStrategy === 'api') {
+        return true;
+      }
+      return false;
     };
 
     /**
