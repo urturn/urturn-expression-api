@@ -24,24 +24,29 @@ module.exports = function(grunt) {
     'components/fastclick/lib/fastclick.js',
     'components/FontDetect/fontdetect.2.1.min.js',
     'components/jquery-textfill/jquery.textfill.min.js',
-    'lib/jquery.ut-video/js/froogaloop.min.js',
-    'lib/jquery.ut-audio/js/jquery.jplayer.min.js'
+    'lib/modules/jquery.ut-video/js/froogaloop.min.js',
+    'lib/modules/jquery.ut-audio/js/jquery.jplayer.min.js',
+    'vendors/paper.js'
   ];
+
+
   var jshintSources = [
     'lib/expression-api/namespace.js',
     'lib/expression-api/i18n.js',
-    'lib/expression-api/lang/ar.js',
-    'lib/expression-api/lang/de.js',
-    'lib/expression-api/lang/en.js',
-    'lib/expression-api/lang/es.js',
-    'lib/expression-api/lang/fr.js',
-    'lib/expression-api/lang/hi.js',
-    'lib/expression-api/lang/it.js',
-    'lib/expression-api/lang/nl.js',
-    'lib/expression-api/lang/pt.js',
-    'lib/expression-api/lang/ru.js',
-    'lib/expression-api/lang/th.js',
-    'lib/expression-api/lang/zh.js',
+
+    'lib/i18n/ar.js',
+    'lib/i18n/de.js',
+    'lib/i18n/en.js',
+    'lib/i18n/es.js',
+    'lib/i18n/fr.js',
+    'lib/i18n/hi.js',
+    'lib/i18n/it.js',
+    'lib/i18n/nl.js',
+    'lib/i18n/pt.js',
+    'lib/i18n/ru.js',
+    'lib/i18n/th.js',
+    'lib/i18n/zh.js',
+
     'lib/expression-api/uuid.js',
     'lib/expression-api/compat.js',
     'lib/expression-api/Collection.js',
@@ -56,18 +61,30 @@ module.exports = function(grunt) {
     'lib/expression-api/events.js',
     'lib/expression-api/init.js',
     'lib/expression-api/preloader.js',
-    'lib/filter-image.js',
+
+
+
+    'lib/modules/filter-image.js',
     // ut-image
-    'lib/jquery.ut-image/jquery.ut-image.js',
+    'lib/modules/jquery.ut-image/jquery.ut-image.js',
     // ut-audio
-    'lib/jquery.ut-audio/js/jquery.ut-audio.js',
-    'lib/jquery.ut-audio/js/jquery.ut-audio-engine.js',
+    'lib/modules/jquery.ut-audio/js/jquery.ut-audio.js',
+    'lib/modules/jquery.ut-audio/js/jquery.ut-audio-engine.js',
     // ut-video
-    'lib/jquery.ut-video/js/jquery.ut-video.js',
+    'lib/modules/jquery.ut-video/js/jquery.ut-video.js',
     // ut-text
-    'lib/jquery.ut-text/jquery.ut-text.js',
+    'lib/modules/jquery.ut-text/jquery.ut-text.js',
     // ut-sticker
-    'lib/jquery.ut-sticker/jquery.ut-sticker.js'
+    'lib/modules/jquery.ut-sticker/jquery.ut-sticker.js',
+
+    'lib/modules/antiscroll.costum.js',
+    'lib/modules/class.MediaPlayer.js',
+    'lib/modules/cutout.js',
+    'lib/modules/filter-image.js',
+    'lib/modules/jquery.ex.js'
+
+
+
   ];
   var sources = vendor_sources.concat(jshintSources);
 
@@ -76,17 +93,22 @@ module.exports = function(grunt) {
     // urturn-expression-css
     'lib/urturn-expression-css/css/styles.css',
     // ut-image
-    'lib/jquery.ut-image/jquery.ut-image.css',
+    'lib/modules/jquery.ut-image/jquery.ut-image.css',
     // ut-audio
-    'lib/jquery.ut-audio/css/default/jquery.jplayer.min.js',
-    'lib/jquery.ut-audio/css/default/jquery.ut-audio-engine.css',
-    'lib/jquery.ut-audio/css/default/jquery.ut-audio.css',
-    'lib/jquery.ut-video/css/default/jquery.ut-video.css',
-    'lib/jquery.ut-audio/css/bottom-over/ut-audio-player-bottom-over.css',
+    'lib/modules/jquery.ut-audio/css/default/jquery.jplayer.min.js',
+    'lib/modules/jquery.ut-audio/css/default/jquery.ut-audio-engine.css',
+    'lib/modules/jquery.ut-audio/css/default/jquery.ut-audio.css',
+    'lib/modules/jquery.ut-video/css/default/jquery.ut-video.css',
+    'lib/modules/jquery.ut-audio/css/bottom-over/ut-audio-player-bottom-over.css',
     // ut-text
-    'lib/jquery.ut-text/jquery.ut-text.css',
+    'lib/modules/jquery.ut-text/jquery.ut-text.css',
     // ut-sticker
-    'lib/jquery.ut-sticker/jquery.ut-sticker.css'
+    'lib/modules/jquery.ut-sticker/jquery.ut-sticker.css',
+
+    'lib/modules/antiscroll.css',
+    'lib/modules/class.MediaPlayer.css',
+    'lib/modules/cutout.css'
+
   ];
   var sourcesAssets = [
     // urturn-expression-css
@@ -100,7 +122,7 @@ module.exports = function(grunt) {
     'lib/urturn-expression-css/fonts/Roboto-Regular-webfont.ttf',
     'lib/urturn-expression-css/fonts/Roboto-Regular-webfont.woff',
     // ut-audio
-    'lib/jquery.ut-audio/swf/Jplayer.swf'
+    'lib/modules/jquery.ut-audio/swf/Jplayer.swf'
   ];
   var pathMap = {}; // map relative path to asset paths
 
@@ -110,7 +132,8 @@ module.exports = function(grunt) {
   config.jshint = {
     options: {
       browser: true,
-      sub : true
+      sub : true,
+      laxbreak : true
     },
     build: ['Gruntfile.js'],
     lib: jshintSources,
