@@ -9074,7 +9074,7 @@ var CanvasProvider = {
 
   release: function(obj) {
     this.canvases.push(obj.canvas ? obj.canvas : obj);
-  },
+  }
 };
 
 var Numerical = new function() {

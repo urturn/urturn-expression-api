@@ -761,11 +761,12 @@ fontdetect=function(){var _isInitialized=false;var _aFallbackFonts=["serif","san
 (function(b){b.fn.textfill=function(k){function m(a,c,e,b,g,l,f,h){for(;f<h-1;)if(a=Math.floor((f+h)/2),c.css("font-size",a),e.call(c)<=b){if(f=a,e.call(c)==b)break}else h=a;c.css("font-size",h);e.call(c)<=b&&(f=h);return f}var a=b.extend({debug:!1,maxFontPixels:40,minFontPixels:4,innerTag:"span",widthOnly:!1,success:null,callback:null,fail:null,complete:null,explicitWidth:null,explicitHeight:null},k);this.each(function(){var d=b(a.innerTag+":visible:first",this),c=a.explicitHeight||b(this).height(),
 e=a.explicitWidth||b(this).width(),k=d.css("font-size"),g=a.minFontPixels,l=0>=a.maxFontPixels?c:a.maxFontPixels,f=void 0;a.widthOnly||(f=m("H",d,b.fn.height,c,c,e,g,l));g=m("W",d,b.fn.width,e,c,e,g,l);a.widthOnly?d.css("font-size",g):d.css("font-size",Math.min(f,g));d.width()>e||d.height()>c&&!a.widthOnly?(d.css("font-size",k),a.fail&&a.fail(this)):a.success?a.success(this):a.callback&&a.callback(this)});a.complete&&a.complete(this);return this}})(window.jQuery);
 
-var Froogaloop=function(){function e(a){return new e.fn.init(a)}function h(a,c,b){if(!b.contentWindow.postMessage)return!1;var f=b.getAttribute("src").split("?")[0],a=JSON.stringify({method:a,value:c});"//"===f.substr(0,2)&&(f=window.location.protocol+f);b.contentWindow.postMessage(a,f)}function j(a){var c,b;try{c=JSON.parse(a.data),b=c.event||c.method}catch(f){}"ready"==b&&!i&&(i=!0);if(a.origin!=k)return!1;var a=c.value,e=c.data,g=""===g?null:c.player_id;c=g?d[g][b]:d[b];b=[];if(!c)return!1;void 0!==
+function loadFroogaLoop() {
+window.Froogaloop=function(){function e(a){return new e.fn.init(a)}function h(a,c,b){if(!b.contentWindow.postMessage)return!1;var f=b.getAttribute("src").split("?")[0],a=JSON.stringify({method:a,value:c});"//"===f.substr(0,2)&&(f=window.location.protocol+f);b.contentWindow.postMessage(a,f)}function j(a){var c,b;try{c=JSON.parse(a.data),b=c.event||c.method}catch(f){}"ready"==b&&!i&&(i=!0);if(a.origin!=k)return!1;var a=c.value,e=c.data,g=""===g?null:c.player_id;c=g?d[g][b]:d[b];b=[];if(!c)return!1;void 0!==
 a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call()}function l(a,c,b){b?(d[b]||(d[b]={}),d[b][a]=c):d[a]=c}var d={},i=!1,k="";e.fn=e.prototype={element:null,init:function(a){"string"===typeof a&&(a=document.getElementById(a));this.element=a;a=this.element.getAttribute("src");"//"===a.substr(0,2)&&(a=window.location.protocol+a);for(var a=a.split("/"),c="",b=0,f=a.length;b<f;b++){if(3>b)c+=a[b];else break;2>b&&(c+="/")}k=c;return this},api:function(a,c){if(!this.element||
 !a)return!1;var b=this.element,f=""!==b.id?b.id:null,d=!c||!c.constructor||!c.call||!c.apply?c:null,e=c&&c.constructor&&c.call&&c.apply?c:null;e&&l(a,e,f);h(a,d,b);return this},addEvent:function(a,c){if(!this.element)return!1;var b=this.element,d=""!==b.id?b.id:null;l(a,c,d);"ready"!=a?h("addEventListener",a,b):"ready"==a&&i&&c.call(null,d);return this},removeEvent:function(a){if(!this.element)return!1;var c=this.element,b;a:{if((b=""!==c.id?c.id:null)&&d[b]){if(!d[b][a]){b=!1;break a}d[b][a]=null}else{if(!d[a]){b=
 !1;break a}d[a]=null}b=!0}"ready"!=a&&b&&h("removeEventListener",a,c)}};e.fn.init.prototype=e.fn;window.addEventListener?window.addEventListener("message",j,!1):window.attachEvent("onmessage",j);return window.Froogaloop=window.$f=e}();
-
+}
 /*
  * jPlayer Plugin for jQuery JavaScript Library
  * http://www.jplayer.org
@@ -779,6 +780,7 @@ a&&b.push(a);e&&b.push(e);g&&b.push(g);return 0<b.length?c.apply(null,b):c.call(
  * Date: 5th June 2013
  */
  
+ function loadJPlayer() {
 (function(b,f){"function"===typeof define&&define.amd?define(["jquery"],f):b.jQuery?f(b.jQuery):f(b.Zepto)})(this,function(b,f){b.fn.jPlayer=function(a){var c="string"===typeof a,d=Array.prototype.slice.call(arguments,1),e=this;a=!c&&d.length?b.extend.apply(null,[!0,a].concat(d)):a;if(c&&"_"===a.charAt(0))return e;c?this.each(function(){var c=b(this).data("jPlayer"),h=c&&b.isFunction(c[a])?c[a].apply(c,d):c;if(h!==c&&h!==f)return e=h,!1}):this.each(function(){var c=b(this).data("jPlayer");c?c.option(a||
 {}):b(this).data("jPlayer",new b.jPlayer(a,this))});return e};b.jPlayer=function(a,c){if(arguments.length){this.element=b(c);this.options=b.extend(!0,{},this.options,a);var d=this;this.element.bind("remove.jPlayer",function(){d.destroy()});this._init()}};"function"!==typeof b.fn.stop&&(b.fn.stop=function(){});b.jPlayer.emulateMethods="load play pause";b.jPlayer.emulateStatus="src readyState networkState currentTime duration paused ended playbackRate";b.jPlayer.emulateOptions="muted volume";b.jPlayer.reservedEvent=
 "ready flashreset resize repeat error warning";b.jPlayer.event={};b.each("ready flashreset resize repeat click error warning loadstart progress suspend abort emptied stalled play pause loadedmetadata loadeddata waiting playing canplay canplaythrough seeking seeked timeupdate ended ratechange durationchange volumechange".split(" "),function(){b.jPlayer.event[this]="jPlayer_"+this});b.jPlayer.htmlEvent="loadstart abort emptied stalled loadedmetadata loadeddata canplay canplaythrough ratechange".split(" ");
@@ -873,6 +875,7 @@ b.jPlayer.error={FLASH:"e_flash",FLASH_DISABLED:"e_flash_disabled",NO_SOLUTION:"
 NO_SUPPORT:"It is not possible to play any media format provided in setMedia() on this browser using your current options.",URL:"Media URL could not be loaded.",URL_NOT_SET:"Attempt to issue media playback commands, while no media url is set.",VERSION:"jPlayer "+b.jPlayer.prototype.version.script+" needs Jplayer.swf version "+b.jPlayer.prototype.version.needFlash+" but found "};b.jPlayer.errorHint={FLASH:"Check your swfPath option and that Jplayer.swf is there.",FLASH_DISABLED:"Check that you have not display:none; the jPlayer entity or any ancestor.",
 NO_SOLUTION:"Review the jPlayer options: support and supplied.",NO_SUPPORT:"Video or audio formats defined in the supplied option are missing.",URL:"Check media URL is valid.",URL_NOT_SET:"Use setMedia() to set the media URL.",VERSION:"Update jPlayer files."};b.jPlayer.warning={CSS_SELECTOR_COUNT:"e_css_selector_count",CSS_SELECTOR_METHOD:"e_css_selector_method",CSS_SELECTOR_STRING:"e_css_selector_string",OPTION_KEY:"e_option_key"};b.jPlayer.warningMsg={CSS_SELECTOR_COUNT:"The number of css selectors found did not equal one: ",
 CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a valid jPlayer method.",CSS_SELECTOR_STRING:"The methodCssSelector given in jPlayer('cssSelector') is not a String or is empty.",OPTION_KEY:"The option requested in jPlayer('option') is undefined."};b.jPlayer.warningHint={CSS_SELECTOR_COUNT:"Check your css selector and the ancestor.",CSS_SELECTOR_METHOD:"Check your method name.",CSS_SELECTOR_STRING:"Check your css selector is a string.",OPTION_KEY:"Check your option name."}});
+}
 
 
 /*!
@@ -9949,7 +9952,7 @@ var CanvasProvider = {
 
   release: function(obj) {
     this.canvases.push(obj.canvas ? obj.canvas : obj);
-  },
+  }
 };
 
 var Numerical = new function() {
@@ -12703,7 +12706,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-test';
+    return states && states.apiVersion || '1.3.4-test2';
   };
 
   UT.Expression.version = function() {
@@ -14830,6 +14833,8 @@ function loadFilterUTImage() {
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /* global UT:true */
+
+function loadUTImage() {
 (function($, window, document, undefined) {
   "use strict";
 
@@ -15981,6 +15986,7 @@ function loadFilterUTImage() {
     return this;
   };
 })(jQuery, window, document, undefined);
+}
 
 /*
  * This source code is licensed under version 3 of the AGPL.
@@ -16002,6 +16008,13 @@ function loadFilterUTImage() {
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
+
+function loadUTAudio() {
+// DEPENDENCIES
+loadJPlayer();
+loadUTAudioEngine();
+
+
 (function ($) {
   "use strict";
   var methods = {
@@ -16807,6 +16820,7 @@ function loadFilterUTImage() {
     return this;
   };
 })(window.$ || window.Zepto || window.jq);
+}
 
 /*
  * This source code is licensed under version 3 of the AGPL.
@@ -16828,6 +16842,8 @@ function loadFilterUTImage() {
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
+
+function loadUTAudioEngine() {
 (function ($) {
   "use strict";
 
@@ -17102,6 +17118,7 @@ function loadFilterUTImage() {
   };
 
 })(window.$ || window.Zepto || window.jq);
+}
 
 /*
  * This source code is licensed under version 3 of the AGPL.
@@ -17120,6 +17137,9 @@ function loadFilterUTImage() {
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /* global UT:true */
+
+function loadUTVideo() {
+  loadFroogaloop();
 (function ($) {
   "use strict";
 
@@ -18460,6 +18480,7 @@ function loadFilterUTImage() {
     return this;
   };
 })(window.$ || window.Zepto || window.jq);
+}
 
 /*global UT: true, jQuery: true, navigator: true, fontdetect: true */
 /*
@@ -18478,6 +18499,8 @@ function loadFilterUTImage() {
  * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
+function loadUTText() {
 ;(function($) {
   "use strict";
   /**
@@ -18826,6 +18849,7 @@ function loadFilterUTImage() {
   };
 
 })(jQuery);
+}
 /* This source code is licensed under version 3 of the AGPL.
  *
  * Copyright (c) 2013 by urturn
@@ -18842,6 +18866,7 @@ function loadFilterUTImage() {
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 /* global UT:true */
+function loadUTSticker() {
 (function( UT, $, window, document, undefined ) {
   "use strict";
 
@@ -20396,6 +20421,7 @@ function loadFilterUTImage() {
     return this;
   };
 }(UT, jQuery, window, document, undefined));
+}
 function loadAntiScroll() {
 
   /*
@@ -22282,6 +22308,8 @@ function loadMediaPlayer() {
     };
   })(window.jQuery || window.Zepto || window.jq);
 }
+/*jshint -W065 */
+
 function loadJqueryEx () {
   (function($) {
     // fix for IE if window.console not defined
@@ -22476,7 +22504,9 @@ function loadJqueryEx () {
             this.removeEventListener("touchmove", _touchMove);
             this.removeEventListener("touchend", _touchEnd);
             this.removeEventListener("touchcancel", _touchCancel);
-            callback && callback.call(this, e);
+            if (callback) {
+              callback.call(this, e);
+            }
           };
           var _touchCancel = function(e){
             this.removeEventListener("touchmove", _touchMove);
@@ -22531,7 +22561,7 @@ function loadJqueryEx () {
 
         // detect browser
         var qq,ww;
-        for(qq = 0; brData[qq]!=null; qq++) {
+        for(qq = 0; brData[qq] !== null; qq++) {
           if(navigator.userAgent.indexOf(brData[qq].key) != -1) {
             this.browserName = brData[qq].name;
             this.msie = (this.browserName == "MSIE");

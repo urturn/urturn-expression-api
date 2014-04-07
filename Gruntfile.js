@@ -274,6 +274,21 @@ module.exports = function(grunt) {
     }
   };
 
+
+  config['closure-compiler'] = {
+    frontend: {
+      // brew --prefix closure-compiler
+      closurePath: '/usr/local/Cellar/closure-compiler/20130411/libexec/',
+      js: 'dist/iframe.js',
+      jsOutputFile: 'dist/iframe.min.js',
+      maxBuffer: 500,
+      options: {
+        compilation_level: 'ADVANCED_OPTIMIZATIONS',
+        language_in: 'ECMASCRIPT5'
+      }
+    }
+  };
+
   grunt.initConfig(config);
 
   // Load external grunt Task
@@ -289,6 +304,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-compass');
   grunt.loadNpmTasks('grunt-concat-css');
   grunt.loadNpmTasks('grunt-exec');
+  grunt.loadNpmTasks('grunt-closure-compiler');
 
   grunt.registerMultiTask('filecheck', "Ensure sources file are here", function(){
     for(var i in this.data){
