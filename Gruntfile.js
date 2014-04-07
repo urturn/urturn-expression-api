@@ -24,9 +24,9 @@ module.exports = function(grunt) {
     'components/fastclick/lib/fastclick.js',
     'components/FontDetect/fontdetect.2.1.min.js',
     'components/jquery-textfill/jquery.textfill.min.js',
-    'lib/modules/jquery.ut-video/js/froogaloop.min.js',
     'lib/modules/jquery.ut-audio/js/jquery.jplayer.min.js',
-    'vendors/paper.js'
+    'vendors/paper.js',
+    'vendors/froogaloop.min.js'
   ];
 
 
