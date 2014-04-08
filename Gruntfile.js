@@ -122,7 +122,16 @@ module.exports = function(grunt) {
     'lib/urturn-expression-css/fonts/Roboto-Regular-webfont.ttf',
     'lib/urturn-expression-css/fonts/Roboto-Regular-webfont.woff',
     // ut-audio
-    'lib/modules/jquery.ut-audio/swf/Jplayer.swf'
+    'lib/modules/jquery.ut-audio/swf/Jplayer.swf',
+
+
+    // Images
+    
+    // cut out
+    'lib/modules/images/tip_overlay_640x640.svg',
+    'lib/modules/images/mobile_popup.png',
+    'lib/modules/images/mobile_tooltip1.png',
+    'lib/modules/images/mobile_tooltip2.png'
   ];
   var pathMap = {}; // map relative path to asset paths
 

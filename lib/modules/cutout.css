@@ -211,7 +211,7 @@ div {
   left: 10px;
   width: 130px;
   height: 119px;
-  background: url(../images/mobile_tootlip1.png) 0 0 no-repeat;
+  background: url(../images/mobile_tooltip1.png) 0 0 no-repeat;
   background-size: 70%;
   pointer-events: none;
 }
@@ -233,7 +233,7 @@ div {
 .ut-cut-mobile-tooltip.landscape {
   width: 100px;
   height: 48px;
-  background-image: url(../images/mobile_tootlip3.png);
+  background-image: url(../images/mobile_tooltip3.png);
 }
 
 .ut-cut-rotate-tooltip {
