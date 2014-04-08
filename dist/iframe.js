@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha5';
+    return states && states.apiVersion || '1.3.4-alpha6';
   };
 
   UT.Expression.version = function() {
@@ -22235,7 +22235,9 @@ function loadCutOut() {
           var imgHeight = this.height;
 
           var tmp = new Image();
-          tmp.onload = function() {
+        
+
+          var tmpLoaded = function() {
             imgWidth = this.width;
             imgHeight = this.height;
             backImg.css("background-image", "url("+this.src+")");
@@ -22307,14 +22309,7 @@ function loadCutOut() {
               }
 
             } else {
-  //            if ((height < width && contWidth < contHeight) || (width < height && contHeight < contWidth)) {
-                //-----> removed for now as we have no rotation support for all users
-                //rotateTooltip.show();
-                //container.addClass('ut-cut-hide-all-controls');
-  //            }
-  //            if(window.editing_mode) {
-  //            } else {
-  //            }
+
 
               rmPointsBtn.css({
                 left: '10px'
@@ -22327,7 +22322,18 @@ function loadCutOut() {
             grayCover.width(width).height(height);
             backImg.width(width).height(height);
 
-            ctx1.drawImage(tmp, 0, 0, width, height);
+
+            /* 
+              Ugly fix for FF that crash with no reasons :
+              see http://stackoverflow.com/a/18580878/1705736
+            */
+            try {
+              ctx1.drawImage(tmp, 0, 0, width, height);
+            }
+            catch (e) {
+              setTimeout(tmpLoaded, 10);
+              return;
+            }
 
             paper.setup(canvas2);
 
@@ -22550,6 +22556,9 @@ function loadCutOut() {
 
             that.options.onReady();
           };
+
+          tmp.onload = tmpLoaded;
+
           console.log("!!!--load:" + options.imageData.url);
           tmp.src = options.imageData.url;
         });
