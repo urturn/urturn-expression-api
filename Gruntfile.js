@@ -128,10 +128,10 @@ module.exports = function(grunt) {
     // Images
     
     // cut out
-    'lib/modules/images/tip_overlay_640x640.svg',
-    'lib/modules/images/mobile_popup.png',
-    'lib/modules/images/mobile_tooltip1.png',
-    'lib/modules/images/mobile_tooltip2.png'
+    'lib/images/tip_overlay_640x640.svg',
+    'lib/images/mobile_popup.png',
+    'lib/images/mobile_tooltip1.png',
+    'lib/images/mobile_tooltip2.png'
   ];
   var pathMap = {}; // map relative path to asset paths
 
