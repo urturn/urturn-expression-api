@@ -21,10 +21,10 @@ module.exports = function(grunt) {
   // List all source files that might be include.
   var vendor_sources = [
     'vendors/jquery-2.1.0.min.js',
-    'components/fastclick/lib/fastclick.js',
-    'components/FontDetect/fontdetect.2.1.min.js',
-    'components/jquery-textfill/jquery.textfill.min.js',
-    'lib/modules/jquery.ut-audio/js/jquery.jplayer.min.js',
+    'vendors/fastclick.js',
+    'vendors/fontdetect.2.1.js',
+    'vendors/jquery.textfill.js',
+    'vendors/jquery.jplayer.min.js',
     'vendors/paper.js',
     'vendors/froogaloop.min.js'
   ];
