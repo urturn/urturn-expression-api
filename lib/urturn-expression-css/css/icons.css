@@ -1,7 +1,7 @@
 @font-face {
   font-family: "urturn_icons";
   src: url('../fonts/urturn_icons.eot');
-  src: url('../fonts/urturn_icons.eot?#iefix') format('eot'), url('../fonts/urturn_icons.eot') format('embedded-opentype'), url('../fonts/urturn_icons.woff') format('woff'), url('../fonts/urturn_icons.ttf') format('truetype'), url('../fonts/urturn_icons.svg#urturn_icons') format('svg');
+  src: url('../fonts/urturn_icons.eot?#iefix') format('embedded-opentype'), url('../fonts/urturn_icons.eot') format('embedded-opentype'), url('../fonts/urturn_icons.woff') format('woff'), url('../fonts/urturn_icons.ttf') format('truetype'), url('../fonts/urturn_icons.svg#urturn_icons') format('svg');
   font-weight: normal;
   font-style: normal; }
 

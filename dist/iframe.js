@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha6';
+    return states && states.apiVersion || '1.3.4-alpha7';
   };
 
   UT.Expression.version = function() {
@@ -13902,6 +13902,23 @@ UT.CollectionStore = function(options) {
      */
     var pushNavigation = this.pushNavigation = function(state, callback) {
       UT.Expression._callAPI('container.pushNavigation', [state], callback);
+    };
+
+    /**
+     * Push a navigation state for right button (next)
+     * @param  {String}   state    The state to push : 'default', 'back', 'cancel'
+     * @param  {Function} callback The function called when this state is clicked
+     */
+    var pushNavigationRight = this.pushNavigationRight = function(state, callback) {
+      UT.Expression._callAPI('container.pushNavigationRight', [state], callback);
+    };
+
+
+    /**
+     * Pop the current right navigation state
+     */
+    var popNavigationRight = this.popNavigationRight = function() {
+      UT.Expression._callAPI('container.popNavigationRight');
     };
 
     /**
