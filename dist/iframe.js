@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha7';
+    return states && states.apiVersion || '1.3.4-alpha8';
   };
 
   UT.Expression.version = function() {
@@ -22009,7 +22009,10 @@ function loadCutOut() {
           });
 
           var saveButton = $('<a class="ut-cut-save-button ut-edit-button icon_check"> '+that.options.i18n.done+'</a>').appendTo(container);
-          saveButton.on('click', function() {
+          
+          UT.Expression._postInstance().pushNavigationRight('next', 
+          function() {
+
             stickerPath.selected = false;
 
             paper.view.draw();
