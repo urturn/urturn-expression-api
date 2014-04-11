@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha11';
+    return states && states.apiVersion || '1.3.4-alpha12';
   };
 
   UT.Expression.version = function() {
@@ -22495,7 +22495,7 @@ function loadCutOut() {
               var newB = Math.sqrt(Math.pow(newC, 2) - Math.pow(newA, 2));
               var x1 = newB, y1 = newA, x2 = -newB, y2 = -newA;
 
-              seg.point = event.point;
+              
               //path.fullySelected = true;
               seg.handleOut.x = x > 0 ? x1 : -x1;
               seg.handleOut.y = y > 0 ? y1 : -y1;
@@ -22518,6 +22518,8 @@ function loadCutOut() {
                 if (segment.previous) {
                   bezierOnSegment(segment.previous);
                 }
+
+                segment.point = event.point;
 
                 if(movePath) {
                   stickerPath.position = stickerPath.position.add(event.delta);
