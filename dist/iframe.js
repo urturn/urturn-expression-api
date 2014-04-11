@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha8';
+    return states && states.apiVersion || '1.3.4-alpha9';
   };
 
   UT.Expression.version = function() {
@@ -22010,8 +22010,8 @@ function loadCutOut() {
 
           var saveButton = $('<a class="ut-cut-save-button ut-edit-button icon_check"> '+that.options.i18n.done+'</a>').appendTo(container);
           
-          UT.Expression._postInstance().pushNavigationRight('next', 
-          function() {
+          
+          function saveContour() {
 
             stickerPath.selected = false;
 
@@ -22074,10 +22074,15 @@ function loadCutOut() {
 
             that.destroy();
 
-          });
+          }
+          
+          UT.Expression._postInstance().pushNavigationRight('next', saveContour);
+
+          savButton.on('click', function() { UT.Expression._postInstance().popNavigationRight(); saveContour();});
 
           var useFullImgBtn = $('<a class="ut-cut-full-img-button">Or use full image <span class="icon_arrow_right"></span></a>').appendTo(container);
           useFullImgBtn.on('click', function() {
+            UT.Expression._postInstance().popNavigationRight();
             var url = canvas1.toDataURL();
 
             var newImage = new that.options.UT.Image(url);
