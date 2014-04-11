@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha9';
+    return states && states.apiVersion || '1.3.4-alpha10';
   };
 
   UT.Expression.version = function() {
@@ -22075,10 +22075,10 @@ function loadCutOut() {
             that.destroy();
 
           }
-          
+
           UT.Expression._postInstance().pushNavigationRight('next', saveContour);
 
-          savButton.on('click', function() { UT.Expression._postInstance().popNavigationRight(); saveContour();});
+          saveButton.on('click', function() { UT.Expression._postInstance().popNavigationRight(); saveContour();});
 
           var useFullImgBtn = $('<a class="ut-cut-full-img-button">Or use full image <span class="icon_arrow_right"></span></a>').appendTo(container);
           useFullImgBtn.on('click', function() {
