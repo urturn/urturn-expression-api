@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha16';
+    return states && states.apiVersion || '1.3.4-alpha17';
   };
 
   UT.Expression.version = function() {
@@ -22173,12 +22173,12 @@ function loadCutOut() {
             if (!window.editing_mode) {
               window.editing_mode = true;
               saveButton.hide();
-              resetBtn.hide();
+              resetBtn.show();
               rmPointsBtn.removeClass('icon_edit').addClass('icon_check').html('&nbsp;'+that.options.i18n.doneEdit);
             } else {
               window.editing_mode = false;
               saveButton.show();
-              resetBtn.show();
+              resetBtn.hide();
               rmPointsBtn.removeClass('icon_check').addClass('icon_edit').html('&nbsp;'+that.options.i18n.edit);
             }
 
@@ -22560,7 +22560,7 @@ function loadCutOut() {
                 } else {
                   useFullImgBtn.hide();
                   saveButton.show();
-                  resetBtn.show();
+                  resetBtn.hide();
                   rmPointsBtn.show();
                 }
 
@@ -22571,7 +22571,7 @@ function loadCutOut() {
               } else if(that.isTouch) {
                 if(!window.editing_mode) {
                   saveButton.show();
-                  resetBtn.show();
+                  resetBtn.hide();
                   useFullImgBtn.hide();
                   rmPointsBtn.show();
                 }
@@ -22600,7 +22600,7 @@ function loadCutOut() {
               that.restorePath(that.options.segments);
               useFullImgBtn.hide();
               saveButton.show();
-              resetBtn.show();
+              resetBtn.hide();
               rmPointsBtn.show();
               tooltip1.hide();
             } else {
