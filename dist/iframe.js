@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha14';
+    return states && states.apiVersion || '1.3.4-alpha15';
   };
 
   UT.Expression.version = function() {
@@ -22110,7 +22110,7 @@ function loadCutOut() {
             lastKey = e.keyCode;
           });
 
-          
+
 
           var resetBtn = $('<a class="ut-cut-reset-button ut-edit-button icon_refresh"> '+that.options.i18n.reset+'</a>').appendTo(container);
           resetBtn.on('click', function() {
@@ -22155,7 +22155,7 @@ function loadCutOut() {
 
           });
 
-          resetBtn.show();
+          // resetBtn.show();
 
           //Global variable for paper.js
           window.editing_mode = false;
@@ -22178,7 +22178,7 @@ function loadCutOut() {
             } else {
               window.editing_mode = false;
               saveButton.show();
-           //   resetBtn.hide();
+              resetBtn.show();
               rmPointsBtn.removeClass('icon_check').addClass('icon_edit').html('&nbsp;'+that.options.i18n.edit);
             }
 
@@ -22514,11 +22514,11 @@ function loadCutOut() {
                   bezierOnSegment(segment);
                 }
 
-                if (segment.next) {
+                if (segment && segment.next) {
                   bezierOnSegment(segment.next);
                 }
 
-                if (segment.previous) {
+                if (segment && segment.previous) {
                   bezierOnSegment(segment.previous);
                 }
 
@@ -22599,7 +22599,7 @@ function loadCutOut() {
               that.restorePath(that.options.segments);
               useFullImgBtn.hide();
               saveButton.show();
-              //resetBtn.show();
+              resetBtn.show();
               rmPointsBtn.show();
               tooltip1.hide();
             } else {
