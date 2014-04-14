@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha13';
+    return states && states.apiVersion || '1.3.4-alpha14';
   };
 
   UT.Expression.version = function() {
@@ -22110,9 +22110,11 @@ function loadCutOut() {
             lastKey = e.keyCode;
           });
 
+          
+
           var resetBtn = $('<a class="ut-cut-reset-button ut-edit-button icon_refresh"> '+that.options.i18n.reset+'</a>').appendTo(container);
           resetBtn.on('click', function() {
-            useFullImgBtn.show();
+      //      useFullImgBtn.show();
             saveButton.hide();
 //            resetBtnhide();
             rmPointsBtn.hide();
