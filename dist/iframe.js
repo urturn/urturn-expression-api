@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha15';
+    return states && states.apiVersion || '1.3.4-alpha16';
   };
 
   UT.Expression.version = function() {
@@ -22116,7 +22116,7 @@ function loadCutOut() {
           resetBtn.on('click', function() {
       //      useFullImgBtn.show();
             saveButton.hide();
-//            resetBtnhide();
+            resetBtn.hide();
             rmPointsBtn.hide();
             tooltip1.show();
 
@@ -22173,7 +22173,7 @@ function loadCutOut() {
             if (!window.editing_mode) {
               window.editing_mode = true;
               saveButton.hide();
-              resetBtn.show();
+              resetBtn.hide();
               rmPointsBtn.removeClass('icon_edit').addClass('icon_check').html('&nbsp;'+that.options.i18n.doneEdit);
             } else {
               window.editing_mode = false;
@@ -22512,6 +22512,7 @@ function loadCutOut() {
                 tooltip.hide();
                 if (segment) {
                   bezierOnSegment(segment);
+                  segment.point = event.point;
                 }
 
                 if (segment && segment.next) {
@@ -22521,8 +22522,6 @@ function loadCutOut() {
                 if (segment && segment.previous) {
                   bezierOnSegment(segment.previous);
                 }
-
-                segment.point = event.point;
 
                 if(movePath) {
                   stickerPath.position = stickerPath.position.add(event.delta);
@@ -22561,6 +22560,7 @@ function loadCutOut() {
                 } else {
                   useFullImgBtn.hide();
                   saveButton.show();
+                  resetBtn.show();
                   rmPointsBtn.show();
                 }
 
@@ -22571,6 +22571,7 @@ function loadCutOut() {
               } else if(that.isTouch) {
                 if(!window.editing_mode) {
                   saveButton.show();
+                  resetBtn.show();
                   useFullImgBtn.hide();
                   rmPointsBtn.show();
                 }
