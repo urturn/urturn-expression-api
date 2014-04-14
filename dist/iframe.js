@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha17';
+    return states && states.apiVersion || '1.3.4-alpha18';
   };
 
   UT.Expression.version = function() {
@@ -20538,12 +20538,14 @@ function loadUTSticker() {
             $(tmp).utSticker("blur");
           }
           $that.addClass("ut-sticker-focus");
-          $that.trigger(events.focus, that.options.id);
+          
           if(that.options.styles.topOnFocus && isChangeZIndex) {
             that.pos.zIndex = window.utStickerLastZIndex++;
             $that[0].style.zIndex = that.pos.zIndex;
             $content.trigger(events.change, that._getCurrentData());
           }
+
+          $that.trigger(events.focus, that.options.id);
         };
 
         that.blur = function() {
