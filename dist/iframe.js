@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha20';
+    return states && states.apiVersion || '1.3.4-alpha21';
   };
 
   UT.Expression.version = function() {
@@ -21795,8 +21795,6 @@ function loadCutOut() {
 
     paper.install(window);
 
-    window.POST = UT.Expression._postInstance();
-
     var methods = {
       init: function(options) {
         this.each(function() {
@@ -22030,7 +22028,7 @@ function loadCutOut() {
           
           function saveContour() {
 
-            POST.track('cut-out - completed', {});
+            UT.Expression._postInstance().track('cut-out - completed', {});
 
             stickerPath.selected = false;
 
@@ -22104,7 +22102,7 @@ function loadCutOut() {
           var useFullImgBtn = $('<a style="display:none" class="ut-cut-full-img-button">Or use full image <span class="icon_arrow_right"></span></a>').appendTo(container);
 
           function useFullImage() {
-            POST.track('cut-out - use full image', {});
+            UT.Expression._postInstance().track('cut-out - use full image', {});
             UT.Expression._postInstance().popNavigationRight();
             var url = canvas1.toDataURL();
 
@@ -22133,7 +22131,7 @@ function loadCutOut() {
 
           var resetBtn = $('<a class="ut-cut-reset-button ut-edit-button icon_refresh"> '+that.options.i18n.reset+'</a>').appendTo(container);
           resetBtn.on('click', function() {
-            POST.track('cut-out - reset', {});
+            UT.Expression._postInstance().track('cut-out - reset', {});
             saveButton.hide();
             resetBtn.hide();
             rmPointsBtn.hide();
@@ -22183,7 +22181,7 @@ function loadCutOut() {
           rmPointsBtn.on('click', function() {
 
 
-            POST.track('cut-out - clicked edit', {});
+            UT.Expression._postInstance().track('cut-out - clicked edit', {});
             var curState = that.getSegments();
 
             stickerPath.removeSegments();
@@ -22663,7 +22661,7 @@ function loadCutOut() {
       },
 
       show: function() {
-        POST.track('cut-out - start', {});
+        UT.Expression._postInstance().track('cut-out - start', {});
 
         this.each(function() {
           if (this.utCut) {
