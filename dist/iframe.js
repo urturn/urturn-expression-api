@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha23';
+    return states && states.apiVersion || '1.3.4-alpha24';
   };
 
   UT.Expression.version = function() {
@@ -21794,7 +21794,10 @@ function loadCutOut() {
     "use strict";
 
     paper.install(window);
-
+    var __MOVEPOINT_TRACKED = false;
+    var __ADDPOINT_TRACKED = false;
+    var __MOVEPATH_TRACKED = false;
+    
     var methods = {
       init: function(options) {
         this.each(function() {
