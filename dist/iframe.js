@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha18';
+    return states && states.apiVersion || '1.3.4-alpha19';
   };
 
   UT.Expression.version = function() {
@@ -14187,6 +14187,18 @@ UT.CollectionStore = function(options) {
           }
         });
       }
+    };
+
+
+    /*
+      For A/B Testing
+     */
+    var track = this.track = function (eventName, eventParams) { 
+      eventParams.expression = states.expression_system_name;
+      eventParams.expressionAPI = states.expression_api_version;
+      eventParams.expression = states.expression_system_name;
+      
+      UT.Expression._callAPI('document.track', [eventName, eventParams], function(){});
     };
 
     /**
@@ -21778,10 +21790,12 @@ function loadCutOut() {
   loadPaper();
 
   /* global paper:true, Tool:true, Raster:true, view, Path, RgbColor, Point, Segment, project */
-  (function($) {
+  (function(UT,$) {
     "use strict";
 
     paper.install(window);
+
+    var POST = UT.Expression._postInstance();
 
     var methods = {
       init: function(options) {
@@ -22016,6 +22030,8 @@ function loadCutOut() {
           
           function saveContour() {
 
+            POST.track('cut-out - completed', {});
+
             stickerPath.selected = false;
 
             paper.view.draw();
@@ -22088,6 +22104,7 @@ function loadCutOut() {
           var useFullImgBtn = $('<a style="display:none" class="ut-cut-full-img-button">Or use full image <span class="icon_arrow_right"></span></a>').appendTo(container);
 
           function useFullImage() {
+            POST.track('cut-out - use full image', {});
             UT.Expression._postInstance().popNavigationRight();
             var url = canvas1.toDataURL();
 
@@ -22116,7 +22133,7 @@ function loadCutOut() {
 
           var resetBtn = $('<a class="ut-cut-reset-button ut-edit-button icon_refresh"> '+that.options.i18n.reset+'</a>').appendTo(container);
           resetBtn.on('click', function() {
-      //      useFullImgBtn.show();
+            POST.track('cut-out - reset', {});
             saveButton.hide();
             resetBtn.hide();
             rmPointsBtn.hide();
@@ -22165,6 +22182,8 @@ function loadCutOut() {
           var rmPointsBtn = $('<a class="ut-cut-rm-points-button ut-edit-button icon_edit"> '+that.options.i18n.edit+'</a>').appendTo(container);
           rmPointsBtn.on('click', function() {
 
+
+            POST.track('cut-out - clicked edit', {});
             var curState = that.getSegments();
 
             stickerPath.removeSegments();
@@ -22644,6 +22663,8 @@ function loadCutOut() {
       },
 
       show: function() {
+        POST.track('cut-out - start', {});
+
         this.each(function() {
           if (this.utCut) {
             this.utCut.show();
@@ -22672,7 +22693,7 @@ function loadCutOut() {
       }
       return this;
     };
-  })(window.jQuery || window.Zepto || window.jq);
+  })(UT, window.jQuery || window.Zepto || window.jq);
 }
 /*jshint -W065 */
 
