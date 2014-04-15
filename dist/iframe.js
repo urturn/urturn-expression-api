@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha22';
+    return states && states.apiVersion || '1.3.4-alpha23';
   };
 
   UT.Expression.version = function() {
@@ -22449,7 +22449,10 @@ function loadCutOut() {
                   } else if (hitResult.type === 'stroke'/* && !$.browser.mobile*/) {
                     var location = hitResult.location;
                     segment = stickerPath.insert(location.index + 1, event.point);
-                    UT.Expression._postInstance().track('cut-out - add point', {});
+                    if (!__ADDPOINT_TRACKED) {
+                      __ADDPOINT_TRACKED = true;
+                      UT.Expression._postInstance().track('cut-out - add point', {});
+                    }
                   }
                 }
                 movePath = inPath && !segment;
@@ -22483,6 +22486,10 @@ function loadCutOut() {
                   return;
                 }
                 if(hitResult.type === 'segment') {
+                  if (!__MOVEPOINT_TRACKED) {
+                    __MOVEPOINT_TRACKED = true;
+                    UT.Expression._postInstance().track('cut-out - move point', {});
+                  }
                   canvasCont.css('cursor', 'default');
                   tooltip.css("width", "auto"); //119
                   tooltip.html(that.options.i18n.pointTip);
@@ -22499,6 +22506,10 @@ function loadCutOut() {
                     top: event.point.y + (contHeight - height) / 2 - tooltip.height() / 2 - 35
                   });
                 } else {
+                  if (!__MOVEPATH_TRACKED) {
+                    __MOVEPATH_TRACKED = true;
+                    UT.Expression._postInstance().track('cut-out - move path', {});
+                  }
                   canvasCont.css("cursor", inPath ? "move" : "default");
                   tooltip.hide();
                 }
@@ -22580,7 +22591,7 @@ function loadCutOut() {
                   mode = 'draw';
                   window.drawmode = true;
                 } else {
-                  UT._postInstance.track('cut-out - path drawed');
+                  UT.Expression._postInstance().track('cut-out - path drawed');
                   useFullImgBtn.hide();
                   saveButton.show();
                   resetBtn.hide();
