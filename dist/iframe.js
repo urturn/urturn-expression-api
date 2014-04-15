@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha24';
+    return states && states.apiVersion || '1.3.4-alpha25';
   };
 
   UT.Expression.version = function() {
@@ -14194,6 +14194,9 @@ UT.CollectionStore = function(options) {
       For A/B Testing
      */
     var track = this.track = function (eventName, eventParams) { 
+      if (!eventParams) {
+        eventParams = {};
+      }
       eventParams.expression = states.expression_system_name;
       eventParams.expressionAPI = states.expression_api_version;
       eventParams.expression = states.expression_system_name;
