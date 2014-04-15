@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha21';
+    return states && states.apiVersion || '1.3.4-alpha22';
   };
 
   UT.Expression.version = function() {
@@ -22415,6 +22415,8 @@ function loadCutOut() {
             stickerPath.clipMask = true;
             stickerPath.clipped = true;
 
+            UT.Expression._postInstance().track('cut-out - start', {});
+
             tool.onMouseDown = function(event) {
               mobileTooltip.hide();
               container.addClass('ut-cut-hide-all-controls');
@@ -22447,6 +22449,7 @@ function loadCutOut() {
                   } else if (hitResult.type === 'stroke'/* && !$.browser.mobile*/) {
                     var location = hitResult.location;
                     segment = stickerPath.insert(location.index + 1, event.point);
+                    UT.Expression._postInstance().track('cut-out - add point', {});
                   }
                 }
                 movePath = inPath && !segment;
@@ -22577,6 +22580,7 @@ function loadCutOut() {
                   mode = 'draw';
                   window.drawmode = true;
                 } else {
+                  UT._postInstance.track('cut-out - path drawed');
                   useFullImgBtn.hide();
                   saveButton.show();
                   resetBtn.hide();
@@ -22661,8 +22665,6 @@ function loadCutOut() {
       },
 
       show: function() {
-        UT.Expression._postInstance().track('cut-out - start', {});
-
         this.each(function() {
           if (this.utCut) {
             this.utCut.show();
