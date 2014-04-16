@@ -12987,6 +12987,7 @@ UT.CollectionStore = function(options) {
    * @param callback {function} will be passed a Post instance
    */
   UT.Expression.ready = function(callback){
+
     if(isReady){
       callback.call(this, postInstance);
       _callAPI("changeCurrentState", ["initialized"]);
@@ -13001,7 +13002,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha25';
+    return states && states.apiVersion || '1.3.4-alpha26';
   };
 
   UT.Expression.version = function() {
@@ -13083,6 +13084,8 @@ UT.CollectionStore = function(options) {
     postInstance.on('scroll', function(newScrollValues) {
       states.scrollValues = newScrollValues;
     });
+
+    postInstance.track('expression - loaded', {});
     for(var i = 0; i < readyListeners.length; i++){
       readyListeners[i].call(postInstance, postInstance);
     }
@@ -13710,10 +13713,13 @@ UT.CollectionStore = function(options) {
      * retrieve the dialog output in the callback.
      */
     var dialog = this.dialog = function(type, options, callback) {
+
       if (callback === undefined && typeof(options) === 'function') {
         callback = options;
         options = {};
       }
+      
+      this.track('expression - dialog start', {dialog : type});
 
       var errorCallback = null;
       if (arguments.length == 4 && typeof(arguments[3]) === 'function') {
@@ -13729,6 +13735,7 @@ UT.CollectionStore = function(options) {
 
       var _callback = function () {
         // readd visibility
+        _this.track('expression - dialog over', {dialog : type});
         showNode();
         if(callback){
          if (type !== 'text') {
@@ -17467,7 +17474,7 @@ function loadUTAudioEngine() {
 
 function loadUTVideo() {
   loadFroogaLoop();
-(function ($) {
+(function (UT, $) {
   "use strict";
 
   var methods = {
@@ -18806,7 +18813,7 @@ function loadUTVideo() {
     }
     return this;
   };
-})(window.$ || window.Zepto || window.jq);
+})(UT, window.$ || window.Zepto || window.jq);
 }
 
 /*global UT: true, jQuery: true, navigator: true, fontdetect: true */
@@ -19197,6 +19204,8 @@ function loadUTSticker() {
 (function( UT, $, window, document, undefined ) {
   "use strict";
 
+  var ___UT_STICKER_MANIPULATED = false;
+
   var methods = {
     init: function(options) {
       this.each(function() {
@@ -19367,6 +19376,7 @@ function loadUTSticker() {
               if(!that.post.storage["utSticker_" + that.options.id + "_pos"]) {
                 that._savePosition();
               }
+              UT.Expression._postInstance().track('sticker - added sticker', {});
               $content.trigger(events.ready, {id:that.options.id, data:that._getCurrentData()});
             },0);
           }
@@ -19816,6 +19826,7 @@ function loadUTSticker() {
         };
 
         that.removeElement = function() {
+          UT.Expression._postInstance().track('sticker - destroyed', {});
           $content.trigger(events.destroy, that.options.id);
           $that.remove();
           if(that.post) {
@@ -20318,6 +20329,10 @@ function loadUTSticker() {
             that.pos.left += data.offLast.x / that.data.parentWidth;
             that.pos.top += data.offLast.y / that.data.parentHeight;
 
+            if (!___UT_STICKER_MANIPULATED) {
+              ___UT_STICKER_MANIPULATED = true;
+              UT.Expression._postInstance().track('sticker - manipulated', {});
+            }
             // change element position
             if(that.options.styles.useBounds) {
               that.updatePosition();
@@ -20337,6 +20352,7 @@ function loadUTSticker() {
               $that.removeClass("ut-sticker-moving");
             }
             that._savePosition();
+            UT.Expression._postInstance().track('sticker - changed', {});
             $content.trigger(events.change, that._getCurrentData());
           }
           return false;
@@ -20369,6 +20385,11 @@ function loadUTSticker() {
             } else {
               that.pos.width = ow / that.data.parentWidth;
               that.pos.ratio = ow / oh;
+            }
+
+            if (!___UT_STICKER_MANIPULATED) {
+              ___UT_STICKER_MANIPULATED = true;
+              UT.Expression._postInstance().track('sticker - manipulated', {});
             }
 
             // change element position
@@ -20445,6 +20466,12 @@ function loadUTSticker() {
 
             // change element position
             that.updateAngle();
+
+            if (!___UT_STICKER_MANIPULATED) {
+              ___UT_STICKER_MANIPULATED = true;
+              UT.Expression._postInstance().track('sticker - manipulated', {});
+            }
+
             $content.trigger(events.rotate, that._getCurrentData());
             if(that.options.styles.useBounds) {
               that._updateBoundsInfo();
@@ -20501,6 +20528,10 @@ function loadUTSticker() {
 
             that.validateAngle();
 
+            if (!___UT_STICKER_MANIPULATED) {
+              ___UT_STICKER_MANIPULATED = true;
+              UT.Expression._postInstance().track('sticker - manipulated', {});
+            }
             /* change element position */
             that.updateAngle();
             that.validateSize();
