@@ -13002,7 +13002,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha26';
+    return states && states.apiVersion || '1.3.4-alpha27';
   };
 
   UT.Expression.version = function() {
@@ -22130,7 +22130,7 @@ function loadCutOut() {
 
           }
 
-          UT.Expression._postInstance().pushNavigationRight('next', saveContour);
+          // UT.Expression._postInstance().pushNavigationRight('next', saveContour);
 
           // Hide savebutton for A B Test
           // saveButton.hide();
@@ -22169,6 +22169,7 @@ function loadCutOut() {
           var resetBtn = $('<a class="ut-cut-reset-button ut-edit-button icon_refresh"> '+that.options.i18n.reset+'</a>').appendTo(container);
           resetBtn.on('click', function() {
             UT.Expression._postInstance().track('cut-out - reset', {});
+            UT.Expression._postInstance().popNavigationRight();
             saveButton.hide();
             resetBtn.hide();
             rmPointsBtn.hide();
@@ -22229,11 +22230,14 @@ function loadCutOut() {
             if (!window.editing_mode) {
               window.editing_mode = true;
               saveButton.hide();
+              UT.Expression._postInstance().popNavigationRight();
               resetBtn.show();
               rmPointsBtn.removeClass('icon_edit').addClass('icon_check').html('&nbsp;'+that.options.i18n.doneEdit);
             } else {
               window.editing_mode = false;
               saveButton.show();
+              UT.Expression._postInstance().popNavigationRight();
+              UT.Expression._postInstance().pushNavigationRight('next', saveContour);
               resetBtn.hide();
               rmPointsBtn.removeClass('icon_check').addClass('icon_edit').html('&nbsp;'+that.options.i18n.edit);
             }
@@ -22630,6 +22634,8 @@ function loadCutOut() {
                 } else {
                   UT.Expression._postInstance().track('cut-out - path drawed');
                   useFullImgBtn.hide();
+                  UT.Expression._postInstance().popNavigationRight();
+                  UT.Expression._postInstance().pushNavigationRight('next', saveContour);
                   saveButton.show();
                   resetBtn.hide();
                   rmPointsBtn.show();
@@ -22641,6 +22647,8 @@ function loadCutOut() {
                 stickerPath.selected = true;
               } else if(that.isTouch) {
                 if(!window.editing_mode) {
+                  UT.Expression._postInstance().popNavigationRight();
+                  UT.Expression._postInstance().pushNavigationRight('next', saveContour);
                   saveButton.show();
                   resetBtn.hide();
                   useFullImgBtn.hide();
@@ -22670,6 +22678,8 @@ function loadCutOut() {
               stickerPath.removeSegments();
               that.restorePath(that.options.segments);
               useFullImgBtn.hide();
+              UT.Expression._postInstance().popNavigationRight();
+              UT.Expression._postInstance().pushNavigationRight('next', saveContour);
               saveButton.show();
               resetBtn.hide();
               rmPointsBtn.show();
