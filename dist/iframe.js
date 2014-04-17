@@ -13002,7 +13002,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha27';
+    return states && states.apiVersion || '1.3.4-alpha28';
   };
 
   UT.Expression.version = function() {
@@ -14207,6 +14207,8 @@ UT.CollectionStore = function(options) {
       eventParams.expression = states.expression_system_name;
       eventParams.expressionAPI = states.expression_api_version;
       eventParams.expression = states.expression_system_name;
+      eventParams.expressionTemplate = states.expression_template_system_name;
+
       
       UT.Expression._callAPI('document.track', [eventName, eventParams], function(){});
     };
