@@ -61,8 +61,7 @@ module.exports = function(grunt) {
     'lib/expression-api/events.js',
     'lib/expression-api/init.js',
     'lib/expression-api/preloader.js',
-
-
+    'lib/expression-api/import.js',
 
     'lib/modules/filter-image.js',
     // ut-image
@@ -81,10 +80,8 @@ module.exports = function(grunt) {
     'lib/modules/class.MediaPlayer.js',
     'lib/modules/cutout.js',
     'lib/modules/filter-image.js',
-    'lib/modules/jquery.ex.js'
-
-
-
+    'lib/modules/jquery.ex.js',
+    'lib/modules/modules.js'
   ];
   var sources = vendor_sources.concat(jshintSources);
 
