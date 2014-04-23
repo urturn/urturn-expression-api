@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-ruben-3';
+    return states && states.apiVersion || '1.3.4-ruben-4';
   };
 
   UT.Expression.version = function() {
@@ -15113,7 +15113,7 @@ window.addEventListener("message", function (e) {
 
     var modules = [];
 
-    for(var i = 0; calledModuleFunctions.length; i++) {
+    for(var i = 0; i < calledModuleFunctions.length; i++) {
       modules.push(calledModuleFunctions[i]);
     }
     return modules;
