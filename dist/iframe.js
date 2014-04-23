@@ -745,41 +745,41 @@ if (typeof define !== 'undefined' && define.amd) {
 
 /**
  * FontDetect - A simple library to detect if an internal font is present or an external font got loaded.
- *
- * TO USE:
+ * 
+ * TO USE: 
  *     Include jQuery. This was developed using jQuery 1.7.
  *     Include this file. If desired, you can load this file after the BODY.
  *     Create a new fontdetect().
  *     After you load the fonts you want to test, call either of these methods:
- *
+ *     
  *	       fontDetect = new fontdetect();
- *
+ *	       
  *	       // Checks that the font is loaded now.
  *	       isLoaded = fontDetect.isFontLoaded(fontname);
- *
+ *     
  *         // Polls for the font getting loaded and calls a callback when it does.
  *	       fontDetect.onFontLoaded(fontname, callback [, {onFail: xxx, msInterval: yyy, msTimeout: zzz}]);
- *
- *     Note: For externally loaded fonts, you may have to wait for more than a second to get a reliable
+ *     
+ *     Note: For externally loaded fonts, you may have to wait for more than a second to get a reliable 
  *     answer. Internal browser fonts can be detected immediately.
- *
+ *     
  *         // Determines which font in the font stack is being used for a given element.
  *	       sFontname = fontDetect.whichFont(element);
- *
+ *     
  * @author		Jennifer Simonds
  * @copyright	2012 Jennifer Simonds
  * @license	MIT License http://opensource.org/licenses/MIT
- *
+ * 
  * @version 1.0  2012-04-11	Created.
- *
+ * 
  * @version 1.0  2012-04-12	Refined the algorithm to use fewer helper elements, more reference fonts,
  *								and quicker detection of a nonexistent font.
- *
- * @version 2.0  2012-06-01	Added onFontLoaded for a callback to execute as soon as the font is
+ * 
+ * @version 2.0  2012-06-01	Added onFontLoaded for a callback to execute as soon as the font is 
  *								detected or when a timeout has passed without loading. Added whichFont
- *								to determine which font actually loaded. Changed the license from BSD
+ *								to determine which font actually loaded. Changed the license from BSD 
  *								3-clause to MIT.
- *
+ *								
  * @version 2.1  2012-08-12	Fixed a bug that caused horizontal scrollbar to show up in FF & IE.
  *                              (Thanks to Geoff Beaumont for the bug report & fix)
  */
@@ -788,7 +788,7 @@ fontdetect = function()
 	// The private parts
 	var _isInitialized = false;
 	var _aFallbackFonts = ['serif', 'sans-serif', 'monospace', 'cursive', 'fantasy'];
-
+	
 	function _init ()
 	{
 		if (_isInitialized)
@@ -811,15 +811,15 @@ fontdetect = function()
 		});
 	}
 
-
+	
 	// The public interface
 	return	{
 		/**
-		 * Polls 10 times/second until a font gets loaded or until it times out. (Default = 2 secs) It
+		 * Polls 10 times/second until a font gets loaded or until it times out. (Default = 2 secs) It 
 		 * calls a callback on load, & optionally calls another function if it times out without loading.
-		 *
+		 * 
 		 * NOTE: You must specify at least one callback - for success or failure.
-		 *
+		 * 
 		 * @param string		The font name to check for.
 		 * @param function		The function to call if it gets loaded within the timeout period.
 		 * @param options		An optional object with named parameters:
@@ -832,7 +832,7 @@ fontdetect = function()
 			if (!p_cssFontName)
 			{	return;
 			}
-
+			
 			// Our hashtable of optional params.
 			var msInterval = (p_options && p_options.msInterval) ? p_options.msInterval : 100;
 			var msTimeout  = (p_options && p_options.msTimeout) ? p_options.msTimeout : 2000;
@@ -841,11 +841,11 @@ fontdetect = function()
 			{	// Caller must specify at least one callback.
 				return;
 			}
-
+			
 			if (!_isInitialized)
 			{	_init ();
 			}
-
+			
 			if (this.isFontLoaded(p_cssFontName))
 			{	// It's already here, so no need to poll.
 				if (p_onLoad)
@@ -853,9 +853,9 @@ fontdetect = function()
 				}
 				return;
 			}
-
+			
 			// At this point we know the font hasn't loaded yet. Add it to the list of fonts to monitor.
-
+			
 			// Set up an interval using msInterval. The callback calls isFontLoaded(), & if true
 			// it closes the interval & calls p_onLoad, else if the current time has timed out
 			// it closes the interval & calls onFail if there is one.
@@ -889,9 +889,9 @@ fontdetect = function()
 
 		/**
 		 * Determines if a font has gotten loaded.
-		 *
+		 * 
 		 * @param string		The font name to check for.
-		 *
+		 * 
 		 * @returns bool		true if it's loaded, else false if the browser had to use a fallback font.
 		 */
 		isFontLoaded: function (p_cssFontName)
@@ -902,7 +902,7 @@ fontdetect = function()
 			if (!_isInitialized)
 			{	_init ();
 			}
-
+			
 			for(var ix = 0; ix < _aFallbackFonts.length; ++ix)
 			{
 				var $helperSpan = $('#fontdetectHelper > SPAN');
@@ -918,7 +918,7 @@ fontdetect = function()
 			}
 
 			// The widths were all the same, therefore the browser must have rendered the text in the same
-			// font every time. So unless all the generic fonts are identical widths (highly unlikely), it
+			// font every time. So unless all the generic fonts are identical widths (highly unlikely), it 
 			// couldn't have fallen back to a generic font. It's our font.
 			return true;
 		},
@@ -926,29 +926,29 @@ fontdetect = function()
 
 		/**
 		 * Determines which font is being used for a given element.
-		 *
-		 * @param string/object		The element to examine. If it's a string, it's a jQuery selector. If it's
+		 * 
+		 * @param string/object		The element to examine. If it's a string, it's a jQuery selector. If it's 
 		 *							an object, it's taken as a DOM element.
-		 *
-		 * @returns string			The name of the font that's being used - either one of the fonts
+		 * 
+		 * @returns string			The name of the font that's being used - either one of the fonts 
 		 *							listed in the element's font-family css value, or null.
 		 */
 		whichFont: function (p_element)
 		{
 			var sStack = $(p_element).css('font-family');
 			var aStack = sStack.split(',');
-
+			
 			var sFont = aStack.shift();
 			while (sFont)
 			{
 				sFont = sFont.replace(/^\s*['"]?\s*([^'"]*)\s*['"]?\s*$/, '$1');
-
+				
 				if (this.isFontLoaded(sFont))
 				{	return sFont;
 				}
 				sFont = aStack.shift();
 			}
-
+			
 			return null;
 		}
 	};
@@ -1031,7 +1031,7 @@ fontdetect = function()
         ourText.css('font-size', Math.min(HfontSize, WfontSize));
       }
 
-      if (ourText.width()  > maxWidth
+      if (ourText.width()  > maxWidth 
       || (ourText.height() > maxHeight && !Opts.widthOnly)
       ) {
         ourText.css('font-size', oldFontSize);
@@ -1065,7 +1065,7 @@ fontdetect = function()
  * Version: 2.4.0
  * Date: 5th June 2013
  */
-
+ 
  function loadJPlayer() {
 (function(b,f){"function"===typeof define&&define.amd?define(["jquery"],f):b.jQuery?f(b.jQuery):f(b.Zepto)})(this,function(b,f){b.fn.jPlayer=function(a){var c="string"===typeof a,d=Array.prototype.slice.call(arguments,1),e=this;a=!c&&d.length?b.extend.apply(null,[!0,a].concat(d)):a;if(c&&"_"===a.charAt(0))return e;c?this.each(function(){var c=b(this).data("jPlayer"),h=c&&b.isFunction(c[a])?c[a].apply(c,d):c;if(h!==c&&h!==f)return e=h,!1}):this.each(function(){var c=b(this).data("jPlayer");c?c.option(a||
 {}):b(this).data("jPlayer",new b.jPlayer(a,this))});return e};b.jPlayer=function(a,c){if(arguments.length){this.element=b(c);this.options=b.extend(!0,{},this.options,a);var d=this;this.element.bind("remove.jPlayer",function(){d.destroy()});this._init()}};"function"!==typeof b.fn.stop&&(b.fn.stop=function(){});b.jPlayer.emulateMethods="load play pause";b.jPlayer.emulateStatus="src readyState networkState currentTime duration paused ended playbackRate";b.jPlayer.emulateOptions="muted volume";b.jPlayer.reservedEvent=
@@ -1197,7 +1197,7 @@ CSS_SELECTOR_METHOD:"The methodName given in jPlayer('cssSelector') is not a val
 function loadPaper() {
 window.paper = new function() {
 
-  var Base = new function() {
+  var Base = new function() { 
     var hidden = /^(statics|generics|preserve|enumerable|prototype|toString|valueOf)$/,
       proto = Object.prototype,
       toString = proto.toString,
@@ -1553,7 +1553,7 @@ window.paper = new function() {
         var res = [], entry;
         for (var i = start || 0, l = list.length; i < l; i++) {
           res.push(Array.isArray(entry = list[i])
-            ? this.read(entry, 0, 0, clone)
+            ? this.read(entry, 0, 0, clone) 
             : this.read(list, i, 1, clone));
         }
         return res;
@@ -1688,7 +1688,7 @@ window.paper = new function() {
           Base.each(hash, function(value, key) {
             this[key] = value;
           }, this);
-        }, new Base(), true);
+        }, new Base(), true); 
       },
 
       capitalize: function(str) {
@@ -1721,7 +1721,7 @@ window.paper = new function() {
       if (entry) {
         var handlers = this._handlers = this._handlers || {};
         handlers = handlers[type] = handlers[type] || [];
-        if (handlers.indexOf(func) == -1) {
+        if (handlers.indexOf(func) == -1) { 
           handlers.push(func);
           if (entry.install && handlers.length == 1)
             entry.install.call(this, type);
@@ -2204,7 +2204,7 @@ window.paper = new function() {
         return Point.create(Math.random(), Math.random());
       }
     }
-  }, new function() {
+  }, new function() { 
 
     return Base.each(['round', 'ceil', 'floor', 'abs'], function(name) {
       var op = Math[name];
@@ -2377,7 +2377,7 @@ window.paper = new function() {
         return Size.create(Math.random(), Math.random());
       }
     }
-  }, new function() {
+  }, new function() { 
 
     return Base.each(['round', 'ceil', 'floor', 'abs'], function(name) {
       var op = Math[name];
@@ -2848,7 +2848,7 @@ window.paper = new function() {
 
     scale: function(scale, center) {
       var _scale = Point.read(arguments),
-        _center = Point.read(arguments, 0, 0, false, true);
+        _center = Point.read(arguments, 0, 0, false, true); 
       if (_center)
         this.translate(_center);
       this._a *= _scale.x;
@@ -3169,8 +3169,8 @@ window.paper = new function() {
     },
 
     getDistance: function(point) {
-      var m = this.vector.y / this.vector.x,
-        b = this.point.y - (m * this.point.x);
+      var m = this.vector.y / this.vector.x, 
+        b = this.point.y - (m * this.point.x); 
       var dist = Math.abs(point.y - (m * point.x) - b) / Math.sqrt(m * m + 1);
       return this.infinite ? dist : Math.min(dist,
           point.getDistance(this.point),
@@ -3642,7 +3642,7 @@ window.paper = new function() {
     },
 
     setData: function(data) {
-      this._data = data;
+      this._data = data;    
     },
 
     getPosition: function() {
@@ -3676,7 +3676,7 @@ window.paper = new function() {
               ? getter : getter && getter[name] || name, arguments[0]);
         return name == 'getBounds'
             ? LinkedRectangle.create(this, 'setBounds',
-                bounds.x, bounds.y, bounds.width, bounds.height)
+                bounds.x, bounds.y, bounds.width, bounds.height) 
             : bounds;
       };
     },
@@ -4916,7 +4916,7 @@ window.paper = new function() {
 
     _setSelected: function(point, selected) {
       var path = this._path,
-        selected = !!selected,
+        selected = !!selected, 
         state = this._selectionState || 0,
         selection = [
           !!(state & 4),
@@ -5113,7 +5113,7 @@ window.paper = new function() {
           x, y, selected;
         if (!pt) {
           x = y = 0;
-        } else if ((x = pt[0]) !== undefined) {
+        } else if ((x = pt[0]) !== undefined) { 
           y = pt[1];
         } else {
           if ((x = pt.x) === undefined) {
@@ -5408,12 +5408,12 @@ window.paper = new function() {
           ay = p2y - p1y - cy - by;
 
         switch (type) {
-        case 0:
+        case 0: 
           x = ((ax * t + bx) * t + cx) * t + p1x;
           y = ((ay * t + by) * t + cy) * t + p1y;
           break;
-        case 1:
-        case 2:
+        case 1: 
+        case 2: 
           x = (3 * ax * t + 2 * bx) * t + cx;
           y = (3 * ay * t + 2 * by) * t + cy;
           break;
@@ -5437,8 +5437,8 @@ window.paper = new function() {
         p7x = u * p4x + t * p5x, p7y = u * p4y + t * p5y,
         p8x = u * p6x + t * p7x, p8y = u * p6y + t * p7y;
       return [
-        [p1x, p1y, p3x, p3y, p6x, p6y, p8x, p8y],
-        [p8x, p8y, p7x, p7y, p5x, p5y, p2x, p2y]
+        [p1x, p1y, p3x, p3y, p6x, p6y, p8x, p8y], 
+        [p8x, p8y, p7x, p7y, p5x, p5y, p2x, p2y] 
       ];
     },
 
@@ -5485,9 +5485,9 @@ window.paper = new function() {
 
     getPart: function(v, from, to) {
       if (from > 0)
-        v = Curve.subdivide(v, from)[1];
+        v = Curve.subdivide(v, from)[1]; 
       if (to < 1)
-        v = Curve.subdivide(v, (to - from) / (1 - from))[0];
+        v = Curve.subdivide(v, (to - from) / (1 - from))[0]; 
       return v;
     },
 
@@ -5505,8 +5505,8 @@ window.paper = new function() {
     },
 
     getBounds: function(v) {
-      var min = v.slice(0, 2),
-        max = min.slice(0),
+      var min = v.slice(0, 2), 
+        max = min.slice(0), 
         roots = new Array(2);
       for (var i = 0; i < 2; i++)
         Curve._addBounds(v[i], v[i + 2], v[i + 4], v[i + 6],
@@ -5613,7 +5613,7 @@ window.paper = new function() {
     }
 
   }),
-  new function() {
+  new function() { 
 
     function getLengthIntegrand(v) {
       var p1x = v[0], p1y = v[1],
@@ -5649,8 +5649,8 @@ window.paper = new function() {
         if (b === undefined)
           b = 1;
         if (v[0] == v[2] && v[1] == v[3] && v[6] == v[4] && v[7] == v[5]) {
-          var dx = v[6] - v[0],
-            dy = v[7] - v[1];
+          var dx = v[6] - v[0], 
+            dy = v[7] - v[1]; 
           return (b - a) * Math.sqrt(dx * dx + dy * dy);
         }
         var ds = getLengthIntegrand(v);
@@ -5680,11 +5680,11 @@ window.paper = new function() {
           return length - offset;
         }
         return Numerical.findRoot(f, ds,
-            forward ? a + guess : b - guess,
+            forward ? a + guess : b - guess, 
             a, b, 16, 0.00001);
       }
     };
-  }, new function() {
+  }, new function() { 
 
     var maxDepth = 32,
       epsilon = Math.pow(2, -maxDepth - 1);
@@ -5698,8 +5698,8 @@ window.paper = new function() {
     var xAxis = new Line(new Point(0, 0), new Point(1, 0));
 
     function toBezierForm(v, point) {
-      var n = 3,
-        degree = 5,
+      var n = 3, 
+        degree = 5, 
         c = [],
         d = [],
         cd = [],
@@ -5969,10 +5969,10 @@ window.paper = new function() {
         coords,
         relative = false,
         control,
-        current = new Point();
+        current = new Point(); 
 
       function getCoord(index, coord, update) {
-        var val = parseFloat(coords[index]);
+        var val = parseFloat(coords[index]); 
         if (relative)
           val += current[coord];
         if (update)
@@ -6319,7 +6319,7 @@ window.paper = new function() {
       to = Base.pick(to, this._segments.length);
       var segments = this._segments,
         curves = this._curves,
-        count = segments.length,
+        count = segments.length, 
         removed = segments.splice(from, to - from),
         amount = removed.length;
       if (!amount)
@@ -6556,7 +6556,7 @@ window.paper = new function() {
       var curves = this.getCurves(),
         length = 0;
       if (isParameter) {
-        var index = ~~offset;
+        var index = ~~offset; 
         return curves[index].getLocationAt(offset - index, true);
       }
       for (var i = 0, l = curves.length; i < l; i++) {
@@ -6672,7 +6672,7 @@ window.paper = new function() {
             : new HitResult('fill', this);
     }
 
-  }, new function() {
+  }, new function() { 
 
     function drawHandles(ctx, segments, matrix, size) {
       var half = size / 2;
@@ -6718,7 +6718,7 @@ window.paper = new function() {
         } else {
           ctx.fillStyle = '#000';
         }
-
+        
         ctx.fill();
 
         if (window.editing_mode) {
@@ -6739,7 +6739,7 @@ window.paper = new function() {
           ctx.fill();
         }
 
-
+        
 
         /*ctx.beginPath();
         ctx.rect(pX - half, pY - half, size, size);
@@ -6878,15 +6878,15 @@ window.paper = new function() {
           drawHandles(ctx, this._segments, matrix,
             this._project.options.handleSize || (('ontouchstart' in window) || (window.navigator.msMaxTouchPoints > 0)) ? 22 : 11);
         }
-
+        
       }
     };
-  }, new function() {
+  }, new function() { 
 
     function getFirstControlPoints(rhs) {
       var n = rhs.length,
-        x = [],
-        tmp = [],
+        x = [], 
+        tmp = [], 
         b = 2;
       x[0] = rhs[0] / b;
       for (var i = 1; i < n; i++) {
@@ -6978,7 +6978,7 @@ window.paper = new function() {
         }
       }
     };
-  }, new function() {
+  }, new function() { 
     function getCurrentSegment(that) {
       var segments = that._segments;
       if (segments.length == 0)
@@ -7125,7 +7125,7 @@ window.paper = new function() {
         this.setClosed(true);
       }
     };
-  }, {
+  }, {  
 
     _getBounds: function(getter, matrix) {
       return Path[getter](this._segments, this._closed, this._style, matrix);
@@ -7138,18 +7138,18 @@ window.paper = new function() {
         return new Rectangle();
       var coords = new Array(6),
         prevCoords = first._transformCoordinates(matrix, new Array(6), false),
-        min = prevCoords.slice(0, 2),
-        max = min.slice(0),
+        min = prevCoords.slice(0, 2), 
+        max = min.slice(0), 
         roots = new Array(2);
 
       function processSegment(segment) {
         segment._transformCoordinates(matrix, coords, false);
         for (var i = 0; i < 2; i++) {
           Curve._addBounds(
-            prevCoords[i],
-            prevCoords[i + 4],
-            coords[i + 2],
-            coords[i],
+            prevCoords[i], 
+            prevCoords[i + 4], 
+            coords[i + 2], 
+            coords[i], 
             i, strokePadding ? strokePadding[i] : 0, min, max, roots);
         }
         var tmp = prevCoords;
@@ -7371,7 +7371,7 @@ window.paper = new function() {
           tl = rect.getTopLeft(true),
           tr = rect.getTopRight(true),
           br = rect.getBottomRight(true),
-          h = radius.multiply(kappa * 2),
+          h = radius.multiply(kappa * 2), 
           path = createPath(arguments);
         path._add([
           new Segment(bl.add(radius.width, 0), null, [-h.width, 0]),
@@ -7568,7 +7568,7 @@ window.paper = new function() {
           ctx.stroke();
       }
     }
-  }, new function() {
+  }, new function() { 
     function getCurrentPath(that) {
       if (!that._children.length)
         throw new Error('Use a moveTo() command first');
@@ -7605,9 +7605,9 @@ window.paper = new function() {
 
   var PathFlattener = Base.extend({
     initialize: function(path) {
-      this.curves = [];
-      this.parts = [];
-      this.length = 0;
+      this.curves = []; 
+      this.parts = []; 
+      this.length = 0; 
       this.index = 0;
 
       var segments = path._segments,
@@ -7874,7 +7874,7 @@ window.paper = new function() {
       for (var i = first + 1; i < last; i++) {
         var P = this.evaluate(3, curve, u[i - first]);
         var v = P.subtract(this.points[i]);
-        var dist = v.x * v.x + v.y * v.y;
+        var dist = v.x * v.x + v.y * v.y; 
         if (dist >= maxDist) {
           maxDist = dist;
           index = i;
@@ -8192,12 +8192,12 @@ window.paper = new function() {
     }
 
     var hsbIndices = [
-      [0, 3, 1],
-      [2, 0, 1],
-      [1, 0, 3],
-      [1, 2, 0],
-      [3, 1, 0],
-      [0, 1, 2]
+      [0, 3, 1], 
+      [2, 0, 1], 
+      [1, 0, 3], 
+      [1, 2, 0], 
+      [3, 1, 0], 
+      [0, 1, 2]  
     ];
 
     var converters = {
@@ -8211,24 +8211,24 @@ window.paper = new function() {
           h = delta == 0 ? 0
             :   ( max == r ? (g - b) / delta + (g < b ? 6 : 0)
               : max == g ? (b - r) / delta + 2
-              :            (r - g) / delta + 4) * 60,
+              :            (r - g) / delta + 4) * 60, 
           s = max == 0 ? 0 : delta / max,
-          v = max;
+          v = max; 
         return new HsbColor(h, s, v, color._alpha);
       },
 
       'hsb-rgb': function(color) {
-        var h = (color._hue / 60) % 6,
+        var h = (color._hue / 60) % 6, 
           s = color._saturation,
           b = color._brightness,
-          i = Math.floor(h),
+          i = Math.floor(h), 
           f = h - i,
           i = hsbIndices[i],
           v = [
-            b,
-            b * (1 - s),
-            b * (1 - s * f),
-            b * (1 - s * (1 - f))
+            b,            
+            b * (1 - s),      
+            b * (1 - s * f),    
+            b * (1 - s * (1 - f)) 
           ];
         return new RgbColor(v[i[0]], v[i[1]], v[i[2]], color._alpha);
       },
@@ -8244,7 +8244,7 @@ window.paper = new function() {
           h = achromatic ? 0
             :   ( max == r ? (g - b) / delta + (g < b ? 6 : 0)
               : max == g ? (b - r) / delta + 2
-              :            (r - g) / delta + 4) * 60,
+              :            (r - g) / delta + 4) * 60, 
           l = (max + min) / 2,
           s = achromatic ? 0 : l < 0.5
               ? delta / (max + min)
@@ -8316,7 +8316,7 @@ window.paper = new function() {
               : arg.hue !== undefined
               ? new HsbColor(arg.hue, arg.saturation, arg.brightness,
                   arg.alpha)
-              : new RgbColor();
+              : new RgbColor(); 
             if (this._read)
               res._read = 1;
           } else {
@@ -8580,7 +8580,7 @@ window.paper = new function() {
     },
 
     setOrigin: function(origin) {
-      origin = Point.read(arguments, 0, 0, true);
+      origin = Point.read(arguments, 0, 0, true); 
       this._origin = origin;
       if (this._destination)
         this._radius = this._destination.getDistance(this._origin);
@@ -8592,7 +8592,7 @@ window.paper = new function() {
     },
 
     setDestination: function(destination) {
-      destination = Point.read(arguments, 0, 0, true);
+      destination = Point.read(arguments, 0, 0, true); 
       this._destination = destination;
       this._radius = this._destination.getDistance(this._origin);
       this._changed();
@@ -8603,7 +8603,7 @@ window.paper = new function() {
     },
 
     setHilite: function(hilite) {
-      hilite = Point.read(arguments, 0, 0, true);
+      hilite = Point.read(arguments, 0, 0, true); 
       var vector = hilite.subtract(this._origin);
       if (vector.getLength() > this._radius) {
         this._hilite = this._origin.add(
@@ -8705,7 +8705,7 @@ window.paper = new function() {
       if (stops.length < 2)
         throw new Error(
             'Gradient stop list needs to contain at least two stops.');
-      this._stops = GradientStop.readAll(stops, 0, true);
+      this._stops = GradientStop.readAll(stops, 0, true); 
       for (var i = 0, l = this._stops.length; i < l; i++) {
         var stop = this._stops[i];
         stop._owner = this;
@@ -8762,7 +8762,7 @@ window.paper = new function() {
     },
 
     _serialize: function(options, dictionary) {
-      return Base.serialize([this._color, this._rampPoint], options, false,
+      return Base.serialize([this._color, this._rampPoint], options, false, 
           dictionary);
     },
 
@@ -8938,7 +8938,7 @@ window.paper = new function() {
         var doc = el.ownerDocument,
           view = doc.defaultView,
           html = doc.documentElement;
-        return Rectangle.create(0, 0,
+        return Rectangle.create(0, 0, 
           view.innerWidth || html.clientWidth,
           view.innerHeight || html.clientHeight
         );
@@ -9250,7 +9250,7 @@ window.paper = new function() {
       this._element.width = size.width;
       this._element.height = size.height;
       this._viewSize.set(size.width, size.height, true);
-      this._bounds = null;
+      this._bounds = null; 
       this.fire('resize', {
         size: size,
         delta: delta
@@ -9461,7 +9461,7 @@ window.paper = new function() {
       this._redrawNeeded = false;
       return true;
     }
-  }, new function() {
+  }, new function() { 
 
     var downPoint,
       lastPoint,
@@ -9616,8 +9616,8 @@ window.paper = new function() {
       40: 'down',
       46: 'delete',
       91: 'command',
-      93: 'command',
-      224: 'command'
+      93: 'command', 
+      224: 'command'  
     },
 
     modifiers = Base.merge({
@@ -9629,9 +9629,9 @@ window.paper = new function() {
       space: false
     }),
 
-    charCodeMap = {},
-    keyMap = {},
-    downCode;
+    charCodeMap = {}, 
+    keyMap = {}, 
+    downCode; 
 
     function handleKey(down, keyCode, charCode, event) {
       var character = String.fromCharCode(charCode),
@@ -10021,7 +10021,7 @@ window.paper = new function() {
 
   var Tool = this.Tool = PaperScopeItem.extend({
     _list: 'tools',
-    _reference: '_tool',
+    _reference: '_tool', 
     _events: [ 'onActivate', 'onDeactivate', 'onEditOptions',
         'onMouseDown', 'onMouseUp', 'onMouseDrag', 'onMouseMove',
         'onKeyDown', 'onKeyUp' ],
@@ -10182,7 +10182,7 @@ window.paper = new function() {
     function number(val, prec) {
       prec = prec
           ? precisions[prec] || (precisions[prec] = Math.pow(10, prec))
-          : 100000;
+          : 100000; 
       return Math.round(val * prec) / prec;
     }
 
@@ -10304,7 +10304,7 @@ window.paper = new function() {
           B = A + a,
           i = 0,
           m = (n + 1) >> 1,
-          sum = n & 1 ? w[i++] * f(B) : 0;
+          sum = n & 1 ? w[i++] * f(B) : 0; 
         while (i < m) {
           var Ax = A * x[i];
           sum += w[i++] * (f(B + Ax) + f(B - Ax));
@@ -10335,18 +10335,18 @@ window.paper = new function() {
             roots[0] = -c / b;
             return 1;
           }
-          return abs(c) < tolerance ? -1 : 0;
+          return abs(c) < tolerance ? -1 : 0; 
         }
         var q = b * b - 4 * a * c;
         if (q < 0)
-          return 0;
+          return 0; 
         q = sqrt(q);
-        a *= 2;
+        a *= 2; 
         var n = 0;
         roots[n++] = (-b - q) / a;
         if (q > 0)
           roots[n++] = (-b + q) / a;
-        return n;
+        return n; 
       },
 
       solveCubic: function(a, b, c, d, roots, tolerance) {
@@ -10362,23 +10362,23 @@ window.paper = new function() {
           D = q * q + ppp;
         b /= 3;
         if (abs(D) < tolerance) {
-            if (abs(q) < tolerance) {
+            if (abs(q) < tolerance) { 
                 roots[0] = - b;
                 return 1;
-            } else {
+            } else { 
                 var u = cbrt(-q);
                 roots[0] = 2 * u - b;
                 roots[1] = - u - b;
                 return 2;
             }
-        } else if (D < 0) {
+        } else if (D < 0) { 
             var phi = 1 / 3 * Math.acos(-q / sqrt(-ppp));
             var t = 2 * sqrt(-p);
             roots[0] =   t * cos(phi) - b;
             roots[1] = - t * cos(phi + PI / 3) - b;
             roots[2] = - t * cos(phi - PI / 3) - b;
             return 3;
-        } else {
+        } else { 
             D = sqrt(D);
             roots[0] = cbrt(D - q) - cbrt(D + q) - b;
             return 1;
@@ -10398,9 +10398,9 @@ window.paper = new function() {
         min = Math.min,
         max = Math.max,
         abs = Math.abs,
-        sr, sg, sb, sa,
-        br, bg, bb, ba,
-        dr, dg, db;
+        sr, sg, sb, sa, 
+        br, bg, bb, ba, 
+        dr, dg, db;     
 
       function getLum(r, g, b) {
         return 0.2989 * r + 0.587 * g + 0.114 * b;
@@ -10434,9 +10434,9 @@ window.paper = new function() {
 
       function setSat(r, g, b, s) {
         var col = [r, g, b],
-          mx = max(r, g, b),
-          mn = min(r, g, b),
-          md;
+          mx = max(r, g, b), 
+          mn = min(r, g, b), 
+          md; 
         mn = mn == r ? 0 : mn == g ? 1 : 2;
         mx = mx == r ? 0 : mx == g ? 1 : 2;
         md = min(mn, mx) == 0 ? max(mn, mx) == 1 ? 2 : 1 : 0;
@@ -10740,7 +10740,7 @@ window.paper = new function() {
               - getDistance(segments, 1, 3))
               ? 'circle'
               : 'ellipse';
-        }
+        } 
       }
       return 'path';
     }
@@ -10820,8 +10820,8 @@ window.paper = new function() {
           height = getDistance(segments, 0, 3),
           rx = (width - getDistance(segments, 0, 7)) / 2,
           ry = (height - getDistance(segments, 1, 2)) / 2,
-          left = segments[3]._point,
-          right = segments[4]._point,
+          left = segments[3]._point, 
+          right = segments[4]._point, 
           point = left.subtract(right.subtract(left).normalize(rx))
               .rotate(-angle, center);
         attrs = {
@@ -10976,7 +10976,7 @@ window.paper = new function() {
             : entry.type === 'color'
               ? value.gradient
                 ? exportGradient(value, item)
-                : value.toCss(true)
+                : value.toCss(true) 
               : entry.type === 'array'
                 ? value.join(',')
                 : entry.type === 'number'
@@ -10991,7 +10991,7 @@ window.paper = new function() {
       if (item._visibility != null && !item._visibility)
         attrs.visibility = 'hidden';
 
-      delete item._gradientMatrix;
+      delete item._gradientMatrix; 
       return setAttributes(node, attrs);
     }
 
@@ -11738,7 +11738,7 @@ __I18N__DEFAULT = 'en';
  */
 i18n.load = function(locale, data) {
   this.data = this.data || {};
-
+  
   var localeData = this.data[locale];
   if (localeData) {
     for (var key in localeData) {
@@ -13023,7 +13023,7 @@ UT.CollectionStore = function(options) {
     if (methodName == 'collections.save' && !postInstance.isDisplay()) {
       __callAPIStack.push({methodName : methodName, args : args, callback : function() {}});
       if (callback) {
-          callback();
+          callback(); 
       }
       return;
     }
@@ -13718,7 +13718,7 @@ UT.CollectionStore = function(options) {
         callback = options;
         options = {};
       }
-
+      
       this.track('expression - dialog start', {dialog : type});
 
       var errorCallback = null;
@@ -14200,7 +14200,7 @@ UT.CollectionStore = function(options) {
     /*
       For A/B Testing
      */
-    var track = this.track = function (eventName, eventParams) {
+    var track = this.track = function (eventName, eventParams) { 
       if (!eventParams) {
         eventParams = {};
       }
@@ -14209,7 +14209,7 @@ UT.CollectionStore = function(options) {
       eventParams.expression = states.expression_system_name;
       eventParams.expressionTemplate = states.expression_template_system_name;
 
-
+      
       UT.Expression._callAPI('document.track', [eventName, eventParams], function(){});
     };
 
@@ -15177,7 +15177,7 @@ function loadFilterUTImage() {
         if(filter && filter.parameters) {
           filterValues = {
             saturation: getSaturationColorMatrix(filter.parameters.saturation),
-
+            
             gammaR:     filter.parameters.gammaR,
             gammaG:     filter.parameters.gammaG,
             gammaB:     filter.parameters.gammaB,
@@ -15185,12 +15185,12 @@ function loadFilterUTImage() {
             amplitudeR: filter.parameters.amplitudeR || 1.0,
             amplitudeG: filter.parameters.amplitudeG || 1.0,
             amplitudeB: filter.parameters.amplitudeB || 1.0,
-
+          
 
             exponentR: filter.parameters.exponentR || 1.0,
             exponentG: filter.parameters.exponentG || 1.0,
             exponentB: filter.parameters.exponentB || 1.0,
-
+          
 
             vignette:   filter.parameters.vignette
           };
@@ -15226,7 +15226,7 @@ function loadFilterUTImage() {
         if(isSupportFilter) {
           callback($(svgText.replace("{file}", data.url)), {w:ww, h:hh,d:data});
         } else {
-          // Saturation is Parameter - 1 for filter SDK!
+          // Saturation is Parameter - 1 for filter SDK! 
           data.filter(
             [{
               filter: 'saturation',
@@ -19046,7 +19046,7 @@ function loadUTText() {
         $el.append($countdownDomNode);
         updateCharactersCounter();
       }
-
+      
       if (isUtimage) {
         imageHeight = $el.height();
         $el.css({ backgroundSize: 'cover' });
@@ -19070,7 +19070,7 @@ function loadUTText() {
       trigger('ready');
     }
 
-    /*
+    /* 
       - check if font is loaded, and load it if not
     */
     function checkFont() {
@@ -20722,7 +20722,7 @@ function loadUTSticker() {
             $(tmp).utSticker("blur");
           }
           $that.addClass("ut-sticker-focus");
-
+          
           if(that.options.styles.topOnFocus && isChangeZIndex) {
             that.pos.zIndex = window.utStickerLastZIndex++;
             $that[0].style.zIndex = that.pos.zIndex;
@@ -21958,7 +21958,7 @@ function loadMediaPlayer() {
   })(window);
 }
 function loadCutOut() {
-
+  
   loadPaper();
 
   /* global paper:true, Tool:true, Raster:true, view, Path, RgbColor, Point, Segment, project */
@@ -21969,7 +21969,7 @@ function loadCutOut() {
     var __MOVEPOINT_TRACKED = false;
     var __ADDPOINT_TRACKED = false;
     var __MOVEPATH_TRACKED = false;
-
+    
     var methods = {
       init: function(options) {
         this.each(function() {
@@ -22199,8 +22199,8 @@ function loadCutOut() {
           });
 
           var saveButton = $('<a class="ut-cut-save-button ut-edit-button icon_check"> '+that.options.i18n.done+'</a>').appendTo(container);
-
-
+          
+          
           function saveContour() {
 
             UT.Expression._postInstance().track('cut-out - completed', {});
@@ -22475,7 +22475,7 @@ function loadCutOut() {
           var imgHeight = this.height;
 
           var tmp = new Image();
-
+        
 
           var tmpLoaded = function() {
             imgWidth = this.width;
@@ -22563,7 +22563,7 @@ function loadCutOut() {
             backImg.width(width).height(height);
 
 
-            /*
+            /* 
               Ugly fix for FF that crash with no reasons :
               see http://stackoverflow.com/a/18580878/1705736
             */
@@ -22710,7 +22710,7 @@ function loadCutOut() {
               var newB = Math.sqrt(Math.pow(newC, 2) - Math.pow(newA, 2));
               var x1 = newB, y1 = newA, x2 = -newB, y2 = -newA;
 
-
+              
               //path.fullySelected = true;
               seg.handleOut.x = x > 0 ? x1 : -x1;
               seg.handleOut.y = y > 0 ? y1 : -y1;
@@ -22915,7 +22915,7 @@ function loadJqueryEx () {
     }
     if(!$.fn.fullWidth) {
       $.fn.fullWidth = function() {
-        return parseFloat(this.css("width")) + parseFloat(this.css("paddingLeft"))
+        return parseFloat(this.css("width")) + parseFloat(this.css("paddingLeft")) 
           + parseInt(this.css("paddingRight"))
           + parseFloat(this.css("borderLeftWidth")) + parseInt(this.css("borderRightWidth"));
       };
