@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-ruben';
+    return states && states.apiVersion || '1.3.4-ruben-2';
   };
 
   UT.Expression.version = function() {
@@ -15068,7 +15068,7 @@ window.addEventListener("message", function (e) {
    * @returns {boolean} - Returns true if the entire process succeed otherwise returns false
    */
 
-  importFunction.prototype.define = function (name, module) {
+  importFunction.define = function (name, module) {
 
     if (Object.prototype.toString.call(name) === '[object String]' && Object.prototype.toString.call(module) === '[object Function]') {
 
