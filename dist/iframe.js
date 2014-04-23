@@ -13001,7 +13001,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-ruben-2';
+    return states && states.apiVersion || '1.3.4-ruben-3';
   };
 
   UT.Expression.version = function() {
@@ -15036,13 +15036,14 @@ window.addEventListener("message", function (e) {
 
       for (var i = 0; i < dependencies.length; i++) {
 
-        moduleName = storage[dependencies[i]];
+        moduleName = dependencies[i];
 
         // We check if module function has already been called in order to not recall it!
         if (_contains(calledModuleFunctions, moduleName)) {
           continue;
         } else if (Object.prototype.toString.call(moduleName) === '[object String]') {
-          moduleFunction = storage[dependencies[i]];
+          moduleFunction = storage[moduleName];
+          // We also check if a module function corresponding to the moduleName
           if (Object.prototype.toString.call(moduleFunction) === '[object Function]') {
             // Important! We push the moduleName into the calledModuleFunctions array just before calling it in order to avoid circular dependencies!
             calledModuleFunctions.push(moduleName);
