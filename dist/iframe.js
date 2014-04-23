@@ -13002,7 +13002,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha29-import';
+    return states && states.apiVersion || '1.3.4-alpha30';
   };
 
   UT.Expression.version = function() {
@@ -23247,3 +23247,6 @@ UT.import.define('utVideo', loadUTVideo);
 UT.import.define('jPlayer', loadJPlayer);
 UT.import.define('utAudioEngine', loadUTAudioEngine);
 UT.import.define('utAudio', loadUTAudio);
+UT.import.define('antiScroll', loadAntiScroll);
+UT.import.define('cutOut', loadCutOut);
+UT.import.define('mediaPlayer', loadMediaPlayer);
