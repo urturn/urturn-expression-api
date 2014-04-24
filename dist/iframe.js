@@ -13002,7 +13002,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha30';
+    return states && states.apiVersion || '1.3.4-alpha31';
   };
 
   UT.Expression.version = function() {
@@ -21981,6 +21981,7 @@ function loadCutOut() {
             UT: false,
             imageData: {},
             segments: [],
+            imageInfo : null,
             i18n: {
               back: "Back",
               edit: "Edit",
@@ -21997,6 +21998,8 @@ function loadCutOut() {
             onReady: function() {}
           };
 
+
+
           var $that = $(this);
           var that = {};
           this.utCut = that;
@@ -22006,6 +22009,8 @@ function loadCutOut() {
           if(navigator.userAgent.toLowerCase().indexOf('android') !== -1) {
             $("body").addClass("android-fix");
           }
+
+
 
           var hitOptions = {
             segments: true,
@@ -22304,6 +22309,7 @@ function loadCutOut() {
 
 
 
+
           var resetBtn = $('<a class="ut-cut-reset-button ut-edit-button icon_refresh"> '+that.options.i18n.reset+'</a>').appendTo(container);
           resetBtn.on('click', function() {
             UT.Expression._postInstance().track('cut-out - reset', {});
@@ -22349,6 +22355,18 @@ function loadCutOut() {
           });
 
           // resetBtn.show();
+
+          that.backFromLib = function(data) {
+            that.options.imageData = data;
+            this.init(that.options);
+          };
+          
+          that.revertToLib = function() {
+            that.options.UT.Expression._postInstance().dialog('image', that.options.imageInfo, that.backFromLib);
+          };
+
+          that.options.UT.Expression._postInstance().pushNavigation('back', that.revertToLib);
+          
 
           //Global variable for paper.js
           window.editing_mode = false;
