@@ -13002,7 +13002,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha37';
+    return states && states.apiVersion || '1.3.4-alpha38';
   };
 
   UT.Expression.version = function() {
@@ -22912,7 +22912,7 @@ function loadCutOut() {
             imgWidth = $$that.width;
             imgHeight = $$that.height;
 
-            var tmp = new Image();
+            tmp = new Image();
             tmp.onload = tmpLoaded;
 
             console.log("!!!--load:" + that.options.imageData.url);
