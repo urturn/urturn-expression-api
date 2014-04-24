@@ -13002,7 +13002,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha36';
+    return states && states.apiVersion || '1.3.4-alpha37';
   };
 
   UT.Expression.version = function() {
@@ -22334,7 +22334,7 @@ function loadCutOut() {
 
           var tmpLoaded = function() {
 
-            console.log("!!!--loaded:" + that.options.imageData.url);
+            console.log("!!!--loaded:" );
             imgWidth = this.width;
             imgHeight = this.height;
             backImg.css("background-image", "url("+this.src+")");
@@ -22428,6 +22428,7 @@ function loadCutOut() {
               ctx1.drawImage(tmp, 0, 0, width, height);
             }
             catch (e) {
+              console.log('reload!  FF FIx');
               setTimeout(tmpLoaded, 10);
               return;
             }
