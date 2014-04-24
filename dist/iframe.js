@@ -13002,7 +13002,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha38';
+    return states && states.apiVersion || '1.3.4-alpha39';
   };
 
   UT.Expression.version = function() {
@@ -21974,7 +21974,7 @@ function loadCutOut() {
       init: function(options) {
         this.each(function() {
 
-         
+          var opt = options;
           var defaults = {
             UT: false,
             imageData: {},
@@ -22814,7 +22814,7 @@ function loadCutOut() {
             tool = new paper.Tool();
             tool.activate();
 
-            that.options = $.extend(true, defaults, options);
+            that.options = $.extend(true, defaults, opt);
             that.pathBackup = [];
 
             // Create The DOM
