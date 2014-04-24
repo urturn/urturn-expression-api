@@ -13002,7 +13002,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha35';
+    return states && states.apiVersion || '1.3.4-alpha36';
   };
 
   UT.Expression.version = function() {
@@ -22333,6 +22333,8 @@ function loadCutOut() {
         
 
           var tmpLoaded = function() {
+
+            console.log("!!!--loaded:" + that.options.imageData.url);
             imgWidth = this.width;
             imgHeight = this.height;
             backImg.css("background-image", "url("+this.src+")");
@@ -22806,6 +22808,8 @@ function loadCutOut() {
 
 
           that.initCutout = function() {
+
+            console.log("Init Cut out");
             tool = new paper.Tool();
             tool.activate();
 
