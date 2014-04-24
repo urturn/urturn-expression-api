@@ -13002,7 +13002,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha40';
+    return states && states.apiVersion || '1.3.4-alpha41';
   };
 
   UT.Expression.version = function() {
@@ -22336,9 +22336,9 @@ function loadCutOut() {
           var tmpLoaded = function() {
 
             console.log("!!!--loaded:" );
-            imgWidth = this.width;
-            imgHeight = this.height;
-            backImg.css("background-image", "url("+this.src+")");
+            imgWidth = tmp.width;
+            imgHeight = tmp.height;
+            backImg.css("background-image", "url("+tmp.src+")");
 
             width = Math.floor(imgWidth * (contHeight / imgHeight));
             height = Math.floor(imgHeight * (contWidth / imgWidth));
@@ -22917,6 +22917,7 @@ function loadCutOut() {
             tmp.onload = tmpLoaded;
 
             console.log("!!!--load:" + that.options.imageData.url);
+            this.src = tmp.src;
             tmp.src = that.options.imageData.url;
           };
 
