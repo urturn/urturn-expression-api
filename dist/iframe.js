@@ -13002,7 +13002,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha45';
+    return states && states.apiVersion || '1.3.4-alpha46';
   };
 
   UT.Expression.version = function() {
@@ -15309,6 +15309,9 @@ function loadUTImage() {
 (function($, window, document, undefined) {
   "use strict";
 
+  //Shorthand for tracking
+  var _track = UT.Expression._postInstance().track;
+
   var methods = {
     nextPanelToAddImage: -1,
     init: function(options) {
@@ -15733,6 +15736,7 @@ function loadUTImage() {
          * @param event
          */
         that.onAddButtonClick = function(event) {
+          _track('image - clicked add button');
           that.focus();
           var ev = $.Event(events.buttonClick);
           $that.trigger(ev, "add");
@@ -15748,6 +15752,7 @@ function loadUTImage() {
          * @param event
          */
         that.onEditButtonClick = function(event) {
+          _track('image - clicked edit button');
           var ev = $.Event(events.buttonClick);
           $that.trigger(ev, "edit");
           if(!ev.isDefaultPrevented()) {
@@ -15762,6 +15767,7 @@ function loadUTImage() {
          * processing click on "remove" button
          */
         that.onRemoveButtonClick = function() {
+          _track('image - clicked remove button');
           var ev = $.Event(events.buttonClick);
           $that.trigger(ev, "remove");
           if(!ev.isDefaultPrevented()) {
@@ -15941,6 +15947,12 @@ function loadUTImage() {
             size.data = that.data.pictureData;
             if(isAfterRecrop === true || isAfterRecrop === false) {
               $that.trigger(isAfterRecrop ? events.mediaCrop : events.mediaAdd, size);
+
+              if (isAfterRecrop) {
+                _track('image - cropped image');
+              } else {
+                _track('image - added image');
+              }
             }
             if(that.options.styles.autoResize) {
               that.resizeContainer();
@@ -16068,6 +16080,7 @@ function loadUTImage() {
           that.data.imageHeight = null;
           that.saveData();
           $that.trigger(events.mediaRemove);
+          _track('image - removed image');
           that.triggerChangeEvent();
         };
 
@@ -21425,6 +21438,9 @@ function loadMediaPlayer() {
   (function(window) {
     "use strict";
 
+    //Shorthand for tracking
+    var _track = UT.Expression._postInstance().track;
+
     function MediaPlayer(params) {
       this._parent = jQuery(params.parent ? params.parent : "body");
       this._trackData = null;
@@ -21592,6 +21608,7 @@ function loadMediaPlayer() {
 
       that.player.on("utAudio:play",function() {
         that.setState("playing");
+        _track('media player - play audio');
       });
 
       that.player.on("utAudio:pause", function() {
@@ -21721,6 +21738,7 @@ function loadMediaPlayer() {
 
       that.player.on("utVideo:play", function() {
         that.setState("playing");
+        _track('media player - play video');
       });
       that.player.on("utVideo:pause", function() {
   //      that.setState("paused");
