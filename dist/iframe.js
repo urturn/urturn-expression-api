@@ -13002,7 +13002,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha48';
+    return states && states.apiVersion || '1.3.4-alpha49';
   };
 
   UT.Expression.version = function() {
@@ -15314,7 +15314,7 @@ function loadUTImage() {
     init: function(options) {
 
       //Shorthand for tracking
-      var _track = UT.Expression._postInstance().track;
+      this._track = UT.Expression._postInstance().track;
 
       this.each(function() {
         if(this.utImage) {
@@ -15737,7 +15737,7 @@ function loadUTImage() {
          * @param event
          */
         that.onAddButtonClick = function(event) {
-          _track('image - clicked add button');
+          that._track('image - clicked add button');
           that.focus();
           var ev = $.Event(events.buttonClick);
           $that.trigger(ev, "add");
@@ -15753,7 +15753,7 @@ function loadUTImage() {
          * @param event
          */
         that.onEditButtonClick = function(event) {
-          _track('image - clicked edit button');
+          that._track('image - clicked edit button');
           var ev = $.Event(events.buttonClick);
           $that.trigger(ev, "edit");
           if(!ev.isDefaultPrevented()) {
@@ -15768,7 +15768,7 @@ function loadUTImage() {
          * processing click on "remove" button
          */
         that.onRemoveButtonClick = function() {
-          _track('image - clicked remove button');
+          that._track('image - clicked remove button');
           var ev = $.Event(events.buttonClick);
           $that.trigger(ev, "remove");
           if(!ev.isDefaultPrevented()) {
@@ -15950,9 +15950,9 @@ function loadUTImage() {
               $that.trigger(isAfterRecrop ? events.mediaCrop : events.mediaAdd, size);
 
               if (isAfterRecrop) {
-                _track('image - cropped image');
+                that._track('image - cropped image');
               } else {
-                _track('image - added image');
+                that._track('image - added image');
               }
             }
             if(that.options.styles.autoResize) {
@@ -16081,7 +16081,7 @@ function loadUTImage() {
           that.data.imageHeight = null;
           that.saveData();
           $that.trigger(events.mediaRemove);
-          _track('image - removed image');
+          that._track('image - removed image');
           that.triggerChangeEvent();
         };
 
@@ -21442,7 +21442,7 @@ function loadMediaPlayer() {
     function MediaPlayer(params) {
 
       //Shorthand for tracking
-      var _track = UT.Expression._postInstance().track;
+      this._track = UT.Expression._postInstance().track;
       
       this._parent = jQuery(params.parent ? params.parent : "body");
       this._trackData = null;
@@ -21610,7 +21610,7 @@ function loadMediaPlayer() {
 
       that.player.on("utAudio:play",function() {
         that.setState("playing");
-        _track('media player - play audio');
+        that._track('media player - play audio');
       });
 
       that.player.on("utAudio:pause", function() {
