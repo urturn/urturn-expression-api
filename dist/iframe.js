@@ -13002,7 +13002,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha43';
+    return states && states.apiVersion || '1.3.4-alpha44';
   };
 
   UT.Expression.version = function() {
@@ -22297,8 +22297,7 @@ function loadCutOut() {
           };
           
           that.revertToLib = function() {
-             that.options.imageInfo.fastQuit = true;
-            that.options.UT.Expression._postInstance().dialog('image', that.options.imageInfo, that.backFromLib);
+            that.options.onCuted(null);
           };
 
         
