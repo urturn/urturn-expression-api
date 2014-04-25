@@ -13002,7 +13002,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha46';
+    return states && states.apiVersion || '1.3.4-alpha48';
   };
 
   UT.Expression.version = function() {
@@ -15309,12 +15309,13 @@ function loadUTImage() {
 (function($, window, document, undefined) {
   "use strict";
 
-  //Shorthand for tracking
-  var _track = UT.Expression._postInstance().track;
-
   var methods = {
     nextPanelToAddImage: -1,
     init: function(options) {
+
+      //Shorthand for tracking
+      var _track = UT.Expression._postInstance().track;
+
       this.each(function() {
         if(this.utImage) {
           if(typeof(options) === "object") {
@@ -21438,10 +21439,11 @@ function loadMediaPlayer() {
   (function(window) {
     "use strict";
 
-    //Shorthand for tracking
-    var _track = UT.Expression._postInstance().track;
-
     function MediaPlayer(params) {
+
+      //Shorthand for tracking
+      var _track = UT.Expression._postInstance().track;
+      
       this._parent = jQuery(params.parent ? params.parent : "body");
       this._trackData = null;
       this._trackService = "";
