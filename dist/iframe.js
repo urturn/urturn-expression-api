@@ -2551,7 +2551,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha52';
+    return states && states.apiVersion || '1.3.4-alpha53';
   };
 
   UT.Expression.version = function() {
@@ -8927,6 +8927,27 @@ function loadUTSticker() {
 
   var ___UT_STICKER_MANIPULATED = false;
 
+  // Tracking
+  var sentEvents = [];
+  // Internal function for checking if a string is contained in a given array
+  var _contains = function(list, name) {
+    if (Object.prototype.toString.call(list) === '[object Array]' && Object.prototype.toString.call(name) === '[object String]') {
+      for (var i = 0; i < list.length; i++) {
+        if (list[i] === name) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+  // Tracking function
+  var _track = function(eventName) {
+    if (Object.prototype.toString.call(name) === '[object String]' && ! _contains(sentEvents, eventName)) {
+      sentEvents.push(eventName);
+      UT.Expression._postInstance().track(eventName);
+    }
+  };
+
   var methods = {
     init: function(options) {
       this.each(function() {
@@ -9097,7 +9118,7 @@ function loadUTSticker() {
               if(!that.post.storage["utSticker_" + that.options.id + "_pos"]) {
                 that._savePosition();
               }
-              UT.Expression._postInstance().track('sticker - added sticker', {});
+              _track('sticker - added sticker', {});
               $content.trigger(events.ready, {id:that.options.id, data:that._getCurrentData()});
             },0);
           }
@@ -9547,7 +9568,7 @@ function loadUTSticker() {
         };
 
         that.removeElement = function() {
-          UT.Expression._postInstance().track('sticker - destroyed', {});
+          _track('sticker - destroyed', {});
           $content.trigger(events.destroy, that.options.id);
           $that.remove();
           if(that.post) {
@@ -10052,7 +10073,7 @@ function loadUTSticker() {
 
             if (!___UT_STICKER_MANIPULATED) {
               ___UT_STICKER_MANIPULATED = true;
-              UT.Expression._postInstance().track('sticker - manipulated', {});
+              _track('sticker - manipulated', {});
             }
             // change element position
             if(that.options.styles.useBounds) {
@@ -10073,7 +10094,7 @@ function loadUTSticker() {
               $that.removeClass("ut-sticker-moving");
             }
             that._savePosition();
-            UT.Expression._postInstance().track('sticker - changed', {});
+            _track('sticker - changed', {});
             $content.trigger(events.change, that._getCurrentData());
           }
           return false;
@@ -10110,7 +10131,7 @@ function loadUTSticker() {
 
             if (!___UT_STICKER_MANIPULATED) {
               ___UT_STICKER_MANIPULATED = true;
-              UT.Expression._postInstance().track('sticker - manipulated', {});
+              _track('sticker - manipulated', {});
             }
 
             // change element position
@@ -10190,7 +10211,7 @@ function loadUTSticker() {
 
             if (!___UT_STICKER_MANIPULATED) {
               ___UT_STICKER_MANIPULATED = true;
-              UT.Expression._postInstance().track('sticker - manipulated', {});
+              _track('sticker - manipulated', {});
             }
 
             $content.trigger(events.rotate, that._getCurrentData());
@@ -10251,7 +10272,7 @@ function loadUTSticker() {
 
             if (!___UT_STICKER_MANIPULATED) {
               ___UT_STICKER_MANIPULATED = true;
-              UT.Expression._postInstance().track('sticker - manipulated', {});
+              _track('sticker - manipulated', {});
             }
             /* change element position */
             that.updateAngle();
