@@ -2551,7 +2551,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha53';
+    return states && states.apiVersion || '1.3.4-alpha54';
   };
 
   UT.Expression.version = function() {
@@ -9113,12 +9113,12 @@ function loadUTSticker() {
           that.post = p;
           that.isEditMode = p.context.editor;
           that.options.editable = that.isEditMode ? that.options.editable : false;
+          _track('sticker - added sticker', {});
           if(that.initialized) {
             setTimeout(function(){
               if(!that.post.storage["utSticker_" + that.options.id + "_pos"]) {
                 that._savePosition();
               }
-              _track('sticker - added sticker', {});
               $content.trigger(events.ready, {id:that.options.id, data:that._getCurrentData()});
             },0);
           }
@@ -9238,7 +9238,7 @@ function loadUTSticker() {
           that.view.resize = null;
 
           if(that.options.ui.remove) {
-            that.view.remove = $("<a>").addClass("ut-sticker-button ut-sticker-button-remove icon_delete")
+            that.view.remove = $("<a>").Class("ut-sticker-button ut-sticker-button-remove icon_delete")
               .attr("data-bkey", "remove")
               .attr("title", i18n.get('remove'))
               .appendTo($that);
