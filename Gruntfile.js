@@ -25,7 +25,6 @@ module.exports = function(grunt) {
     'vendors/fontdetect.2.1.js',
     'vendors/jquery.textfill.js',
     'vendors/jquery.jplayer.min.js',
-    'vendors/paper.js',
     'vendors/froogaloop.min.js'
   ];
 
@@ -78,7 +77,7 @@ module.exports = function(grunt) {
 
     'lib/modules/antiscroll.costum.js',
     'lib/modules/class.MediaPlayer.js',
-    'lib/modules/cutout.js',
+
     'lib/modules/filter-image.js',
     'lib/modules/jquery.ex.js',
     'lib/modules/modules.js'
@@ -103,8 +102,7 @@ module.exports = function(grunt) {
     'lib/modules/jquery.ut-sticker/jquery.ut-sticker.css',
 
     'lib/modules/antiscroll.css',
-    'lib/modules/class.MediaPlayer.css',
-    'lib/modules/cutout.css'
+    'lib/modules/class.MediaPlayer.css'
 
   ];
   var sourcesAssets = [
