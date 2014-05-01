@@ -2551,7 +2551,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha51';
+    return states && states.apiVersion || '1.3.4-alpha52';
   };
 
   UT.Expression.version = function() {
@@ -4860,6 +4860,27 @@ function loadUTImage() {
 (function($, window, document, undefined) {
   "use strict";
 
+  // Tracking
+  var sentEvents = [];
+  // Internal function for checking if a string is contained in a given array
+  var _contains = function(list, name) {
+    if (Object.prototype.toString.call(list) === '[object Array]' && Object.prototype.toString.call(name) === '[object String]') {
+      for (var i = 0; i < list.length; i++) {
+        if (list[i] === name) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+  // Tracking function
+  var _track = function(eventName) {
+    if (Object.prototype.toString.call(name) === '[object String]' && ! _contains(sentEvents, eventName)) {
+      sentEvents.push(eventName);
+      UT.Expression._postInstance().track(eventName);
+    }
+  };
+
   var methods = {
     nextPanelToAddImage: -1,
     init: function(options) {
@@ -5285,7 +5306,7 @@ function loadUTImage() {
          * @param event
          */
         that.onAddButtonClick = function(event) {
-          UT.Expression._postInstance().track('image - clicked add button');
+          _track('image - clicked add button');
           that.focus();
           var ev = $.Event(events.buttonClick);
           $that.trigger(ev, "add");
@@ -5301,7 +5322,7 @@ function loadUTImage() {
          * @param event
          */
         that.onEditButtonClick = function(event) {
-          UT.Expression._postInstance().track('image - clicked edit button');
+          _track('image - clicked edit button');
           var ev = $.Event(events.buttonClick);
           $that.trigger(ev, "edit");
           if(!ev.isDefaultPrevented()) {
@@ -5316,7 +5337,7 @@ function loadUTImage() {
          * processing click on "remove" button
          */
         that.onRemoveButtonClick = function() {
-          UT.Expression._postInstance().track('image - clicked remove button');
+          _track('image - clicked remove button');
           var ev = $.Event(events.buttonClick);
           $that.trigger(ev, "remove");
           if(!ev.isDefaultPrevented()) {
@@ -5498,9 +5519,9 @@ function loadUTImage() {
               $that.trigger(isAfterRecrop ? events.mediaCrop : events.mediaAdd, size);
 
               if (isAfterRecrop) {
-                UT.Expression._postInstance().track('image - cropped image');
+                _track('image - cropped image');
               } else {
-                UT.Expression._postInstance().track('image - added image');
+                _track('image - added image');
               }
             }
             if(that.options.styles.autoResize) {
@@ -5629,7 +5650,7 @@ function loadUTImage() {
           that.data.imageHeight = null;
           that.saveData();
           $that.trigger(events.mediaRemove);
-          UT.Expression._postInstance().track('image - removed image');
+          _track('image - removed image');
           that.triggerChangeEvent();
         };
 
