@@ -1,6 +1,6 @@
 {
   "name": "urturn-expression-api",
-  "version": "1.3.4-alpha54",
+  "version": "1.3.4-alpha55",
   "description": "Urturn.com expression API",
   "main": "./lib/index.js",
   "devDependencies": {

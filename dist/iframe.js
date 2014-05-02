@@ -2551,7 +2551,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha54';
+    return states && states.apiVersion || '1.3.4-alpha55';
   };
 
   UT.Expression.version = function() {
@@ -8941,10 +8941,10 @@ function loadUTSticker() {
     return false;
   };
   // Tracking function
-  var _track = function(eventName) {
+  var _track = function(eventName, eventParams) {
     if (Object.prototype.toString.call(name) === '[object String]' && ! _contains(sentEvents, eventName)) {
       sentEvents.push(eventName);
-      UT.Expression._postInstance().track(eventName);
+      UT.Expression._postInstance().track(eventName, eventParams);
     }
   };
 
@@ -9113,8 +9113,8 @@ function loadUTSticker() {
           that.post = p;
           that.isEditMode = p.context.editor;
           that.options.editable = that.isEditMode ? that.options.editable : false;
-          _track('sticker - added sticker', {});
           if(that.initialized) {
+            _track('sticker - added sticker', {});
             setTimeout(function(){
               if(!that.post.storage["utSticker_" + that.options.id + "_pos"]) {
                 that._savePosition();
@@ -11029,6 +11029,27 @@ function loadMediaPlayer() {
   (function(window) {
     "use strict";
 
+    // Tracking
+    var sentEvents = [];
+    // Internal function for checking if a string is contained in a given array
+    var _contains = function(list, name) {
+      if (Object.prototype.toString.call(list) === '[object Array]' && Object.prototype.toString.call(name) === '[object String]') {
+        for (var i = 0; i < list.length; i++) {
+          if (list[i] === name) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+    // Tracking function
+    var _track = function(eventName) {
+      if (Object.prototype.toString.call(name) === '[object String]' && ! _contains(sentEvents, eventName)) {
+        sentEvents.push(eventName);
+        _track(eventName);
+      }
+    };
+
     function MediaPlayer(params) {
       
       this._parent = jQuery(params.parent ? params.parent : "body");
@@ -11197,7 +11218,7 @@ function loadMediaPlayer() {
 
       that.player.on("utAudio:play",function() {
         that.setState("playing");
-        UT.Expression._postInstance().track('media player - play audio');
+        _track('media player - play audio');
       });
 
       that.player.on("utAudio:pause", function() {
@@ -11327,7 +11348,7 @@ function loadMediaPlayer() {
 
       that.player.on("utVideo:play", function() {
         that.setState("playing");
-        UT.Expression._postInstance().track('media player - play video');
+        _track('media player - play video');
       });
       that.player.on("utVideo:pause", function() {
   //      that.setState("paused");
