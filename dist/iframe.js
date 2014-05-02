@@ -2551,7 +2551,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha56';
+    return states && states.apiVersion || '1.3.4-alpha57';
   };
 
   UT.Expression.version = function() {
@@ -9114,7 +9114,6 @@ function loadUTSticker() {
           that.isEditMode = p.context.editor;
           that.options.editable = that.isEditMode ? that.options.editable : false;
           if(that.initialized) {
-            _track('sticker - added sticker', {});
             setTimeout(function(){
               if(!that.post.storage["utSticker_" + that.options.id + "_pos"]) {
                 that._savePosition();
@@ -10321,6 +10320,7 @@ function loadUTSticker() {
           if(!that.data.editable || $that.hasClass("ut-sticker-focus")) {
             return;
           }
+          _track('sticker - added sticker', {});
           var tmp = parentObj.getElementsByClassName("ut-sticker");
           if(tmp && tmp[0]) {
             $(tmp).utSticker("blur");

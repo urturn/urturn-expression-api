@@ -1,6 +1,6 @@
 {
   "name": "urturn-expression-api",
-  "version": "1.3.4-alpha56",
+  "version": "1.3.4-alpha57",
   "main": [
     "dist/iframe.min.css",
     "dist/iframe.min.js"
