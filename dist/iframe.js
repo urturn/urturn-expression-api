@@ -2551,7 +2551,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha55';
+    return states && states.apiVersion || '1.3.4-alpha56';
   };
 
   UT.Expression.version = function() {
@@ -9238,7 +9238,7 @@ function loadUTSticker() {
           that.view.resize = null;
 
           if(that.options.ui.remove) {
-            that.view.remove = $("<a>").Class("ut-sticker-button ut-sticker-button-remove icon_delete")
+            that.view.remove = $("<a>").addClass("ut-sticker-button ut-sticker-button-remove icon_delete")
               .attr("data-bkey", "remove")
               .attr("title", i18n.get('remove'))
               .appendTo($that);
