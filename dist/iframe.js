@@ -2551,7 +2551,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha57';
+    return states && states.apiVersion || '1.3.4-alpha58';
   };
 
   UT.Expression.version = function() {
@@ -11046,7 +11046,7 @@ function loadMediaPlayer() {
     var _track = function(eventName) {
       if (Object.prototype.toString.call(name) === '[object String]' && ! _contains(sentEvents, eventName)) {
         sentEvents.push(eventName);
-        _track(eventName);
+        UT.Expression._postInstance().track(eventName);
       }
     };
 
