@@ -2471,7 +2471,7 @@ UT.CollectionStore = function(options) {
   };
 
   UT.Expression._checkOptIn = function() {
-    if (postInstance.isNativeApp() && states.need_optin) {
+    if (postInstance.isNativeApp() && states.need_optin && postInstance.context.editor) {
       var divAgreement = document.createElement('div');
       divAgreement.style.width = '100%';
       divAgreement.style.height = '100%';
@@ -2551,7 +2551,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha58';
+    return states && states.apiVersion || '1.3.4-alpha59';
   };
 
   UT.Expression.version = function() {
