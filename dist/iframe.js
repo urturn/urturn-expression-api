@@ -1258,7 +1258,8 @@ i18n.load('ar', {
   'resize'    : 'تغيير الحجم',
   'error'     : 'حدث خطأ',
   'error_timeout_sound' : "المعذرة، هذا المقطع الصوتي غير متوفر",
-  'error_nolibrary_sound' : "المعذرة، هذه المكتبة غير متوفرة"
+  'error_nolibrary_sound' : "المعذرة، هذه المكتبة غير متوفرة",
+  'mirror'    : 'عكس بالمرآة'
 });
 
 i18n.load('de', {
@@ -1271,7 +1272,8 @@ i18n.load('de', {
   'resize'    : 'Grösse verändern',
   'error'     : 'Fehler aufgetreten',
   'error_timeout_sound' : "Sorry, dieser Sound ist nicht verfügbar",
-  'error_nolibrary_sound' : "Sorry, die Bibliothek ist nicht verfügbar"
+  'error_nolibrary_sound' : "Sorry, die Bibliothek ist nicht verfügbar",
+  'mirror'    : 'Spiegel'
 });
 
 i18n.load('en', {
@@ -1286,7 +1288,8 @@ i18n.load('en', {
   'error_timeout_sound' : "We can't get data to play this track in 15 sec",
   'error_nolibrary_sound' : "Sound Player !!! The library not found.",
   'agree' : 'I Agree',
-  'terms' : 'Terms of Service'
+  'terms' : 'Terms of Service',
+  'mirror'    : 'Mirror'
 });
 
 
@@ -1300,7 +1303,8 @@ i18n.load('es', {
   'resize'    : 'Cambiar tamaño',
   'error'     : 'Ocurrió un error',
   'error_timeout_sound' : "Lo siento, este sonido no está disponible",
-  'error_nolibrary_sound' : "Lo siento, la librería no está disponible"
+  'error_nolibrary_sound' : "Lo siento, la librería no está disponible",
+  'mirror'    : 'Espejo'
 });
 
 i18n.load('fr', {
@@ -1313,7 +1317,8 @@ i18n.load('fr', {
   'resize'    : 'Redimensionner',
   'error'     : 'Une erreur est survenue',
   'error_timeout_sound' : "Désolé, ce son n’est pas disponible",
-  'error_nolibrary_sound' : "Désolé, la librairie n’est pas disponible"
+  'error_nolibrary_sound' : "Désolé, la librairie n’est pas disponible",
+  'mirror'    : 'Mirroir'
 });
 
 i18n.load('hi', {
@@ -1326,7 +1331,8 @@ i18n.load('hi', {
   'resize'    : "आकार बदलो",
   'error'     : "एक त्रुटि आ गई है",
   'error_timeout_sound' : "क्षमा करें, यह ध्वनि उपलब्ध नही है",
-  'error_nolibrary_sound' : "क्षमा करें, यह लाइब्रेरी उपलब्ध नही है"
+  'error_nolibrary_sound' : "क्षमा करें, यह लाइब्रेरी उपलब्ध नही है",
+  'mirror'    : 'शीशा'
 });
 
 i18n.load('it', {
@@ -1339,7 +1345,8 @@ i18n.load('it', {
   'resize'    : 'Ridimensiona',
   'error'     : 'Si è verificato un errore',
   'error_timeout_sound' : "Spiacenti, questo suono non è disponibile",
-  'error_nolibrary_sound' : "Spiacenti, la libreria non è disponibile"
+  'error_nolibrary_sound' : "Spiacenti, la libreria non è disponibile",
+  'mirror'    : 'Specchio'
 });
 
 i18n.load('nl', {
@@ -1352,7 +1359,8 @@ i18n.load('nl', {
   'resize'    : 'Formaat wijzigen',
   'error'     : 'Fout opgetreden',
   'error_timeout_sound' : "Sorry, dit geluid is niet beschikbaar",
-  'error_nolibrary_sound' : "Sorry, deze bibliotheek is niet beschikbaar"
+  'error_nolibrary_sound' : "Sorry, deze bibliotheek is niet beschikbaar",
+  'mirror'    : 'Spiegelen'
 });
 
 i18n.load('pt', {
@@ -1365,7 +1373,8 @@ i18n.load('pt', {
   'resize'    : 'Redimensionar',
   'error'     : 'Um erro ocorreu',
   'error_timeout_sound' : "Desculpe, esse som está indisponível",
-  'error_nolibrary_sound' : "Desculpe, a biblioteca está indisponível"
+  'error_nolibrary_sound' : "Desculpe, a biblioteca está indisponível",
+  'mirror'    : 'Espelhar'
 });
 
 i18n.load('ru', {
@@ -1378,7 +1387,8 @@ i18n.load('ru', {
   'resize'    : 'Изменить размер',
   'error'     : 'Произошла ошибка',
   'error_timeout_sound' : "К сожалению, этот звук не доступен",
-  'error_nolibrary_sound' : "К сожалению, библиотека не доступна"
+  'error_nolibrary_sound' : "К сожалению, библиотека не доступна",
+  'mirror'    : 'Зеркало'
 });
 
 
@@ -1392,7 +1402,8 @@ i18n.load('th', {
   'resize'    : 'ปรับขนาด',
   'error'     : 'เกิดข้อผิดพลาด',
   'error_timeout_sound' : "ขอโทษ ไม่สามารถใช้เสียงนี้ได้",
-  'error_nolibrary_sound' : "ขอโทษ ไม่สามารถใช้ห้องสมุดนี้ได้"
+  'error_nolibrary_sound' : "ขอโทษ ไม่สามารถใช้ห้องสมุดนี้ได้",
+  'mirror'    : 'หมุนรูป'
 });
 
 i18n.load('zh', {
@@ -1405,7 +1416,8 @@ i18n.load('zh', {
   'resize'    : '改变尺寸',
   'error'     : '发生错误',
   'error_timeout_sound' : "对不起,这个声音不可用",
-  'error_nolibrary_sound' : "对不起,搜索结果面板不可用"
+  'error_nolibrary_sound' : "对不起,搜索结果面板不可用",
+  'mirror'    : '镜像效果'
 });
 // Generate Random UUID compliant with rfc4122 v4
 // Fantastic piece of code from @broofa on:
@@ -2551,7 +2563,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha59';
+    return states && states.apiVersion || '1.3.4-alpha60';
   };
 
   UT.Expression.version = function() {
