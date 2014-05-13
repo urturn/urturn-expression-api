@@ -1260,7 +1260,7 @@ i18n.load('ar', {
   'error_timeout_sound' : "المعذرة، هذا المقطع الصوتي غير متوفر",
   'error_nolibrary_sound' : "المعذرة، هذه المكتبة غير متوفرة",
   'mirror'    : 'عكس بالمرآة',
-  'textBox'   : 'Change sticker'
+  'textButton'   : 'Change sticker'
 });
 
 i18n.load('de', {
@@ -1275,7 +1275,7 @@ i18n.load('de', {
   'error_timeout_sound' : "Sorry, dieser Sound ist nicht verfügbar",
   'error_nolibrary_sound' : "Sorry, die Bibliothek ist nicht verfügbar",
   'mirror'    : 'Spiegel',
-  'textBox'   : 'Change sticker'
+  'textButton'   : 'Change sticker'
 });
 
 i18n.load('en', {
@@ -1292,7 +1292,7 @@ i18n.load('en', {
   'agree' : 'I Agree',
   'terms' : 'Terms of Service',
   'mirror'  : 'Mirror',
-  'textBox' : 'Change sticker'
+  'textButton' : 'Change sticker'
 });
 
 
@@ -1308,7 +1308,7 @@ i18n.load('es', {
   'error_timeout_sound' : "Lo siento, este sonido no está disponible",
   'error_nolibrary_sound' : "Lo siento, la librería no está disponible",
   'mirror'    : 'Espejo',
-  'textBox'   : 'Change sticker'
+  'textButton'   : 'Change sticker'
 });
 
 i18n.load('fr', {
@@ -1323,7 +1323,7 @@ i18n.load('fr', {
   'error_timeout_sound' : "Désolé, ce son n’est pas disponible",
   'error_nolibrary_sound' : "Désolé, la librairie n’est pas disponible",
   'mirror'    : 'Mirroir',
-  'textBox'   : 'Change sticker'
+  'textButton'   : 'Change sticker'
 });
 
 i18n.load('hi', {
@@ -1338,7 +1338,7 @@ i18n.load('hi', {
   'error_timeout_sound' : "क्षमा करें, यह ध्वनि उपलब्ध नही है",
   'error_nolibrary_sound' : "क्षमा करें, यह लाइब्रेरी उपलब्ध नही है",
   'mirror'    : 'शीशा',
-  'textBox'   : 'Change sticker'
+  'textButton'   : 'Change sticker'
 });
 
 i18n.load('it', {
@@ -1353,7 +1353,7 @@ i18n.load('it', {
   'error_timeout_sound' : "Spiacenti, questo suono non è disponibile",
   'error_nolibrary_sound' : "Spiacenti, la libreria non è disponibile",
   'mirror'    : 'Specchio',
-  'textBox'   : 'Change sticker'
+  'textButton'   : 'Change sticker'
 });
 
 i18n.load('nl', {
@@ -1368,7 +1368,7 @@ i18n.load('nl', {
   'error_timeout_sound' : "Sorry, dit geluid is niet beschikbaar",
   'error_nolibrary_sound' : "Sorry, deze bibliotheek is niet beschikbaar",
   'mirror'    : 'Spiegelen',
-  'textBox'   : 'Change sticker'
+  'textButton'   : 'Change sticker'
 });
 
 i18n.load('pt', {
@@ -1383,7 +1383,7 @@ i18n.load('pt', {
   'error_timeout_sound' : "Desculpe, esse som está indisponível",
   'error_nolibrary_sound' : "Desculpe, a biblioteca está indisponível",
   'mirror'    : 'Espelhar',
-  'textBox'   : 'Change sticker'
+  'textButton'   : 'Change sticker'
 });
 
 i18n.load('ru', {
@@ -1398,7 +1398,7 @@ i18n.load('ru', {
   'error_timeout_sound' : "К сожалению, этот звук не доступен",
   'error_nolibrary_sound' : "К сожалению, библиотека не доступна",
   'mirror'    : 'Зеркало',
-  'textBox'   : 'Change sticker'
+  'textButton'   : 'Change sticker'
 });
 
 
@@ -1414,7 +1414,7 @@ i18n.load('th', {
   'error_timeout_sound' : "ขอโทษ ไม่สามารถใช้เสียงนี้ได้",
   'error_nolibrary_sound' : "ขอโทษ ไม่สามารถใช้ห้องสมุดนี้ได้",
   'mirror'    : 'หมุนรูป',
-  'textBox'   : 'Change sticker'
+  'textButton'   : 'Change sticker'
 });
 
 i18n.load('zh', {
@@ -1429,7 +1429,7 @@ i18n.load('zh', {
   'error_timeout_sound' : "对不起,这个声音不可用",
   'error_nolibrary_sound' : "对不起,搜索结果面板不可用",
   'mirror'    : '镜像效果',
-  'textBox'   : 'Change sticker'
+  'textButton'   : 'Change sticker'
 });
 // Generate Random UUID compliant with rfc4122 v4
 // Fantastic piece of code from @broofa on:
@@ -2575,7 +2575,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha61';
+    return states && states.apiVersion || '1.3.4-alpha62';
   };
 
   UT.Expression.version = function() {
