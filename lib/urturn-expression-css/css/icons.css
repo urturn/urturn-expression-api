@@ -1,9 +1,6 @@
 @font-face {
   font-family: "urturn_icons";
-  src: url('../fonts/urturn_icons.eot');
-  src: url('../fonts/urturn_icons.eot?#iefix') format('embedded-opentype'), url('../fonts/urturn_icons.eot') format('embedded-opentype'), url('../fonts/urturn_icons.woff') format('woff'), url('../fonts/urturn_icons.ttf') format('truetype'), url('../fonts/urturn_icons.svg#urturn_icons') format('svg');
-  font-weight: normal;
-  font-style: normal; }
+  src: url("http://ds4kgpk6gzsw2.cloudfront.net/expression/lib/urturn-expression-api/1.2.12/components/urturn-expression-css/fonts/urturn_icons.eot") format("embedded-opentype"), url("http://ds4kgpk6gzsw2.cloudfront.net/expression/lib/urturn-expression-api/1.2.12/components/urturn-expression-css/fonts/urturn_icons.woff") format("woff"), url("http://ds4kgpk6gzsw2.cloudfront.net/expression/lib/urturn-expression-api/1.2.12/components/urturn-expression-css/fonts/urturn_icons.ttf") format("truetype"); }
 
 /* Use the following CSS code if you want to use data attributes for inserting your icons */
 [data-icon]:before {
