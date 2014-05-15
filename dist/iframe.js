@@ -2575,7 +2575,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha62';
+    return states && states.apiVersion || '1.3.4-alpha63';
   };
 
   UT.Expression.version = function() {
@@ -4791,6 +4791,11 @@ function loadFilterUTImage() {
           '<image filter="url(#blackAndWhite)" class="ut-image-view-svg-img" preserveAspectRatio="xMidYMid meet" width="' + ww + 'px" height="' + hh + 'px" xlink:href="{file}"/>' +
           '<g><radialGradient id="MyGradient"><stop offset="10%" stop-color="#000000" stop-opacity="0" /><stop offset="100%" stop-color="#000000" stop-opacity="'+filterData.parameters.vignette+'" id="vignette" /></radialGradient><ellipse fill="url(#MyGradient)" cx="50%" cy="50%" rx="100%" ry="100%"/></ellipse></g>' +
           '</svg>';
+
+        // Costum filters
+        if (filterData.parameters.json) {
+          data.filter(JSON.parse(filterData.parameters.json));
+        }
 
         data.svg(svgText.replace("{file}",""), 'image[xlink:href]');
         data.svg(function(svg, err) {
