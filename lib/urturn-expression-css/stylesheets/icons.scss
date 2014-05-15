@@ -1,11 +1,13 @@
 @import "compass/css3";
 
-@include font-face("urturn_icons", font-files(
-	"urturn_icons.eot",
-	"urturn_icons.woff",
-	"urturn_icons.ttf",
-	"urturn_icons.svg#urturn_icons"
-), "urturn_icons.eot", normal, normal);
+
+@font-face {
+  font-family: "urturn_icons";
+  src: url('http://ds4kgpk6gzsw2.cloudfront.net/expression/lib/urturn-expression-api/1.2.12/components/urturn-expression-css/fonts/urturn_icons.eot') format('embedded-opentype'), 
+  url('http://ds4kgpk6gzsw2.cloudfront.net/expression/lib/urturn-expression-api/1.2.12/components/urturn-expression-css/fonts/urturn_icons.woff') format('woff'), 
+  url('http://ds4kgpk6gzsw2.cloudfront.net/expression/lib/urturn-expression-api/1.2.12/components/urturn-expression-css/fonts/urturn_icons.ttf') format('truetype'); 
+}
+
 
 /* Use the following CSS code if you want to use data attributes for inserting your icons */
 [data-icon]:before {
