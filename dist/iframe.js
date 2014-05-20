@@ -1342,7 +1342,7 @@ i18n.load('hi', {
 });
 
 i18n.load('it', {
-  'add_image' : 'Aggiungi immagine',
+  'add_image' : 'Aggiungi una foto',
   'add_sound' : 'Aggiungi suono',
   'add_video' : 'Aggiungi video',
   'edit'      : 'Modifica',
@@ -2575,7 +2575,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha65';
+    return states && states.apiVersion || '1.3.4-alpha66';
   };
 
   UT.Expression.version = function() {
