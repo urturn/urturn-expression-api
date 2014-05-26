@@ -120,13 +120,46 @@ module.exports = function(grunt) {
     'lib/modules/jquery.ut-audio/swf/Jplayer.swf',
 
 
-    // Images
-    
-    // cut out
-    'lib/images/tip_overlay_640x640.svg',
-    'lib/images/mobile_popup.png',
-    'lib/images/mobile_tooltip1.png',
-    'lib/images/mobile_tooltip2.png'
+
+    // FONTS
+    'lib/modules/fonts/Casino_Hand/casino_hand-webfont.eot',
+    'lib/modules/fonts/Casino_Hand/casino_hand-webfont.svg',
+    'lib/modules/fonts/Casino_Hand/casino_hand-webfont.ttf',
+    'lib/modules/fonts/Casino_Hand/casino_hand-webfont.woff',
+
+    'lib/modules/fonts/HermesCond_Regular/hermescond-regular-webfont.eot',
+    'lib/modules/fonts/HermesCond_Regular/hermescond-regular-webfont.svg',
+    'lib/modules/fonts/HermesCond_Regular/hermescond-regular-webfont.ttf',
+    'lib/modules/fonts/HermesCond_Regular/hermescond-regular-webfont.woff',
+
+
+    'lib/modules/fonts/Roboto_Bold/roboto-bold-webfont.eot',
+    'lib/modules/fonts/Roboto_Bold/roboto-bold-webfont.svg',
+    'lib/modules/fonts/Roboto_Bold/roboto-bold-webfont.ttf',
+    'lib/modules/fonts/Roboto_Bold/roboto-bold-webfont.woff',
+
+
+    'lib/modules/fonts/Roboto_Regular/roboto-regular-webfont.eot',
+    'lib/modules/fonts/Roboto_Regular/roboto-regular-webfont.svg',
+    'lib/modules/fonts/Roboto_Regular/roboto-regular-webfont.ttf',
+    'lib/modules/fonts/Roboto_Regular/roboto-regular-webfont.woff',
+
+
+    'lib/modules/fonts/RobotoCond_Bold/robotocondensed-bold-webfont.eot',
+    'lib/modules/fonts/RobotoCond_Bold/robotocondensed-bold-webfont.svg',
+    'lib/modules/fonts/RobotoCond_Bold/robotocondensed-bold-webfont.ttf',
+    'lib/modules/fonts/RobotoCond_Bold/robotocondensed-bold-webfont.woff',
+
+
+    'lib/modules/fonts/RobotoCond_Light/robotocondensed-light-webfont.eot',
+    'lib/modules/fonts/RobotoCond_Light/robotocondensed-light-webfont.svg',
+    'lib/modules/fonts/RobotoCond_Light/robotocondensed-light-webfont.ttf',
+    'lib/modules/fonts/RobotoCond_Light/robotocondensed-light-webfont.woff',
+
+    'lib/modules/fonts/RobotoCond_Regular/robotocondensed-regular-webfont.eot',
+    'lib/modules/fonts/RobotoCond_Regular/robotocondensed-regular-webfont.svg',
+    'lib/modules/fonts/RobotoCond_Regular/robotocondensed-regular-webfont.ttf',
+    'lib/modules/fonts/RobotoCond_Regular/robotocondensed-regular-webfont.woff'
   ];
   var pathMap = {}; // map relative path to asset paths
 
