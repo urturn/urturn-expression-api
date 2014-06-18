@@ -2575,7 +2575,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha67';
+    return states && states.apiVersion || '1.3.4-alpha68';
   };
 
   UT.Expression.version = function() {
@@ -3535,6 +3535,29 @@ UT.CollectionStore = function(options) {
       }
     };
 
+       /**
+     * Retrieve a unique number for a given queue
+     * name. This number would be the last attributed
+     * number.
+     *
+     * @since 0.8.0
+     */
+    var queueState = this.queueState = function(name, callback) {
+      if(!callback){
+        return this;
+      }
+      var self = this;
+      if (queuedUpTickets[name] !== undefined && queuedUpTickets[name] !== -1)  {
+        callback(queuedUpTickets[name]);
+        return this;
+      } else {
+        UT.Expression._callAPI('document.queueState', [name], function(number){
+          callback(number);
+        });
+        return this;
+      }
+    };
+
     /**
      * Let the user navigate to an other website
      * or to a particullar part of urturn
@@ -3600,7 +3623,12 @@ UT.CollectionStore = function(options) {
       });
     };
 
-
+    /**
+     * Retrn true if expression is live, false if not (Closed or test mode)
+     */
+    var isLive = this.isLive = function() {
+      return context.live || false;
+    };
     /**
      * Enable or diable the rotation of screen on mobile devices
      * @param  {boolean} enable If true rotation is enable, if false rotatin is disable
