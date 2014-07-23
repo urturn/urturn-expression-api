@@ -2575,7 +2575,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha69';
+    return states && states.apiVersion || '1.3.4-alpha70';
   };
 
   UT.Expression.version = function() {
@@ -2866,10 +2866,14 @@ UT.CollectionStore = function(options) {
       privacy: null,
       mediaFirst : false
     };
+
+    //Setting the live property
+    context.live = Boolean(states.live);
+
     // set the proper context values
-    if(states.mode == 'edit'){
+    if(states.mode === 'edit'){
       context.editor = true;
-    } else if(states.mode == 'view'){
+    } else if(states.mode === 'view'){
       context.player = true;
     }
     if (states.sandbox === true) {
