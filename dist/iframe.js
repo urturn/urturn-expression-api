@@ -2575,7 +2575,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha70';
+    return states && states.apiVersion || '1.3.4-alpha71';
   };
 
   UT.Expression.version = function() {
@@ -11077,7 +11077,7 @@ function loadAntiScroll() {
 }
 
 function loadMediaPlayer() {
-
+  'use strict';
   /**
    * params {Object} -- init parameters, where:
    * - parent {String|DOM} -- the parent element to attach player
@@ -11085,9 +11085,7 @@ function loadMediaPlayer() {
    *   full -- full working mode (default)
    *   circle -- player always as circle
    */
-  (function(window) {
-    "use strict";
-
+  (function(window, jQuery, UT) {
     // Tracking
     var sentEvents = [];
     // Internal function for checking if a string is contained in a given array
@@ -11514,8 +11512,10 @@ function loadMediaPlayer() {
       if(this._trackType === "audio") {
         if(this._curState === "playing") {
           this.stop();
+          jQuery.trigger('utMediaPlayer:stop');
         } else if(this._curState === "launched" || this._curState === "paused" || this._curState === "finished") {
           this.play();
+          jQuery.trigger('utMediaPlayer:play');
         } else if(this._curState === "error") {
           // try to recreate player when error
           this.initAudioPlayer();
@@ -11523,8 +11523,10 @@ function loadMediaPlayer() {
       } else if(this._trackType === "video") {
         if(this._curState === "playing") {
           this.stop();
+          jQuery.trigger('utMediaPlayer:stop');
         } else if(this._curState === "launched" || this._curState === "paused" || this._curState === "finished") {
           this.play();
+          jQuery.trigger('utMediaPlayer:play');
         } else if(this._curState === "error") {
           // try to recreate player when error
           this.initVideoPlayer();
@@ -11642,7 +11644,7 @@ function loadMediaPlayer() {
     };
 
     window.MediaPlayer = MediaPlayer;
-  })(window);
+  })(window, jQuery, UT);
 }
 /*jshint -W065 */
 
