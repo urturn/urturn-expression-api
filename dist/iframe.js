@@ -2575,7 +2575,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.4-alpha71';
+    return states && states.apiVersion || '1.3.4-alpha72';
   };
 
   UT.Expression.version = function() {
@@ -11512,10 +11512,10 @@ function loadMediaPlayer() {
       if(this._trackType === "audio") {
         if(this._curState === "playing") {
           this.stop();
-          jQuery.trigger('utMediaPlayer:stop');
+          jQuery(document).trigger('utMediaPlayer:stop');
         } else if(this._curState === "launched" || this._curState === "paused" || this._curState === "finished") {
           this.play();
-          jQuery.trigger('utMediaPlayer:play');
+          jQuery(document).trigger('utMediaPlayer:play');
         } else if(this._curState === "error") {
           // try to recreate player when error
           this.initAudioPlayer();
@@ -11523,10 +11523,10 @@ function loadMediaPlayer() {
       } else if(this._trackType === "video") {
         if(this._curState === "playing") {
           this.stop();
-          jQuery.trigger('utMediaPlayer:stop');
+          jQuery(document).trigger('utMediaPlayer:stop');
         } else if(this._curState === "launched" || this._curState === "paused" || this._curState === "finished") {
           this.play();
-          jQuery.trigger('utMediaPlayer:play');
+          jQuery(document).trigger('utMediaPlayer:play');
         } else if(this._curState === "error") {
           // try to recreate player when error
           this.initVideoPlayer();
