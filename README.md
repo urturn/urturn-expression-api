@@ -1,5 +1,19 @@
 # Changelogs
 
+## 1.3.5
+- ADDED : Support for advanced SVG per Chanel (RGB) Filters (Gamma, Amplitude and Exponent)
+- ADDED : Support for auto-play in ut-video and ut-audio
+- ADDED : post.isNativeApp for native app detection.
+- ADDED : I18n Component
+- ADDED : Translation of all Api button text to : Arabic, German, English, Spanish, French, Hindu, Italian, Dutch, Portugese, Rusian, Thai, Chinese
+- ADDED : module import manager
+- ADDED : post.pushNavigationRight
+- ADDED : post.isLive API
+- ADDED : post.queueState API
+- ADDED : Support for costum filters
+- IMPROVE : Better UX for : Ut sticker, Ut image, Ut video and Ut sound
+- FIX : Dozens of bugs
+
 ## 1.3.0
 - FIXED: display() call was not correctly handled
 - REFACTOR: the build system now includes the components in the same project
