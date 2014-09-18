@@ -2575,7 +2575,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.5';
+    return states && states.apiVersion || '1.3.5-alpha1';
   };
 
   UT.Expression.version = function() {
@@ -5070,6 +5070,9 @@ function loadUTImage() {
             that.addMediaListener();
           }
           setTimeout(function() {
+            if (that.options.placeholder) {
+              $that.css('background-image', 'url('+that.options.placeholder+')');
+            }
             $(".webdoc_expression_wrapper").on("touchmove", that.onTouchMove);
             that.post.on("scroll", that.onPostScroll);
           }, 0);
@@ -5124,7 +5127,27 @@ function loadUTImage() {
           $that.addClass("ut-image-edit");
 
           if(that.options.ui.add) {
-            that.view.addButton = $("<div>", {"class":"ut-image-button-add ut-button ut-media-button icon_camera"}).appendTo($that).html(i18n.get('add_image'));
+            // that.view.addButton = $("<div>", {"class":"ut-image-button-add ut-button ut-media-button icon_camera"}).appendTo($that).html(i18n.get('add_image'));
+            // that.view.addButton.on("click",that.onAddButtonClick);
+            that.view.addButton = $("<div>", {"class":"ut-image-button-add ut-button"});
+            // Override add button style to provide a full size transparent clickable region
+            if(that.options.placeholder){
+              that.view.addButton.css({
+                'top' :   '0',
+                'left':   '0',
+                'color':  'transparent',
+                'margin': '0',
+                'padding':'0',
+                'width':  '100%',
+                'height': '100%',
+                'border': 'none',
+                'background-color': 'transparent'
+              });
+            }
+            else {
+              that.view.addButton.addClass('ut-media-button','icon_camera').html(i18n.get('add_image'));
+            }
+            that.view.addButton.appendTo($that);
             that.view.addButton.on("click",that.onAddButtonClick);
           }
           if(that.options.ui.edit || that.options.ui.remove) {
@@ -5776,7 +5799,7 @@ function loadUTImage() {
           var tmp1 = Math.max(pos.top, that.data.scrollTop) - pos.top;
           var tmp2 = Math.max(fullHeight - pos.bottom, that.data.scrollBottom) - (fullHeight - pos.bottom);
           // to center
-          if(that.view.addButton) {
+          if(that.view.addButton && !that.options.placeholder) {
             that.view.addButton.css("top", (tmp1 + (pos.height-tmp1-tmp2)/2) + "px");
           }
           if(that.view.ctrlPanel) {
