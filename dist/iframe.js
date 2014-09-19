@@ -2575,7 +2575,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.5-alpha1';
+    return states && states.apiVersion || '1.3.5-alpha2';
   };
 
   UT.Expression.version = function() {
@@ -5145,7 +5145,7 @@ function loadUTImage() {
               });
             }
             else {
-              that.view.addButton.addClass('ut-media-button','icon_camera').html(i18n.get('add_image'));
+              that.view.addButton.addClass('ut-media-button icon_camera').html(i18n.get('add_image'));
             }
             that.view.addButton.appendTo($that);
             that.view.addButton.on("click",that.onAddButtonClick);
