@@ -527,7 +527,7 @@ module.exports = function(grunt) {
 
   // Default task.
   grunt.registerTask('default', ['clean', 'exec:clean', 'test', 'prebuild', 'buildTestExpression', 'updateVersionNumber', 'minify', 'copyAssetToDist']);
-  grunt.registerTask('prebuild', ["compass", "concat", "concat_css", 'patchJQuery202']); //'patchJQuerySO'
+  grunt.registerTask('prebuild', ["concat", "concat_css", 'patchJQuery202']); //'patchJQuerySO'
 
   // light sdk version task.
   grunt.registerTask('vanilla', ['tagVanilla', 'clean', 'exec:clean', 'test', 'buildvanilla', 'buildTestExpression', 'updateVersionNumber', 'minify', 'copyAssetToDist']);
