@@ -2575,7 +2575,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.7-beta2';
+    return states && states.apiVersion || '1.3.7-beta3';
   };
 
   UT.Expression.version = function() {
@@ -2845,6 +2845,13 @@ UT.CollectionStore = function(options) {
     this.__defineSetter__('note', function(value) {
       return setNote(value);
     });
+
+    /**
+     * Set the document thumbnail
+     */
+    var saveThumbnail = function(base64) {
+      UT.Expression._callAPI('document.saveThumbnail', base64);
+    };
 
     // Public Properties
 
