@@ -2575,7 +2575,7 @@ UT.CollectionStore = function(options) {
    * Retrieve the API version of the current expression
    */
   UT.Expression.apiVersion = function() {
-    return states && states.apiVersion || '1.3.7-beta3';
+    return states && states.apiVersion || '1.3.7-beta4';
   };
 
   UT.Expression.version = function() {
@@ -2846,13 +2846,6 @@ UT.CollectionStore = function(options) {
       return setNote(value);
     });
 
-    /**
-     * Set the document thumbnail
-     */
-    var saveThumbnail = function(base64) {
-      UT.Expression._callAPI('document.saveThumbnail', base64);
-    };
-
     // Public Properties
 
     /**
@@ -3116,7 +3109,12 @@ UT.CollectionStore = function(options) {
     };
 
 
-
+    /**
+     * Set the document thumbnail
+     */
+    var saveThumbnail = this.saveThumbnail  = function(base64) {
+      UT.Expression._callAPI('document.saveThumbnail', base64);
+    };
 
     /**
      * Calls all fns in the list for a given eventName. Passes arguments
